@@ -7,6 +7,7 @@ import random
 from miller_curve_algorithm import ccgFilter
 from my_functions import long_date_to_decimal_date
 from my_functions import year_month_todecimaldate
+from my_functions import monte_carlo
 import array as arr
 
 """ IMPORT ALL THE DATA """
@@ -138,12 +139,19 @@ var = heidelberg_guesses_2 - heidelberg_guesses  # BHD curve minus heidelberg cu
 var2 = bhd_guesses_2 - bhd_guesses  # BHD curve minus heidelberg curve
 
 """ 
-MONTE CARLO ANALYSIS
+run Monte Carlo Program I wrote
+"""
+# monte_carlo(y, y_err, miller_x, miller_y, 1000, x_plot)
+#
 
-The following code will iterate over the original data ... 
-y = df1['D14C'] , heidelberg 14C data
-y2 = df2['DELTA14C'], BHD 14C data
-... and create a new array of data within the uncertainty range.
+
+
+
+
+
+
+""" 
+MONTE CARLO ANALYSIS
 
 Been stuck with the loops (see Monte_carlo_test.py)
 Try this next: 
@@ -156,7 +164,10 @@ http://www.eg.bucknell.edu/physics/ph310/jupyter/error_propagation_examples.ipyn
 Also learn about dictionaries in python
 
 GOT IT TO WORK ON MY OWN!! 
-The block of code below succesfully creates "n" rows of code that I can use later to run through the Miller analyis.
+The following code will iterate over the original data ... 
+y = df1['D14C'] , heidelberg 14C data
+y2 = df2['DELTA14C'], BHD 14C data
+... and create a new array of data within the uncertainty range.
 """
 new_array = y  # just creating a new variable that contains the Heidelberg Y-values
 n = 1000
@@ -177,8 +188,9 @@ for i in range(0, n):
 # print(len(new_array))
 # print(new_array[1])
 # Put the new randomize data through the Miller Code to smooth it:
-""" code works up to here...don't change anything above!!!! """
-
+""" code works up to here...don't change anything above!!!!
+Now we run those randomized data through the miller code and get 1000 smoothed curves:
+"""
 
 empty_array_for_date = miller_x  # I'm initializing the new array as the original output from the Miller file, so there's something the v-stack onto.
 empty_array_for_y = miller_y  # I'm initializing the new array as the original output from the Miller file, so there's something the v-stack onto.
@@ -192,77 +204,163 @@ for i in range(0, len(new_array)):
     empty_array_for_date = np.vstack((empty_array_for_date, monte_output_date))
     empty_array_for_y = np.vstack((empty_array_for_y, monte_output_y))
 
-# print(len(empty_array_for_date))
 print(np.shape(empty_array_for_y))
 print(np.shape(empty_array_for_date))
-# shape = (1002, 372)
+print(empty_array_for_y[1])
+testing = empty_array_for_y[1]
+print(testing[1])
 
-# print(empty_array_for_y[1])
+# up to here, the code works, and creates a nice group of Monte_Carlo'd data.
+# Next, I need to find the uncertainty associated with the Monte Carlo, beacuse that's the whole point, right?
+
+""" Find the mean of all y's associated with every x-value: I think we'll need another for loop.
+You can associate the array you already have with a dataframe.
+"""
+dataf = pd.DataFrame(empty_array_for_y)  # output the results from for loop into dataframe
+mean_array = []
+stdev_array = []
+for i in range(0, len(empty_array_for_y[1])):
+    element1 = np.sum(dataf[i])  # grab the first column of the dataframe and take the sum
+    element1 = element1 / len(empty_array_for_y)  # find the mean of the first column of the dataframe
+    mean_array.append(element1)  # append it to a new array
+    stdev_monte = np.std(dataf[i])  # find the stdev of the first column of the dataframe
+    stdev_array.append(stdev_monte)
+print(mean_array)
+print(stdev_array)
+
+""" Now that I have means and standard deviations for all of the monte carlo runs, what do I do with them??? PLOT! and compare with Baring Head....
+
+Repeating a whole bunch of code to get Baring Head means...
+"""
+
+new_array = y2  # just creating a new variable that contains the Heidelberg Y-values
+n = 1000
+cols = np.linspace(0, len(y))
+
+for i in range(0, n):
+    empty_array = []
+    for j in range(0, len(y2)):
+        a = y2[j]  # grab the first item in the set
+        b = y2_err[j]  # grab the uncertainty
+        rand = random.uniform(b, b * -1)  # create a random uncertainty within the range of the uncertainty
+        c = a + rand  # add this to the number
+        empty_array.append(c)  # add this to a list
+        # print(len(empty_array))
+    new_array = np.vstack((new_array, empty_array))
+# print(new_array)
+# print(len(new_array[1]))
+# print(len(new_array))
+# print(new_array[1])
+# Put the new randomize data through the Miller Code to smooth it:
+""" code works up to here...don't change anything above!!!!
+Now we run those randomized data through the miller code and get 1000 smoothed curves:
+"""
+
+empty_array_for_date = bhd_fit_x  # I'm initializing the new array as the original output from the Miller file, so there's something the v-stack onto.
+empty_array_for_y = bhd_fit_y  # I'm initializing the new array as the original output from the Miller file, so there's something the v-stack onto.
+for i in range(0, len(new_array)):
+    monte1 = new_array[i]  # grab the first row of the array
+    monte_output = ccgFilter(x2_plot, monte1).getMonthlyMeans() # put that first row through the miler CCG filter...
+    # use my other function to convert Miller code output to decimal dates
+    monte_output_date = year_month_todecimaldate(monte_output[0], monte_output[1])
+    # also grab the y-data
+    monte_output_y = monte_output[2]
+    empty_array_for_date = np.vstack((empty_array_for_date, monte_output_date))
+    empty_array_for_y = np.vstack((empty_array_for_y, monte_output_y))
+
+print(np.shape(empty_array_for_y))
+print(np.shape(empty_array_for_date))
+print(empty_array_for_y[1])
+testing = empty_array_for_y[1]
+print(testing[1])
+
+# up to here, the code works, and creates a nice group of Monte_Carlo'd data.
+# Next, I need to find the uncertainty associated with the Monte Carlo, beacuse that's the whole point, right?
+
+""" Find the mean of all y's associated with every x-value: I think we'll need another for loop.
+You can associate the array you already have with a dataframe.
+"""
+dataf = pd.DataFrame(empty_array_for_y)  # output the results from for loop into dataframe
+mean_array_bhd = []
+stdev_array_bhd = []
+for i in range(0, len(empty_array_for_y[1])):
+    element1 = np.sum(dataf[i])  # grab the first column of the dataframe and take the sum
+    element1 = element1 / len(empty_array_for_y)  # find the mean of the first column of the dataframe
+    mean_array_bhd.append(element1)  # append it to a new array
+    stdev_monte = np.std(dataf[i])  # find the stdev of the first column of the dataframe
+    stdev_array_bhd.append(stdev_monte)
+print(mean_array_bhd)
+print(stdev_array_bhd)
 
 
 
 
 
 
-
-
-
-
-
-
-
-
-
-
-"""  Plot of inital residuals  """
-
-# colors = sns.color_palette("crest")
-# # keep colors consistent
-# bhd_data_color = 'tab:blue'
-# bhd_smooth_color = 'blue'
-# heid_data_color = 'tab:red'
-# heid_smooth_color = 'red'
+# """  Plot of inital residuals  """
 #
+# # colors = sns.color_palette("crest")
+# # # keep colors consistent
+# # bhd_data_color = 'tab:blue'
+# # bhd_smooth_color = 'blue'
+# # heid_data_color = 'tab:red'
+# # heid_smooth_color = 'red'
+# #
+# # size = 10
+# # fig = plt.figure(1)
+# # plt.plot(bhd_fit_x, bhd_fit_y, linestyle='solid', label='RRL Baring Head Smooth Fit', color=bhd_smooth_color)
+# # plt.plot(miller_x, miller_y, linestyle='solid', marker='', label='Heidelberg Data Smoothed (Miller Algorithm)',
+# #          color=heid_smooth_color)
+# # # plt.scatter(x2_plot, bhd_guesses, marker='x', label='BHD Y-guesses', s=size, color=bhd_data_color)
+# # # plt.scatter(x_plot, heidelberg_guesses, marker='*', label='Heidelberg Y-guesses', s=size, color=heid_data_color)
+# # # plt.scatter(x_plot, var, marker='*', label='Heidelberg', s=size, color=heid_data_color)
+# # # plt.scatter(x2_plot, var2, marker='x', label='BHD', s=size, color=bhd_data_color)
+# # plt.legend()
+# # # plt.title('Difference between the BHD fit and Heidelberg fit using the y = f(x) values for each')
+# # plt.xlim([1980, 2020])
+# # plt.ylim([0, 300])
+# # plt.xlabel('Date', fontsize=14)
+# # plt.ylabel('\u0394 14CO2', fontsize=14)  # label the y axis
+# # plt.savefig(
+# #     r'C:/Users/lewis/venv/python310/python-masterclass-remaster-shared/Radiocarbonintercomparison/plots/PLot9.png',
+# #     dpi=300, bbox_inches="tight")
+# # plt.close
+#
+colors2 = sns.color_palette("rocket")
+# keep colors consistent
+# run1 = 50
+# run2 = 150
+# run3 = 350
+# run4 = 500
+# run5 = 760
 # size = 10
 # fig = plt.figure(1)
-# plt.plot(bhd_fit_x, bhd_fit_y, linestyle='solid', label='RRL Baring Head Smooth Fit', color=bhd_smooth_color)
-# plt.plot(miller_x, miller_y, linestyle='solid', marker='', label='Heidelberg Data Smoothed (Miller Algorithm)',
-#          color=heid_smooth_color)
-# # plt.scatter(x2_plot, bhd_guesses, marker='x', label='BHD Y-guesses', s=size, color=bhd_data_color)
-# # plt.scatter(x_plot, heidelberg_guesses, marker='*', label='Heidelberg Y-guesses', s=size, color=heid_data_color)
-# # plt.scatter(x_plot, var, marker='*', label='Heidelberg', s=size, color=heid_data_color)
-# # plt.scatter(x2_plot, var2, marker='x', label='BHD', s=size, color=bhd_data_color)
+# plt.plot(empty_array_for_date[run1], empty_array_for_y[run1], linestyle='solid', color=colors2[0], label='MC run 50')
+# plt.plot(empty_array_for_date[run2], empty_array_for_y[run2], linestyle='solid', color=colors2[1], label='MC run 150')
+# plt.plot(empty_array_for_date[run3], empty_array_for_y[run3], linestyle='solid', color=colors2[2], label='MC run 350')
+# plt.plot(empty_array_for_date[run4], empty_array_for_y[run4], linestyle='solid', color=colors2[3], label='MC run 500')
+# plt.plot(empty_array_for_date[run5], empty_array_for_y[run5], linestyle='solid', color=colors2[4], label='MC run 760')
 # plt.legend()
 # # plt.title('Difference between the BHD fit and Heidelberg fit using the y = f(x) values for each')
-# plt.xlim([1980, 2020])
-# plt.ylim([0, 300])
+# plt.xlim([1990, 1995])
+# plt.ylim([120, 150])
 # plt.xlabel('Date', fontsize=14)
 # plt.ylabel('\u0394 14CO2', fontsize=14)  # label the y axis
 # plt.savefig(
-#     r'C:/Users/lewis/venv/python310/python-masterclass-remaster-shared/Radiocarbonintercomparison/plots/PLot9.png',
+#     r'C:/Users/lewis/venv/python310/python-masterclass-remaster-shared/radiocarbon_intercomparison/plots/PLot11.png',
 #     dpi=300, bbox_inches="tight")
-# plt.close
 
-colors2 = sns.color_palette("rocket")
-# keep colors consistent
-run1 = 50
-run2 = 150
-run3 = 350
-run4 = 500
-run5 = 760
 size = 10
 fig = plt.figure(1)
-plt.plot(empty_array_for_date[run1], empty_array_for_y[run1], linestyle='solid', color=colors2[0], label='MC run 50')
-plt.plot(empty_array_for_date[run2], empty_array_for_y[run2], linestyle='solid', color=colors2[1], label='MC run 150')
-plt.plot(empty_array_for_date[run3], empty_array_for_y[run3], linestyle='solid', color=colors2[2], label='MC run 350')
-plt.plot(empty_array_for_date[run4], empty_array_for_y[run4], linestyle='solid', color=colors2[3], label='MC run 500')
-plt.plot(empty_array_for_date[run5], empty_array_for_y[run5], linestyle='solid', color=colors2[4], label='MC run 760')
+plt.plot(bhd_fit_x, mean_array_bhd, linestyle='solid', color=colors2[0], label='BHD Monte Carlo Means')
+plt.plot(miller_x, mean_array, linestyle='solid', color=colors2[1], label='BHD Monte Carlo Means')
+
 plt.legend()
 # plt.title('Difference between the BHD fit and Heidelberg fit using the y = f(x) values for each')
-plt.xlim([1990, 1995])
-plt.ylim([120, 150])
+# plt.xlim([1990, 1995])
+# plt.ylim([120, 150])
 plt.xlabel('Date', fontsize=14)
 plt.ylabel('\u0394 14CO2', fontsize=14)  # label the y axis
 plt.savefig(
-    r'C:/Users/lewis/venv/python310/python-masterclass-remaster-shared/RadiocarbonIntercomparison/plots/PLot11.png',
+    r'C:/Users/lewis/venv/python310/python-masterclass-remaster-shared/radiocarbon_intercomparison/plots/PLot12.png',
     dpi=300, bbox_inches="tight")

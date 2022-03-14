@@ -5,9 +5,8 @@ import pandas as pd
 import seaborn as sns
 import random
 from miller_curve_algorithm import ccgFilter
-from my_functions import long_date_to_decimal_date
+from my_functions import long_date_to_decimal_date, simple_t_test
 from my_functions import year_month_todecimaldate
-from my_functions import monte_carlo
 import array as arr
 
 """ IMPORT ALL THE DATA """
@@ -112,7 +111,7 @@ Now that I've cleaned up the data, I can do a t-test the see if there is any mea
 difference between the residual datasets. 
  """
 
-# simple_t_test(residual_bhd_new, residual_heidelberg)
+simple_t_test(residual_bhd_new, residual_heidelberg)
 
 """ 
 My t-test says there is no difference in the residuals. That is one good first step toward no-offset. 
@@ -141,8 +140,7 @@ var2 = bhd_guesses_2 - bhd_guesses  # BHD curve minus heidelberg curve
 """ 
 run Monte Carlo Program I wrote
 """
-# monte_carlo(y, y_err, miller_x, miller_y, 1000, x_plot)
-#
+
 
 
 
@@ -349,18 +347,18 @@ colors2 = sns.color_palette("rocket")
 # plt.savefig(
 #     r'C:/Users/lewis/venv/python310/python-masterclass-remaster-shared/radiocarbon_intercomparison/plots/PLot11.png',
 #     dpi=300, bbox_inches="tight")
-
-size = 10
-fig = plt.figure(1)
-plt.plot(bhd_fit_x, mean_array_bhd, linestyle='solid', color=colors2[0], label='BHD Monte Carlo Means')
-plt.plot(miller_x, mean_array, linestyle='solid', color=colors2[1], label='BHD Monte Carlo Means')
-
-plt.legend()
-# plt.title('Difference between the BHD fit and Heidelberg fit using the y = f(x) values for each')
-# plt.xlim([1990, 1995])
-# plt.ylim([120, 150])
-plt.xlabel('Date', fontsize=14)
-plt.ylabel('\u0394 14CO2', fontsize=14)  # label the y axis
-plt.savefig(
-    r'C:/Users/lewis/venv/python310/python-masterclass-remaster-shared/radiocarbon_intercomparison/plots/PLot12.png',
-    dpi=300, bbox_inches="tight")
+#
+# size = 10
+# fig = plt.figure(1)
+# plt.plot(bhd_fit_x, mean_array_bhd, linestyle='solid', color=colors2[0], label='BHD Monte Carlo Means')
+# plt.plot(miller_x, mean_array, linestyle='solid', color=colors2[1], label='BHD Monte Carlo Means')
+#
+# plt.legend()
+# # plt.title('Difference between the BHD fit and Heidelberg fit using the y = f(x) values for each')
+# # plt.xlim([1990, 1995])
+# # plt.ylim([120, 150])
+# plt.xlabel('Date', fontsize=14)
+# plt.ylabel('\u0394 14CO2', fontsize=14)  # label the y axis
+# plt.savefig(
+#     r'C:/Users/lewis/venv/python310/python-masterclass-remaster-shared/radiocarbon_intercomparison/plots/PLot12.png',
+#     dpi=300, bbox_inches="tight")

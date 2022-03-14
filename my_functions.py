@@ -5,13 +5,14 @@ from numpy.fft import fft, ifft
 from tabulate import tabulate
 import random
 from miller_curve_algorithm import ccgFilter
-# dfx = pd.read_excel(
-#     r'G:\My Drive\Work\GNS Radiocarbon Scientist\The Science\Stats and Data Analysis\Matlab and Python Files\tables.xlsx',
-#     sheet_name='t table', skiprows=6)
-# dfx = dfx.reset_index()
-# t_table_05 = dfx[0.05]
-# x = random.sample(range(10, 500), 150) # for testing
-# x2 = random.sample(range(400, 1000), 600) # for testing
+
+dfx = pd.read_excel(
+    r'G:\My Drive\Work\GNS Radiocarbon Scientist\The Science\Stats and Data Analysis\Matlab and Python Files\tables.xlsx',
+    sheet_name='t table', skiprows=6)
+dfx = dfx.reset_index()
+t_table_05 = dfx[0.05]
+x = random.sample(range(10, 20), 10)  # for testing
+x2 = random.sample(range(10, 20), 10)  # for testing
 
 """
 In the Miller code, it getMonthlymeans returns a column of years, and a column of
@@ -20,9 +21,6 @@ you need:
 x = year data
 y = month data
 """
-
-x = [1, 2, 4]
-y = [1, 5, 15]
 
 
 def year_month_todecimaldate(x, y):
@@ -219,55 +217,53 @@ def basic_analysis(x, y, name1, name2):
     return df
 
 
-""" 
-h = array of y values to monte-carlo
-h_err = errors associated with y values
-c = an initial array of curve-smoothed data (x-values)
-d = an initial array of curve-smoothed data (y-values)
-n = number of iterations 
-x = x-values for the data that is going through the ccgcv curve fit (must be in decimal date)  
+""" STEP 1 of Monte Carlo: Returns a randomized array of the Y-data we're interested in, within it's uncertainty
+range
 """
 
 
-def monte_carlo(h, h_err, c, d, n, x_date):  # a = array of y-values to monte carlo
+def monte_carlo_step1(y, y_error):
+    new_array = y  # create a new variable on which we will later v-stack randomized lists
+    n = 1000  # the amount of times that our loop will go around
 
-    # SECTION 1: LOOP THROUGH THE DATA, AND ADD A RANDOM VALUE BETWEEN THE RANGE OF UNCERTAINTY.
-    #            DO THIS 'N' TIMES AND STACK THE ARRAY ONTO ITSELF.
-    # initializing a new array to "stack" onto because I don't want to stack onto my real data later
-    new_array = h
     for i in range(0, n):
         empty_array = []
-        for j in range(0, len(h)):
-            a = h[j]  # grab the first item in the set
-            b = h_err[j]  # grab the uncertainty
+        for j in range(0, len(y)):
+            a = y[j]  # grab the first item in the set
+            b = y_error[j]  # grab the uncertainty
             rand = random.uniform(b, b * -1)  # create a random uncertainty within the range of the uncertainty
             c = a + rand  # add this to the number
             empty_array.append(c)  # add this to a list
             # print(len(empty_array))
         new_array = np.vstack((new_array, empty_array))
+    return new_array
 
-    # SECTION 2: PUT EACH ROW OF THIS NEW ARRAY THROUGH THE MILLER CCGCV CURVE SMOOTHER
-    empty_array_for_date = c  # I'm initializing the new array as the original output from the Miller file, so there's something the v-stack onto w/ same changed dimensions.
-    empty_array_for_y = d  # I'm initializing the new array as the original output from the Miller file, so there's something the v-stack onto.
+def monte_carlo_step2(ccgcv_output_template_x, ccgcv_output_template_y, new_array, dates):
+    # by initializing new matrix the same size as what I want to create, I can easily v-stack later
+    empty_array_for_date = ccgcv_output_template_x
+    empty_array_for_y = ccgcv_output_template_y
+
     for i in range(0, len(new_array)):
-        monte1 = new_array[i]  # grab the first row of the array
-        monte_output = ccgFilter(x_date, monte1).getMonthlyMeans()  # put that first row through the miler CCG filter...
+        # grab the first row of the array that we created with randomized data within uncertainty range
+        monte1 = new_array[i]
+        # put that first row through the miler CCG filter...
+        monte_output = ccgFilter(dates, monte1).getMonthlyMeans()
         # use my other function to convert Miller code output to decimal dates
         monte_output_date = year_month_todecimaldate(monte_output[0], monte_output[1])
         # also grab the y-data
         monte_output_y = monte_output[2]
+        # stack the outputting arrays onto our templates
         empty_array_for_date = np.vstack((empty_array_for_date, monte_output_date))
         empty_array_for_y = np.vstack((empty_array_for_y, monte_output_y))
+    df_dates = pd.DataFrame(empty_array_for_date)  # output the results from for loop into dataframe for easier access
+    df_ys = pd.DataFrame(empty_array_for_y)
 
-
-    dataf = pd.DataFrame(empty_array_for_y)  # output the results from for loop into dataframe
     mean_array = []
     stdev_array = []
     for i in range(0, len(empty_array_for_y[1])):
-        element1 = np.sum(dataf[i])  # grab the first column of the dataframe and take the sum
+        element1 = np.sum(df_ys[i])  # grab the first column of the dataframe and take the sum
         element1 = element1 / len(empty_array_for_y)  # find the mean of the first column of the dataframe
         mean_array.append(element1)  # append it to a new array
-        stdev_monte = np.std(dataf[i])  # find the stdev of the first column of the dataframe
+        stdev_monte = np.std(df_ys[i])  # find the stdev of the first column of the dataframe
         stdev_array.append(stdev_monte)
-
-    return mean_array, stdev_array
+    return df_dates, df_ys, mean_array, stdev_array

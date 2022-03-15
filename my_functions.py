@@ -244,10 +244,11 @@ def monte_carlo_step2(ccgcv_output_template_x, ccgcv_output_template_y, new_arra
     empty_array_for_y = ccgcv_output_template_y
 
     for i in range(0, len(new_array)):
+        cutoff = 667
         # grab the first row of the array that we created with randomized data within uncertainty range
         monte1 = new_array[i]
         # put that first row through the miler CCG filter...
-        monte_output = ccgFilter(dates, monte1).getMonthlyMeans()
+        monte_output = ccgFilter(dates, monte1, cutoff).getMonthlyMeans()
         # use my other function to convert Miller code output to decimal dates
         monte_output_date = year_month_todecimaldate(monte_output[0], monte_output[1])
         # also grab the y-data
@@ -260,10 +261,17 @@ def monte_carlo_step2(ccgcv_output_template_x, ccgcv_output_template_y, new_arra
 
     mean_array = []
     stdev_array = []
+    upper_array = []
+    lower_array = []
     for i in range(0, len(empty_array_for_y[1])):
         element1 = np.sum(df_ys[i])  # grab the first column of the dataframe and take the sum
         element1 = element1 / len(empty_array_for_y)  # find the mean of the first column of the dataframe
-        mean_array.append(element1)  # append it to a new array
         stdev_monte = np.std(df_ys[i])  # find the stdev of the first column of the dataframe
+        upper = element1 + stdev_monte
+        lower = element1 - stdev_monte
+        upper_array.append(upper)
+        lower_array.append(lower)
+        mean_array.append(element1)  # append it to a new array
         stdev_array.append(stdev_monte)
-    return df_dates, df_ys, mean_array, stdev_array
+
+    return df_dates, df_ys, mean_array, stdev_array, upper_array, lower_array

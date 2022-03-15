@@ -28,7 +28,10 @@ hua = pd.read_excel(r'G:\My Drive\Work\GNS Radiocarbon Scientist\The Science\Dat
 """ Clean up the file a little: drop NaN's in the column I'm most interested in """
 heidelberg = heidelberg.dropna(subset=['D14C'])
 baringhead = baringhead.dropna(subset=['DELTA14C'])
-baringhead = baringhead.loc[(baringhead['DEC_DECAY_CORR'] > 1980)]  # filter out all values after 1980
+# Filter = df.loc[(df['Type 1'] == 'Grass') & (df['Type 2'] == 'Poison') & (df['HP'] > 70)]
+# TODO  adjust values to after 1980 (get rid of bomb peak) and remove 1995 - 2005, bad AMS data
+baringhead = baringhead.loc[(baringhead['DEC_DECAY_CORR'] > 1980)]  # grab all values after 1980
+# baringhead = baringhead.loc[(baringhead['DEC_DECAY_CORR'] )]
 baringhead = baringhead.loc[(baringhead['DELTA14C_ERR'] > 0)]  # have to currently get rid of data where the error is -1000
 """ reset indeces to avoid random errors that crop up """
 heidelberg = heidelberg.reset_index()
@@ -65,11 +68,12 @@ plt.close()
 
 """ CALL IN THE CCGCV CURVE SMOOTHER """
 # smooth the heidelberg data
-ccgcv_heid = ccgFilter(x_init_heid, y_init_heid).getMonthlyMeans()
+cutoff = 667
+ccgcv_heid = ccgFilter(x_init_heid, y_init_heid, cutoff).getMonthlyMeans()
 x_ccgcv_heid = year_month_todecimaldate(ccgcv_heid[0], ccgcv_heid[1])  # get the dates to be in decimal format
 y_ccgcv_heid = ccgcv_heid[2]
 # smooth the baring head data
-ccgcv_bhd = ccgFilter(x_init_bhd, y_init_bhd).getMonthlyMeans()
+ccgcv_bhd = ccgFilter(x_init_bhd, y_init_bhd, cutoff).getMonthlyMeans()
 x_ccgcv_bhd = year_month_todecimaldate(ccgcv_bhd[0], ccgcv_bhd[1])  # get the dates to be in decimal format
 y_ccgcv_bhd = ccgcv_bhd[2]
 
@@ -93,9 +97,9 @@ first I must cut-off the data after 2015 to avoid skewing it based on the issue 
 """
 
 # find appropriate Y-values in smooth curve for BHD X's
-A_heid = ccgFilter(x_init_heid, y_init_heid).getSmoothValue(x_init_heid)
+A_heid = ccgFilter(x_init_heid, y_init_heid, cutoff).getSmoothValue(x_init_heid)
 residual_heid = A_heid - y_init_heid
-A_bhd = ccgFilter(x_init_heid, y_init_heid).getSmoothValue(x_init_bhd)  # BARING HEAD DATA into CURVE FIT FOR HEIDELBERG
+A_bhd = ccgFilter(x_init_heid, y_init_heid, cutoff).getSmoothValue(x_init_bhd)  # BARING HEAD DATA into CURVE FIT FOR HEIDELBERG
 residual_bhd = A_bhd - y_init_bhd
 d_bhd = {'decimal dates': x_init_bhd, 'y_guesses': A_bhd, 'residual': residual_bhd}
 df_bhd_residual = pd.DataFrame(data=d_bhd)  # create a dataframe to make future manipulation of data simpler
@@ -126,7 +130,7 @@ plt.savefig('C:/Users/lewis/venv/python310/python-masterclass-remaster-shared/'
 plt.close()
 
 """  Plot of residuals"""
-fig = plt.figure(2)
+fig = plt.figure(3)
 size = 5
 plt.scatter(x_resid, residual_bhd, marker='o', label='Baring Head', color=colors[0], s=size)
 plt.scatter(x_init_heid, residual_heid, marker='x', label='Heidelberg', color=colors[3], s=size)
@@ -150,7 +154,7 @@ simple_t_test(residual_bhd, residual_heid)
  Fitting heidelberg data through BHD curve fit. How different is this that Heidelberg data through Heidelberg fit? 
  
  """
-B_heid = ccgFilter(x_init_bhd, y_init_bhd).getSmoothValue(x_init_heid)  # heidelberg x's fit to Baring Head CCGRV Curve
+B_heid = ccgFilter(x_init_bhd, y_init_bhd, cutoff).getSmoothValue(x_init_heid)  # heidelberg x's fit to Baring Head CCGRV Curve
 delta_curves = B_heid - A_heid
 simple_t_test(B_heid, A_heid)
 """  How different are the smooth curves? """
@@ -188,8 +192,8 @@ heidelberg_mc_ys_4 = heidelberg_mc_ys.iloc[350]
 heidelberg_mc_ys_5 = heidelberg_mc_ys.iloc[550]
 heidelberg_mc_mean = step2[2]
 heidelberg_mc_stdev = step2[3]
-# heidelberg_upperbounds = step2[4]
-# heidelberg_lowerbounds = step2[5]
+heidelberg_upperbounds = step2[4]
+heidelberg_lowerbounds = step2[5]
 
 
 """ 
@@ -209,8 +213,8 @@ bhd_mc_ys_4 = bhd_mc_ys.iloc[350]
 bhd_mc_ys_5 = bhd_mc_ys.iloc[550]
 bhd_mc_mean = step2_bhd[2]
 bhd_mc_stdev = step2_bhd[3]
-# bhd_upperbounds = step2_bhd[4]
-# bhd_lowerbounds = step2_bhd[5]
+bhd_upperbounds = step2_bhd[4]
+bhd_lowerbounds = step2_bhd[5]
 
 
 
@@ -228,19 +232,18 @@ alpha1 = 0.4
 # # plt.plot(heidelberg_mc_dates, heidelberg_mc_ys_4, color=colors[3], alpha=alpha1)
 # # plt.plot(heidelberg_mc_dates, heidelberg_mc_ys_5, color=colors[3], alpha=alpha1)
 plt.plot(bhd_mc_dates, bhd_mc_mean, color=colors[0], label='BHD MonteCarlo Mean', linestyle='solid')
-# plt.plot(bhd_mc_dates, bhd_upperbounds, color=colors[1], label='BHD MonteCarlo Mean', linestyle='solid')
-# plt.plot(bhd_mc_dates, bhd_lowerbounds, color=colors[1], label='BHD MonteCarlo Mean', linestyle='solid')
-
+plt.plot(bhd_mc_dates, bhd_upperbounds, color=colors[1], label='BHD MonteCarlo upperbound', linestyle='solid')
+plt.plot(bhd_mc_dates, bhd_lowerbounds, color=colors[1], label='BHD MonteCarlo lowerbound', linestyle='solid')
 plt.plot(heidelberg_mc_dates, heidelberg_mc_mean, color=colors[3], label='Heidelberg MonteCarlo Mean', linestyle='solid')
-# plt.plot(heidelberg_mc_dates, heidelberg_upperbounds, color=colors[4], label='Heidelberg MonteCarlo Mean', linestyle='solid')
-# plt.plot(heidelberg_mc_dates, heidelberg_lowerbounds, color=colors[4], label='Heidelberg MonteCarlo Mean', linestyle='solid')
-plt.title('Comparison of Means from Monte Carlo Analysis')
-plt.xlim([2000, 2020])
-plt.ylim([0, 100])
+plt.plot(heidelberg_mc_dates, heidelberg_upperbounds, color=colors[4], label='Heidelberg MonteCarlo upperbound', linestyle='solid')
+plt.plot(heidelberg_mc_dates, heidelberg_lowerbounds, color=colors[4], label='Heidelberg MonteCarlo lowerbound', linestyle='solid')
+plt.title('Upper and lower uncertainty bounds')
+plt.xlim([1980, 2020])
+plt.ylim([0, 300])
 plt.legend()
 plt.xlabel('Date', fontsize=14)
 plt.ylabel('\u0394 14CO2', fontsize=14)  # label the y axis
 plt.savefig('C:/Users/lewis/venv/python310/python-masterclass-remaster-shared/'
-            'radiocarbon_intercomparison/plots/heidelberg_intercomparison_cleaned_Fig13.png',
+            'radiocarbon_intercomparison/plots/heidelberg_intercomparison_cleaned_Fig5.png',
             dpi=300, bbox_inches="tight")
 plt.close()

@@ -1,3 +1,5 @@
+import numpy as np
+import pandas as pd
 # """
 # It's hard to write code from scratch, an empty Python page.
 # Usually I'm referencing one or many of my old python files to find
@@ -268,3 +270,5 @@
 # print(array)
 # x_decimal = array
 
+fake_x = np.linspace(1980, 2020, 1000)
+print(fake_x)

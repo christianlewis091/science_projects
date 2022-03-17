@@ -240,6 +240,9 @@ bhd2_mc_mean = step2_bhd2[2]
 bhd2_mc_stdev = step2_bhd2[3]
 bhd2_upperbounds = step2_bhd2[4]
 bhd2_lowerbounds = step2_bhd2[5]
+
+
+
 #
 fig = plt.figure(6)
 size = 5
@@ -293,7 +296,7 @@ each range of dates easily by:
 # create a new set of x-data to run through the smoothing.
 fake_x = np.linspace(1980, 2020, 1000)
 
-# run fake x through baring head 1 smooth fit.
+# run fake x through baring head 1 smooth fit (use the Monte Carlo's for error analysis)
 fake_x_heid = ccgFilter(x_init_heid, y_init_heid, cutoff).getSmoothValue(fake_x)
 
 fake_x_bhd1 = ccgFilter(x_init_bhd1, y_init_bhd1, cutoff).getSmoothValue(fake_x)
@@ -301,27 +304,71 @@ fake_x_bhd1 = ccgFilter(x_init_bhd1, y_init_bhd1, cutoff).getSmoothValue(fake_x)
 fake_x_bhd2 = ccgFilter(x_init_bhd2, y_init_bhd2, cutoff).getSmoothValue(fake_x)
 
 # does this even work when we're adding x's to spots where the curve isn't able to smooth???
-# YES IT WORKS. The smoother only plots until the data ends!
-fig = plt.figure(7)
-plt.plot(fake_x, fake_x_bhd1, color=colors[0], label='Baring Head 1', linestyle='solid')
-plt.plot(fake_x, fake_x_bhd2, color=colors[1], label='Baring Head 2', linestyle='solid')
-plt.plot(fake_x, fake_x_heid, color=colors[2], label='Heidelberg', linestyle='solid')
-plt.show()
+# # YES IT WORKS. The smoother only plots until the data ends!
+# fig = plt.figure(7)
+# plt.plot(fake_x, fake_x_bhd1, color=colors[0], label='Baring Head 1', linestyle='solid')
+# plt.plot(fake_x, fake_x_bhd2, color=colors[1], label='Baring Head 2', linestyle='solid')
+# plt.plot(fake_x, fake_x_heid, color=colors[2], label='Heidelberg', linestyle='solid')
+# # plt.show()
 
 # create new dataframes including keys for all sections, and then I can filter by date and still know whats what.
 key_bhd1 = (np.ones(len(fake_x_bhd1))) * 1
 key_bhd2 = (np.ones(len(fake_x_bhd2))) * 2
 key_heid = (np.ones(len(fake_x_heid))) * 3
 
-df = pd.DataFrame({"Date": fake_x, "BHD1": fake_x_bhd1, "Key": key_bhd1})
-df1 = pd.DataFrame({"Date": fake_x, "BHD1": fake_x_bhd2, "Key": key_bhd2})
-df2 = pd.DataFrame({"Date": fake_x, "BHD1": fake_x_heid, "Key": key_heid})
-
+df = pd.DataFrame({'Date': fake_x, '14C': fake_x_bhd1, 'Key': key_bhd1})
+df = df.dropna(subset=['14C'])
+df1 = pd.DataFrame({'Date': fake_x, '14C': fake_x_bhd2, 'Key': key_bhd2})
+df1 = df1.dropna(subset=['14C'])
+df2 = pd.DataFrame({'Date': fake_x, '14C': fake_x_heid, 'Key': key_heid})
+df2 = df2.dropna(subset=['14C'])
 combine = pd.merge(df, df1, how='outer')  # Keeps ALL Data
 combine = pd.merge(combine, df2, how='outer')
 
-""" Find where duplicates x-values exist in the dataset
+combine.to_csv(r'G:/My Drive/Work/GNS Radiocarbon Scientist/The Science/Datasets/filename.csv')
+""" 
+Find where duplicates x-values exist in the dataset
 Then do a paired t-test on the whole thing.
 
-Faster than breaking up into multiple section.  
 """
+
+# find the boundaries of each dataset in time
+bhd1_max = max(df['Date'])
+heid_min = min(df2['Date'])
+
+bhd2_min = min(df1['Date'])
+heid_max = max(df2['Date'])
+
+# extract the pairs of data
+# extract all data from baring head 1 which have dates greater than or equal to heidelberg min
+baring_head1_overlap = combine.loc[(combine['Key'] == 1) & (combine['Date'] >= heid_min)]
+nv1 = baring_head1_overlap['Date']
+nv2 = baring_head1_overlap['14C']
+
+heidelberg_overlap = combine.loc[(combine['Key'] == 3) & (combine['Date'] <= bhd1_max)]
+nv3 = heidelberg_overlap['Date']
+nv4 = heidelberg_overlap['14C']
+
+baring_head2_overlap = combine.loc[(combine['Key'] == 2) & (combine['Date'] <= heid_max)]
+nv5 = baring_head2_overlap['Date']
+nv6 = baring_head2_overlap['14C']
+
+heidelberg_overlap2 = combine.loc[(combine['Key'] == 3) & (combine['Date'] >= bhd2_min)]
+nv7 = heidelberg_overlap2['Date']
+nv8 = heidelberg_overlap2['14C']
+
+fig = plt.figure(8)
+size = 4
+plt.scatter(nv1, nv2, color=colors[0], label='Baring Head 1', linestyle='solid', marker='o', s=size)
+plt.scatter(nv3, nv4, color=colors[1], label='Heidelberg', linestyle='solid', marker='o', s=size)
+plt.legend()
+plt.savefig('C:/Users/lewis/venv/python310/python-masterclass-remaster-shared/'
+            'radiocarbon_intercomparison/plots/heidelberg_intercomparison_cleaned_Fig8_pairedt-test1.png',
+            dpi=300, bbox_inches="tight")
+fig = plt.figure(9)
+plt.scatter(nv5, nv6, color=colors[0], label='Baring Head 2', linestyle='solid', marker='o', s=size)
+plt.scatter(nv7, nv8, color=colors[1], label='Heidelberg', linestyle='solid', marker='o', s=size)
+plt.legend()
+plt.savefig('C:/Users/lewis/venv/python310/python-masterclass-remaster-shared/'
+            'radiocarbon_intercomparison/plots/heidelberg_intercomparison_cleaned_Fig9_paired-test2.png',
+            dpi=300, bbox_inches="tight")

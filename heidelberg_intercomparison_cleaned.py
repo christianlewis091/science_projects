@@ -9,6 +9,7 @@ from my_functions import long_date_to_decimal_date, monte_carlo_step2
 from my_functions import year_month_todecimaldate
 from my_functions import simple_t_test
 from my_functions import monte_carlo_step1
+from my_functions import two_tail_paired_t_test
 
 """ IMPORT ALL THE DATA """
 # Heidelberg data excel file
@@ -171,9 +172,9 @@ residual_heid = residual_heid.dropna()
 residual_bhd1 = residual_bhd1.dropna()
 residual_bhd2 = residual_bhd2.dropna()
 
-simple_t_test(residual_bhd1, residual_heid)
-simple_t_test(residual_bhd2, residual_heid)
-simple_t_test(residual_bhd1, residual_bhd2)
+# simple_t_test(residual_bhd1, residual_heid)
+# simple_t_test(residual_bhd2, residual_heid)
+# simple_t_test(residual_bhd1, residual_bhd2)
 
 
 """
@@ -198,7 +199,7 @@ heidelberg_mc_mean = step2[2]
 heidelberg_mc_stdev = step2[3]
 heidelberg_upperbounds = step2[4]
 heidelberg_lowerbounds = step2[5]
-#
+heid_max_error = max(step2[3])
 #
 """
 Monte Carlo for BHD Data Part 1
@@ -219,8 +220,7 @@ bhd1_mc_mean = step2_bhd1[2]
 bhd1_mc_stdev = step2_bhd1[3]
 bhd1_upperbounds = step2_bhd1[4]
 bhd1_lowerbounds = step2_bhd1[5]
-#
-#
+bhd1_max_error = max(step2_bhd1[3])
 """
 Monte Carlo for BHD Data Part 2
 """
@@ -240,7 +240,7 @@ bhd2_mc_mean = step2_bhd2[2]
 bhd2_mc_stdev = step2_bhd2[3]
 bhd2_upperbounds = step2_bhd2[4]
 bhd2_lowerbounds = step2_bhd2[5]
-
+bhd2_max_error = max(step2_bhd2[3])
 
 
 #
@@ -326,12 +326,27 @@ combine = pd.merge(df, df1, how='outer')  # Keeps ALL Data
 combine = pd.merge(combine, df2, how='outer')
 
 combine.to_csv(r'G:/My Drive/Work/GNS Radiocarbon Scientist/The Science/Datasets/filename.csv')
+
+# fig = plt.figure(8)
+# size = 4
+# plt.scatter(nv1, nv2, color=colors[0], label='Baring Head 1', linestyle='solid', marker='o', s=size)
+# plt.scatter(nv3, nv4, color=colors[1], label='Heidelberg', linestyle='solid', marker='o', s=size)
+# plt.legend()
+# plt.savefig('C:/Users/lewis/venv/python310/python-masterclass-remaster-shared/'
+#             'radiocarbon_intercomparison/plots/heidelberg_intercomparison_cleaned_Fig8_pairedt-test1.png',
+#             dpi=300, bbox_inches="tight")
+# fig = plt.figure(9)
+# plt.scatter(nv5, nv6, color=colors[0], label='Baring Head 2', linestyle='solid', marker='o', s=size)
+# plt.scatter(nv7, nv8, color=colors[1], label='Heidelberg', linestyle='solid', marker='o', s=size)
+# plt.legend()
+# plt.savefig('C:/Users/lewis/venv/python310/python-masterclass-remaster-shared/'
+#             'radiocarbon_intercomparison/plots/heidelberg_intercomparison_cleaned_Fig9_paired-test2.png',
+#             dpi=300, bbox_inches="tight")
+
 """ 
-Find where duplicates x-values exist in the dataset
-Then do a paired t-test on the whole thing.
-
+Need to extract all the data into subgruops and perform t-test. T-test showed different on the entire dataset. 
+What about subsets? 
 """
-
 # find the boundaries of each dataset in time
 bhd1_max = max(df['Date'])
 heid_min = min(df2['Date'])
@@ -342,33 +357,236 @@ heid_max = max(df2['Date'])
 # extract the pairs of data
 # extract all data from baring head 1 which have dates greater than or equal to heidelberg min
 baring_head1_overlap = combine.loc[(combine['Key'] == 1) & (combine['Date'] >= heid_min)]
-nv1 = baring_head1_overlap['Date']
-nv2 = baring_head1_overlap['14C']
+baring_head1_overlap1 = baring_head1_overlap.iloc[0:25]
+baring_head1_overlap2 = baring_head1_overlap.iloc[26:50]
+baring_head1_overlap3 = baring_head1_overlap.iloc[51:75]
+baring_head1_overlap4 = baring_head1_overlap.iloc[76:100]
+baring_head1_overlap5 = baring_head1_overlap.iloc[101:125]
+baring_head1_overlap6 = baring_head1_overlap.iloc[126:161]
+
+a_1 = baring_head1_overlap1['Date']
+b_1 = baring_head1_overlap1['14C']
+a_2 = baring_head1_overlap2['Date']
+b_2 = baring_head1_overlap2['14C']
+a_3 = baring_head1_overlap3['Date']
+b_3 = baring_head1_overlap3['14C']
+a_4 = baring_head1_overlap4['Date']
+b_4 = baring_head1_overlap4['14C']
+a_5 = baring_head1_overlap5['Date']
+b_5 = baring_head1_overlap5['14C']
+a_6 = baring_head1_overlap6['Date']
+b_6 = baring_head1_overlap6['14C']
 
 heidelberg_overlap = combine.loc[(combine['Key'] == 3) & (combine['Date'] <= bhd1_max)]
-nv3 = heidelberg_overlap['Date']
-nv4 = heidelberg_overlap['14C']
+heidelberg_overlap1 = heidelberg_overlap.iloc[0:25]
+heidelberg_overlap2 = heidelberg_overlap.iloc[26:50]
+heidelberg_overlap3 = heidelberg_overlap.iloc[51:75]
+heidelberg_overlap4 = heidelberg_overlap.iloc[76:100]
+heidelberg_overlap5 = heidelberg_overlap.iloc[101:125]
+heidelberg_overlap6 = heidelberg_overlap.iloc[126:161]
+
+c_1 = heidelberg_overlap1['Date']
+d_1 = heidelberg_overlap1['14C']
+c_2 = heidelberg_overlap2['Date']
+d_2 = heidelberg_overlap2['14C']
+c_3 = heidelberg_overlap3['Date']
+d_3 = heidelberg_overlap3['14C']
+c_4 = heidelberg_overlap4['Date']
+d_4 = heidelberg_overlap4['14C']
+c_5 = heidelberg_overlap5['Date']
+d_5 = heidelberg_overlap5['14C']
+c_6 = heidelberg_overlap6['Date']
+d_6 = heidelberg_overlap6['14C']
 
 baring_head2_overlap = combine.loc[(combine['Key'] == 2) & (combine['Date'] <= heid_max)]
-nv5 = baring_head2_overlap['Date']
-nv6 = baring_head2_overlap['14C']
+baring_head2_overlap1 = baring_head2_overlap.iloc[0:25]
+baring_head2_overlap2 = baring_head2_overlap.iloc[26:50]
+baring_head2_overlap3 = baring_head2_overlap.iloc[51:75]
+baring_head2_overlap4 = baring_head2_overlap.iloc[76:100]
+baring_head2_overlap5 = baring_head2_overlap.iloc[101:125]
+baring_head2_overlap6 = baring_head2_overlap.iloc[126:150]
+baring_head2_overlap7 = baring_head2_overlap.iloc[151:175]
+baring_head2_overlap8 = baring_head2_overlap.iloc[176:200]
+baring_head2_overlap9 = baring_head2_overlap.iloc[201:232]
+
+e_1 = baring_head2_overlap1['Date']
+f_1 = baring_head2_overlap1['14C']
+e_2 = baring_head2_overlap2['Date']
+f_2 = baring_head2_overlap2['14C']
+e_3 = baring_head2_overlap3['Date']
+f_3 = baring_head2_overlap3['14C']
+e_4 = baring_head2_overlap4['Date']
+f_4 = baring_head2_overlap4['14C']
+e_5 = baring_head2_overlap5['Date']
+f_5 = baring_head2_overlap5['14C']
+e_6 = baring_head2_overlap6['Date']
+f_6 = baring_head2_overlap6['14C']
+e_7 = baring_head2_overlap7['Date']
+f_7 = baring_head2_overlap7['14C']
+e_8 = baring_head2_overlap8['Date']
+f_8 = baring_head2_overlap8['14C']
+e_9 = baring_head2_overlap9['Date']
+f_9 = baring_head2_overlap9['14C']
 
 heidelberg_overlap2 = combine.loc[(combine['Key'] == 3) & (combine['Date'] >= bhd2_min)]
-nv7 = heidelberg_overlap2['Date']
-nv8 = heidelberg_overlap2['14C']
+heidelberg_overlap2_1 = heidelberg_overlap2.iloc[0:25]
+heidelberg_overlap2_2 = heidelberg_overlap2.iloc[26:50]
+heidelberg_overlap2_3 = heidelberg_overlap2.iloc[51:75]
+heidelberg_overlap2_4 = heidelberg_overlap2.iloc[76:100]
+heidelberg_overlap2_5 = heidelberg_overlap2.iloc[101:125]
+heidelberg_overlap2_6 = heidelberg_overlap2.iloc[126:150]
+heidelberg_overlap2_7 = heidelberg_overlap2.iloc[151:175]
+heidelberg_overlap2_8 = heidelberg_overlap2.iloc[176:200]
+heidelberg_overlap2_9 = heidelberg_overlap2.iloc[201:232]
 
-fig = plt.figure(8)
-size = 4
-plt.scatter(nv1, nv2, color=colors[0], label='Baring Head 1', linestyle='solid', marker='o', s=size)
-plt.scatter(nv3, nv4, color=colors[1], label='Heidelberg', linestyle='solid', marker='o', s=size)
+g_1 = heidelberg_overlap2_1['Date']
+h_1 = heidelberg_overlap2_1['14C']
+g_2 = heidelberg_overlap2_2['Date']
+h_2 = heidelberg_overlap2_2['14C']
+g_3 = heidelberg_overlap2_3['Date']
+h_3 = heidelberg_overlap2_3['14C']
+g_4 = heidelberg_overlap2_4['Date']
+h_4 = heidelberg_overlap2_4['14C']
+g_5 = heidelberg_overlap2_5['Date']
+h_5 = heidelberg_overlap2_5['14C']
+g_6 = heidelberg_overlap2_6['Date']
+h_6 = heidelberg_overlap2_6['14C']
+g_7 = heidelberg_overlap2_7['Date']
+h_7 = heidelberg_overlap2_7['14C']
+g_8 = heidelberg_overlap2_8['Date']
+h_8 = heidelberg_overlap2_8['14C']
+g_9 = heidelberg_overlap2_9['Date']
+h_9 = heidelberg_overlap2_9['14C']
+
+
+two_tail_paired_t_test(b_1, d_1)
+two_tail_paired_t_test(b_2, d_2)
+two_tail_paired_t_test(b_3, d_3)
+two_tail_paired_t_test(b_4, d_4)
+two_tail_paired_t_test(b_5, d_5)
+two_tail_paired_t_test(b_6, d_6)
+
+two_tail_paired_t_test(f_1, h_1)
+two_tail_paired_t_test(f_2, h_2)
+two_tail_paired_t_test(f_3, h_3)
+two_tail_paired_t_test(f_4, h_4)
+two_tail_paired_t_test(f_5, h_5)
+two_tail_paired_t_test(f_6, h_6)
+two_tail_paired_t_test(f_7, h_7)
+two_tail_paired_t_test(f_8, h_8)
+two_tail_paired_t_test(f_9, h_9)
+
+# visualize the result of the t-test
+colors = sns.color_palette("rocket")
+colors2 = sns.color_palette("mako")
+fig = plt.figure(10)
+plt.scatter(a_1, b_1, color=colors[0], linestyle='solid', marker='o', s=size)
+plt.scatter(a_2, b_2, color=colors[1], linestyle='solid', marker='o', s=size)
+plt.scatter(a_3, b_3, color=colors[2], linestyle='solid', marker='o', s=size)
+plt.scatter(a_4, b_4, color=colors[3], linestyle='solid', marker='o', s=size)
+plt.scatter(a_5, b_5, color=colors[4], linestyle='solid', marker='o', s=size)
+plt.scatter(a_6, b_6, color=colors[5], linestyle='solid', marker='o', s=size)
+plt.scatter(c_1, d_1, color=colors2[0], linestyle='solid', marker='o', s=size)
+plt.scatter(c_2, d_2, color=colors2[1], linestyle='solid', marker='o', s=size)
+plt.scatter(c_3, d_3, color=colors2[2], linestyle='solid', marker='o', s=size)
+plt.scatter(c_4, d_4, color=colors2[3], linestyle='solid', marker='o', s=size)
+plt.scatter(c_5, d_5, color=colors2[4], linestyle='solid', marker='o', s=size)
+plt.scatter(c_6, d_6, color=colors2[5], linestyle='solid', marker='o', s=size)
+plt.plot(x_ccgcv_bhd1, y_ccgcv_bhd1, label='Baring Head Record > 1980', color=colors[0], alpha=0.2)
+plt.plot(x_ccgcv_heid, y_ccgcv_heid, label='Heidelberg Data Record', color=colors[3], alpha=0.2)
+plt.legend()
+plt.xlabel('Date', fontsize=14)
+plt.ylabel('\u0394 14CO2', fontsize=14)  # label the y axis
+plt.xlim([1987, 1994])
+plt.ylim([120, 190])
+plt.savefig('C:/Users/lewis/venv/python310/python-masterclass-remaster-shared/'
+            'radiocarbon_intercomparison/plots/heidelberg_intercomparison_cleaned_Fig9_paired-test3.png',
+            dpi=300, bbox_inches="tight")
+plt.close()
+#
+
+# visualize the result of the t-test
+colors = sns.color_palette("rocket")
+colors2 = sns.color_palette("mako")
+fig = plt.figure(11)
+plt.scatter(e_1, f_1, color=colors[0], linestyle='solid', marker='o', s=size)
+plt.scatter(e_2, f_2, color=colors[1], linestyle='solid', marker='o', s=size)
+plt.scatter(e_3, f_3, color=colors[2], linestyle='solid', marker='o', s=size)
+plt.scatter(e_4, f_4, color=colors[3], linestyle='solid', marker='o', s=size)
+plt.scatter(e_5, f_5, color=colors[4], linestyle='solid', marker='o', s=size)
+plt.scatter(e_6, f_6, color=colors[5], linestyle='solid', marker='o', s=size)
+plt.scatter(e_7, f_7, color=colors[0], linestyle='solid', marker='o', s=size)
+plt.scatter(e_8, f_8, color=colors[1], linestyle='solid', marker='o', s=size)
+plt.scatter(e_9, f_9, color=colors[2], linestyle='solid', marker='o', s=size)
+
+plt.scatter(g_1, h_1, color=colors2[0], linestyle='solid', marker='o', s=size)
+plt.scatter(g_2, h_2, color=colors2[1], linestyle='solid', marker='o', s=size)
+plt.scatter(g_3, h_3, color=colors2[2], linestyle='solid', marker='o', s=size)
+plt.scatter(g_4, h_4, color=colors2[3], linestyle='solid', marker='o', s=size)
+plt.scatter(g_5, h_5, color=colors2[4], linestyle='solid', marker='o', s=size)
+plt.scatter(g_6, h_6, color=colors2[5], linestyle='solid', marker='o', s=size)
+plt.scatter(g_7, h_7, color=colors2[0], linestyle='solid', marker='o', s=size)
+plt.scatter(g_8, h_8, color=colors2[1], linestyle='solid', marker='o', s=size)
+plt.scatter(g_9, h_9, color=colors2[2], linestyle='solid', marker='o', s=size)
+plt.plot(x_ccgcv_bhd2, y_ccgcv_bhd2, marker='o', label='Baring Head Record > 1980', color=colors[0], alpha=0.2)
+plt.plot(x_ccgcv_heid, y_ccgcv_heid, marker='x', label='Heidelberg Data Record', color=colors[3], alpha=0.2)
+plt.xlim([2006, 2016])
+plt.ylim([25, 65])
+plt.xlabel('Date', fontsize=14)
+plt.ylabel('\u0394 14CO2', fontsize=14)  # label the y axis
 plt.legend()
 plt.savefig('C:/Users/lewis/venv/python310/python-masterclass-remaster-shared/'
-            'radiocarbon_intercomparison/plots/heidelberg_intercomparison_cleaned_Fig8_pairedt-test1.png',
+            'radiocarbon_intercomparison/plots/heidelberg_intercomparison_cleaned_Fig9_paired-test4.png',
             dpi=300, bbox_inches="tight")
-fig = plt.figure(9)
-plt.scatter(nv5, nv6, color=colors[0], label='Baring Head 2', linestyle='solid', marker='o', s=size)
-plt.scatter(nv7, nv8, color=colors[1], label='Heidelberg', linestyle='solid', marker='o', s=size)
-plt.legend()
-plt.savefig('C:/Users/lewis/venv/python310/python-masterclass-remaster-shared/'
-            'radiocarbon_intercomparison/plots/heidelberg_intercomparison_cleaned_Fig9_paired-test2.png',
-            dpi=300, bbox_inches="tight")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# T-test result for reference
+# There IS A DIFFERENCE
+# There IS A DIFFERENCE
+# There is NO DIFFERENCE
+# There IS A DIFFERENCE
+# There IS A DIFFERENCE
+# There IS A DIFFERENCE
+# There is NO DIFFERENCE
+# There is NO DIFFERENCE
+# There is NO DIFFERENCE
+# There is NO DIFFERENCE
+# There is NO DIFFERENCE
+# There is NO DIFFERENCE
+# There is NO DIFFERENCE
+# There is NO DIFFERENCE
+# There is NO DIFFERENCE

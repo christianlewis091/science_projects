@@ -275,3 +275,35 @@ def monte_carlo_step2(ccgcv_output_template_x, ccgcv_output_template_y, new_arra
         stdev_array.append(stdev_monte)
 
     return df_dates, df_ys, mean_array, stdev_array, upper_array, lower_array
+
+
+def two_tail_paired_t_test(x1, x2):
+    x1 = list(x1)
+    x2 = list(x2)
+    # subtract the data from each other
+    difference = np.subtract(x1, x2)
+    # find the mean
+    mean = np.sum(difference) / len(x1)
+    # find the standard error
+    se = np.std(difference) / len(x1)
+    # compute the t-statistic
+    t_stat = mean / se
+    d_of_f = len(x1) + len(x2) - 2 + 2
+
+    # find the degrees of freedom, and the closest number in the table to my degrees of freedom
+    aux = []
+    for valor in t_table_05:
+        aux.append(abs(d_of_f - valor))
+    index = aux.index(min(aux))
+    value_crit = t_table_05[index]
+
+    if t_stat <= value_crit:
+        result = print('There is NO DIFFERENCE')
+    else:
+        result = print('There IS A DIFFERENCE')
+    return result
+
+
+
+
+

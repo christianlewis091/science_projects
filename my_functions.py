@@ -6,12 +6,12 @@ from tabulate import tabulate
 import random
 from miller_curve_algorithm import ccgFilter
 
-dfx = pd.read_excel(
-    r'G:\My Drive\Work\GNS Radiocarbon Scientist\The Science\Stats and Data Analysis\Matlab and Python Files\tables.xlsx',
-    sheet_name='t table', skiprows=6)
-dfx = dfx.reset_index()
-t_table_05 = dfx[0.05]
-x = random.sample(range(10, 20), 10)  # for testing
+# dfx = pd.read_excel(
+#     r'G:\My Drive\Work\GNS Radiocarbon Scientist\The Science\Stats and Data Analysis\Matlab and Python Files\tables.xlsx',
+#     sheet_name='t-table0_05')
+# dfx = dfx.reset_index()
+# t_table_05 = dfx[0.05]
+x = random.sample(range(10, 30), 10)  # for testing
 x2 = random.sample(range(10, 20), 10)  # for testing
 
 """
@@ -160,37 +160,38 @@ THIS METHOD DOES NOT WORK YET - MUST DEAL WITH VARIABLE D_of_F's not equal to th
 """
 
 
-def simple_t_test(x1, x2):
-    dfx = pd.read_excel(
-        r'G:\My Drive\Work\GNS Radiocarbon Scientist\The Science\Stats and Data Analysis\Matlab and Python Files\tables.xlsx',
-        sheet_name='t table', skiprows=6)
-    dfx = dfx.reset_index()
-    t_table_05 = dfx[0.05]
-
-    # get the rough data needed for a t-test
-    mean_x1 = np.average(x1)
-    mean_x2 = np.average(x2)
-    var_x1 = np.var(x1)
-    var_x2 = np.var(x2)
-
-    # the math
-    mean = abs(mean_x2 - mean_x1)
-    denominator = np.sqrt((var_x1 / len(x1)) + (var_x2 / len(x2)))
-    t_value = mean / denominator
-    d_of_f = len(x1) + len(x2) - 2 + 2  # usually you subtract two, but length starts at zero so I add them back in
-
-    # find the degrees of freedom, and the closest number in the table to my degrees of freedom
-    aux = []
-    for valor in t_table_05:
-        aux.append(abs(d_of_f - valor))
-    index = aux.index(min(aux))
-    value_crit = t_table_05[index]
-
-    if t_value <= value_crit:
-        result = print('There is NO DIFFERENCE')
-    else:
-        result = print('There IS A DIFFERENCE')
-    return result
+# def simple_t_test(x1, x2):
+    # TODO FIX CRITICAL VALUE LOOKUP
+    # dfx = pd.read_excel(
+    #     r'G:\My Drive\Work\GNS Radiocarbon Scientist\The Science\Stats and Data Analysis\Matlab and Python Files\tables.xlsx',
+    #     sheet_name='t table', skiprows=6)
+    # dfx = dfx.reset_index()
+    # t_table_05 = dfx[0.05]
+    #
+    # # get the rough data needed for a t-test
+    # mean_x1 = np.average(x1)
+    # mean_x2 = np.average(x2)
+    # var_x1 = np.var(x1)
+    # var_x2 = np.var(x2)
+    #
+    # # the math
+    # mean = abs(mean_x2 - mean_x1)
+    # denominator = np.sqrt((var_x1 / len(x1)) + (var_x2 / len(x2)))
+    # t_value = mean / denominator
+    # d_of_f = len(x1) + len(x2) - 2 + 2  # usually you subtract two, but length starts at zero so I add them back in
+    #
+    # # find the degrees of freedom, and the closest number in the table to my degrees of freedom
+    # aux = []
+    # for valor in t_table_05:
+    #     aux.append(abs(d_of_f - valor))
+    # index = aux.index(min(aux))
+    # value_crit = t_table_05[index]
+    #
+    # if t_value <= value_crit:
+    #     result = print('There is NO DIFFERENCE')
+    # else:
+    #     result = print('There IS A DIFFERENCE')
+    # return result
 
 
 # http://ipl.physics.harvard.edu/wp-uploads/2013/03/PS3_Error_Propagation_sp13.pdf
@@ -202,15 +203,16 @@ def basic_analysis(x, y, name1, name2):
     y_mean = np.average(y)
     x_stddev = np.std(x)
     y_stddev = np.std(y)
-    x_std_err = x_stddev / len(x)
-    y_std_err = y_stddev / len(y)
+    x_std_err = x_stddev / np.sqrt(len(x))
+    y_std_err = y_stddev / np.sqrt(len(y))
+
 
     # compute data for datasets together
     average = (x_mean + y_mean) / 2
     error_prop = (np.sqrt(x_stddev ** 2 + y_stddev ** 2)) / 2
 
-    data = [[name1, x_mean, x_std_err],
-            [name2, y_mean, y_std_err],
+    data = [[name1, x_mean, x_std_err, len(x)],
+            [name2, y_mean, y_std_err, len(y)],
             ['Both Series', average, error_prop]]
     table2 = (tabulate(data, headers=["Label", "Average", "Std Error / Prop Error"]))
     df = pd.DataFrame(data=data)
@@ -283,27 +285,31 @@ def two_tail_paired_t_test(x1, x2):
     # subtract the data from each other
     difference = np.subtract(x1, x2)
     # find the mean
-    mean = np.sum(difference) / len(x1)
+    mean = sum(difference) / len(x1)
     # find the standard error
-    se = np.std(difference) / len(x1)
+    se = np.std(difference) / np.sqrt(len(x1))
     # compute the t-statistic
     t_stat = mean / se
-    d_of_f = len(x1) + len(x2) - 2 + 2
-
+    t_stat = np.abs(t_stat)
+    d_of_f = len(x1) + len(x2) - 2
     # find the degrees of freedom, and the closest number in the table to my degrees of freedom
-    aux = []
-    for valor in t_table_05:
-        aux.append(abs(d_of_f - valor))
-    index = aux.index(min(aux))
-    value_crit = t_table_05[index]
+    dfx = pd.read_excel(
+        r'G:\My Drive\Work\GNS Radiocarbon Scientist\The Science\Stats and Data Analysis\Matlab and Python Files\tables.xlsx',
+        sheet_name='ttable_adjusted')
+    # print(dfx)
+    # locate where the degrees of freedom is equal to my degrees of freedom:
+    value_crits = dfx['value']
+    value_crits = np.array(value_crits)
+    if d_of_f > 100:
+        value_crit = 1.98
+    else:
+        value_crit = value_crits[d_of_f-1]
 
     if t_stat <= value_crit:
-        result = print('There is NO DIFFERENCE')
+        result = print('There is NO DIFFERENCE. ' + 'Critical value is ' + str(value_crit) + 'at ' + str(d_of_f) + 'degrees of freedom' +  'while t-stat = ' + str(t_stat))
     else:
-        result = print('There IS A DIFFERENCE')
+        result = print('There IS A DIFFERENCE. ' + 'Critical value is ' + str(value_crit) + 'at ' + str(d_of_f) + 'degrees of freedom' +  'while t-stat = ' + str(t_stat))
     return result
-
-
 
 
 

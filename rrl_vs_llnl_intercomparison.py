@@ -37,6 +37,16 @@ nwt4_llnl = llnl.loc[(llnl['standard_type'] == "NWT4") & (llnl['AMS 13C'] == -10
 nwt3_rrl = rrl.loc[rrl['standard_type'] == "NWT3"]  # new dataset with only NWT3 values from rrl
 nwt4_rrl = rrl.loc[rrl['standard_type'] == "NWT4"]  # new dataset with only NWT4 values from rrl
 
+
+
+
+
+
+
+
+
+
+
 # extract the variables I'm interested in
 y1 = nwt3_llnl['D14C']
 y2 = nwt4_llnl['D14C']

@@ -31,21 +31,12 @@ rrl = rrl.rename(columns={'Samples::Sample ID': 'standard_type'})
 rrl = rrl.rename(columns={'AMS Submission Results Complete::Date Run': 'Date'})
 
 # locate the data I'm after and create new datasets for it
-nwt3_llnl = llnl.loc[llnl['standard_type'] == "NWT3"]  # new dataset with only NWT3 values from LLNL
+nwt3_llnl = llnl.loc[(llnl['standard_type'] == "NWT3") & (llnl['AMS 13C'] > -8.1)]  # new dataset with only NWT4 values from LLNL, corrected for AMS 13C
 # only grabbing specific NWT4 Standards, see email thread with Jocelyn in March 8, 2022
 nwt4_llnl = llnl.loc[(llnl['standard_type'] == "NWT4") & (llnl['AMS 13C'] == -10.43)]  # new dataset with only NWT4 values from LLNL, corrected for AMS 13C
+
 nwt3_rrl = rrl.loc[rrl['standard_type'] == "NWT3"]  # new dataset with only NWT3 values from rrl
 nwt4_rrl = rrl.loc[rrl['standard_type'] == "NWT4"]  # new dataset with only NWT4 values from rrl
-
-
-
-
-
-
-
-
-
-
 
 # extract the variables I'm interested in
 y1 = nwt3_llnl['D14C']

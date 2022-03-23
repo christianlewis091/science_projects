@@ -5,6 +5,8 @@ from numpy.fft import fft, ifft
 from tabulate import tabulate
 import random
 from miller_curve_algorithm import ccgFilter
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 # dfx = pd.read_excel(
 #     r'G:\My Drive\Work\GNS Radiocarbon Scientist\The Science\Stats and Data Analysis\Matlab and Python Files\tables.xlsx',
@@ -161,37 +163,37 @@ THIS METHOD DOES NOT WORK YET - MUST DEAL WITH VARIABLE D_of_F's not equal to th
 
 
 # def simple_t_test(x1, x2):
-    # TODO FIX CRITICAL VALUE LOOKUP
-    # dfx = pd.read_excel(
-    #     r'G:\My Drive\Work\GNS Radiocarbon Scientist\The Science\Stats and Data Analysis\Matlab and Python Files\tables.xlsx',
-    #     sheet_name='t table', skiprows=6)
-    # dfx = dfx.reset_index()
-    # t_table_05 = dfx[0.05]
-    #
-    # # get the rough data needed for a t-test
-    # mean_x1 = np.average(x1)
-    # mean_x2 = np.average(x2)
-    # var_x1 = np.var(x1)
-    # var_x2 = np.var(x2)
-    #
-    # # the math
-    # mean = abs(mean_x2 - mean_x1)
-    # denominator = np.sqrt((var_x1 / len(x1)) + (var_x2 / len(x2)))
-    # t_value = mean / denominator
-    # d_of_f = len(x1) + len(x2) - 2 + 2  # usually you subtract two, but length starts at zero so I add them back in
-    #
-    # # find the degrees of freedom, and the closest number in the table to my degrees of freedom
-    # aux = []
-    # for valor in t_table_05:
-    #     aux.append(abs(d_of_f - valor))
-    # index = aux.index(min(aux))
-    # value_crit = t_table_05[index]
-    #
-    # if t_value <= value_crit:
-    #     result = print('There is NO DIFFERENCE')
-    # else:
-    #     result = print('There IS A DIFFERENCE')
-    # return result
+# TODO FIX CRITICAL VALUE LOOKUP
+# dfx = pd.read_excel(
+#     r'G:\My Drive\Work\GNS Radiocarbon Scientist\The Science\Stats and Data Analysis\Matlab and Python Files\tables.xlsx',
+#     sheet_name='t table', skiprows=6)
+# dfx = dfx.reset_index()
+# t_table_05 = dfx[0.05]
+#
+# # get the rough data needed for a t-test
+# mean_x1 = np.average(x1)
+# mean_x2 = np.average(x2)
+# var_x1 = np.var(x1)
+# var_x2 = np.var(x2)
+#
+# # the math
+# mean = abs(mean_x2 - mean_x1)
+# denominator = np.sqrt((var_x1 / len(x1)) + (var_x2 / len(x2)))
+# t_value = mean / denominator
+# d_of_f = len(x1) + len(x2) - 2 + 2  # usually you subtract two, but length starts at zero so I add them back in
+#
+# # find the degrees of freedom, and the closest number in the table to my degrees of freedom
+# aux = []
+# for valor in t_table_05:
+#     aux.append(abs(d_of_f - valor))
+# index = aux.index(min(aux))
+# value_crit = t_table_05[index]
+#
+# if t_value <= value_crit:
+#     result = print('There is NO DIFFERENCE')
+# else:
+#     result = print('There IS A DIFFERENCE')
+# return result
 
 
 # http://ipl.physics.harvard.edu/wp-uploads/2013/03/PS3_Error_Propagation_sp13.pdf
@@ -205,7 +207,6 @@ def basic_analysis(x, y, name1, name2):
     y_stddev = np.std(y)
     x_std_err = x_stddev / np.sqrt(len(x))
     y_std_err = y_stddev / np.sqrt(len(y))
-
 
     # compute data for datasets together
     average = (x_mean + y_mean) / 2
@@ -239,6 +240,7 @@ def monte_carlo_step1(y, y_error):
             # print(len(empty_array))
         new_array = np.vstack((new_array, empty_array))
     return new_array
+
 
 def monte_carlo_step2(ccgcv_output_template_x, ccgcv_output_template_y, new_array, dates):
     # by initializing new matrix the same size as what I want to create, I can easily v-stack later
@@ -303,13 +305,13 @@ def two_tail_paired_t_test(x1, x2):
     if d_of_f > 100:
         value_crit = 1.98
     else:
-        value_crit = value_crits[d_of_f-1]
+        value_crit = value_crits[d_of_f - 1]
 
     if t_stat <= value_crit:
-        result = print('There is NO DIFFERENCE. ' + 'Critical value is ' + str(value_crit) + 'at ' + str(d_of_f) + 'degrees of freedom' +  'while t-stat = ' + str(t_stat))
+        result = print('There is NO DIFFERENCE. ' + 'Critical value is ' + str(value_crit) + ' at ' + str(
+            d_of_f) + ' degrees of freedom ' + 'while t-stat = ' + str(t_stat) + ' mean is ' + str(mean))
     else:
-        result = print('There IS A DIFFERENCE. ' + 'Critical value is ' + str(value_crit) + 'at ' + str(d_of_f) + 'degrees of freedom' +  'while t-stat = ' + str(t_stat))
+        result = print('There IS A DIFFERENCE. ' + 'Critical value is ' + str(value_crit) + ' at ' + str(
+            d_of_f) + ' degrees of freedom' + 'while t-stat = ' + str(t_stat) + ' mean is ' + str(mean))
     return result
-
-
 

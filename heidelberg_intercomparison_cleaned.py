@@ -3,16 +3,11 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
-import random
 from miller_curve_algorithm import ccgFilter
 from my_functions import long_date_to_decimal_date, monte_carlo_step2
 from my_functions import year_month_todecimaldate
-
 from my_functions import monte_carlo_step1
 from my_functions import two_tail_paired_t_test
-
-colors = sns.color_palette("rocket")
-colors2 = sns.color_palette("mako")
 """ IMPORT ALL THE DATA """
 # Heidelberg data excel file
 heidelberg = pd.read_excel(r'G:\My Drive\Work\GNS Radiocarbon Scientist\The Science\Datasets'
@@ -30,24 +25,23 @@ heidelberg = heidelberg.loc[(heidelberg['D14C'] > 10)]  # filter out the one out
 baringhead = baringhead.dropna(subset=['DELTA14C'])
 
 # Split up the baring head file so that it only takes data after the bomb peak, and removes data between 1995 and 2005
-# Will need to keep baring head data split into two for accurate curve smoothing (baringhead1 and baringhead2)
+# Will need to keep baring head data split into two for accurate curve smoothing (baringhead1 and baringhead_merged)
 baringhead = baringhead.loc[(baringhead['DEC_DECAY_CORR'] > 1980)]  # grab all values after 1980
 baringhead = baringhead.loc[(baringhead['DELTA14C_ERR'] > 0)]  # get rid of data where the error flag is -1000
 baringhead1 = baringhead.loc[(baringhead['DEC_DECAY_CORR'] < 1994)]
 baringhead2 = baringhead.loc[(baringhead['DEC_DECAY_CORR'] > 2006)]
-barnighead_xtra = baringhead.loc[(baringhead['DEC_DECAY_CORR'] > 2006)] # going to keep the 2011 hump in here
 
 # # cutout 2009-2011 from baringhead2
 print('Data between 2009 and 2012 removed')
 baringhead2_1 = baringhead2.loc[(baringhead2['DEC_DECAY_CORR'] < 2009)]
 baringhead2_2 = baringhead2.loc[(baringhead2['DEC_DECAY_CORR'] > 2012)]
-baringhead2 = pd.merge(baringhead2_1, baringhead2_2, how='outer')  # how = outer Keeps ALL Data
+baringhead_merged = pd.merge(baringhead2_1, baringhead2_2, how='outer')  # how = outer Keeps ALL Data
 
 # reset indeces to avoid random errors that crop up
 heidelberg = heidelberg.reset_index()
 baringhead1 = baringhead1.reset_index()
 baringhead2 = baringhead2.reset_index()
-baringhead_xtra = barnighead_xtra.reset_index()
+baringhead_merged = baringhead_merged.reset_index()
 
 """ extract my variables"""
 y_init_heid = heidelberg['D14C']  # Y values from heidelberg dataset
@@ -60,33 +54,10 @@ yerr_init_bhd1 = baringhead1['DELTA14C_ERR']
 x_init_bhd1 = baringhead1['DATE_COLL']
 x_init_bhd1 = long_date_to_decimal_date(x_init_bhd1)
 
-y_init_bhd2 = baringhead2['DELTA14C']
-yerr_init_bhd2 = baringhead2['DELTA14C_ERR']
-x_init_bhd2 = baringhead2['DATE_COLL']
+y_init_bhd2 = baringhead_merged['DELTA14C'] # extracting x's and y's from the merged dataset after 2011 hump removed.
+yerr_init_bhd2 = baringhead_merged['DELTA14C_ERR']
+x_init_bhd2 = baringhead_merged['DATE_COLL']
 x_init_bhd2 = long_date_to_decimal_date(x_init_bhd2)
-
-y_init_bhd_xtra = baringhead_xtra['DELTA14C']
-y_err_bhd_xtra = baringhead_xtra['DELTA14C_ERR']
-x_init_bhd_xtra = baringhead_xtra['DATE_COLL']
-x_init_bhd_xtra = long_date_to_decimal_date(x_init_bhd_xtra)
-
-"""  Plot of inital data  """
-# keep colors consistent
-size = 5
-fig = plt.figure(1)
-# plt.scatter(x_init_bhd1, y_init_bhd1, marker='o', label='Baring Head Record > 1980 Part 1', color=colors[0], s=size)
-plt.scatter(x_init_bhd2, y_init_bhd2, marker='o', label='Baring Head Record > 1980 Part 2', color=colors[1], s=size)
-# plt.scatter(x_init_heid, y_init_heid, marker='x', label='Heidelberg Data Record', color=colors[3], s=size)
-plt.legend()
-plt.title('Initial Data Plot')
-plt.xlim([1980, 2020])
-plt.ylim([0, 300])
-plt.xlabel('Date', fontsize=14)
-plt.ylabel('\u0394 14CO2', fontsize=14)  # label the y axis
-plt.savefig('C:/Users/lewis/venv/python310/python-masterclass-remaster-shared/'
-            'radiocarbon_intercomparison/plots/heidelberg_intercomparison_cleaned_Fig1_2bhd.png',
-            dpi=300, bbox_inches="tight")
-plt.close()
 
 """ CALL IN THE CCGCV CURVE SMOOTHER """
 # longer cutoff = smoother curve. shorter cutoff = more rugged curve
@@ -107,14 +78,11 @@ ccgcv_bhd2 = ccgFilter(x_init_bhd2, y_init_bhd2, cutoff).getMonthlyMeans()
 x_ccgcv_bhd2 = year_month_todecimaldate(ccgcv_bhd2[0], ccgcv_bhd2[1])  # get the dates to be in decimal format
 y_ccgcv_bhd2 = ccgcv_bhd2[2]
 
-# smooth the baring head data
-ccgcv_bhd_xtra = ccgFilter(x_init_bhd_xtra, y_init_bhd_xtra, cutoff).getMonthlyMeans()
-x_ccgcv_bhd_xtra = year_month_todecimaldate(ccgcv_bhd2[0], ccgcv_bhd2[1])  # get the dates to be in decimal format
-y_ccgcv_bhd_xtra = ccgcv_bhd2[2]
 
 """
-The above CCGCV smoothing code ouputs a different lenght of x and y values from original input
-For this reason, one cannot subtract the original data from the smooth data right away (different matrix length, different x-values)
+The above CCGCV smoothing code outputs a different length of x and y values from original input
+For this reason, one cannot subtract the original data from the smooth data right away (different matrix length, 
+different x-values)
 But, you can solve the smoothed curve for explicit x-values and get y-values to subtract from original data:
 
 Below: i'm fitting the Heidelberg data using ccgcv, and then fitting x-values from Baring Head AND Heidelberg.
@@ -145,55 +113,15 @@ residual_bhd1 = A_bhd1 - y_init_bhd1
 A_bhd2 = ccgFilter(x_init_heid, y_init_heid, cutoff).getSmoothValue(x_init_bhd2)
 residual_bhd2 = A_bhd2 - y_init_bhd2
 
-
-"""  Plot of curve fit over data"""
-fig = plt.figure(2)
-size = 10
-plt.scatter(x_init_bhd1, y_init_bhd1, marker='o', label='Baring Head Part 1', color=colors[0], s=size, alpha=0.3)
-plt.plot(x_ccgcv_bhd1, y_ccgcv_bhd1, label='Baring Head Part 1 SMOOTH', color=colors[0])
-plt.scatter(x_init_bhd2, y_init_bhd2, marker='o', label='Baring Head Part 2', color=colors[1], s=size, alpha=0.3)
-plt.plot(x_ccgcv_bhd2, y_ccgcv_bhd2, label='Baring Head Part 2 SMOOTH', color=colors[1])
-plt.scatter(x_init_heid, y_init_heid, marker='x', label='Heidelberg Data Record', color=colors[3], s=size, alpha=0.3)
-plt.plot(x_ccgcv_heid, y_ccgcv_heid, label='Heidelberg SMOOTH', color=colors[3])
-plt.legend()
-plt.title('CCGCV Curve fit over Baring Head and Heidelberg Data: 667 Day cutoff')
-plt.xlim([1980, 2020])
-plt.ylim([0, 300])
-plt.xlabel('Date', fontsize=14)
-plt.ylabel('\u0394 14CO2', fontsize=14)  # label the y axis
-plt.savefig('C:/Users/lewis/venv/python310/python-masterclass-remaster-shared/'
-            'radiocarbon_intercomparison/plots/heidelberg_intercomparison_cleaned_Fig2_2bhd.png',
-            dpi=300, bbox_inches="tight")
-plt.close()
-#
-"""  Plot of residuals"""
-fig = plt.figure(3)
-size = 5
-plt.scatter(x_init_bhd1, residual_bhd1, marker='o', label='Baring Head Part 1', color=colors[0], s=size)
-plt.scatter(x_init_bhd2, residual_bhd2, marker='o', label='Baring Head Part 2', color=colors[1], s=size)
-plt.scatter(x_init_heid, residual_heid, marker='x', label='Heidelberg', color=colors[3], s=size)
-plt.legend()
-plt.title('How far is the BHD and Heidelberg data from Heidelberg Curve fit?')
-# plt.xlim([1980, 2020])
-# plt.ylim([0, 300])
-plt.xlabel('Date', fontsize=14)
-plt.ylabel('\u0394 14CO2', fontsize=14)  # label the y axis
-plt.savefig('C:/Users/lewis/venv/python310/python-masterclass-remaster-shared/'
-            'radiocarbon_intercomparison/plots/heidelberg_intercomparison_cleaned_Fig3_2bhd.png',
-            dpi=300, bbox_inches="tight")
-plt.close()
-
-
 """ Perform a t-test of the residuals"""
 # Drop the nan's from the residual dataset or the t-test will fail
 residual_heid = residual_heid.dropna()
 residual_bhd1 = residual_bhd1.dropna()
 residual_bhd2 = residual_bhd2.dropna()
-
-# simple_t_test(residual_bhd1, residual_heid)  # TODO FIX T_TEST search for critical value function; don't trust right now.
+# TODO FIX T_TEST search for critical value function; don't trust right now.
+# simple_t_test(residual_bhd1, residual_heid)
 # simple_t_test(residual_bhd2, residual_heid)
 # simple_t_test(residual_bhd1, residual_bhd2)
-
 
 """
 USE MONTE CARLO METHOD TO ESTIMATE DIFFERENCES BETWEEN DATASETS
@@ -201,12 +129,12 @@ USE MONTE CARLO METHOD TO ESTIMATE DIFFERENCES BETWEEN DATASETS
 """
 Monte Carlo for Heidelberg Data
 """
-step1 = monte_carlo_step1(y_init_heid, yerr_init_heid)
-step2 = monte_carlo_step2(x_ccgcv_heid, y_ccgcv_heid, step1, x_init_heid)
+step1 = monte_carlo_step1(y_init_heid, yerr_init_heid)  # use the first function to do Monte Carlo analysis
+step2 = monte_carlo_step2(x_ccgcv_heid, y_ccgcv_heid, step1, x_init_heid)  # use the second function to do Monte Carlo
 # return df_dates, df_ys, mean_array, stdev_array
 heidelberg_mc_dates = step2[0]  # extract the date dataframe from function output
-heidelberg_mc_dates = heidelberg_mc_dates.iloc[1]
-# extract the y's, the randomized data that has been smoothed through ccgcv
+heidelberg_mc_dates = heidelberg_mc_dates.iloc[1]  # extract the first column of the date dataframe
+# extract examples of the y's, the randomized data that has been smoothed through ccgcv
 heidelberg_mc_ys = step2[1]
 heidelberg_mc_ys_1 = heidelberg_mc_ys.iloc[10]
 heidelberg_mc_ys_2 = heidelberg_mc_ys.iloc[100]
@@ -244,10 +172,8 @@ Monte Carlo for BHD Data Part 2
 """
 step1_bhd2 = monte_carlo_step1(y_init_bhd2, yerr_init_bhd2)
 step2_bhd2 = monte_carlo_step2(x_ccgcv_bhd2, y_ccgcv_bhd2, step1_bhd2, x_init_bhd2)
-# return df_dates, df_ys, mean_array, stdev_array
-bhd2_mc_dates = step2_bhd2[0]  # extract the date dataframe from function output
+bhd2_mc_dates = step2_bhd2[0]
 bhd2_mc_dates = bhd2_mc_dates.iloc[1]
-# extract the y's, the randomized data that has been smoothed through ccgcv
 bhd2_mc_ys = step2_bhd2[1]
 bhd2_mc_ys_1 = bhd2_mc_ys.iloc[10]
 bhd2_mc_ys_2 = bhd2_mc_ys.iloc[100]
@@ -259,41 +185,6 @@ bhd2_mc_stdev = step2_bhd2[3]
 bhd2_upperbounds = step2_bhd2[4]
 bhd2_lowerbounds = step2_bhd2[5]
 bhd2_max_error = max(step2_bhd2[3])
-
-
-#
-fig = plt.figure(6)
-size = 5
-alpha1 = 0.4
-# plt.plot(bhd_mc_dates, bhd_mc_ys_1, color=colors[0], alpha=alpha1)
-# plt.plot(bhd_mc_dates, bhd_mc_ys_2, color=colors[0], alpha=alpha1)
-# plt.plot(bhd_mc_dates, bhd_mc_ys_3, color=colors[0], alpha=alpha1)
-# plt.plot(bhd_mc_dates, bhd_mc_ys_4, color=colors[0], alpha=alpha1)
-# plt.plot(bhd_mc_dates, bhd_mc_ys_5, color=colors[0], alpha=alpha1)
-# # plt.plot(heidelberg_mc_dates, heidelberg_mc_ys_1, color=colors[3], alpha=alpha1)
-# # plt.plot(heidelberg_mc_dates, heidelberg_mc_ys_2, color=colors[3], alpha=alpha1)
-# # plt.plot(heidelberg_mc_dates, heidelberg_mc_ys_3, color=colors[3], alpha=alpha1)
-# # plt.plot(heidelberg_mc_dates, heidelberg_mc_ys_4, color=colors[3], alpha=alpha1)
-# # plt.plot(heidelberg_mc_dates, heidelberg_mc_ys_5, color=colors[3], alpha=alpha1)
-plt.plot(bhd1_mc_dates, bhd1_mc_mean, color=colors[0], label='BHD MonteCarlo Mean', linestyle='solid')
-plt.plot(bhd1_mc_dates, bhd1_upperbounds, color=colors[1], label='BHD MonteCarlo upperbound', linestyle='solid')
-plt.plot(bhd1_mc_dates, bhd1_lowerbounds, color=colors[1], label='BHD MonteCarlo lowerbound', linestyle='solid')
-plt.plot(bhd2_mc_dates, bhd2_mc_mean, color=colors[2], label='BHD MonteCarlo Mean', linestyle='solid')
-plt.plot(bhd2_mc_dates, bhd2_upperbounds, color=colors[3], label='BHD MonteCarlo upperbound', linestyle='solid')
-plt.plot(bhd2_mc_dates, bhd2_lowerbounds, color=colors[3], label='BHD MonteCarlo lowerbound', linestyle='solid')
-plt.plot(heidelberg_mc_dates, heidelberg_mc_mean, color=colors[4], label='Heidelberg MonteCarlo Mean', linestyle='solid')
-plt.plot(heidelberg_mc_dates, heidelberg_upperbounds, color=colors[5], label='Heidelberg MonteCarlo upperbound', linestyle='solid')
-plt.plot(heidelberg_mc_dates, heidelberg_lowerbounds, color=colors[5], label='Heidelberg MonteCarlo lowerbound', linestyle='solid')
-plt.title('Upper and lower uncertainty bounds')
-plt.xlim([1980, 2020])
-plt.ylim([0, 300])
-plt.legend()
-plt.xlabel('Date', fontsize=14)
-plt.ylabel('\u0394 14CO2', fontsize=14)  # label the y axis
-plt.savefig('C:/Users/lewis/venv/python310/python-masterclass-remaster-shared/'
-            'radiocarbon_intercomparison/plots/heidelberg_intercomparison_cleaned_Fig5_2bhd.png',
-            dpi=300, bbox_inches="tight")
-plt.close()
 
 """
 Use a paired t-test to check if increments of data are the same.
@@ -311,21 +202,17 @@ each range of dates easily by:
 2. Filtering by date using pandas
 
 """
-
 # Split up the baring head file so that it only takes data after the bomb peak, and removes data between 1995 and 2005
-# Will need to keep baring head data split into two for accurate curve smoothing (baringhead1 and baringhead2)
-
+# Will need to keep baring head data split into two for accurate curve smoothing (baringhead1 and baringhead_merged)
 # create a new set of x-data to run through the smoothing.
 fake_x = np.linspace(1980, 2020, 1000)
 
-# run fake x through baring head 1 smooth fit (use the Monte Carlo's for error analysis)
+# run fake x through the 3 smooth fits (use the Monte Carlo's for error analysis)
 fake_x_heid = ccgFilter(x_init_heid, y_init_heid, cutoff).getSmoothValue(fake_x)
 
 fake_x_bhd1 = ccgFilter(x_init_bhd1, y_init_bhd1, cutoff).getSmoothValue(fake_x)
 
 fake_x_bhd2 = ccgFilter(x_init_bhd2, y_init_bhd2, cutoff).getSmoothValue(fake_x)
-
-fake_x_bhd_xtra = ccgFilter(x_init_bhd_xtra, y_init_bhd_xtra, cutoff).getSmoothValue(fake_x)
 
 # does this even work when we're adding x's to spots where the curve isn't able to smooth???
 # # YES IT WORKS. The smoother only plots until the data ends!
@@ -335,11 +222,10 @@ fake_x_bhd_xtra = ccgFilter(x_init_bhd_xtra, y_init_bhd_xtra, cutoff).getSmoothV
 # plt.plot(fake_x, fake_x_heid, color=colors[2], label='Heidelberg', linestyle='solid')
 # # plt.show()
 
-# create new dataframes including keys for all sections, and then I can filter by date and still know whats what.
+# create new dataframes including keys for all sections, and then I can filter by date and still know what's what.
 key_bhd1 = (np.ones(len(fake_x_bhd1))) * 1
 key_bhd2 = (np.ones(len(fake_x_bhd2))) * 2
 key_heid = (np.ones(len(fake_x_heid))) * 3
-
 
 df = pd.DataFrame({'Date': fake_x, '14C': fake_x_bhd1, 'Key': key_bhd1})
 df = df.dropna(subset=['14C'])
@@ -349,8 +235,6 @@ df2 = pd.DataFrame({'Date': fake_x, '14C': fake_x_heid, 'Key': key_heid})
 df2 = df2.dropna(subset=['14C'])
 combine = pd.merge(df, df1, how='outer')  # Keeps ALL Data
 combine = pd.merge(combine, df2, how='outer')
-
-combine.to_csv(r'G:/My Drive/Work/GNS Radiocarbon Scientist/The Science/Datasets/filename.csv')
 
 """
 Paired t-test using entire dataset (now that I fixed the paired t-test bug)
@@ -379,45 +263,13 @@ print('Results of the Paired T-test for the entirety of Part 1 and Part 2')
 two_tail_paired_t_test(nv2, nv4)
 two_tail_paired_t_test(nv6, nv8)
 
-
-
-fig = plt.figure(8)
-size = 4
-plt.scatter(nv1, nv2, color=colors[2], label='Baring Head 1', linestyle='solid', marker='o', s=size)
-plt.scatter(nv3, nv4, color=colors2[2], label='Heidelberg', linestyle='solid', marker='o', s=size)
-plt.plot(x_init_bhd1, y_init_bhd1, marker='o', label='Baring Head Record > 1980', color=colors[0], alpha=0.2)
-plt.plot(x_init_heid, y_init_heid, marker='x', label='Heidelberg Data Record', color=colors[3], alpha=0.2)
-plt.xlim([1987, 1994])
-plt.ylim([120, 190])
-plt.xlabel('Date', fontsize=14)
-plt.ylabel('\u0394 14CO2', fontsize=14)  # label the y axis
-plt.legend()
-plt.savefig('C:/Users/lewis/venv/python310/python-masterclass-remaster-shared/'
-            'radiocarbon_intercomparison/plots/heidelberg_intercomparison_cleaned_Fig8_pairedt-test5.png',
-            dpi=300, bbox_inches="tight")
-fig = plt.figure(9)
-plt.scatter(nv5, nv6, color=colors[2], label='Baring Head 2', linestyle='solid', marker='o', s=size)
-plt.scatter(nv7, nv8, color=colors2[2], label='Heidelberg', linestyle='solid', marker='o', s=size)
-plt.plot(x_init_bhd2, y_init_bhd2, marker='o', label='Baring Head Record > 1980', color=colors[0], alpha=0.2)
-plt.plot(x_init_heid, y_init_heid, marker='x', label='Heidelberg Data Record', color=colors[3], alpha=0.2)
-plt.xlim([2006, 2016])
-plt.ylim([20, 65])
-plt.xlabel('Date', fontsize=14)
-plt.ylabel('\u0394 14CO2', fontsize=14)  # label the y axis
-plt.legend()
-plt.savefig('C:/Users/lewis/venv/python310/python-masterclass-remaster-shared/'
-            'radiocarbon_intercomparison/plots/heidelberg_intercomparison_cleaned_Fig9_paired-test6.png',
-            dpi=300, bbox_inches="tight")
-
-
 """
-Need to extract all the data into subgruops and perform t-test. T-test showed different on the entire dataset.
+Need to extract all the data into sub groups and perform t-test. T-test showed different on the entire dataset.
 What about subsets?
 """
 # find the boundaries of each dataset in time
 bhd1_max = max(df['Date'])
 heid_min = min(df2['Date'])
-
 bhd2_min = min(df1['Date'])
 heid_max = max(df2['Date'])
 
@@ -544,104 +396,5 @@ two_tail_paired_t_test(f_8, h_8)
 two_tail_paired_t_test(f_9, h_9)
 
 # visualize the result of the t-test
-
-fig = plt.figure(10)
-plt.scatter(a_1, b_1, color=colors[0], linestyle='solid', marker='o', s=size)
-plt.scatter(a_2, b_2, color=colors[1], linestyle='solid', marker='o', s=size)
-plt.scatter(a_3, b_3, color=colors[2], linestyle='solid', marker='o', s=size)
-plt.scatter(a_4, b_4, color=colors[3], linestyle='solid', marker='o', s=size)
-plt.scatter(a_5, b_5, color=colors[4], linestyle='solid', marker='o', s=size)
-plt.scatter(a_6, b_6, color=colors[5], linestyle='solid', marker='o', s=size)
-plt.scatter(c_1, d_1, color=colors2[0], linestyle='solid', marker='o', s=size)
-plt.scatter(c_2, d_2, color=colors2[1], linestyle='solid', marker='o', s=size)
-plt.scatter(c_3, d_3, color=colors2[2], linestyle='solid', marker='o', s=size)
-plt.scatter(c_4, d_4, color=colors2[3], linestyle='solid', marker='o', s=size)
-plt.scatter(c_5, d_5, color=colors2[4], linestyle='solid', marker='o', s=size)
-plt.scatter(c_6, d_6, color=colors2[5], linestyle='solid', marker='o', s=size)
-plt.plot(x_init_bhd1, y_init_bhd1, marker='o', label='Baring Head Record > 1980', color=colors[0], alpha=0.2)
-plt.plot(x_init_heid, y_init_heid, marker='x', label='Heidelberg Data Record', color=colors[3], alpha=0.2)
-plt.legend()
-plt.xlabel('Date', fontsize=14)
-plt.ylabel('\u0394 14CO2', fontsize=14)  # label the y axis
-plt.xlim([1987, 1994])
-plt.ylim([120, 190])
-plt.savefig('C:/Users/lewis/venv/python310/python-masterclass-remaster-shared/'
-            'radiocarbon_intercomparison/plots/heidelberg_intercomparison_cleaned_Fig9_paired-test3.png',
-            dpi=300, bbox_inches="tight")
-plt.close()
-#
-
-# visualize the result of the t-test
-
-fig = plt.figure(11)
-plt.scatter(e_1, f_1, color=colors[0], linestyle='solid', marker='o', s=size)
-plt.scatter(e_2, f_2, color=colors[1], linestyle='solid', marker='o', s=size)
-plt.scatter(e_3, f_3, color=colors[2], linestyle='solid', marker='o', s=size)
-plt.scatter(e_4, f_4, color=colors[3], linestyle='solid', marker='o', s=size)
-plt.scatter(e_5, f_5, color=colors[4], linestyle='solid', marker='o', s=size)
-plt.scatter(e_6, f_6, color=colors[5], linestyle='solid', marker='o', s=size)
-plt.scatter(e_7, f_7, color=colors[0], linestyle='solid', marker='o', s=size)
-plt.scatter(e_8, f_8, color=colors[1], linestyle='solid', marker='o', s=size)
-plt.scatter(e_9, f_9, color=colors[2], linestyle='solid', marker='o', s=size)
-
-plt.scatter(g_1, h_1, color=colors2[0], linestyle='solid', marker='o', s=size)
-plt.scatter(g_2, h_2, color=colors2[1], linestyle='solid', marker='o', s=size)
-plt.scatter(g_3, h_3, color=colors2[2], linestyle='solid', marker='o', s=size)
-plt.scatter(g_4, h_4, color=colors2[3], linestyle='solid', marker='o', s=size)
-plt.scatter(g_5, h_5, color=colors2[4], linestyle='solid', marker='o', s=size)
-plt.scatter(g_6, h_6, color=colors2[5], linestyle='solid', marker='o', s=size)
-plt.scatter(g_7, h_7, color=colors2[0], linestyle='solid', marker='o', s=size)
-plt.scatter(g_8, h_8, color=colors2[1], linestyle='solid', marker='o', s=size)
-plt.scatter(g_9, h_9, color=colors2[2], linestyle='solid', marker='o', s=size)
-plt.plot(x_init_bhd2, y_init_bhd2, marker='o', label='Baring Head Record > 1980', color=colors[0], alpha=0.2)
-plt.plot(x_init_heid, y_init_heid, marker='x', label='Heidelberg Data Record', color=colors[3], alpha=0.2)
-plt.xlim([2006, 2016])
-plt.ylim([20, 65])
-plt.xlabel('Date', fontsize=14)
-plt.ylabel('\u0394 14CO2', fontsize=14)  # label the y axis
-plt.legend()
-plt.savefig('C:/Users/lewis/venv/python310/python-masterclass-remaster-shared/'
-            'radiocarbon_intercomparison/plots/heidelberg_intercomparison_cleaned_Fig9_paired-test4.png',
-            dpi=300, bbox_inches="tight")
-size = 12
-fig = plt.figure(12)
-plt.scatter(e_1, f_1, color=colors[0], linestyle='solid', marker='o', s=size, label='Smoothed Baring Head excluding 2011 bump')
-plt.scatter(e_2, f_2, color=colors[1], linestyle='solid', marker='o', s=size)
-plt.scatter(e_3, f_3, color=colors[2], linestyle='solid', marker='o', s=size)
-plt.scatter(e_4, f_4, color=colors[3], linestyle='solid', marker='o', s=size)
-plt.scatter(e_5, f_5, color=colors[4], linestyle='solid', marker='o', s=size)
-plt.scatter(e_6, f_6, color=colors[5], linestyle='solid', marker='o', s=size)
-plt.scatter(e_7, f_7, color=colors[0], linestyle='solid', marker='o', s=size)
-plt.scatter(e_8, f_8, color=colors[1], linestyle='solid', marker='o', s=size)
-plt.scatter(e_9, f_9, color=colors[2], linestyle='solid', marker='o', s=size) # smoothed Baring Head not includnig 2011 hump
-plt.scatter(g_1, h_1, color=colors2[0], linestyle='solid', marker='X', s=size)
-plt.scatter(g_2, h_2, color=colors2[1], linestyle='solid', marker='X', s=size)
-plt.scatter(g_3, h_3, color=colors2[2], linestyle='solid', marker='X', s=size)
-plt.scatter(g_4, h_4, color=colors2[3], linestyle='solid', marker='X', s=size)
-plt.scatter(g_5, h_5, color=colors2[4], linestyle='solid', marker='X', s=size)
-plt.scatter(g_6, h_6, color=colors2[5], linestyle='solid', marker='X', s=size)
-plt.scatter(g_7, h_7, color=colors2[0], linestyle='solid', marker='X', s=size)
-plt.scatter(g_8, h_8, color=colors2[1], linestyle='solid', marker='X', s=size)
-plt.scatter(g_9, h_9, color=colors2[2], linestyle='solid', marker='X', s=size, label = 'Smoothed Heidelberg Data')
-plt.plot(fake_x, fake_x_bhd_xtra, label='Smoothed Baring Head including 2011 bump', color='black', alpha=.7) # Smoothed Baring Head including 2011 hump
-plt.xlim([2006, 2010])
-plt.ylim([45, 60])
-plt.xlabel('Date', fontsize=14)
-plt.ylabel('\u0394 14CO2', fontsize=14)  # label the y axis
-plt.legend()
-plt.savefig('C:/Users/lewis/venv/python310/python-masterclass-remaster-shared/'
-            'radiocarbon_intercomparison/plots/heidelberg_intercomparison_cleaned_Fig12.png',
-            dpi=300, bbox_inches="tight")
-
-
-
-
-
-
-
-
-
-
-
 
 

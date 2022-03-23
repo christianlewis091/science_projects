@@ -83,7 +83,7 @@ def monte_carlo_randomization(x_init, fake_x, y_init, y_error, cutoff):
         upper_array.append(upper)
         lower_array.append(lower)
 
-    return new_array, template_array, mean_array, stdev_array, upper_array, lower_array
+    return new_array, template_array, mean_array, stdev_array, upper_array, lower_array, fake_x
 
 
 """ IMPORT ALL THE DATA """
@@ -137,22 +137,15 @@ x_init_bhd2 = long_date_to_decimal_date(x_init_bhd2)
 fake_x_temp = np.linspace(1980, 2020, 480)  # x-data that I will use to solve for each of the smoothed curve functions
 df_fake_xs = pd.DataFrame({'x': fake_x_temp})
 
-# # slice x data where it is greater than Heidelberg min, and less than BHD1 max.
-# fake_x_heidelberg = df_fake_xs.loc[(df_fake_xs['x'] >= min(x_init_heid)) & (df_fake_xs['x'] <= max(x_init_heid))]
-# print(fake_x_heidelberg)
-# fake_x_bhd1 = df_fake_xs.loc[(df_fake_xs['x'] >= min(x_init_bhd1)) & (df_fake_xs['x'] <= max(x_init_bhd1))]
-# fake_x_bhd2 = df_fake_xs.loc[(df_fake_xs['x'] >= min(x_init_bhd2)) & (df_fake_xs['x'] <= max(x_init_bhd2))]
-
-# fake_x1 = df_fake_xs.loc[(df_fake_xs['x'] >= min(x_init_heid)) & (df_fake_xs['x'] <= max(x_init_bhd1))]
-# fake_x2 = df_fake_xs.loc[(df_fake_xs['x'] <= max(x_init_heid)) & (df_fake_xs['x'] <= min(x_init_bhd2))]
 
 """ randomize the variables within their measurement uncertainty, 1000 times over (this is the Monte Carlo Part 1) """
 fake_x_heidelberg = df_fake_xs.loc[(df_fake_xs['x'] >= min(x_init_heid)) & (df_fake_xs['x'] <= max(x_init_heid))]
 fake_x_bhd1 = df_fake_xs.loc[(df_fake_xs['x'] >= min(x_init_bhd1)) & (df_fake_xs['x'] <= max(x_init_bhd1))]
+print(len(fake_x_bhd1))
 fake_x_bhd2 = df_fake_xs.loc[(df_fake_xs['x'] >= min(x_init_bhd2)) & (df_fake_xs['x'] <= max(x_init_bhd2))]
 
 # def monte_carlo_randomization(x_init, fake_x, y_init, y_error, cutoff):
-# returns new_array, template_array, mean_array, stdev_array, upper_array, lower_array
+# returns new_array, template_array, mean_array, stdev_array, upper_array, lower_array, fake_x
 h_results = monte_carlo_randomization(x_init_heid, fake_x_heidelberg, y_init_heid, yerr_init_heid, 667)
 bhd1_results = monte_carlo_randomization(x_init_bhd1, fake_x_bhd1, y_init_bhd1, yerr_init_bhd1, 667)
 bhd2_results = monte_carlo_randomization(x_init_bhd2, fake_x_bhd2, y_init_bhd2, yerr_init_bhd2, 667)
@@ -160,13 +153,11 @@ bhd2_results = monte_carlo_randomization(x_init_bhd2, fake_x_bhd2, y_init_bhd2, 
 # randomized Monte Carlo data that has been smoothed
 h_smoothed = h_results[1]
 bhd1_smoothed = bhd1_results[1]
+print(len(bhd1_smoothed))
 bhd2_smoothed = bhd2_results[1]
 
 # the mean of all the randomized, smoothed data at all x-times that I specified
 h_mean = h_results[2]
-print(h_mean)
-print(len(h_mean))
-print(len(fake_x_heidelberg))
 bhd1_mean = bhd1_results[2]
 bhd2_mean = bhd2_results[2]
 
@@ -182,11 +173,50 @@ bhd2_upper = bhd2_results[4]
 h_lower = h_results[5]
 bhd1_lower = bhd1_results[5]
 bhd2_lower = bhd2_results[5]
+# print(type(bhd2_lower))
+# print(type(fake_x_heidelberg))
+# print(fake_x_heidelberg)
 
 """ Bring the above data into dataframes for easier filtering for paired t-tests """
-df_h = pd.DataFrame({"mean": h_mean, "stdev": h_stdev, "upper": h_upper, "lower": h_lower})
-df_bhd1 = pd.DataFrame({"mean": h_mean, "stdev": h_stdev, "upper": h_upper, "lower": h_lower})
-df_bhd2 = pd.DataFrame({"mean": h_mean, "stdev": h_stdev, "upper": h_upper, "lower": h_lower})
+df_bhd1 = pd.DataFrame({"date": fake_x_bhd1['x'], "mean": bhd1_mean, "stdev": bhd1_stdev, "upper": bhd1_upper, "lower": bhd1_lower, "key": 1})
+df_bhd2 = pd.DataFrame({"date": fake_x_bhd2['x'], "mean": bhd2_mean, "stdev": bhd2_stdev, "upper": bhd2_upper, "lower": bhd2_lower, "key": 2})
+df_h = pd.DataFrame({"date": fake_x_heidelberg['x'], "mean": h_mean, "stdev": h_stdev, "upper": h_upper, "lower": h_lower, "key": 3})
+#
+combine = pd.merge(df_bhd1, df_bhd2, how='outer')
+combine = pd.merge(combine, df_h, how='outer')
+
+""" Slice up the data where the datasets overlap so I can do paired t-tests """
+early_period_bhd = combine.loc[(combine['key'] == 1) & (combine['date'] >= min(y_init_heid))]  # Baring Head part 1, after heidelberg min
+early_period_heid = combine.loc[(combine['key'] == 3) & (combine['date'] <= max(y_init_bhd1))]  # Baring Head part 1, after heidelberg min
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# # slice x data where it is greater than Heidelberg min, and less than BHD1 max.
+# fake_x_heidelberg = df_fake_xs.loc[(df_fake_xs['x'] >= min(x_init_heid)) & (df_fake_xs['x'] <= max(x_init_heid))]
+# print(fake_x_heidelberg)
+# fake_x_bhd1 = df_fake_xs.loc[(df_fake_xs['x'] >= min(x_init_bhd1)) & (df_fake_xs['x'] <= max(x_init_bhd1))]
+# fake_x_bhd2 = df_fake_xs.loc[(df_fake_xs['x'] >= min(x_init_bhd2)) & (df_fake_xs['x'] <= max(x_init_bhd2))]
+
+# fake_x1 = df_fake_xs.loc[(df_fake_xs['x'] >= min(x_init_heid)) & (df_fake_xs['x'] <= max(x_init_bhd1))]
+# fake_x2 = df_fake_xs.loc[(df_fake_xs['x'] <= max(x_init_heid)) & (df_fake_xs['x'] <= min(x_init_bhd2))]
 
 
 
@@ -218,31 +248,25 @@ df_bhd2 = pd.DataFrame({"mean": h_mean, "stdev": h_stdev, "upper": h_upper, "low
 
 
 
-
-
-
-
-
-
-
-
-colors = sns.color_palette("rocket")
-colors2 = sns.color_palette("mako")
-size = 5
-fig = plt.figure(1)
-plt.scatter(x_init_heid, y_init_heid, color=colors[0], linestyle='solid', marker='o', s=size, label='Initial Heidelberg Data')
-plt.scatter(fake_x_heidelberg, h_mean, color=colors[1], linestyle='solid', marker='o', s=size, label='Mean of Smoothed Heidelberg Data through Monte Carlo Sim')
-plt.scatter(x_init_bhd1, y_init_bhd1, color=colors2[0], linestyle='solid', marker='X', s=size, label='Initial Baring Head Data')
-plt.scatter(fake_x_bhd1, bhd1_mean, color=colors2[1], linestyle='solid', marker='X', s=size, label='Mean of Smoothed Baring Head Data through Monte Carlo Sim')
-plt.scatter(x_init_bhd2, y_init_bhd2, color=colors2[2], linestyle='solid', marker='*', s=size, label='Initial Baring Head Data')
-plt.scatter(fake_x_bhd2, bhd2_mean, color=colors2[3], linestyle='solid', marker='*', s=size, label='Mean of Smoothed Heidelberg Data through Monte Carlo Sim')
-plt.title('Initial Data Plot')
-# plt.xlim([1980, 2020])
-# plt.ylim([0, 300])
-plt.xlabel('Date', fontsize=14)
-plt.ylabel('\u0394 14CO2', fontsize=14)  # label the y axis
-plt.legend()
-plt.show()
+#
+#
+# colors = sns.color_palette("rocket")
+# colors2 = sns.color_palette("mako")
+# size = 5
+# fig = plt.figure(1)
+# plt.scatter(x_init_heid, y_init_heid, color=colors[0], linestyle='solid', marker='o', s=size, label='Initial Heidelberg Data')
+# plt.scatter(fake_x_heidelberg, h_mean, color=colors[1], linestyle='solid', marker='o', s=size, label='Mean of Smoothed Heidelberg Data through Monte Carlo Sim')
+# plt.scatter(x_init_bhd1, y_init_bhd1, color=colors2[0], linestyle='solid', marker='X', s=size, label='Initial Baring Head Data')
+# plt.scatter(fake_x_bhd1, bhd1_mean, color=colors2[1], linestyle='solid', marker='X', s=size, label='Mean of Smoothed Baring Head Data through Monte Carlo Sim')
+# plt.scatter(x_init_bhd2, y_init_bhd2, color=colors2[2], linestyle='solid', marker='*', s=size, label='Initial Baring Head Data')
+# plt.scatter(fake_x_bhd2, bhd2_mean, color=colors2[3], linestyle='solid', marker='*', s=size, label='Mean of Smoothed Heidelberg Data through Monte Carlo Sim')
+# plt.title('Initial Data Plot')
+# # plt.xlim([1980, 2020])
+# # plt.ylim([0, 300])
+# plt.xlabel('Date', fontsize=14)
+# plt.ylabel('\u0394 14CO2', fontsize=14)  # label the y axis
+# plt.legend()
+# plt.show()
 
 
 

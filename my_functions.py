@@ -227,7 +227,7 @@ range
 
 def monte_carlo_step1(y, y_error):
     new_array = y  # create a new variable on which we will later v-stack randomized lists
-    n = 1000  # the amount of times that our loop will go around
+    n = 10  # the amount of times that our loop will go around
 
     for i in range(0, n):
         empty_array = []

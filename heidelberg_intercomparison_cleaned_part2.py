@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
 from miller_curve_algorithm import ccgFilter
+import math
 from my_functions import long_date_to_decimal_date, monte_carlo_step2
 from my_functions import year_month_todecimaldate
 from my_functions import monte_carlo_step1
@@ -39,13 +40,9 @@ Get Monthly averages without the smooth curve process
 
 """ Define all the functions that I'll be using """
 
-
-# TODO change n to 10
-
 def monte_carlo_randomization(x_init, fake_x, y_init, y_error, cutoff):
     new_array = y_init  # create a new variable on which we will later v-stack randomized lists
-    n = 10  # the amount of times that our loop will go around
-
+    n = 10000
     for i in range(0, n):
         empty_array = []
         for j in range(0, len(y_init)):
@@ -57,12 +54,12 @@ def monte_carlo_randomization(x_init, fake_x, y_init, y_error, cutoff):
             # print(len(empty_array))
         new_array = np.vstack((new_array, empty_array))
 
-# CODE WORKS UP TO ABOVE
+    # CODE WORKS UP TO ABOVE
 
     template_array = ccgFilter(x_init, y_init, cutoff).getSmoothValue(fake_x)
     for k in range(0, len(new_array)):
         row = new_array[k]  # grab the first row of the data
-        smooth = ccgFilter(x_init, row, cutoff).getSmoothValue(fake_x)  #outputs smooth values at my desired times, x
+        smooth = ccgFilter(x_init, row, cutoff).getSmoothValue(fake_x)  # outputs smooth values at my desired times, x
         template_array = np.hstack((template_array, smooth))
     df = pd.DataFrame(template_array)
 
@@ -85,58 +82,104 @@ def monte_carlo_randomization(x_init, fake_x, y_init, y_error, cutoff):
 
     return new_array, template_array, mean_array, stdev_array, upper_array, lower_array, fake_x
 
+
 def two_tail_paired_t_test(y1, y1err, y2, y2err):
+    """ Subtract the data from each other (first step in paired t-test)"""
+    difference = np.subtract(y1, y2)  # subtract the data from each other
+    """ What is the mean of the subtraction array? """
+    mean1 = np.average(difference)
+    """ What is the standard error of the subtraction array"""
+    se = np.std(difference) / np.sqrt(len(y1))
+    """ Compute the t-stat"""
+    t_stat = mean1 / se
+    t_stat = np.abs(t_stat)
 
-    # subtract the data from each other
-    difference = np.subtract(y1, y2)
+    """ ERROR PROPAGATION """
+    """ propagate the error from the first differencing """
+    y1err_sq = y1err*y1err  # square of errors from first dataset
+    y2err_sq = y2err*y2err  # square of errors from second dataset
+    sum_errs = y1err_sq + y2err_sq  # sum of the squared errors
+    err_differencing = np.sqrt(sum_errs)  # square root of the sums of errors
 
-    # propogate the errors with sum of squares
-    errorprop_step1 = y1err * y1err
-    errorprop_step2 = np.sqrt(errorprop_step1)
-    errorprop_step2 = list(errorprop_step2)
+    """ propagate the error from the mean1 """
+    squares = err_differencing * err_differencing  # square the propagated errors from differencing
+    sum_errs2 = 0  # initialize sums to zero
+    for i in range(0, len(squares)):
+        sum_errs2 = sum_errs2 + squares[i]  # add them all together
+        # sum_errs2 += squares[i]
+    sum_errs3 = np.sqrt(sum_errs2)  # take the square root
+    err_mean = sum_errs3 / len(squares)  # divide by number of measurements
 
-    errorprop_step3 = y2err * y2err
-    errorprop_step4 = np.sqrt(errorprop_step2)
-    errorprop_step4 = list(errorprop_step4)
+    print('The mean of the differences is ' + str(mean1) + '\u00B1 ' + str(se), ' while the propogated error of the mean is ' + str(err_mean))
 
-    errorprop_step5 = np.add(errorprop_step2, errorprop_step4)
-    errorprop_step6 = errorprop_step5 / len(y1)
-    print(errorprop_step6)
+    """ propagate the error from the standard error calculation for t-stat"""
+    """ prop error for standard dev calc"""
+    """step 1: (xi - u)"""
+    # propagate error of numerator of stdev eqn
+    a = err_differencing * err_differencing  # element-wise square of the error from differences array
+    b = err_mean * err_mean  # square of the error of the mean
+    diff = a + b  # sum of squared errors of the numerator
+    step1err = np.sqrt(diff)
+    """step 2: (xi - u)^2 (before the sum)"""
+    # when squaring (in general multiplying or dividing)
+    # I have to do the slightly more complex error prop
+    prod = (difference - mean1) * (difference - mean1)
+    first_square = (err_differencing / difference) * (err_differencing / difference)
+    second_square = (err_mean / mean1) * (err_mean / mean1)
+    under_radical = first_square + second_square
+    rad = np.sqrt(under_radical)
+    step2err = rad * prod
+    """step 3: SIGMA(xi - u)^2 """
+    init = 0  # initialize the variable I will add to to zero
+    for i in range(0, len(step2err)):
+        anew = step2err[i] * step2err[i]  # square the error
+        init = init + anew  # take the sum
+    step3err = np.sqrt(init)
+    print(step3err)
+    """step 3: SIGMA(xi - u)^2 / N """
+    step4err = step3err / len(y1)
+    print(step4err)
+    """step 4: SQUARE ROOT (SIGMA(xi - u)^2 / N) """
+    step5err = np.sqrt(step4err)
+    print(step5err)
 
-    # total =[]
-    # for i in range(0, len(errorprop)):
-    #     total = errorprop[i] + total
-    #     total += errorprop[i]
-    # print(total)
-    # find the mean
-    mean = sum(difference) / len(y1)
-    # find the standard error
+    """ Next: Divide by sqrt of N to get standard error """
+    step6err = step5err / np.sqrt(len(y1))
+    print(step6err)
+    """ Final step for error of t-stat: calculate the error of the mean / se"""
+    tstat_err = t_stat * np.sqrt(((err_mean/mean1) * (err_mean/mean1)) + ((step6err/se) * (step6err/se)))
 
+    print('the T statistic is ' + str(t_stat) + '\u00B1 ' + str(tstat_err))
 
+    d_of_f = len(y1) + len(y2) - 2
+    # find the degrees of freedom, and the closest number in the table to my degrees of freedom
+    dfx = pd.read_excel(
+        r'G:\My Drive\Work\GNS Radiocarbon Scientist\The Science\Stats and Data Analysis\Matlab and Python Files\tables.xlsx',
+        sheet_name='ttable_adjusted')
+    # print(dfx)
+    # locate where the degrees of freedom is equal to my degrees of freedom:
+    value_crits = dfx['value']
+    value_crits = np.array(value_crits)
+    if d_of_f > 100:
+        value_crit = 1.98
+    else:
+        value_crit = value_crits[d_of_f - 1]
 
-    # # compute the t-statistic
-    # t_stat = mean / se
-    # t_stat = np.abs(t_stat)
-    # d_of_f = len(x1) + len(x2) - 2
-    # # find the degrees of freedom, and the closest number in the table to my degrees of freedom
-    # dfx = pd.read_excel(
-    #     r'G:\My Drive\Work\GNS Radiocarbon Scientist'
-    #     r'\The Science\Stats and Data Analysis\Matlab and Python Files\tables.xlsx',
-    #     sheet_name='ttable_adjusted')
-    # # print(dfx)
-    # # locate where the degrees of freedom is equal to my degrees of freedom:
-    # value_crits = dfx['value']
-    # value_crits = np.array(value_crits)
-    # if d_of_f > 100:
-    #     value_crit = 1.98
-    # else:
-    #     value_crit = value_crits[d_of_f - 1]
-    #
-    # if t_stat <= value_crit:
-    #     result = print('There is NO DIFFERENCE. ' + 'Critical value is ' + str(value_crit) + ' at ' + str(d_of_f) + ' degrees of freedom ' + 'while t-stat = ' + str(t_stat) + ' mean is ' + str(mean))
-    # else:
-    #     result = print('There IS A DIFFERENCE. ' + 'Critical value is ' + str(value_crit) + ' at ' + str(d_of_f) + ' degrees of freedom' + 'while t-stat = ' + str(t_stat) + ' mean is ' + str(mean))
-    return mean
+    if t_stat - tstat_err <= value_crit:
+        print('There is NO DIFFERENCE. ' +
+              'Critical value: ' + str(value_crit) +
+              ', t-stat: ' + str(t_stat) + '\u00B1 ' + str(tstat_err) +
+              ', mean: ' + str(mean1) + '\u00B1 ' + str(err_mean))
+        result = 1
+
+    else:
+        print('There is A DIFFERENCE. ' +
+              'Critical value: ' + str(value_crit) +
+              ', t-stat: ' + str(t_stat) + '\u00B1 ' + str(tstat_err) +
+              ', mean: ' + str(mean1) + '\u00B1 ' + str(err_mean))
+        result = 0
+
+    return result
 
 
 """ IMPORT ALL THE DATA """
@@ -189,19 +232,19 @@ x_init_bhd2 = long_date_to_decimal_date(x_init_bhd2)
 
 fake_x_temp = np.linspace(1980, 2020, 480)  # x-data that I will use to solve for each of the smoothed curve functions
 df_fake_xs = pd.DataFrame({'x': fake_x_temp})
-
-
-""" randomize the variables within their measurement uncertainty, 1000 times over (this is the Monte Carlo Part 1) """
 fake_x_heidelberg = df_fake_xs.loc[(df_fake_xs['x'] >= min(x_init_heid)) & (df_fake_xs['x'] <= max(x_init_heid))]
 fake_x_bhd1 = df_fake_xs.loc[(df_fake_xs['x'] >= min(x_init_bhd1)) & (df_fake_xs['x'] <= max(x_init_bhd1))]
 fake_x_bhd2 = df_fake_xs.loc[(df_fake_xs['x'] >= min(x_init_bhd2)) & (df_fake_xs['x'] <= max(x_init_bhd2))]
 
+""" randomize the variables within their measurement uncertainty, 1000 times over (this is the Monte Carlo Part 1) """
 # def monte_carlo_randomization(x_init, fake_x, y_init, y_error, cutoff):
 # returns new_array, template_array, mean_array, stdev_array, upper_array, lower_array, fake_x
+
 h_results = monte_carlo_randomization(x_init_heid, fake_x_heidelberg, y_init_heid, yerr_init_heid, 667)
 bhd1_results = monte_carlo_randomization(x_init_bhd1, fake_x_bhd1, y_init_bhd1, yerr_init_bhd1, 667)
 bhd2_results = monte_carlo_randomization(x_init_bhd2, fake_x_bhd2, y_init_bhd2, yerr_init_bhd2, 667)
 
+""" extract data out of Monte Carlo and smoother """
 # randomized Monte Carlo data that has been smoothed
 h_smoothed = h_results[1]
 bhd1_smoothed = bhd1_results[1]
@@ -229,18 +272,27 @@ bhd2_lower = bhd2_results[5]
 # print(fake_x_heidelberg)
 
 """ Bring the above data into dataframes for easier filtering for paired t-tests """
-df_bhd1 = pd.DataFrame({"date": fake_x_bhd1['x'], "mean": bhd1_mean, "stdev": bhd1_stdev, "upper": bhd1_upper, "lower": bhd1_lower, "key": 1})
-df_bhd2 = pd.DataFrame({"date": fake_x_bhd2['x'], "mean": bhd2_mean, "stdev": bhd2_stdev, "upper": bhd2_upper, "lower": bhd2_lower, "key": 2})
-df_h = pd.DataFrame({"date": fake_x_heidelberg['x'], "mean": h_mean, "stdev": h_stdev, "upper": h_upper, "lower": h_lower, "key": 3})
+df_bhd1 = pd.DataFrame(
+    {"date": fake_x_bhd1['x'], "mean": bhd1_mean, "stdev": bhd1_stdev, "upper": bhd1_upper, "lower": bhd1_lower,
+     "key": 1})
+df_bhd2 = pd.DataFrame(
+    {"date": fake_x_bhd2['x'], "mean": bhd2_mean, "stdev": bhd2_stdev, "upper": bhd2_upper, "lower": bhd2_lower,
+     "key": 2})
+df_h = pd.DataFrame(
+    {"date": fake_x_heidelberg['x'], "mean": h_mean, "stdev": h_stdev, "upper": h_upper, "lower": h_lower, "key": 3})
 #
 combine = pd.merge(df_bhd1, df_bhd2, how='outer')
 combine = pd.merge(combine, df_h, how='outer')
-""" Slice up the data where the datasets overlap so I can do paired t-tests """
-early_period_bhd = combine.loc[(combine['key'] == 1) & (combine['date'] >= min(x_init_heid))]  # Baring Head part 1, after heidelberg min
-early_period_heid = combine.loc[(combine['key'] == 3) & (combine['date'] <= max(x_init_bhd1))]  # Baring Head part 1, after heidelberg min
-late_period_bhd = combine.loc[(combine['key'] == 2) & (combine['date'] <= max(x_init_heid))]  # Baring Head part 1, after heidelberg min
-late_period_heid = combine.loc[(combine['key'] == 3) & (combine['date'] >= min(x_init_bhd2))]  # Baring Head part 1, after heidelberg min
 
+""" Slice up the data where the datasets overlap so I can do paired t-tests """
+early_period_bhd = combine.loc[
+    (combine['key'] == 1) & (combine['date'] >= min(x_init_heid))]  # Baring Head part 1, after heidelberg min
+early_period_heid = combine.loc[
+    (combine['key'] == 3) & (combine['date'] <= max(x_init_bhd1))]  # Baring Head part 1, after heidelberg min
+late_period_bhd = combine.loc[
+    (combine['key'] == 2) & (combine['date'] <= max(x_init_heid))]  # Baring Head part 1, after heidelberg min
+late_period_heid = combine.loc[
+    (combine['key'] == 3) & (combine['date'] >= min(x_init_bhd2))]  # Baring Head part 1, after heidelberg min
 """ 
 Now - the Monte Carlo errors as associated with exact x values that I have chosen, and y-values that are 
 the mean of 1000 monte carlo runs. 
@@ -252,36 +304,33 @@ point through the t-test.
 """ First test: Early Period v Late Period, the whole dataset"""
 
 y1 = early_period_bhd['mean']
+y1 = np.array(y1)
 y2 = early_period_heid['mean']
+y2 = np.array(y2)
 y1err = early_period_bhd['stdev']
+y1err = np.array(y1err)
 y2err = early_period_heid['stdev']
+y2err = np.array(y2err)
 # print(y2err)
+y3 = late_period_bhd['mean']
+y3 = np.array(y3)
+print(y3)
+y4 = late_period_heid['mean']
+y4 = np.array(y4)
+print(y4)
+y3err = late_period_bhd['stdev']
+y3err = np.array(y3err)
+print(y3err)
+y4err = late_period_heid['stdev']
+y4err = np.array(y4err)
+print(y4err)
 
-two_tail_paired_t_test(y1, y1err, y2, y2err)
-# TODO CHECK THAT ERROR PROP WORKS ACCURATELY
+result1 = two_tail_paired_t_test(y1, y1err, y2, y2err)
+result2 = two_tail_paired_t_test(y3, y3err, y4, y4err)
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+# result_array = []
+# result_array.append(result1)
+# print(result_array)
 
 
 
@@ -317,7 +366,3 @@ two_tail_paired_t_test(y1, y1err, y2, y2err)
 # plt.xlabel('Date', fontsize=14)
 # plt.ylabel('\u0394 14CO2', fontsize=14)  # label the y axis
 # plt.show()
-
-
-
-

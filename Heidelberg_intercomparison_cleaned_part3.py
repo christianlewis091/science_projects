@@ -5,16 +5,11 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
 from miller_curve_algorithm import ccgFilter
-import math
-from my_functions import long_date_to_decimal_date, monte_carlo_step2
-from my_functions import year_month_todecimaldate
-from my_functions import monte_carlo_step1
-from my_functions import two_tail_paired_t_test
+from my_functions import long_date_to_decimal_date
 
 """
 DEFINE ALL THE FUNCTIONS THAT I WILL BE USING DURING THIS INTERCOMPARISON
 """
-
 
 def year_month_todecimaldate(x, y):
     L = np.linspace(0, 1, 365)
@@ -240,8 +235,11 @@ baringhead.reset_index()
 # BARING HEAD SPLIT UP INTO 3 PARTS (and 1995 - 2005 bad data removed)
 print('Baring Head data between 1995 and 2005 removed from all records')
 baringhead_1986_1991 = baringhead.loc[(baringhead['Decimal_date'] >= 1986) & (baringhead['Decimal_date'] <= 1991)]
+baringhead_1986_1991.reset_index(inplace = True)
 baringhead_1991_1994 = baringhead.loc[(baringhead['Decimal_date'] >= 1991) & (baringhead['Decimal_date'] <= 1994)]
+baringhead_1991_1994.reset_index(inplace = True)
 baringhead_2006_2016 = baringhead.loc[(baringhead['Decimal_date'] > 2006)]  # BARINGHEAD2 will include the 2009-2011
+baringhead_2006_2016.reset_index(inplace = True)
 # pull out the variables
 xtot_bhd = baringhead['Decimal_date']
 x1_bhd = baringhead_1986_1991['Decimal_date']
@@ -258,8 +256,11 @@ z3_bhd = baringhead_2006_2016['DELTA14C_ERR']
 
 # Heidelberg SPLIT UP INTO 3 PARTS (and 1995 - 2005 bad data removed)
 heidelberg_1986_1991 = heidelberg.loc[(heidelberg['Decimal_date'] >= 1986) & (heidelberg['Decimal_date'] <= 1991)]
+heidelberg_1986_1991.reset_index(inplace = True)
 heidelberg_1991_1994 = heidelberg.loc[(heidelberg['Decimal_date'] >= 1991) & (heidelberg['Decimal_date'] <= 1994)]
+heidelberg_1991_1994.reset_index(inplace = True)
 heidelberg_2006_2016 = heidelberg.loc[(heidelberg['Decimal_date'] > 2006)]  # BARINGHEAD2 will include the 2009-2011
+heidelberg_2006_2016.reset_index(inplace = True)
 xtot_heid = heidelberg['Decimal_date']
 x1_heid = heidelberg_1986_1991['Decimal_date']
 x2_heid = heidelberg_1991_1994['Decimal_date']
@@ -273,8 +274,6 @@ z1_heid = heidelberg_1986_1991['weightedstderr_D14C']
 z2_heid = heidelberg_1991_1994['weightedstderr_D14C']
 z3_heid = heidelberg_2006_2016['weightedstderr_D14C']
 
-
-
 """Can split up further in the future by following the above template and using smaller time increments."""
 """ Set up x values for output data from the smooth curve. """
 # x-data that I will use to solve for each of the smoothed curve functions - this way, x-data will be the same
@@ -282,69 +281,79 @@ z3_heid = heidelberg_2006_2016['weightedstderr_D14C']
 fake_x_temp = np.linspace(1980, 2020, 480)
 df_fake_xs = pd.DataFrame({'x': fake_x_temp})
 
-my_x_1986_1991 = df_fake_xs.loc[(df_fake_xs['x'] >= min(y1_heid)) & (df_fake_xs['x'] <= max(y1_heid))]
+# make sure to only get output at x-values where the data overlaps.
+my_x_1986_1991 = df_fake_xs.loc[(df_fake_xs['x'] >= min(x1_heid)) & (df_fake_xs['x'] <= max(x1_heid))]
+my_x_1991_1994 = df_fake_xs.loc[(df_fake_xs['x'] >= min(x2_bhd)) & (df_fake_xs['x'] <= max(x2_bhd))]
+my_x_2006_2016 = df_fake_xs.loc[(df_fake_xs['x'] >= min(x3_heid)) & (df_fake_xs['x'] <= max(x3_heid))]
+
+"""
+Put the sliced up data through the Monte Carlo randomization process, and then through the curve smoother
+See my function above which does both and returns the data in an array.
+"""
+
+# function input: def monte_carlo_randomization(x_init, fake_x, y_init, y_error, cutoff):
+# function return:  new_array, template_array, mean_array, stdev_array, upper_array, lower_array, fake_x
+""" Smoothed, Monte Carlo'd data from 1986 to 1991 """
+heidelberg_1986_1991_results = monte_carlo_randomization(x1_heid, my_x_1986_1991, y1_heid, z1_heid, 667)
+bhd_1986_1991_results = monte_carlo_randomization(x1_bhd, my_x_1986_1991, y1_bhd, z1_bhd, 667)
+""" Smoothed, Monte Carlo'd data from 1991 to 1994 """
+heidelberg_1991_1994_results = monte_carlo_randomization(x2_heid, my_x_1991_1994, y2_heid, z2_heid, 667)
+bhd_1991_1994_results = monte_carlo_randomization(x2_bhd, my_x_1991_1994, y2_bhd, z2_bhd, 667)
+""" Smoothed, Monte Carlo'd data from 2006_2016 """
+heidelberg_2006_2016_results = monte_carlo_randomization(x3_heid, my_x_2006_2016, y3_heid, z3_heid, 667)
+bhd_2006_2016_results = monte_carlo_randomization(x3_bhd, my_x_2006_2016, y3_bhd, z3_bhd, 667)
+
+
+# TODO Change data to arrays before putting through t-test
+two_tail_paired_t_test(np.array(heidelberg_1986_1991_results[2]),
+                       np.array(heidelberg_1986_1991_results[3]),
+                       np.array(bhd_1986_1991_results[2]),
+                       np.array(bhd_1986_1991_results[3]))
+
+two_tail_paired_t_test(np.array(heidelberg_1991_1994_results[2]),
+                       np.array(heidelberg_1991_1994_results[3]),
+                       np.array(bhd_1991_1994_results[2]),
+                       np.array(bhd_1991_1994_results[3]))
+
+two_tail_paired_t_test(np.array(heidelberg_2006_2016_results[2]),
+                       np.array(heidelberg_2006_2016_results[3]),
+                       np.array(bhd_2006_2016_results[2]),
+                       np.array(bhd_2006_2016_results[3]))
 
 
 
-# my_x_1991_1994 = df_fake_xs.loc[(df_fake_xs['x'] >= 1991) & (df_fake_xs['x'] <= 1994)]
-# my_x_2006_2016 = df_fake_xs.loc[(df_fake_xs['x'] >= 2006) & (df_fake_xs['x'] <= 2016)]
+
+
+
+
+
+
+
+
+
+
+
+
+
 #
-# # """
-# Put the sliced up data through the Monte Carlo randomization process, and then through the curve smoother
-# See my function above which does both and returns the data in an array
-# """
-# heidelberg_1986_1991_results = monte_carlo_randomization(heidelberg_1986_1991['Decimal_date'],
-#                                                          my_x_1986_1991,
-#                                                          heidelberg_1986_1991['D14C'],
-#                                                          heidelberg_1986_1991['weightedstderr_D14C'],
-#                                                          667)
-# print(heidelberg_1986_1991_results)
-# # heidelberg_1991_1994_results = monte_carlo_randomization(heidelberg_1991_1994['Decimal_date'],
-# #                                                          my_x_1991_1994,
-# #                                                          heidelberg_1991_1994['D14C'],
-# #                                                          heidelberg_1991_1994['weightedstderr_D14C'],
-# #                                                          667)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-colors = sns.color_palette("rocket")
-colors2 = sns.color_palette("mako")
-size = 20
-fig = plt.figure(1)
-# plt.plot(xtot_bhd, ytot_bhd, label='Baring Head ALL DATA', color='red')
-# plt.plot(xtot_heid, ytot_heid, label='Heidelberg ALL DATA', color='blue')
-plt.scatter(x1_bhd, y1_bhd, marker='o', label='Baring Head Record Part 1', color=colors[0], s=size)
-plt.scatter(x1_heid, y1_heid, marker='X', label='Heidelberg Part 1', color=colors2[5], s=size)
-plt.scatter(x2_bhd, y2_bhd, marker='o', label='Baring Head Record Part 2', color=colors[1], s=size)
-plt.scatter(x2_heid, y2_heid, marker='X', label='Heidelberg Part 2', color=colors2[4], s=size)
-plt.scatter(x3_bhd, y3_bhd, marker='o', label='Baring Head Record Part 3', color=colors[0], s=size)
-plt.scatter(x3_heid, y3_heid, marker='X', label='Heidelberg Part 3', color=colors2[5], s=size)
-plt.legend()
-plt.title('All Available Data')
-plt.xlim([1985, 1995])
-plt.ylim([0, 300])
-plt.xlabel('Date', fontsize=14)
-plt.ylabel('\u0394 14CO2', fontsize=14)  # label the y axis
-plt.savefig('C:/Users/lewis/venv/python310/python-masterclass-remaster-shared/'
-            'radiocarbon_intercomparison/plots/heidelberg_intercomparison_cleaned3_Fig1.png',
-            dpi=300, bbox_inches="tight")
+# colors = sns.color_palette("rocket")
+# colors2 = sns.color_palette("mako")
+# size = 20
+# fig = plt.figure(1)
+# # plt.plot(xtot_bhd, ytot_bhd, label='Baring Head ALL DATA', color='red')
+# # plt.plot(xtot_heid, ytot_heid, label='Heidelberg ALL DATA', color='blue')
+# plt.scatter(x1_bhd, y1_bhd, marker='o', label='Baring Head Record Part 1', color=colors[0], s=size)
+# plt.scatter(x1_heid, y1_heid, marker='X', label='Heidelberg Part 1', color=colors2[5], s=size)
+# plt.scatter(x2_bhd, y2_bhd, marker='o', label='Baring Head Record Part 2', color=colors[1], s=size)
+# plt.scatter(x2_heid, y2_heid, marker='X', label='Heidelberg Part 2', color=colors2[4], s=size)
+# plt.scatter(x3_bhd, y3_bhd, marker='o', label='Baring Head Record Part 3', color=colors[0], s=size)
+# plt.scatter(x3_heid, y3_heid, marker='X', label='Heidelberg Part 3', color=colors2[5], s=size)
+# plt.legend()
+# plt.title('All Available Data')
+# plt.xlim([2000, 2020])
+# plt.ylim([0, 300])
+# plt.xlabel('Date', fontsize=14)
+# plt.ylabel('\u0394 14CO2', fontsize=14)  # label the y axis
+# plt.savefig('C:/Users/lewis/venv/python310/python-masterclass-remaster-shared/'
+#             'radiocarbon_intercomparison/plots/heidelberg_intercomparison_cleaned3_Fig1.png',
+#             dpi=300, bbox_inches="tight")

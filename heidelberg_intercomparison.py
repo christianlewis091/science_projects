@@ -5,59 +5,45 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
 from miller_curve_algorithm import ccgFilter
-from my_functions import long_date_to_decimal_date
+from PyAstronomy import pyasl
 
 """
-DEFINE ALL THE FUNCTIONS THAT I WILL BE USING DURING THIS INTERCOMPARISON
+DEFINE ALL THE FUNCTIONS THAT I WILL BE USING DURING
 """
 
-def year_month_todecimaldate(x, y):
-    L = np.linspace(0, 1, 365)
-    # add the number that is 1/2 of the previous month plus the current month
-    Jan = 31
-    Feb = (28 / 2) + 31
-    Mar = (31 / 2) + 31 + 28
-    Apr = (30 / 2) + 31 + 28 + 31
-    May = (31 / 2) + 31 + 28 + 31 + 30
-    June = (30 / 2) + 31 + 28 + 31 + 30 + 31
-    July = (31 / 2) + 31 + 28 + 31 + 30 + 31 + 30
-    August = (31 / 2) + 31 + 28 + 31 + 30 + 31 + 30 + 31
-    Sep = (30 / 2) + 31 + 28 + 31 + 30 + 31 + 30 + 31 + 31
-    Oct = (31 / 2) + 31 + 28 + 31 + 30 + 31 + 30 + 31 + 31 + 30
-    Nov = (30 / 2) + 31 + 28 + 31 + 30 + 31 + 30 + 31 + 31 + 30 + 30
-    Dec = (31 / 2) + 31 + 28 + 31 + 30 + 31 + 30 + 31 + 31 + 30 + 30 + 30
-    empty_array = []
+"""
+"long_date_to_decimal_date" takes dates of the form dd/mm/yyyy and converts
+them to decimal dates more useful for performing curve smoothing on. 
+"""
+def long_date_to_decimal_date(x):
+    array = []
     for i in range(0, len(x)):
-        r = x[i]
-        if y[i] == 1:
-            r = x[i] + L[int(Jan)]
-        elif y[i] == 2:
-            r = x[i] + L[int(Feb)]
-        elif y[i] == 3:
-            r = x[i] + L[int(Mar)]
-        elif y[i] == 4:
-            r = x[i] + L[int(Apr)]
-        elif y[i] == 5:
-            r = x[i] + L[int(May)]
-        elif y[i] == 6:
-            r = x[i] + L[int(June)]
-        elif y[i] == 7:
-            r = x[i] + L[int(July)]
-        elif y[i] == 8:
-            r = x[i] + L[int(August)]
-        elif y[i] == 9:
-            r = x[i] + L[int(Sep)]
-        elif y[i] == 10:
-            r = x[i] + L[int(Oct)]
-        elif y[i] == 11:
-            r = x[i] + L[int(Nov)]
-        elif y[i] == 12:
-            r = x[i] + L[int(Dec)]
-        empty_array.append(r)
-
-    return empty_array
+        j = x[i]
+        decy = pyasl.decimalYear(j)
+        decy = float(decy)
+        # print(decy)
+        array.append(decy)
+    # print(array)
+    return array
 
 
+"""
+"monte_carlo_randomization" has three parts (3 separate for-loops) 
+
+Lets say we have a time-series of 10 measurements. 
+The first for-loop: takes an input array of time-series data and randomizes each data point 
+within its measurements uncertainty. It does this "n" times, and vertically stacks it. 
+For example, if you have a dataset with 10 measurements, and "n" is 1000, you will end 
+up with an array of dimension (10x1000). 
+
+The second for-loop: takes each row of the array (each row of "randomized data") and puts it through
+the ccgFilter curve smoother. It is important to define your own x-values that you want output 
+if you want to compare two curves (this will keep arrays the same dimension). 
+Each row from the fist loop is smoothed and stacked into yet another new array. 
+
+The third for-loop: Find the mean, standard deviation, and upper and lower uncertainty bounds of each
+"point" in the dataset. This loop takes the mean of all the first measurements, then all the second, etc.
+"""
 def monte_carlo_randomization(x_init, fake_x, y_init, y_error, cutoff):
     new_array = y_init  # create a new variable on which we will later v-stack randomized lists
     n = 1000
@@ -71,8 +57,6 @@ def monte_carlo_randomization(x_init, fake_x, y_init, y_error, cutoff):
             empty_array.append(c)  # add this to a list
             # print(len(empty_array))
         new_array = np.vstack((new_array, empty_array))
-
-    # CODE WORKS UP TO ABOVE
 
     template_array = ccgFilter(x_init, y_init, cutoff).getSmoothValue(fake_x)
     for k in range(0, len(new_array)):
@@ -100,7 +84,10 @@ def monte_carlo_randomization(x_init, fake_x, y_init, y_error, cutoff):
 
     return new_array, template_array, mean_array, stdev_array, upper_array, lower_array, fake_x
 
-
+"""
+This function does a paired two-tail t-test. The t-value range comes from the stdev_array in the 
+Monte Carlo function above, and errors are propagated through the t-test mathematics. 
+"""
 def two_tail_paired_t_test(y1, y1err, y2, y2err):
     """ Subtract the data from each other (first step in paired t-test)"""
     difference = np.subtract(y1, y2)  # subtract the data from each other

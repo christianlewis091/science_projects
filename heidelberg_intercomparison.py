@@ -7,6 +7,10 @@ import seaborn as sns
 from miller_curve_algorithm import ccgFilter
 from PyAstronomy import pyasl
 
+colors = sns.color_palette("rocket")
+colors2 = sns.color_palette("mako")
+size = 20
+
 """
 ################################################
 ################################################
@@ -19,6 +23,7 @@ DEFINE ALL THE FUNCTIONS THAT I WILL BE USING
 them to decimal dates more useful for performing curve smoothing on. 
 """
 
+
 def long_date_to_decimal_date(x):
     array = []
     for i in range(0, len(x)):
@@ -29,6 +34,54 @@ def long_date_to_decimal_date(x):
         array.append(decy)
     # print(array)
     return array
+
+
+def year_month_todecimaldate(x, y):
+    L = np.linspace(0, 1, 365)
+    # add the number that is 1/2 of the previous month plus the current month
+    Jan = 31
+    Feb = (28 / 2) + 31
+    Mar = (31 / 2) + 31 + 28
+    Apr = (30 / 2) + 31 + 28 + 31
+    May = (31 / 2) + 31 + 28 + 31 + 30
+    June = (30 / 2) + 31 + 28 + 31 + 30 + 31
+    July = (31 / 2) + 31 + 28 + 31 + 30 + 31 + 30
+    August = (31 / 2) + 31 + 28 + 31 + 30 + 31 + 30 + 31
+    Sep = (30 / 2) + 31 + 28 + 31 + 30 + 31 + 30 + 31 + 31
+    Oct = (31 / 2) + 31 + 28 + 31 + 30 + 31 + 30 + 31 + 31 + 30
+    Nov = (30 / 2) + 31 + 28 + 31 + 30 + 31 + 30 + 31 + 31 + 30 + 30
+    Dec = (31 / 2) + 31 + 28 + 31 + 30 + 31 + 30 + 31 + 31 + 30 + 30 + 30
+    empty_array = []
+    for i in range(0, len(x)):
+        r = x[i]
+        if y[i] == 1:
+            r = x[i] + L[int(Jan)]
+        elif y[i] == 2:
+            r = x[i] + L[int(Feb)]
+        elif y[i] == 3:
+            r = x[i] + L[int(Mar)]
+        elif y[i] == 4:
+            r = x[i] + L[int(Apr)]
+        elif y[i] == 5:
+            r = x[i] + L[int(May)]
+        elif y[i] == 6:
+            r = x[i] + L[int(June)]
+        elif y[i] == 7:
+            r = x[i] + L[int(July)]
+        elif y[i] == 8:
+            r = x[i] + L[int(August)]
+        elif y[i] == 9:
+            r = x[i] + L[int(Sep)]
+        elif y[i] == 10:
+            r = x[i] + L[int(Oct)]
+        elif y[i] == 11:
+            r = x[i] + L[int(Nov)]
+        elif y[i] == 12:
+            r = x[i] + L[int(Dec)]
+        empty_array.append(r)
+
+    return empty_array
+
 
 """
 "monte_carlo_randomization" has three parts (3 separate for-loops) 
@@ -48,10 +101,10 @@ The third for-loop: Find the mean, standard deviation, and upper and lower uncer
 "point" in the dataset. This loop takes the mean of all the first measurements, then all the second, etc.
 """
 
-
+n = 100
 def monte_carlo_randomization(x_init, fake_x, y_init, y_error, cutoff):
     new_array = y_init  # create a new variable on which we will later v-stack randomized lists
-    n = 10
+
     for i in range(0, n):
         empty_array = []
         for j in range(0, len(y_init)):
@@ -63,11 +116,12 @@ def monte_carlo_randomization(x_init, fake_x, y_init, y_error, cutoff):
             # print(len(empty_array))
         new_array = np.vstack((new_array, empty_array))
 
-    template_array = ccgFilter(x_init, y_init, cutoff).getSmoothValue(fake_x)
+    template_array = ccgFilter(x_init, y_init, cutoff).getSmoothValue(fake_x) # inital values for stacking
     for k in range(0, len(new_array)):
         row = new_array[k]  # grab the first row of the data
-        smooth = ccgFilter(x_init, row, cutoff).getSmoothValue(fake_x)  # outputs smooth values at my desired times, x
+        smooth = ccgFilter(x_init, row, cutoff).getSmoothValue(fake_x) # outputs smooth values at my desired times, x
         template_array = np.hstack((template_array, smooth))
+
     df = pd.DataFrame(template_array)
 
     mean_array = []
@@ -101,6 +155,8 @@ Must have decimal dates
 This function does a paired two-tail t-test. The t-value range comes from the stdev_array in the 
 Monte Carlo function above, and errors are propagated through the t-test mathematics. 
 """
+
+
 def two_tail_paired_t_test(y1, y1err, y2, y2err):
     """ Subtract the data from each other (first step in paired t-test)"""
     difference = np.subtract(y1, y2)  # subtract the data from each other
@@ -172,7 +228,8 @@ def two_tail_paired_t_test(y1, y1err, y2, y2err):
     d_of_f = len(y1) + len(y2) - 2
     # find the degrees of freedom, and the closest number in the table to my degrees of freedom
     dfx = pd.read_excel(
-        r'G:\My Drive\Work\GNS Radiocarbon Scientist\The Science\Stats and Data Analysis\Matlab and Python Files\tables.xlsx',
+        r'G:\My Drive\Work\GNS Radiocarbon Scientist\The Science\Stats and Data Analysis\Matlab and Python '
+        r'Files\tables.xlsx',
         sheet_name='ttable_adjusted')
     # print(dfx)
     # locate where the degrees of freedom is equal to my degrees of freedom:
@@ -201,10 +258,12 @@ def two_tail_paired_t_test(y1, y1err, y2, y2err):
 
     return result
 
+
 """ 
 The following function should determine monthly averages for a dataset. 
 It will output these monthly averages along with a decimal date being the first decimal of that month. 
 """
+
 
 def monthly_averages(x_values, y_values):
     x_values = np.array(x_values)
@@ -272,14 +331,14 @@ def monthly_averages(x_values, y_values):
                 permarray_x.append(tempmean)
                 permarray_y.append(tempmean2)
 
-                # print(permarray_x)
-                # print(permarray_y)
+
 
             # else:
             #     permarray_x.append(x_int + months_min)
             #     permarray_y.append(-999)
 
     return permarray_x, permarray_y
+
 
 """
 ################################################
@@ -296,94 +355,171 @@ baringhead = pd.read_excel(r'G:\My Drive\Work\GNS Radiocarbon Scientist\The Scie
                            r'\BHD_14CO2_datasets_20211013.xlsx')
 
 """ TIDY UP THE DATA FILES"""
-# add decimal dates to DataFrame
-# x_init_bhd = baringhead['DATE_COLL']
-# x_init_bhd = long_date_to_decimal_date(x_init_bhd)
-# baringhead['Decimal_date'] = x_init_bhd
-
-# add decimal dates to DataFrame
+# add decimal dates to DataFrame if not there already
 x_init_heid = heidelberg['Average pf Start-date and enddate']  # x-values from heidelberg dataset
-x_init_heid = long_date_to_decimal_date(x_init_heid)  # use a function I wrote the change these values to decimal dates
-heidelberg['Decimal_date'] = x_init_heid
+x_init_heid = long_date_to_decimal_date(x_init_heid)
+heidelberg['Decimal_date'] = x_init_heid  # add these decimal dates onto the dataframe
 
 # drop NaN's in the column I'm most interested in
 heidelberg = heidelberg.dropna(subset=['D14C'])
-heidelberg = heidelberg.loc[(heidelberg['D14C'] > 10)]  # filter out the one outlying measurement around 2019
-heidelberg.reset_index()
+heidelberg = heidelberg.loc[(heidelberg['D14C'] > 10)]
+heidelberg.reset_index()   # filter out the one outlying measurement around 2019
 baringhead = baringhead.dropna(subset=['DELTA14C'])
 
-""" SLICE THE DATASETS UP FOR LATER SMOOTHING AND ANALYSIS"""
-# MAIN BARING HEAD FILE
-# Filter Baring Head to after bomb peak
-baringhead = baringhead.loc[(baringhead['DEC_DECAY_CORR'] > 1980)]  # grab all values after 1980
-baringhead = baringhead.loc[(baringhead['DELTA14C_ERR'] > 0)]  # get rid of data where the error flag is -1000
-baringhead.reset_index()
 
-# BARING HEAD SPLIT UP INTO 3 PARTS (and 1995 - 2005 bad data removed)
-print('Baring Head data between 1995 and 2005 removed from all records')
-baringhead_1986_1991 = baringhead.loc[(baringhead['DEC_DECAY_CORR'] >= 1986) & (baringhead['DEC_DECAY_CORR'] <= 1991)]
+"""CAREFULLY SPLIT UP THE DATA INTO DIFFERENT CHUNKS IN TIME AND GRAB VARIABLES """
+
+""" Entire Baring Head File > 1980 """
+baringhead = baringhead.loc[(baringhead['DEC_DECAY_CORR'] > 1980)]
+baringhead = baringhead.loc[(baringhead['DELTA14C_ERR'] > 0)]  # get rid of data where the error flag is -1000
+baringhead.reset_index(inplace=True)
+# variables:
+xtot_bhd = baringhead['DEC_DECAY_CORR']
+ytot_bhd = baringhead['DELTA14C']
+ztot_bhd = baringhead['DELTA14C_ERR']
+
+""" Entire Baring Head File > 1980, without 1995 - 2005 """
+snipmin = 1994  # was previously 1994
+snipmax = 2006  # was previously 2006
+snip = baringhead.loc[(baringhead['DEC_DECAY_CORR'] < snipmin)]
+snip2 = baringhead.loc[(baringhead['DEC_DECAY_CORR'] > snipmax)]
+snip = pd.merge(snip, snip2, how='outer')
+# variables:
+x_combined = snip['DEC_DECAY_CORR']
+y_combined = snip['DELTA14C']
+z_combined = snip['DELTA14C_ERR']
+"""
+BARING HEAD RECORD SPLIT UP INTO 3 PARTS (1987 - 1991, 1991 - 1994, 2006 - 2016)
+"""
+baringhead_1986_1991 = baringhead.loc[(baringhead['DEC_DECAY_CORR'] >= 1987) & (baringhead['DEC_DECAY_CORR'] <= 1991)]
 baringhead_1986_1991.reset_index(inplace=True)
 baringhead_1991_1994 = baringhead.loc[(baringhead['DEC_DECAY_CORR'] >= 1991) & (baringhead['DEC_DECAY_CORR'] <= 1994)]
 baringhead_1991_1994.reset_index(inplace=True)
 baringhead_2006_2016 = baringhead.loc[(baringhead['DEC_DECAY_CORR'] > 2006)]  # BARINGHEAD2 will include the 2009-2011
 baringhead_2006_2016.reset_index(inplace=True)
-# pull out the variables
-xtot_bhd = baringhead['DEC_DECAY_CORR']
+# x- variables
 x1_bhd = baringhead_1986_1991['DEC_DECAY_CORR']
 x2_bhd = baringhead_1991_1994['DEC_DECAY_CORR']
 x3_bhd = baringhead_2006_2016['DEC_DECAY_CORR']
-ytot_bhd = baringhead['DELTA14C']
+# y- variables
 y1_bhd = baringhead_1986_1991['DELTA14C']
 y2_bhd = baringhead_1991_1994['DELTA14C']
 y3_bhd = baringhead_2006_2016['DELTA14C']
-ztot_bhd = baringhead['DELTA14C_ERR']
+# error - variables
 z1_bhd = baringhead_1986_1991['DELTA14C_ERR']
 z2_bhd = baringhead_1991_1994['DELTA14C_ERR']
 z3_bhd = baringhead_2006_2016['DELTA14C_ERR']
 
-# Heidelberg SPLIT UP INTO 3 PARTS (and 1995 - 2005 bad data removed)
-heidelberg_1986_1991 = heidelberg.loc[(heidelberg['Decimal_date'] >= 1986) & (heidelberg['Decimal_date'] <= 1991)]
+""" Cape Grim Heidelberg ENTIRE datafile: """
+# variables
+xtot_heid = heidelberg['Decimal_date']
+ytot_heid = heidelberg['D14C']
+ztot_heid = heidelberg['weightedstderr_D14C']
+
+"""
+Heidelberg RECORD SPLIT UP INTO 3 PARTS (1987 - 1991, 1991 - 1994, 2006 - 2016)
+"""
+heidelberg_1986_1991 = heidelberg.loc[(heidelberg['Decimal_date'] >= 1987) & (heidelberg['Decimal_date'] <= 1991)]
 heidelberg_1986_1991.reset_index(inplace=True)
 heidelberg_1991_1994 = heidelberg.loc[(heidelberg['Decimal_date'] >= 1991) & (heidelberg['Decimal_date'] <= 1994)]
 heidelberg_1991_1994.reset_index(inplace=True)
 heidelberg_2006_2016 = heidelberg.loc[(heidelberg['Decimal_date'] > 2006)]  # BARINGHEAD2 will include the 2009-2011
 heidelberg_2006_2016.reset_index(inplace=True)
-xtot_heid = heidelberg['Decimal_date']
+
 x1_heid = heidelberg_1986_1991['Decimal_date']
 x2_heid = heidelberg_1991_1994['Decimal_date']
 x3_heid = heidelberg_2006_2016['Decimal_date']
-ytot_heid = heidelberg['D14C']
+
 y1_heid = heidelberg_1986_1991['D14C']
 y2_heid = heidelberg_1991_1994['D14C']
 y3_heid = heidelberg_2006_2016['D14C']
-ztot_heid = heidelberg['weightedstderr_D14C']
+
 z1_heid = heidelberg_1986_1991['weightedstderr_D14C']
 z2_heid = heidelberg_1991_1994['weightedstderr_D14C']
 z3_heid = heidelberg_2006_2016['weightedstderr_D14C']
+#
 
-"""Can split up further in the future by following the above template and using smaller time increments."""
-""" Set up x values for output data from the smooth curve. """
+""" Simple curve smoothing of all the different data for visual analysis  """
+# Whole baring head record
+cutoff = 667
 
+baringhead_smooth_total = ccgFilter(xtot_bhd, ytot_bhd, cutoff).getMonthlyMeans()
+baringhead_xtot_smoothed = year_month_todecimaldate(baringhead_smooth_total[0], baringhead_smooth_total[1])  # get the dates to be in decimal format
+baringhead_ytot_smoothed = baringhead_smooth_total[2]
+
+heidelberg_smooth_total = ccgFilter(xtot_heid, ytot_heid, cutoff).getMonthlyMeans()
+heidelberg_xtot_smoothed = year_month_todecimaldate(heidelberg_smooth_total[0], heidelberg_smooth_total[1])  # get the dates to be in decimal format
+heidelberg_ytot_smoothed = heidelberg_smooth_total[2]
+
+
+"""
+Onto curve smoothing and Monte Carlo analysis with the data broken into three parts
+"""
 # x-data that I will use to solve for each of the smoothed curve functions - this way, x-data will be the same
 # for any two datasets that I want to explicity compare, and I can subtract them directly.
 fake_x_temp = np.linspace(1980, 2020, 480)
 df_fake_xs = pd.DataFrame({'x': fake_x_temp})
-
+#
 # make sure to only get output at x-values where the data overlaps.
 my_x_1986_1991 = df_fake_xs.loc[(df_fake_xs['x'] >= min(x1_heid)) & (df_fake_xs['x'] <= max(x1_heid))]
 my_x_1991_1994 = df_fake_xs.loc[(df_fake_xs['x'] >= min(x2_bhd)) & (df_fake_xs['x'] <= max(x2_bhd))]
 my_x_2006_2016 = df_fake_xs.loc[(df_fake_xs['x'] >= min(x3_heid)) & (df_fake_xs['x'] <= max(x3_heid))]
-
 """
 Put the sliced up data through the Monte Carlo randomization process, and then through the curve smoother
 See my function above which does both and returns the data in an array.
 """
+temporarycutoff = 667
+ccgcv_bhd = ccgFilter(x1_bhd, y1_bhd, temporarycutoff).getMonthlyMeans()
+x_ccgcv_bhd1 = year_month_todecimaldate(ccgcv_bhd[0], ccgcv_bhd[1])  # get the dates to be in decimal format
+y_ccgcv_bhd1 = ccgcv_bhd[2]
+ccgcv_bhd = ccgFilter(x2_bhd, y2_bhd, temporarycutoff).getMonthlyMeans()
+x_ccgcv_bhd2 = year_month_todecimaldate(ccgcv_bhd[0], ccgcv_bhd[1])  # get the dates to be in decimal format
+y_ccgcv_bhd2 = ccgcv_bhd[2]
+ccgcv_bhd = ccgFilter(x3_bhd, y3_bhd, temporarycutoff).getMonthlyMeans()
+x_ccgcv_bhd3 = year_month_todecimaldate(ccgcv_bhd[0], ccgcv_bhd[1])  # get the dates to be in decimal format
+y_ccgcv_bhd3 = ccgcv_bhd[2]
+
+# smooth the heidelberg data
+ccgcv_heid = ccgFilter(x1_heid, y1_heid, temporarycutoff).getMonthlyMeans()
+x_ccgcv_heid1 = year_month_todecimaldate(ccgcv_heid[0], ccgcv_heid[1])  # get the dates to be in decimal format
+y_ccgcv_heid1 = ccgcv_heid[2]
+ccgcv_heid = ccgFilter(x2_heid, y2_heid, temporarycutoff).getMonthlyMeans()
+x_ccgcv_heid2 = year_month_todecimaldate(ccgcv_heid[0], ccgcv_heid[1])  # get the dates to be in decimal format
+y_ccgcv_heid2 = ccgcv_heid[2]
+ccgcv_heid = ccgFilter(x3_heid, y3_heid, temporarycutoff).getMonthlyMeans()
+x_ccgcv_heid3 = year_month_todecimaldate(ccgcv_heid[0], ccgcv_heid[1])  # get the dates to be in decimal format
+y_ccgcv_heid3 = ccgcv_heid[2]
 
 # function input: def monte_carlo_randomization(x_init, fake_x, y_init, y_error, cutoff):
 # function return:  new_array, template_array, mean_array, stdev_array, upper_array, lower_array, fake_x
+
 """ Smoothed, Monte Carlo'd data from 1986 to 1991 """
 heidelberg_1986_1991_results = monte_carlo_randomization(x1_heid, my_x_1986_1991, y1_heid, z1_heid, 667)
 bhd_1986_1991_results = monte_carlo_randomization(x1_bhd, my_x_1986_1991, y1_bhd, z1_bhd, 667)
+# testing results
+randos = bhd_1986_1991_results[0]  # extract the first of returned arrays for plotting / visualization
+randos = pd.DataFrame(randos)
+# randos = pd.DataFrame.transpose(randos)
+x_randos = np.array(x1_bhd)
+randos1 = np.array(randos.iloc[5])
+randos2 = np.array(randos.iloc[1])
+randos3 = np.array(randos.iloc[2])
+randos4 = np.array(randos.iloc[3])
+randos5 = np.array(randos.iloc[4])
+print(np.shape(xtot_bhd))
+print(np.shape(randos1))
+
+smoothed_randomized_data = bhd_1986_1991_results[1]
+montes = pd.DataFrame(bhd_1986_1991_results[1])
+montes = pd.DataFrame.transpose(montes)
+
+my_x_1986_1991_arr = np.array(my_x_1986_1991)
+monte_it1 = np.array(montes.iloc[5])
+monte_it2 = np.array(montes.iloc[1])
+monte_it3 = np.array(montes.iloc[2])
+monte_it4 = np.array(montes.iloc[3])
+monte_it5 = np.array(montes.iloc[4])
+
 """ Smoothed, Monte Carlo'd data from 1991 to 1994 """
 heidelberg_1991_1994_results = monte_carlo_randomization(x2_heid, my_x_1991_1994, y2_heid, z2_heid, 667)
 bhd_1991_1994_results = monte_carlo_randomization(x2_bhd, my_x_1991_1994, y2_bhd, z2_bhd, 667)
@@ -391,54 +527,27 @@ bhd_1991_1994_results = monte_carlo_randomization(x2_bhd, my_x_1991_1994, y2_bhd
 heidelberg_2006_2016_results = monte_carlo_randomization(x3_heid, my_x_2006_2016, y3_heid, z3_heid, 667)
 bhd_2006_2016_results = monte_carlo_randomization(x3_bhd, my_x_2006_2016, y3_bhd, z3_bhd, 667)
 #
-two_tail_paired_t_test(np.array(heidelberg_1986_1991_results[2]),
-                       np.array(heidelberg_1986_1991_results[3]),
-                       np.array(bhd_1986_1991_results[2]),
-                       np.array(bhd_1986_1991_results[3]))
-
-two_tail_paired_t_test(np.array(heidelberg_1991_1994_results[2]),
-                       np.array(heidelberg_1991_1994_results[3]),
-                       np.array(bhd_1991_1994_results[2]),
-                       np.array(bhd_1991_1994_results[3]))
-
-two_tail_paired_t_test(np.array(heidelberg_2006_2016_results[2]),
-                       np.array(heidelberg_2006_2016_results[3]),
-                       np.array(bhd_2006_2016_results[2]),
-                       np.array(bhd_2006_2016_results[3]))
-
+# two_tail_paired_t_test(np.array(heidelberg_1986_1991_results[2]),
+#                        np.array(heidelberg_1986_1991_results[3]),
+#                        np.array(bhd_1986_1991_results[2]),
+#                        np.array(bhd_1986_1991_results[3]))
 #
-test = monthly_averages(xtot_bhd, ytot_bhd)
-print(test)
-print(len(xtot_bhd))
-print(len(test[0]))
-print()
-print(len(ytot_bhd))
-print(len(test[1]))
-print('There is not that much difference in length between the original data and monthly averages.')
-
-
+# two_tail_paired_t_test(np.array(heidelberg_1991_1994_results[2]),
+#                        np.array(heidelberg_1991_1994_results[3]),
+#                        np.array(bhd_1991_1994_results[2]),
+#                        np.array(bhd_1991_1994_results[3]))
 #
-colors = sns.color_palette("rocket")
-colors2 = sns.color_palette("mako")
-size = 20
-fig = plt.figure(1)
-plt.plot(xtot_bhd, ytot_bhd, label='Baring Head ALL DATA', color='red')
-# # plt.plot(xtot_heid, ytot_heid, label='Heidelberg ALL DATA', color='blue')
-# # plt.scatter(x1_bhd, y1_bhd, marker='o', label='Baring Head Record Part 1', color=colors[0], s=size)
-# # plt.scatter(x1_heid, y1_heid, marker='X', label='Heidelberg Part 1', color=colors2[5], s=size)
-# # plt.scatter(x2_bhd, y2_bhd, marker='o', label='Baring Head Record Part 2', color=colors[1], s=size)
-# # plt.scatter(x2_heid, y2_heid, marker='X', label='Heidelberg Part 2', color=colors2[4], s=size)
-# # plt.scatter(x3_bhd, y3_bhd, marker='o', label='Baring Head Record Part 3', color=colors[0], s=size)
-# # plt.scatter(x3_heid, y3_heid, marker='X', label='Heidelberg Part 3', color=colors2[5], s=size)
-plt.scatter(test[0], test[1], label='BHD Monthly averages', color=colors2[5], s=size)
-
-plt.legend()
-plt.title('All Available Data')
-# plt.xlim([2000, 2020])
-# plt.ylim([0, 300])
-plt.xlabel('Date', fontsize=14)
-plt.ylabel('\u0394 14CO2', fontsize=14)  # label the y axis
-# # plt.savefig('C:/Users/lewis/venv/python310/python-masterclass-remaster-shared/'
-# #             'radiocarbon_intercomparison/plots/heidelberg_intercomparison_cleaned3_Fig1.png',
-# #             dpi=300, bbox_inches="tight")
-plt.show()
+# two_tail_paired_t_test(np.array(heidelberg_2006_2016_results[2]),
+#                        np.array(heidelberg_2006_2016_results[3]),
+#                        np.array(bhd_2006_2016_results[2]),
+#                        np.array(bhd_2006_2016_results[3]))
+#
+# #
+# test = monthly_averages(xtot_bhd, ytot_bhd)
+# print(test)
+# print(len(xtot_bhd))
+# print(len(test[0]))
+# print()
+# print(len(ytot_bhd))
+# print(len(test[1]))
+# print('There is not that much difference in length between the original data and monthly averages.')

@@ -318,7 +318,7 @@ residual_bhd2 = A_bhd2 - y_init_bhd2
 # d_6 = heidelberg_overlap6['14C']
 #
 # baring_head2_overlap = combine.loc[(combine['Key'] == 2) & (combine['Date'] <= heid_max)]
-# baring_head2_overlap1 = baring_head2_overlap.iloc[0:25]
+f
 # baring_head2_overlap2 = baring_head2_overlap.iloc[26:50]
 # baring_head2_overlap3 = baring_head2_overlap.iloc[51:75]
 # baring_head2_overlap4 = baring_head2_overlap.iloc[76:100]

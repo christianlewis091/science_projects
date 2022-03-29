@@ -101,10 +101,10 @@ The third for-loop: Find the mean, standard deviation, and upper and lower uncer
 "point" in the dataset. This loop takes the mean of all the first measurements, then all the second, etc.
 """
 
-n = 100
+
 def monte_carlo_randomization(x_init, fake_x, y_init, y_error, cutoff):
     new_array = y_init  # create a new variable on which we will later v-stack randomized lists
-
+    n = 10
     for i in range(0, n):
         empty_array = []
         for j in range(0, len(y_init)):
@@ -115,11 +115,11 @@ def monte_carlo_randomization(x_init, fake_x, y_init, y_error, cutoff):
             empty_array.append(c)  # add this to a list
             # print(len(empty_array))
         new_array = np.vstack((new_array, empty_array))
-
-    template_array = ccgFilter(x_init, y_init, cutoff).getSmoothValue(fake_x) # inital values for stacking
+# TODO change .getTrendValue back to getSmoothValue
+    template_array = ccgFilter(x_init, y_init, cutoff).getTrendValue(fake_x)  # inital values for stacking
     for k in range(0, len(new_array)):
         row = new_array[k]  # grab the first row of the data
-        smooth = ccgFilter(x_init, row, cutoff).getSmoothValue(fake_x) # outputs smooth values at my desired times, x
+        smooth = ccgFilter(x_init, row, cutoff).getTrendValue(fake_x)  # outputs smooth values at my desired times, x
         template_array = np.hstack((template_array, smooth))
 
     df = pd.DataFrame(template_array)
@@ -389,7 +389,7 @@ x_combined = snip['DEC_DECAY_CORR']
 y_combined = snip['DELTA14C']
 z_combined = snip['DELTA14C_ERR']
 """
-BARING HEAD RECORD SPLIT UP INTO 3 PARTS (1987 - 1991, 1991 - 1994, 2006 - 2016)
+BARING HEAD RECORD SPLIT UP INTO 5 PARTS (1987 - 1991, 1991 - 1994, 2006 - 2016, 2006 - 2009, 2009 - 2012)
 """
 baringhead_1986_1991 = baringhead.loc[(baringhead['DEC_DECAY_CORR'] >= 1987) & (baringhead['DEC_DECAY_CORR'] <= 1991)]
 baringhead_1986_1991.reset_index(inplace=True)
@@ -397,18 +397,31 @@ baringhead_1991_1994 = baringhead.loc[(baringhead['DEC_DECAY_CORR'] >= 1991) & (
 baringhead_1991_1994.reset_index(inplace=True)
 baringhead_2006_2016 = baringhead.loc[(baringhead['DEC_DECAY_CORR'] > 2006)]  # BARINGHEAD2 will include the 2009-2011
 baringhead_2006_2016.reset_index(inplace=True)
+baringhead_2006_2009 = baringhead.loc[(baringhead['DEC_DECAY_CORR'] >= 2006) & (baringhead['DEC_DECAY_CORR'] <= 2009)]  # BARINGHEAD2 will include the 2009-2011
+baringhead_2006_2009.reset_index(inplace=True)
+baringhead_2012_2016 = baringhead.loc[(baringhead['DEC_DECAY_CORR'] >= 2012) & (baringhead['DEC_DECAY_CORR'] <= 2016)]  # BARINGHEAD2 will include the 2009-2011
+baringhead_2012_2016.reset_index(inplace=True)
+
 # x- variables
 x1_bhd = baringhead_1986_1991['DEC_DECAY_CORR']
 x2_bhd = baringhead_1991_1994['DEC_DECAY_CORR']
 x3_bhd = baringhead_2006_2016['DEC_DECAY_CORR']
+x4_bhd = baringhead_2006_2009['DEC_DECAY_CORR']
+x5_bhd = baringhead_2012_2016['DEC_DECAY_CORR']
+
 # y- variables
 y1_bhd = baringhead_1986_1991['DELTA14C']
 y2_bhd = baringhead_1991_1994['DELTA14C']
 y3_bhd = baringhead_2006_2016['DELTA14C']
+y4_bhd = baringhead_2006_2009['DELTA14C']
+y5_bhd = baringhead_2012_2016['DELTA14C']
+
 # error - variables
 z1_bhd = baringhead_1986_1991['DELTA14C_ERR']
 z2_bhd = baringhead_1991_1994['DELTA14C_ERR']
 z3_bhd = baringhead_2006_2016['DELTA14C_ERR']
+z4_bhd = baringhead_2006_2009['DELTA14C_ERR']
+z5_bhd = baringhead_2012_2016['DELTA14C_ERR']
 
 """ Cape Grim Heidelberg ENTIRE datafile: """
 # variables
@@ -425,19 +438,28 @@ heidelberg_1991_1994 = heidelberg.loc[(heidelberg['Decimal_date'] >= 1991) & (he
 heidelberg_1991_1994.reset_index(inplace=True)
 heidelberg_2006_2016 = heidelberg.loc[(heidelberg['Decimal_date'] > 2006)]  # BARINGHEAD2 will include the 2009-2011
 heidelberg_2006_2016.reset_index(inplace=True)
+heidelberg_2006_2009 = heidelberg.loc[(heidelberg['Decimal_date'] >= 2006) & (heidelberg['Decimal_date'] <= 2009)]  # BARINGHEAD2 will include the 2009-2011
+heidelberg_2006_2009.reset_index(inplace=True)
+heidelberg_2012_2016 = heidelberg.loc[(heidelberg['Decimal_date'] >= 2012) & (heidelberg['Decimal_date'] <= 2016)]  # BARINGHEAD2 will include the 2009-2011
+heidelberg_2012_2016.reset_index(inplace=True)
 
 x1_heid = heidelberg_1986_1991['Decimal_date']
 x2_heid = heidelberg_1991_1994['Decimal_date']
 x3_heid = heidelberg_2006_2016['Decimal_date']
+x4_heid = heidelberg_2006_2009['Decimal_date']
+x5_heid = heidelberg_2012_2016['Decimal_date']
 
 y1_heid = heidelberg_1986_1991['D14C']
 y2_heid = heidelberg_1991_1994['D14C']
 y3_heid = heidelberg_2006_2016['D14C']
+y4_heid = heidelberg_2006_2009['D14C']
+y5_heid = heidelberg_2012_2016['D14C']
 
 z1_heid = heidelberg_1986_1991['weightedstderr_D14C']
 z2_heid = heidelberg_1991_1994['weightedstderr_D14C']
 z3_heid = heidelberg_2006_2016['weightedstderr_D14C']
-#
+z4_heid = heidelberg_2006_2009['weightedstderr_D14C']
+z5_heid = heidelberg_2012_2016['weightedstderr_D14C']
 
 """ Simple curve smoothing of all the different data for visual analysis  """
 # Whole baring head record
@@ -450,6 +472,40 @@ baringhead_ytot_smoothed = baringhead_smooth_total[2]
 heidelberg_smooth_total = ccgFilter(xtot_heid, ytot_heid, cutoff).getMonthlyMeans()
 heidelberg_xtot_smoothed = year_month_todecimaldate(heidelberg_smooth_total[0], heidelberg_smooth_total[1])  # get the dates to be in decimal format
 heidelberg_ytot_smoothed = heidelberg_smooth_total[2]
+
+temporarycutoff = 667
+ccgcv_bhd = ccgFilter(x1_bhd, y1_bhd, temporarycutoff).getMonthlyMeans()
+x_ccgcv_bhd1 = year_month_todecimaldate(ccgcv_bhd[0], ccgcv_bhd[1])  # get the dates to be in decimal format
+y_ccgcv_bhd1 = ccgcv_bhd[2]
+ccgcv_bhd = ccgFilter(x2_bhd, y2_bhd, temporarycutoff).getMonthlyMeans()
+x_ccgcv_bhd2 = year_month_todecimaldate(ccgcv_bhd[0], ccgcv_bhd[1])  # get the dates to be in decimal format
+y_ccgcv_bhd2 = ccgcv_bhd[2]
+ccgcv_bhd = ccgFilter(x3_bhd, y3_bhd, temporarycutoff).getMonthlyMeans()
+x_ccgcv_bhd3 = year_month_todecimaldate(ccgcv_bhd[0], ccgcv_bhd[1])  # get the dates to be in decimal format
+y_ccgcv_bhd3 = ccgcv_bhd[2]
+ccgcv_bhd = ccgFilter(x4_bhd, y4_bhd, temporarycutoff).getMonthlyMeans()
+x_ccgcv_bhd4 = year_month_todecimaldate(ccgcv_bhd[0], ccgcv_bhd[1])  # get the dates to be in decimal format
+y_ccgcv_bhd4 = ccgcv_bhd[2]
+ccgcv_bhd = ccgFilter(x5_bhd, y5_bhd, temporarycutoff).getMonthlyMeans()
+x_ccgcv_bhd5 = year_month_todecimaldate(ccgcv_bhd[0], ccgcv_bhd[1])  # get the dates to be in decimal format
+y_ccgcv_bhd5 = ccgcv_bhd[2]
+
+# smooth the heidelberg data
+ccgcv_heid = ccgFilter(x1_heid, y1_heid, temporarycutoff).getMonthlyMeans()
+x_ccgcv_heid1 = year_month_todecimaldate(ccgcv_heid[0], ccgcv_heid[1])  # get the dates to be in decimal format
+y_ccgcv_heid1 = ccgcv_heid[2]
+ccgcv_heid = ccgFilter(x2_heid, y2_heid, temporarycutoff).getMonthlyMeans()
+x_ccgcv_heid2 = year_month_todecimaldate(ccgcv_heid[0], ccgcv_heid[1])  # get the dates to be in decimal format
+y_ccgcv_heid2 = ccgcv_heid[2]
+ccgcv_heid = ccgFilter(x3_heid, y3_heid, temporarycutoff).getMonthlyMeans()
+x_ccgcv_heid3 = year_month_todecimaldate(ccgcv_heid[0], ccgcv_heid[1])  # get the dates to be in decimal format
+y_ccgcv_heid3 = ccgcv_heid[2]
+ccgcv_heid = ccgFilter(x4_heid, y4_heid, temporarycutoff).getMonthlyMeans()
+x_ccgcv_heid4 = year_month_todecimaldate(ccgcv_heid[0], ccgcv_heid[1])  # get the dates to be in decimal format
+y_ccgcv_heid4 = ccgcv_heid[2]
+ccgcv_heid = ccgFilter(x5_heid, y5_heid, temporarycutoff).getMonthlyMeans()
+x_ccgcv_heid5 = year_month_todecimaldate(ccgcv_heid[0], ccgcv_heid[1])  # get the dates to be in decimal format
+y_ccgcv_heid5 = ccgcv_heid[2]
 
 
 """
@@ -464,32 +520,13 @@ df_fake_xs = pd.DataFrame({'x': fake_x_temp})
 my_x_1986_1991 = df_fake_xs.loc[(df_fake_xs['x'] >= min(x1_heid)) & (df_fake_xs['x'] <= max(x1_heid))]
 my_x_1991_1994 = df_fake_xs.loc[(df_fake_xs['x'] >= min(x2_bhd)) & (df_fake_xs['x'] <= max(x2_bhd))]
 my_x_2006_2016 = df_fake_xs.loc[(df_fake_xs['x'] >= min(x3_heid)) & (df_fake_xs['x'] <= max(x3_heid))]
+my_x_2006_2009 = df_fake_xs.loc[(df_fake_xs['x'] >= min(x4_heid)) & (df_fake_xs['x'] <= max(x4_heid))]
+my_x_2012_2016 = df_fake_xs.loc[(df_fake_xs['x'] >= min(x5_heid)) & (df_fake_xs['x'] <= max(x5_heid))]
+print(len(my_x_2006_2009))
 """
 Put the sliced up data through the Monte Carlo randomization process, and then through the curve smoother
 See my function above which does both and returns the data in an array.
 """
-temporarycutoff = 667
-ccgcv_bhd = ccgFilter(x1_bhd, y1_bhd, temporarycutoff).getMonthlyMeans()
-x_ccgcv_bhd1 = year_month_todecimaldate(ccgcv_bhd[0], ccgcv_bhd[1])  # get the dates to be in decimal format
-y_ccgcv_bhd1 = ccgcv_bhd[2]
-ccgcv_bhd = ccgFilter(x2_bhd, y2_bhd, temporarycutoff).getMonthlyMeans()
-x_ccgcv_bhd2 = year_month_todecimaldate(ccgcv_bhd[0], ccgcv_bhd[1])  # get the dates to be in decimal format
-y_ccgcv_bhd2 = ccgcv_bhd[2]
-ccgcv_bhd = ccgFilter(x3_bhd, y3_bhd, temporarycutoff).getMonthlyMeans()
-x_ccgcv_bhd3 = year_month_todecimaldate(ccgcv_bhd[0], ccgcv_bhd[1])  # get the dates to be in decimal format
-y_ccgcv_bhd3 = ccgcv_bhd[2]
-
-# smooth the heidelberg data
-ccgcv_heid = ccgFilter(x1_heid, y1_heid, temporarycutoff).getMonthlyMeans()
-x_ccgcv_heid1 = year_month_todecimaldate(ccgcv_heid[0], ccgcv_heid[1])  # get the dates to be in decimal format
-y_ccgcv_heid1 = ccgcv_heid[2]
-ccgcv_heid = ccgFilter(x2_heid, y2_heid, temporarycutoff).getMonthlyMeans()
-x_ccgcv_heid2 = year_month_todecimaldate(ccgcv_heid[0], ccgcv_heid[1])  # get the dates to be in decimal format
-y_ccgcv_heid2 = ccgcv_heid[2]
-ccgcv_heid = ccgFilter(x3_heid, y3_heid, temporarycutoff).getMonthlyMeans()
-x_ccgcv_heid3 = year_month_todecimaldate(ccgcv_heid[0], ccgcv_heid[1])  # get the dates to be in decimal format
-y_ccgcv_heid3 = ccgcv_heid[2]
-
 # function input: def monte_carlo_randomization(x_init, fake_x, y_init, y_error, cutoff):
 # function return:  new_array, template_array, mean_array, stdev_array, upper_array, lower_array, fake_x
 
@@ -506,9 +543,6 @@ randos2 = np.array(randos.iloc[1])
 randos3 = np.array(randos.iloc[2])
 randos4 = np.array(randos.iloc[3])
 randos5 = np.array(randos.iloc[4])
-print(np.shape(xtot_bhd))
-print(np.shape(randos1))
-
 smoothed_randomized_data = bhd_1986_1991_results[1]
 montes = pd.DataFrame(bhd_1986_1991_results[1])
 montes = pd.DataFrame.transpose(montes)
@@ -519,14 +553,66 @@ monte_it2 = np.array(montes.iloc[1])
 monte_it3 = np.array(montes.iloc[2])
 monte_it4 = np.array(montes.iloc[3])
 monte_it5 = np.array(montes.iloc[4])
+means = bhd_1986_1991_results[2]
+
 
 """ Smoothed, Monte Carlo'd data from 1991 to 1994 """
 heidelberg_1991_1994_results = monte_carlo_randomization(x2_heid, my_x_1991_1994, y2_heid, z2_heid, 667)
 bhd_1991_1994_results = monte_carlo_randomization(x2_bhd, my_x_1991_1994, y2_bhd, z2_bhd, 667)
+
 """ Smoothed, Monte Carlo'd data from 2006_2016 """
 heidelberg_2006_2016_results = monte_carlo_randomization(x3_heid, my_x_2006_2016, y3_heid, z3_heid, 667)
 bhd_2006_2016_results = monte_carlo_randomization(x3_bhd, my_x_2006_2016, y3_bhd, z3_bhd, 667)
-#
+
+""" Smoothed, Monte Carlo'd data from 2006_2009 """
+heidelberg_2006_2009_results = monte_carlo_randomization(x4_heid, my_x_2006_2009, y4_heid, z4_heid, 667)
+bhd_2006_2009_results = monte_carlo_randomization(x4_bhd, my_x_2006_2009, y4_bhd, z4_bhd, 667)
+
+""" Smoothed, Monte Carlo'd data from 2012-2016 """
+heidelberg_2012_2016_results = monte_carlo_randomization(x5_heid, my_x_2012_2016, y5_heid, z5_heid, 667)
+bhd_2012_2016_results = monte_carlo_randomization(x5_bhd, my_x_2012_2016, y5_bhd, z5_bhd, 667)
+
+"""
+################################################
+################################################
+Extract the data from the smoothings
+################################################
+################################################
+"""
+# mean-arrays
+heidelberg_1986_1991_mean = heidelberg_1986_1991_results[2]
+bhd_1986_1991_mean = bhd_1986_1991_results[2]
+heidelberg_1991_1994_mean = heidelberg_1991_1994_results[2]
+bhd_1991_1994_mean = bhd_1991_1994_results[2]
+heidelberg_2006_2016_mean = heidelberg_2006_2016_results[2]
+bhd_2006_2016_mean = bhd_2006_2016_results[2]
+heidelberg_2006_2009_mean = heidelberg_2006_2009_results[2]
+bhd_2006_2009_mean = bhd_2006_2009_results[2]
+heidelberg_2012_2016_mean = heidelberg_2006_2009_results[2]
+bhd_2012_2016_mean = bhd_2006_2009_results[2]
+
+# stdev arrays
+heidelberg_1986_1991_stdev = heidelberg_1986_1991_results[3]
+bhd_1986_1991_stdev = bhd_1986_1991_results[3]
+heidelberg_1991_1994_stdev = heidelberg_1991_1994_results[3]
+bhd_1991_1994_stdev = bhd_1991_1994_results[3]
+heidelberg_2006_2016_stdev = heidelberg_2006_2016_results[3]
+bhd_2006_2016_stdev = bhd_2006_2016_results[3]
+heidelberg_2006_2009_stdev = heidelberg_2006_2009_results[3]
+bhd_2006_2009_stdev = bhd_2006_2009_results[3]
+heidelberg_2012_2016_stdev = heidelberg_2012_2016_results[3]
+bhd_2012_2016_stdev = bhd_2012_2016_results[3]
+
+
+# x-data returned for plotting
+my_x_1986_1991 = np.array(bhd_1986_1991_results[6])
+my_x_1991_1994 = np.array(bhd_1991_1994_results[6])
+my_x_2006_2016 = np.array(bhd_2006_2016_results[6])
+my_x_2006_2009 = np.array(bhd_2006_2009_results[6])
+my_x_2012_2016 = np.array(bhd_2012_2016_results[6])
+
+
+
 # two_tail_paired_t_test(np.array(heidelberg_1986_1991_results[2]),
 #                        np.array(heidelberg_1986_1991_results[3]),
 #                        np.array(bhd_1986_1991_results[2]),
@@ -542,7 +628,20 @@ bhd_2006_2016_results = monte_carlo_randomization(x3_bhd, my_x_2006_2016, y3_bhd
 #                        np.array(bhd_2006_2016_results[2]),
 #                        np.array(bhd_2006_2016_results[3]))
 #
-# #
+# two_tail_paired_t_test(np.array(heidelberg_2006_2009_results[2]),
+#                        np.array(heidelberg_2006_2009_results[3]),
+#                        np.array(bhd_2006_2009_results[2]),
+#                        np.array(bhd_2006_2009_results[3]))
+#
+# two_tail_paired_t_test(np.array(heidelberg_2012_2016_results[2]),
+#                        np.array(heidelberg_2012_2016_results[3]),
+#                        np.array(bhd_2012_2016_results[2]),
+#                        np.array(bhd_2012_2016_results[3]))
+
+# TODO Understand why the 4th and 5th time periods are not computing correctly.
+
+
+# # #
 # test = monthly_averages(xtot_bhd, ytot_bhd)
 # print(test)
 # print(len(xtot_bhd))

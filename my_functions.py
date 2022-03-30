@@ -24,6 +24,7 @@ x = year data
 y = month data
 """
 
+
 def year_month_todecimaldate(x, y):
     L = np.linspace(0, 1, 365)
     # add the number that is 1/2 of the previous month plus the current month
@@ -87,6 +88,7 @@ def long_date_to_decimal_date(x):
         array.append(decy)
     # print(array)
     return array
+
 
 # returns the array/list back but in the decimal form
 
@@ -159,6 +161,7 @@ this test uses 0.05 probability
 THIS METHOD DOES NOT WORK YET - MUST DEAL WITH VARIABLE D_of_F's not equal to those in table
 """
 
+
 # def simple_t_test(x1, x2):
 # TODO FIX CRITICAL VALUE LOOKUP
 # dfx = pd.read_excel(
@@ -197,7 +200,6 @@ THIS METHOD DOES NOT WORK YET - MUST DEAL WITH VARIABLE D_of_F's not equal to th
 # computes the basic analytical data for TWO (ONLY TWO) datasets
 
 
-
 def basic_analysis(x, y, name1, name2):
     # compute data for individual datasets
 
@@ -220,47 +222,90 @@ def basic_analysis(x, y, name1, name2):
     return df
 
 
-def monte_carlo_randomization(x_init, fake_x, y_init, y_error, cutoff):
-    new_array = y_init  # create a new variable on which we will later v-stack randomized lists
-    n = 10
-    for i in range(0, n):
-        empty_array = []
-        for j in range(0, len(y_init)):
-            a = y_init[j]  # grab the first item in the set
-            b = y_error[j]  # grab the uncertainty
-            rand = random.uniform(b, b * -1)  # create a random uncertainty within the range of the uncertainty
-            c = a + rand  # add this to the number
-            empty_array.append(c)  # add this to a list
-            # print(len(empty_array))
-        new_array = np.vstack((new_array, empty_array))
-    # TODO change .getTrendValue back to getSmoothValue
-    template_array = ccgFilter(x_init, y_init, cutoff).getTrendValue(fake_x)  # inital values for stacking
-    for k in range(0, len(new_array)):
-        row = new_array[k]  # grab the first row of the data
-        smooth = ccgFilter(x_init, row, cutoff).getTrendValue(fake_x)  # outputs smooth values at my desired times, x
-        template_array = np.hstack((template_array, smooth))
+# def monte_carlo_randomization_trend(x_init, fake_x, y_init, y_error, cutoff, n):
+#     """ Part 1 of this long function randomizes that data within its uncertainty "n" times. """
+#     new_array = y_init  # create a new variable on which we will later v-stack randomized lists
+#     for i in range(0, n):
+#         empty_array = []
+#         for j in range(0, len(y_init)):
+#             a = y_init[j]  # grab the first item in the set
+#             b = y_error[j]  # grab the uncertainty
+#             rand = random.uniform(b, b * -1)  # create a random uncertainty within the range of the uncertainty
+#             c = a + rand  # add this to the number
+#             empty_array.append(c)  # add this to a list
+#             # print(len(empty_array))
+#         new_array = np.vstack((new_array, empty_array))
+#     print(new_array)
 
-    df = pd.DataFrame(template_array)
-
-    mean_array = []
-    stdev_array = []
-    upper_array = []
-    lower_array = []
-    for i in range(0, len(template_array)):
-        element1 = np.sum(template_array[i])  # grab the first ROW of the dataframe and take the sum
-        mean = element1 / len(template_array[i])  # find the mean of all the values from the Monte Carlo
-        mean_array.append(mean)  # append it to a new array
-
-        stdev = np.std(template_array[i])  # grab the first ROW of the dataframe find the stdev
-        stdev_array.append(stdev)
-
-        upper = mean + stdev
-        lower = mean - stdev
-        upper_array.append(upper)
-        lower_array.append(lower)
-
-    return new_array, template_array, mean_array, stdev_array, upper_array, lower_array, fake_x
-
+#     template_array = ccgFilter(x_init, y_init, cutoff).getTrendValue(fake_x)  # inital values for stacking
+#     for k in range(0, len(new_array)):
+#         row = new_array[k]  # grab the first row of the data
+#         smooth = ccgFilter(x_init, row, cutoff).getTrendValue(fake_x)  # outputs smooth values at my desired times, x
+#         template_array = np.hstack((template_array, smooth))
+#
+#     df = pd.DataFrame(template_array)
+#
+#     mean_array = []
+#     stdev_array = []
+#     upper_array = []
+#     lower_array = []
+#     for i in range(0, len(template_array)):
+#         element1 = np.sum(template_array[i])  # grab the first ROW of the dataframe and take the sum
+#         mean = element1 / len(template_array[i])  # find the mean of all the values from the Monte Carlo
+#         mean_array.append(mean)  # append it to a new array
+#
+#         stdev = np.std(template_array[i])  # grab the first ROW of the dataframe find the stdev
+#         stdev_array.append(stdev)
+#
+#         upper = mean + stdev
+#         lower = mean - stdev
+#         upper_array.append(upper)
+#         lower_array.append(lower)
+#
+#     return new_array, template_array, mean_array, stdev_array, upper_array, lower_array, fake_x
+#
+#
+# def monte_carlo_randomization_smooth(x_init, fake_x, y_init, y_error, cutoff, n):
+#     """ Part 1 of this long function randomizes that data within its uncertainty "n" times. """
+#     new_array = y_init  # create a new variable on which we will later v-stack randomized lists
+#     for i in range(0, n):
+#         empty_array = []
+#         for j in range(0, len(y_init)):
+#             a = y_init[j]  # grab the first item in the set
+#             b = y_error[j]  # grab the uncertainty
+#             rand = random.uniform(b, b * -1)  # create a random uncertainty within the range of the uncertainty
+#             c = a + rand  # add this to the number
+#             empty_array.append(c)  # add this to a list
+#             # print(len(empty_array))
+#         new_array = np.vstack((new_array, empty_array))
+#
+#     template_array = ccgFilter(x_init, y_init, cutoff).getSmoothValue(fake_x)  # inital values for stacking
+#     for k in range(0, len(new_array)):
+#         row = new_array[k]  # grab the first row of the data
+#         smooth = ccgFilter(x_init, row, cutoff).getTrendValue(fake_x)  # outputs smooth values at my desired times, x
+#         template_array = np.hstack((template_array, smooth))
+#
+#     df = pd.DataFrame(template_array)
+#
+#     mean_array = []
+#     stdev_array = []
+#     upper_array = []
+#     lower_array = []
+#     for i in range(0, len(template_array)):
+#         element1 = np.sum(template_array[i])  # grab the first ROW of the dataframe and take the sum
+#         mean = element1 / len(template_array[i])  # find the mean of all the values from the Monte Carlo
+#         mean_array.append(mean)  # append it to a new array
+#
+#         stdev = np.std(template_array[i])  # grab the first ROW of the dataframe find the stdev
+#         stdev_array.append(stdev)
+#
+#         upper = mean + stdev
+#         lower = mean - stdev
+#         upper_array.append(upper)
+#         lower_array.append(lower)
+#
+#     return new_array, template_array, mean_array, stdev_array, upper_array, lower_array, fake_x
+#
 
 def two_tail_paired_t_test(y1, y1err, y2, y2err):
     """ Subtract the data from each other (first step in paired t-test)"""
@@ -364,7 +409,6 @@ def two_tail_paired_t_test(y1, y1err, y2, y2err):
     return result
 
 
-
 def monthly_averages(x_values, y_values):
     x_values = np.array(x_values)
     y_values = np.array(y_values)
@@ -431,8 +475,6 @@ def monthly_averages(x_values, y_values):
                 permarray_x.append(tempmean)
                 permarray_y.append(tempmean2)
 
-
-
             # else:
             #     permarray_x.append(x_int + months_min)
             #     permarray_y.append(-999)
@@ -440,3 +482,193 @@ def monthly_averages(x_values, y_values):
     return permarray_x, permarray_y
 
 
+"""
+The next three functions are integral to the intercomparison of time series radiocarbon data
+"""
+def randomization(y_init, y_error, n):
+    """ this first randomizes that data within its uncertainty "n" times. """
+    new_array = y_init  # create a new variable on which we will later v-stack randomized lists
+    for i in range(0, n):
+        empty_array = []
+        for j in range(0, len(y_init)):
+            a = y_init[j]  # grab the first item in the set
+            b = y_error[j]  # grab the uncertainty
+            rand = random.uniform(b, b * -1)  # create a random uncertainty within the range of the uncertainty
+            c = a + rand  # add this to the number
+            empty_array.append(c)  # add this to a list
+            # print(len(empty_array))
+        new_array = np.vstack((new_array, empty_array))
+    new_array_dataframe = pd.DataFrame(new_array)  # each row is a randomized array
+    return new_array, new_array_dataframe
+
+""" 
+this second function puts the output from the first function through the ccgcrv curve smoother
+and outputs the data
+"""
+
+def ccgcrv_trend(x_init, y_init, cutoff, fake_x, randomized_array):
+    template_array = ccgFilter(x_init, y_init, cutoff).getTrendValue(fake_x)  # inital values for stacking
+    for i in range(0, len(randomized_array) - 1):  # minus 1 because there is one randomized row already stacked.
+        row = randomized_array[i]  # grab the first row of the data
+
+        trend = ccgFilter(x_init, row, cutoff).getTrendValue(fake_x)  # outputs smooth values at my desired times, x
+        template_array = np.hstack((template_array, trend))
+
+    template_array = pd.DataFrame(template_array)
+
+    mean_array = []
+    stdev_array = []
+    upper_array = []
+    lower_array = []
+    for i in range(0, len(template_array)):
+        row = template_array.iloc[i]  # grab the first row of the transformed DataFrame
+        sums = np.sum(row)  # take the sum of all the numbers in that row
+        mean = sums / len(row)  # find the mean
+        mean_array.append(mean)  # append each mean to an array
+
+        stdevs = np.std(row)
+        stdev_array.append(stdevs)
+
+        upper = mean + stdevs
+        lower = mean - stdevs
+        upper_array.append(upper)
+        lower_array.append(lower)
+    print(mean_array)
+    return template_array, mean_array, stdev_array, upper_array, lower_array
+
+def ccgcrv_smooth(x_init, y_init, cutoff, fake_x, randomized_array):
+    template_array = ccgFilter(x_init, y_init, cutoff).getSmoothValue(fake_x)  # inital values for stacking
+    for i in range(0, len(randomized_array) - 1):  # minus 1 because there is one randomized row already stacked.
+        row = randomized_array[i]  # grab the first row of the data
+
+        trend = ccgFilter(x_init, row, cutoff).getSmoothValue(fake_x)  # outputs smooth values at my desired times, x
+        template_array = np.hstack((template_array, trend))
+
+    template_array = pd.DataFrame(template_array)
+
+    mean_array = []
+    stdev_array = []
+    upper_array = []
+    lower_array = []
+    for i in range(0, len(template_array)):
+        row = template_array.iloc[i]  # grab the first row of the transformed DataFrame
+        sums = np.sum(row)  # take the sum of all the numbers in that row
+        mean = sums / len(row)  # find the mean
+        mean_array.append(mean)  # append each mean to an array
+
+        stdevs = np.std(row)
+        stdev_array.append(stdevs)
+
+        upper = mean + stdevs
+        lower = mean - stdevs
+        upper_array.append(upper)
+        lower_array.append(lower)
+    print(mean_array)
+    return template_array, mean_array, stdev_array, upper_array, lower_array
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#
+# def ccgcrv_trend(x_init, y_init, cutoff, fake_x, randomized_array):
+#     template_array = ccgFilter(x_init, y_init, cutoff).getTrendValue(fake_x)  # inital values for stacking
+#     for i in range(0, len(randomized_array) - 1):  # minus 1 because there is one randomized row already stacked.
+#         row = randomized_array[i]  # grab the first row of the data
+#         trend = ccgFilter(x_init, row, cutoff).getTrendValue(fake_x)  # outputs smooth values at my desired times, x
+#         template_array = np.vstack((template_array, trend))
+#     print(np.shape(template_array))
+#     template_array = pd.DataFrame(template_array)
+#     template_array_trans = pd.DataFrame.transpose(template_array)
+#
+#     mean_array = []
+#     stdev_array = []
+#     upper_array = []
+#     lower_array = []
+#     for i in range(0, len(template_array_trans)):
+#         row = template_array_trans.iloc[i]  # grab the first row of the transformed DataFrame
+#         sums = np.sum(row)                  # take the sum of all the numbers in that row
+#         mean = sums / len(row)              # find the mean
+#         mean_array.append(mean)             # append each mean to an array
+#
+#         stdevs = np.std(row)
+#         stdev_array.append(stdevs)
+#
+#         upper = mean + stdevs
+#         lower = mean - stdevs
+#         upper_array.append(upper)
+#         lower_array.append(lower)
+#
+#     return mean_array, stdev_array, upper_array, lower_array
+#
+# def ccgcrv_smooth(x_init, y_init, cutoff, fake_x, randomized_array):
+#     template_array = ccgFilter(x_init, y_init, cutoff).getSmoothValue(fake_x)  # inital values for stacking
+#     for i in range(0, len(randomized_array) - 1):  # minus 1 because there is one randomized row already stacked.
+#         row = randomized_array[i]  # grab the first row of the data
+#         trend = ccgFilter(x_init, row, cutoff).getSmoothValue(fake_x)  # outputs smooth values at my desired times, x
+#         template_array = np.vstack((template_array, trend))
+#     print(np.shape(template_array))
+#     template_array = pd.DataFrame(template_array)
+#     template_array_trans = pd.DataFrame.transpose(template_array)
+#
+#     mean_array = []
+#     stdev_array = []
+#     upper_array = []
+#     lower_array = []
+#     for i in range(0, len(template_array_trans)):
+#         row = template_array_trans.iloc[i]  # grab the first row of the transformed DataFrame
+#         sums = np.sum(row)                  # take the sum of all the numbers in that row
+#         mean = sums / len(row)              # find the mean
+#         mean_array.append(mean)             # append each mean to an array
+#
+#         stdevs = np.std(row)
+#         stdev_array.append(stdevs)
+#
+#         upper = mean + stdevs
+#         lower = mean - stdevs
+#         upper_array.append(upper)
+#         lower_array.append(lower)
+#
+#     return mean_array, stdev_array, upper_array, lower_array

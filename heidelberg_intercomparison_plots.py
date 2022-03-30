@@ -335,6 +335,90 @@ size1 = 5
 """
 Smoothed vs Trended Curve for Part 1 and Part 2
 """
+#
+# fig = plt.figure(5, figsize=(10, 5))
+# gs = gridspec.GridSpec(4, 8)
+# gs.update(wspace=1, hspace=0.25)
+#
+# # Generate first panel
+# # remember, the grid spec is rows, then columns
+#
+# xtr_subsplot = fig.add_subplot(gs[0:5, 0:5])
+#
+# plt.scatter(xtot_bhd, ytot_bhd, marker='o', label='BHD', color=colors[1], s=size1, alpha = 0.3)
+# plt.scatter(xtot_heid, ytot_heid, marker='x', label='CGO', color=colors2[1], s=size1, alpha = 0.3)
+# plt.plot(my_x_1986_1991['x'], bhd_1986_1991_mean_smooth, label='BHD 1986-1991 Mean Smoothed', color=colors[1])
+# plt.plot(my_x_1991_1994['x'], bhd_1991_1994_mean_smooth, label='BHD 1991-1994 Mean Smoothed', color=colors[1])
+# plt.plot(my_x_1986_1991['x'], heidelberg_1986_1991_mean_smooth, label='BHD 1986-1991 Mean Smoothed', color=colors2[1])
+# plt.plot(my_x_1991_1994['x'], heidelberg_1991_1994_mean_smooth, label='BHD 1991-1994 Mean Smoothed', color=colors2[1])
+# plt.xlim([1987, 1994])
+# plt.ylim([120, 190])
+#
+# plt.title('1987 - 1992')
+# plt.legend(fontsize = 8)
+# plt.xlabel('Date', fontsize=14)
+# # Generate second panel
+# xtr_subsplot = fig.add_subplot(gs[0:5, 5:10])
+# plt.scatter(xtot_bhd, ytot_bhd, marker='o', label='BHD', color=colors[1], s=size1, alpha = 0.3)
+# plt.scatter(xtot_heid, ytot_heid, marker='x', label='CGO', color=colors2[1], s=size1, alpha = 0.3)
+# plt.plot(my_x_2006_2016['x'], bhd_2006_2016_mean_smooth, label='BHD 1986-1991 Mean Smoothed', color=colors[1])
+# plt.plot(my_x_2006_2016['x'], heidelberg_2006_2016_mean_smooth, label='BHD 1986-1991 Mean Smoothed', color=colors2[1])
+#
+# plt.title('2006 - 2016')
+# plt.xlim([2006, 2016])
+# plt.ylim([20, 65])
+# plt.legend(fontsize = 8)
+# plt.xlabel('Date', fontsize=14)
+# plt.savefig('C:/Users/lewis/venv/python310/python-masterclass-remaster-shared/'
+#             'radiocarbon_intercomparison/plots/cleanedFigs_10.png',
+#             dpi=300, bbox_inches="tight")
+# plt.close()
+#
+# """
+# Same as above but the TRENDS this time versus the SMOOTHS
+# """
+#
+# fig = plt.figure(5, figsize=(10, 5))
+# gs = gridspec.GridSpec(4, 8)
+# gs.update(wspace=1, hspace=0.25)
+#
+# # Generate first panel
+# # remember, the grid spec is rows, then columns
+#
+# xtr_subsplot = fig.add_subplot(gs[0:4, 0:4])
+#
+# plt.scatter(xtot_bhd, ytot_bhd, marker='o', label='BHD', color=colors[1], s=size1, alpha = 0.3)
+# plt.scatter(xtot_heid, ytot_heid, marker='x', label='CGO', color=colors2[1], s=size1, alpha = 0.3)
+# plt.plot(my_x_1986_1991['x'], bhd_1986_1991_mean_trend, label='BHD 1986-1991 Mean Smoothed', color=colors[1])
+# plt.plot(my_x_1991_1994['x'], bhd_1991_1994_mean_trend, label='BHD 1991-1994 Mean Smoothed', color=colors[1])
+# plt.plot(my_x_1986_1991['x'], heidelberg_1986_1991_mean_trend, label='BHD 1986-1991 Mean Smoothed', color=colors2[1])
+# plt.plot(my_x_1991_1994['x'], heidelberg_1991_1994_mean_trend, label='BHD 1991-1994 Mean Smoothed', color=colors2[1])
+# plt.xlim([1987, 1994])
+# plt.ylim([120, 190])
+#
+# plt.title('1987 - 1992')
+# plt.legend(fontsize = 8)
+# plt.xlabel('Date', fontsize=14)
+# # Generate second panel
+# xtr_subsplot = fig.add_subplot(gs[0:4, 4:8])
+# plt.scatter(xtot_bhd, ytot_bhd, marker='o', label='BHD', color=colors[1], s=size1, alpha = 0.3)
+# plt.scatter(xtot_heid, ytot_heid, marker='x', label='CGO', color=colors2[1], s=size1, alpha = 0.3)
+# plt.plot(my_x_2006_2016['x'], bhd_2006_2016_mean_trend, label='BHD 1986-1991 Mean Trend', color=colors[1])
+# plt.plot(my_x_2006_2016['x'], heidelberg_2006_2016_mean_trend, label='BHD 1986-1991 Mean Trend', color=colors2[1])
+#
+# plt.title('2006 - 2016')
+# plt.xlim([2006, 2016])
+# plt.ylim([20, 65])
+# plt.legend(fontsize = 8)
+# plt.xlabel('Date', fontsize=14)
+# plt.savefig('C:/Users/lewis/venv/python310/python-masterclass-remaster-shared/'
+#             'radiocarbon_intercomparison/plots/cleanedFigs_11.png',
+#             dpi=300, bbox_inches="tight")
+# plt.close()
+
+"""
+Combination of the last 2 Figures
+"""
 
 fig = plt.figure(5, figsize=(10, 5))
 gs = gridspec.GridSpec(4, 8)
@@ -344,31 +428,57 @@ gs.update(wspace=1, hspace=0.25)
 # remember, the grid spec is rows, then columns
 
 xtr_subsplot = fig.add_subplot(gs[0:4, 0:4])
-
 plt.scatter(xtot_bhd, ytot_bhd, marker='o', label='BHD', color=colors[1], s=size1, alpha = 0.3)
 plt.scatter(xtot_heid, ytot_heid, marker='x', label='CGO', color=colors2[1], s=size1, alpha = 0.3)
 plt.plot(my_x_1986_1991['x'], bhd_1986_1991_mean_smooth, label='BHD 1986-1991 Mean Smoothed', color=colors[1])
 plt.plot(my_x_1991_1994['x'], bhd_1991_1994_mean_smooth, label='BHD 1991-1994 Mean Smoothed', color=colors[1])
 plt.plot(my_x_1986_1991['x'], heidelberg_1986_1991_mean_smooth, label='BHD 1986-1991 Mean Smoothed', color=colors2[1])
 plt.plot(my_x_1991_1994['x'], heidelberg_1991_1994_mean_smooth, label='BHD 1991-1994 Mean Smoothed', color=colors2[1])
-plt.legend()
-plt.xlim([1987, 1992])
-plt.ylim([140, 190])
-plt.title('1987 - 1992')
-plt.legend()
-plt.xlabel('Date', fontsize=14)
-# # Generate second panel
-# xtr_subsplot = fig.add_subplot(gs[0:4, 4:8])
+plt.xlim([1987, 1994])
+plt.ylim([120, 190])
+plt.title('1987 - 1994')
+plt.legend(fontsize = 8)
+
+# Generate second panel
+xtr_subsplot = fig.add_subplot(gs[0:4, 4:8])
 plt.scatter(xtot_bhd, ytot_bhd, marker='o', label='BHD', color=colors[1], s=size1, alpha = 0.3)
 plt.scatter(xtot_heid, ytot_heid, marker='x', label='CGO', color=colors2[1], s=size1, alpha = 0.3)
 plt.plot(my_x_2006_2016['x'], bhd_2006_2016_mean_smooth, label='BHD 1986-1991 Mean Smoothed', color=colors[1])
 plt.plot(my_x_2006_2016['x'], heidelberg_2006_2016_mean_smooth, label='BHD 1986-1991 Mean Smoothed', color=colors2[1])
-plt.legend()
 plt.title('2006 - 2016')
 plt.xlim([2006, 2016])
 plt.ylim([20, 65])
-plt.legend()
+plt.legend(fontsize = 8)
+
+# Generate 3rd panel
+xtr_subsplot = fig.add_subplot(gs[4:8, 0:4])
+plt.scatter(xtot_bhd, ytot_bhd, marker='o', label='BHD', color=colors[1], s=size1, alpha = 0.3)
+plt.scatter(xtot_heid, ytot_heid, marker='x', label='CGO', color=colors2[1], s=size1, alpha = 0.3)
+plt.plot(my_x_1986_1991['x'], bhd_1986_1991_mean_trend, label='BHD 1986-1991 Mean Smoothed', color=colors[1])
+plt.plot(my_x_1991_1994['x'], bhd_1991_1994_mean_trend, label='BHD 1991-1994 Mean Smoothed', color=colors[1])
+plt.plot(my_x_1986_1991['x'], heidelberg_1986_1991_mean_trend, label='BHD 1986-1991 Mean Smoothed', color=colors2[1])
+plt.plot(my_x_1991_1994['x'], heidelberg_1991_1994_mean_trend, label='BHD 1991-1994 Mean Smoothed', color=colors2[1])
+plt.xlim([1987, 1994])
+plt.ylim([120, 190])
+plt.title('1987 - 1994')
+plt.legend(fontsize = 8)
 plt.xlabel('Date', fontsize=14)
-plt.savefig('C:/Users/lewis/venv/python310/python-masterclass-remaster-shared/'
-            'radiocarbon_intercomparison/plots/cleanedFigs_10.png',
-            dpi=300, bbox_inches="tight")
+
+# Generate 4th panel
+xtr_subsplot = fig.add_subplot(gs[4:8, 4:8])
+plt.scatter(xtot_bhd, ytot_bhd, marker='o', label='BHD', color=colors[1], s=size1, alpha = 0.3)
+plt.scatter(xtot_heid, ytot_heid, marker='x', label='CGO', color=colors2[1], s=size1, alpha = 0.3)
+plt.plot(my_x_2006_2016['x'], bhd_2006_2016_mean_trend, label='BHD 1986-1991 Mean Trend', color=colors[1])
+plt.plot(my_x_2006_2016['x'], heidelberg_2006_2016_mean_trend, label='BHD 1986-1991 Mean Trend', color=colors2[1])
+
+plt.title('2006 - 2016')
+plt.xlim([2006, 2016])
+plt.ylim([20, 65])
+plt.legend(fontsize = 8)
+plt.xlabel('Date', fontsize=14)
+# plt.savefig('C:/Users/lewis/venv/python310/python-masterclass-remaster-shared/'
+#             'radiocarbon_intercomparison/plots/cleanedFigs_11.png',
+#             dpi=300, bbox_inches="tight")
+# plt.close()
+
+plt.show()

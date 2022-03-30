@@ -8,6 +8,7 @@ from miller_curve_algorithm import ccgFilter
 from PyAstronomy import pyasl
 
 # TODO Make 1 singular place to change "n" and "cutoff"
+# TODO Save the Smoothed and Trend data and other crunched data into an excel sheet
 """
 ################################################
 ################################################
@@ -135,7 +136,7 @@ def monte_carlo_randomization_Trend(x_init, fake_x, y_init, y_error, cutoff):
     # this for smooths each row of the randomized array from above, and stacks it up
     for k in range(0, len(new_array)):
         row = new_array[k]  # grab the first row of the data
-        smooth = ccgFilter(x_init, row, cutoff).getSmoothValue(fake_x)  # outputs smooth values at my desired times, x
+        smooth = ccgFilter(x_init, row, cutoff).getTrendValue(fake_x)  # outputs smooth values at my desired times, x
         template_array = np.hstack((template_array, smooth))
 
     smoothed_dataframe = pd.DataFrame(template_array)

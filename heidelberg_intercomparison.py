@@ -494,7 +494,7 @@ baringhead.to_excel('testing2.xlsx')
 """ Entire Baring Head File > 1980 """
 baringhead = baringhead.loc[(baringhead['DEC_DECAY_CORR'] > 1980)]
 baringhead = baringhead.loc[(baringhead['DELTA14C_ERR'] > 0)]  # get rid of data where the error flag is -1000
-baringhead.reset_index(inplace=True)
+baringhead = baringhead.reset_index(drop=True)
 # variables:
 xtot_bhd = baringhead['DEC_DECAY_CORR']
 ytot_bhd = baringhead['DELTA14C']
@@ -515,29 +515,29 @@ z_combined = snip['DELTA14C_ERR']
 BARING HEAD RECORD SPLIT UP INTO 5 PARTS (1987 - 1991, 1991 - 1994, 2006 - 2016, 2006 - 2009, 2012 - 2016)
 """
 baringhead_1986_1991 = baringhead.loc[(baringhead['DEC_DECAY_CORR'] >= 1987) & (baringhead['DEC_DECAY_CORR'] <= 1991)]
-# baringhead_1986_1991.reset_index(inplace=True)
+# baringhead_1986_1991 = baringhead_1986_1991.reset_index(drop=True)
 baringhead_1991_1994 = baringhead.loc[(baringhead['DEC_DECAY_CORR'] >= 1991) & (baringhead['DEC_DECAY_CORR'] <= 1994)]
-# baringhead_1991_1994.reset_index(inplace=True)
+# baringhead_1991_1994 = baringhead_1986_1991.reset_index(drop=True)
 baringhead_2006_2016 = baringhead.loc[(baringhead['DEC_DECAY_CORR'] > 2006)]  # BARINGHEAD2 will include the 2009-2011
-# baringhead_2006_2016.reset_index(inplace=True)
+# baringhead_2006_2016 = baringhead_1986_1991.reset_index(drop=True)
 baringhead_2006_2009 = baringhead.loc[(baringhead['DEC_DECAY_CORR'] >= 2006) & (baringhead['DEC_DECAY_CORR'] <= 2009)]
-baringhead_2006_2009.reset_index(inplace=True)
+# baringhead_2006_2009= baringhead_1986_1991.reset_index(drop=True)
 baringhead_2012_2016 = baringhead.loc[(baringhead['DEC_DECAY_CORR'] >= 2012) & (baringhead['DEC_DECAY_CORR'] <= 2016)]
-# baringhead_2012_2016.reset_index(inplace=True)
+# baringhead_2012_2016 = baringhead_1986_1991.reset_index(drop=True)
 
 """
 Heidelberg RECORD SPLIT UP INTO 5 PARTS (1987 - 1991, 1991 - 1994, 2006 - 2016, 2006 - 2009, 2012 - 2016)
 """
 heidelberg_1986_1991 = heidelberg.loc[(heidelberg['Decimal_date'] >= 1987) & (heidelberg['Decimal_date'] <= 1991)]
-# heidelberg_1986_1991.reset_index(inplace=True)
+# heidelberg_1986_1991 = heidelberg_1986_1991.reset_index(drop=True)
 heidelberg_1991_1994 = heidelberg.loc[(heidelberg['Decimal_date'] >= 1991) & (heidelberg['Decimal_date'] <= 1994)]
-# heidelberg_1991_1994.reset_index(inplace=True)
+# heidelberg_1991_1994 = heidelberg_1986_1991.reset_index(drop=True)
 heidelberg_2006_2016 = heidelberg.loc[(heidelberg['Decimal_date'] > 2006)]  # BARINGHEAD2 will include the 2009-2011
-# heidelberg_2006_2016.reset_index(inplace=True)
+# heidelberg_2006_2016 = heidelberg_1986_1991.reset_index(drop=True)
 heidelberg_2006_2009 = heidelberg.loc[(heidelberg['Decimal_date'] >= 2006) & (heidelberg['Decimal_date'] <= 2009)]
-# heidelberg_2006_2009.reset_index(inplace=True)
+# heidelberg_2006_2009 = heidelberg_1986_1991.reset_index(drop=True)
 heidelberg_2012_2016 = heidelberg.loc[(heidelberg['Decimal_date'] >= 2012) & (heidelberg['Decimal_date'] <= 2016)]
-# heidelberg_2012_2016.reset_index(inplace=True)
+# heidelberg_2012_2016 = heidelberg_1986_1991.reset_index(drop=True)
 
 
 # x- variables
@@ -587,10 +587,12 @@ z5_heid = heidelberg_2012_2016['weightedstderr_D14C']
 
 #
 #
-# """ Simple curve smoothing of all the different data for visual analysis  """
-# # Whole baring head record
-# cutoff = 667
-# """ Smooth fit of the entire Baring Head dataset"""
+""" Simple curve smoothing of all the different data for visual analysis  """
+# Whole baring head record
+cutoff = 667
+""" Smooth fit of the entire Baring Head dataset"""
+# print(xtot_bhd)
+# print(ytot_bhd)
 # baringhead_smooth_total = ccgFilter(xtot_bhd, ytot_bhd, cutoff).getMonthlyMeans()
 # baringhead_xtot_smoothed = year_month_todecimaldate(baringhead_smooth_total[0], baringhead_smooth_total[1])  # get the dates to be in decimal format
 # baringhead_ytot_smoothed = baringhead_smooth_total[2]
@@ -643,7 +645,7 @@ z5_heid = heidelberg_2012_2016['weightedstderr_D14C']
 # x_ccgcv_heid5 = year_month_todecimaldate(ccgcv_heid[0], ccgcv_heid[1])  # get the dates to be in decimal format
 # y_ccgcv_heid5 = ccgcv_heid[2]
 #
-#
+
 
 """
 Onto curve smoothing and Monte Carlo analysis 
@@ -672,164 +674,163 @@ See my function above which does both and returns the data in an array.
 
 " Smoothing the data using monte carlo randomization and CCGCRV getSmoothValue()"
 
-heidelberg_1986_1991_results = monte_carlo_randomization_Smooth(x1_heid, my_x_1986_1991, y1_heid, z1_heid, 667)
-heidelberg_1991_1994_results = monte_carlo_randomization_Smooth(x2_heid, my_x_1991_1994, y2_heid, z2_heid, 667)
-heidelberg_2006_2016_results = monte_carlo_randomization_Smooth(x3_heid, my_x_2006_2016, y3_heid, z3_heid, 667)
-heidelberg_2006_2009_results = monte_carlo_randomization_Smooth(x4_heid, my_x_2006_2009, y4_heid, z4_heid, 667)
-heidelberg_2012_2016_results = monte_carlo_randomization_Smooth(x5_heid, my_x_2012_2016, y5_heid, z5_heid, 667)
+heidelberg_1986_1991_results_smooth = monte_carlo_randomization_Smooth(x1_heid, my_x_1986_1991, y1_heid, z1_heid, 667)
+heidelberg_1991_1994_results_smooth = monte_carlo_randomization_Smooth(x2_heid, my_x_1991_1994, y2_heid, z2_heid, 667)
+heidelberg_2006_2016_results_smooth = monte_carlo_randomization_Smooth(x3_heid, my_x_2006_2016, y3_heid, z3_heid, 667)
+heidelberg_2006_2009_results_smooth = monte_carlo_randomization_Smooth(x4_heid, my_x_2006_2009, y4_heid, z4_heid, 667)
+heidelberg_2012_2016_results_smooth = monte_carlo_randomization_Smooth(x5_heid, my_x_2012_2016, y5_heid, z5_heid, 667)
 
-bhd_1986_1991_results = monte_carlo_randomization_Smooth(x1_bhd, my_x_1986_1991, y1_bhd, z1_bhd, 667)
-bhd_1991_1994_results = monte_carlo_randomization_Smooth(x2_bhd, my_x_1991_1994, y2_bhd, z2_bhd, 667)
-bhd_2006_2016_results = monte_carlo_randomization_Smooth(x3_bhd, my_x_2006_2016, y3_bhd, z3_bhd, 667)
-bhd_2006_2009_results = monte_carlo_randomization_Smooth(x4_bhd, my_x_2006_2009, y4_bhd, z4_bhd, 667)
-bhd_2012_2016_results = monte_carlo_randomization_Smooth(x5_bhd, my_x_2012_2016, y5_bhd, z5_bhd, 667)
+bhd_1986_1991_results_smooth = monte_carlo_randomization_Smooth(x1_bhd, my_x_1986_1991, y1_bhd, z1_bhd, 667)
+bhd_1991_1994_results_smooth = monte_carlo_randomization_Smooth(x2_bhd, my_x_1991_1994, y2_bhd, z2_bhd, 667)
+bhd_2006_2016_results_smooth = monte_carlo_randomization_Smooth(x3_bhd, my_x_2006_2016, y3_bhd, z3_bhd, 667)
+bhd_2006_2009_results_smooth = monte_carlo_randomization_Smooth(x4_bhd, my_x_2006_2009, y4_bhd, z4_bhd, 667)
+bhd_2012_2016_results_smooth = monte_carlo_randomization_Smooth(x5_bhd, my_x_2012_2016, y5_bhd, z5_bhd, 667)
 
 """ Extracting the data back out after the randomization and smoothing """
+heidelberg_1986_1991_randoms_smooth = heidelberg_1986_1991_results_smooth[0]
+heidelberg_1986_1991_smoothcurves_smooth = heidelberg_1986_1991_results_smooth[1]
+heidelberg_1986_1991_results_smooth = heidelberg_1986_1991_results_smooth[2]
+heidelberg_1986_1991_mean_smooth = heidelberg_1986_1991_results_smooth['Means']
+heidelberg_1986_1991_stdevs_smooth = heidelberg_1986_1991_results_smooth['stdevs']
 
-heidelberg_1986_1991_results = heidelberg_1986_1991_results[2]
-heidelberg_1986_1991_mean = heidelberg_1986_1991_results['Means']
-heidelberg_1986_1991_stdevs = heidelberg_1986_1991_results['stdevs']
+heidelberg_1991_1994_results_smooth = heidelberg_1991_1994_results_smooth[2]
+heidelberg_1991_1994_mean_smooth = heidelberg_1991_1994_results_smooth['Means']
+heidelberg_1991_1994_stdevs_smooth = heidelberg_1991_1994_results_smooth['stdevs']
 
-heidelberg_1991_1994_results = heidelberg_1991_1994_results[2]
-heidelberg_1991_1994_mean = heidelberg_1991_1994_results['Means']
-heidelberg_1991_1994_stdevs = heidelberg_1991_1994_results['stdevs']
+heidelberg_2006_2016_results_smooth = heidelberg_2006_2016_results_smooth[2]
+heidelberg_2006_2016_mean_smooth = heidelberg_2006_2016_results_smooth['Means']
+heidelberg_2006_2016_stdevs_smooth = heidelberg_2006_2016_results_smooth['stdevs']
 
-heidelberg_2006_2016_results = heidelberg_2006_2016_results[2]
-heidelberg_2006_2016_mean = heidelberg_2006_2016_results['Means']
-heidelberg_2006_2016_stdevs = heidelberg_2006_2016_results['stdevs']
+heidelberg_2006_2009_results_smooth = heidelberg_2006_2009_results_smooth[2]
+heidelberg_2006_2009_mean_smooth = heidelberg_2006_2009_results_smooth['Means']
+heidelberg_2006_2009_stdevs_smooth = heidelberg_2006_2009_results_smooth['stdevs']
+heidelberg_2006_2009_mean_smooth = heidelberg_2006_2009_mean_smooth.iloc[0:34]
+heidelberg_2006_2009_stdevs_smooth = heidelberg_2006_2009_stdevs_smooth.iloc[0:34]
 
-heidelberg_2006_2009_results = heidelberg_2006_2009_results[2]
-heidelberg_2006_2009_mean = heidelberg_2006_2009_results['Means']
-heidelberg_2006_2009_stdevs = heidelberg_2006_2009_results['stdevs']
-heidelberg_2006_2009_mean = heidelberg_2006_2009_mean.iloc[0:34]
-heidelberg_2006_2009_stdevs = heidelberg_2006_2009_stdevs.iloc[0:34]
+heidelberg_2012_2016_results_smooth = heidelberg_2012_2016_results_smooth[2]
+heidelberg_2012_2016_mean_smooth = heidelberg_2012_2016_results_smooth['Means']
+heidelberg_2012_2016_stdevs_smooth = heidelberg_2012_2016_results_smooth['stdevs']
+heidelberg_2012_2016_mean_smooth = heidelberg_2012_2016_mean_smooth.iloc[1:40]
+heidelberg_2012_2016_mean_smooth = heidelberg_2012_2016_mean_smooth.reset_index(drop=True)
+heidelberg_2012_2016_stdevs_smooth = heidelberg_2012_2016_stdevs_smooth.iloc[1:40]
+heidelberg_2012_2016_stdevs_smooth = heidelberg_2012_2016_stdevs_smooth.reset_index(drop=True)
 
-heidelberg_2012_2016_results = heidelberg_2012_2016_results[2]
-heidelberg_2012_2016_mean = heidelberg_2012_2016_results['Means']
-heidelberg_2012_2016_stdevs = heidelberg_2012_2016_results['stdevs']
-heidelberg_2012_2016_mean = heidelberg_2012_2016_mean.iloc[1:40]
-heidelberg_2012_2016_mean = heidelberg_2012_2016_mean.reset_index(drop=True)
-heidelberg_2012_2016_stdevs = heidelberg_2012_2016_stdevs.iloc[1:40]
-heidelberg_2012_2016_stdevs = heidelberg_2012_2016_stdevs.reset_index(drop=True)
+bhd_1986_1991_results_smooth = bhd_1986_1991_results_smooth[2]
+bhd_1986_1991_mean_smooth = bhd_1986_1991_results_smooth['Means']
+bhd_1986_1991_stdevs_smooth = bhd_1986_1991_results_smooth['stdevs']
 
-bhd_1986_1991_results = bhd_1986_1991_results[2]
-bhd_1986_1991_mean = bhd_1986_1991_results['Means']
-bhd_1986_1991_stdevs = bhd_1986_1991_results['stdevs']
+bhd_1991_1994_results_smooth = bhd_1991_1994_results_smooth[2]
+bhd_1991_1994_mean_smooth = bhd_1991_1994_results_smooth['Means']
+bhd_1991_1994_stdevs_smooth = bhd_1991_1994_results_smooth['stdevs']
 
-bhd_1991_1994_results = bhd_1991_1994_results[2]
-bhd_1991_1994_mean = bhd_1991_1994_results['Means']
-bhd_1991_1994_stdevs = bhd_1991_1994_results['stdevs']
-
-bhd_2006_2016_results = bhd_2006_2016_results[2]
-bhd_2006_2016_mean = bhd_2006_2016_results['Means']
-bhd_2006_2016_stdevs = bhd_2006_2016_results['stdevs']
+bhd_2006_2016_results_smooth = bhd_2006_2016_results_smooth[2]
+bhd_2006_2016_mean_smooth = bhd_2006_2016_results_smooth['Means']
+bhd_2006_2016_stdevs_smooth = bhd_2006_2016_results_smooth['stdevs']
 
 # TODO Figure out why the final row of this goes to NaN...
-bhd_2006_2009_results = bhd_2006_2009_results[2]
-bhd_2006_2009_mean = bhd_2006_2009_results['Means']
-bhd_2006_2009_stdevs = bhd_2006_2009_results['stdevs']
+bhd_2006_2009_results_smooth = bhd_2006_2009_results_smooth[2]
+bhd_2006_2009_mean_smooth = bhd_2006_2009_results_smooth['Means']
+bhd_2006_2009_stdevs_smooth = bhd_2006_2009_results_smooth['stdevs']
 # TODO currently I'm snipping the 2006-2009 files of the last row that goes to NaN cuz I can't debug it...
-bhd_2006_2009_mean = bhd_2006_2009_mean.iloc[0:34]
-bhd_2006_2009_stdevs = bhd_2006_2009_stdevs.iloc[0:34]
+bhd_2006_2009_mean_smooth = bhd_2006_2009_mean_smooth.iloc[0:34]
+bhd_2006_2009_stdevs_smooth = bhd_2006_2009_stdevs_smooth.iloc[0:34]
 
-bhd_2012_2016_results = bhd_2012_2016_results[2]
-bhd_2012_2016_mean = bhd_2012_2016_results['Means']
-bhd_2012_2016_stdevs = bhd_2012_2016_results['stdevs']
+bhd_2012_2016_results_smooth = bhd_2012_2016_results_smooth[2]
+bhd_2012_2016_mean_smooth = bhd_2012_2016_results_smooth['Means']
+bhd_2012_2016_stdevs_smooth = bhd_2012_2016_results_smooth['stdevs']
 # TODO currently I'm snipping the first row because beginning is NAN of the last row that goes to NaN cuz I can't debug it...
-bhd_2012_2016_mean = bhd_2012_2016_mean.iloc[1:40]
-bhd_2012_2016_mean = bhd_2012_2016_mean.reset_index(drop=True)
-bhd_2012_2016_stdevs = bhd_2012_2016_stdevs.iloc[1:40]
-bhd_2012_2016_stdevs = bhd_2012_2016_stdevs.reset_index(drop=True)
+bhd_2012_2016_mean_smooth = bhd_2012_2016_mean_smooth.iloc[1:40]
+bhd_2012_2016_mean_smooth = bhd_2012_2016_mean_smooth.reset_index(drop=True)
+bhd_2012_2016_stdevs_smooth = bhd_2012_2016_stdevs_smooth.iloc[1:40]
+bhd_2012_2016_stdevs_smooth = bhd_2012_2016_stdevs_smooth.reset_index(drop=True)
 
 """ paired t-tests of each of the datasets"""
-
-two_tail_paired_t_test(bhd_1986_1991_mean, bhd_1986_1991_stdevs, heidelberg_1986_1991_mean, heidelberg_1986_1991_stdevs)
-two_tail_paired_t_test(bhd_1991_1994_mean, bhd_1991_1994_stdevs, heidelberg_1991_1994_mean, heidelberg_1991_1994_stdevs)
-two_tail_paired_t_test(bhd_2006_2016_mean, bhd_2006_2016_stdevs, heidelberg_2006_2016_mean, heidelberg_2006_2016_stdevs)
-two_tail_paired_t_test(bhd_2006_2009_mean, bhd_2006_2009_stdevs, heidelberg_2006_2009_mean, heidelberg_2006_2009_stdevs)
-two_tail_paired_t_test(bhd_2012_2016_mean, bhd_2012_2016_stdevs, heidelberg_2012_2016_mean, heidelberg_2012_2016_stdevs)
+two_tail_paired_t_test(bhd_1986_1991_mean_smooth, bhd_1986_1991_stdevs_smooth, heidelberg_1986_1991_mean_smooth, heidelberg_1986_1991_stdevs_smooth)
+two_tail_paired_t_test(bhd_1991_1994_mean_smooth, bhd_1991_1994_stdevs_smooth, heidelberg_1991_1994_mean_smooth, heidelberg_1991_1994_stdevs_smooth)
+two_tail_paired_t_test(bhd_2006_2016_mean_smooth, bhd_2006_2016_stdevs_smooth, heidelberg_2006_2016_mean_smooth, heidelberg_2006_2016_stdevs_smooth)
+two_tail_paired_t_test(bhd_2006_2009_mean_smooth, bhd_2006_2009_stdevs_smooth, heidelberg_2006_2009_mean_smooth, heidelberg_2006_2009_stdevs_smooth)
+two_tail_paired_t_test(bhd_2012_2016_mean_smooth, bhd_2012_2016_stdevs_smooth, heidelberg_2012_2016_mean_smooth, heidelberg_2012_2016_stdevs_smooth)
 print('Abpve are smooth tests')
 
 """
-REPEAT ALL THE ABOVE LINES OF CODE BUT WITH THE getTremdValue (instead of getSmoothValue)
+REPEAT ALL THE ABOVE LINES OF CODE BUT WITH THE getTrendValue (instead of getSmoothValue)
 """
 
-heidelberg_1986_1991_results = monte_carlo_randomization_Trend(x1_heid, my_x_1986_1991, y1_heid, z1_heid, 667)
-heidelberg_1991_1994_results = monte_carlo_randomization_Trend(x2_heid, my_x_1991_1994, y2_heid, z2_heid, 667)
-heidelberg_2006_2016_results = monte_carlo_randomization_Trend(x3_heid, my_x_2006_2016, y3_heid, z3_heid, 667)
-heidelberg_2006_2009_results = monte_carlo_randomization_Trend(x4_heid, my_x_2006_2009, y4_heid, z4_heid, 667)
-heidelberg_2012_2016_results = monte_carlo_randomization_Trend(x5_heid, my_x_2012_2016, y5_heid, z5_heid, 667)
+heidelberg_1986_1991_results_trend = monte_carlo_randomization_Trend(x1_heid, my_x_1986_1991, y1_heid, z1_heid, 667)
+heidelberg_1991_1994_results_trend = monte_carlo_randomization_Trend(x2_heid, my_x_1991_1994, y2_heid, z2_heid, 667)
+heidelberg_2006_2016_results_trend = monte_carlo_randomization_Trend(x3_heid, my_x_2006_2016, y3_heid, z3_heid, 667)
+heidelberg_2006_2009_results_trend = monte_carlo_randomization_Trend(x4_heid, my_x_2006_2009, y4_heid, z4_heid, 667)
+heidelberg_2012_2016_results_trend = monte_carlo_randomization_Trend(x5_heid, my_x_2012_2016, y5_heid, z5_heid, 667)
 
-bhd_1986_1991_results = monte_carlo_randomization_Trend(x1_bhd, my_x_1986_1991, y1_bhd, z1_bhd, 667)
-bhd_1991_1994_results = monte_carlo_randomization_Trend(x2_bhd, my_x_1991_1994, y2_bhd, z2_bhd, 667)
-bhd_2006_2016_results = monte_carlo_randomization_Trend(x3_bhd, my_x_2006_2016, y3_bhd, z3_bhd, 667)
-bhd_2006_2009_results = monte_carlo_randomization_Trend(x4_bhd, my_x_2006_2009, y4_bhd, z4_bhd, 667)
-bhd_2012_2016_results = monte_carlo_randomization_Trend(x5_bhd, my_x_2012_2016, y5_bhd, z5_bhd, 667)
+bhd_1986_1991_results_trend = monte_carlo_randomization_Trend(x1_bhd, my_x_1986_1991, y1_bhd, z1_bhd, 667)
+bhd_1991_1994_results_trend = monte_carlo_randomization_Trend(x2_bhd, my_x_1991_1994, y2_bhd, z2_bhd, 667)
+bhd_2006_2016_results_trend = monte_carlo_randomization_Trend(x3_bhd, my_x_2006_2016, y3_bhd, z3_bhd, 667)
+bhd_2006_2009_results_trend = monte_carlo_randomization_Trend(x4_bhd, my_x_2006_2009, y4_bhd, z4_bhd, 667)
+bhd_2012_2016_results_trend = monte_carlo_randomization_Trend(x5_bhd, my_x_2012_2016, y5_bhd, z5_bhd, 667)
 
 """ Extracting the data back out after the randomization and smoothing """
 
-heidelberg_1986_1991_results = heidelberg_1986_1991_results[2]
-heidelberg_1986_1991_mean = heidelberg_1986_1991_results['Means']
-heidelberg_1986_1991_stdevs = heidelberg_1986_1991_results['stdevs']
+heidelberg_1986_1991_results_trend = heidelberg_1986_1991_results_trend[2]
+heidelberg_1986_1991_mean_trend = heidelberg_1986_1991_results_trend['Means']
+heidelberg_1986_1991_stdevs_trend = heidelberg_1986_1991_results_trend['stdevs']
 
-heidelberg_1991_1994_results = heidelberg_1991_1994_results[2]
-heidelberg_1991_1994_mean = heidelberg_1991_1994_results['Means']
-heidelberg_1991_1994_stdevs = heidelberg_1991_1994_results['stdevs']
+heidelberg_1991_1994_results_trend = heidelberg_1991_1994_results_trend[2]
+heidelberg_1991_1994_mean_trend = heidelberg_1991_1994_results_trend['Means']
+heidelberg_1991_1994_stdevs_trend = heidelberg_1991_1994_results_trend['stdevs']
 
-heidelberg_2006_2016_results = heidelberg_2006_2016_results[2]
-heidelberg_2006_2016_mean = heidelberg_2006_2016_results['Means']
-heidelberg_2006_2016_stdevs = heidelberg_2006_2016_results['stdevs']
+heidelberg_2006_2016_results_trend = heidelberg_2006_2016_results_trend[2]
+heidelberg_2006_2016_mean_trend = heidelberg_2006_2016_results_trend['Means']
+heidelberg_2006_2016_stdevs_trend = heidelberg_2006_2016_results_trend['stdevs']
 
-heidelberg_2006_2009_results = heidelberg_2006_2009_results[2]
-heidelberg_2006_2009_mean = heidelberg_2006_2009_results['Means']
-heidelberg_2006_2009_stdevs = heidelberg_2006_2009_results['stdevs']
-heidelberg_2006_2009_mean = heidelberg_2006_2009_mean.iloc[0:34]
-heidelberg_2006_2009_stdevs = heidelberg_2006_2009_stdevs.iloc[0:34]
+heidelberg_2006_2009_results_trend = heidelberg_2006_2009_results_trend[2]
+heidelberg_2006_2009_mean_trend = heidelberg_2006_2009_results_trend['Means']
+heidelberg_2006_2009_stdevs_trend = heidelberg_2006_2009_results_trend['stdevs']
+heidelberg_2006_2009_mean_trend = heidelberg_2006_2009_mean_trend.iloc[0:34]
+heidelberg_2006_2009_stdevs_trend = heidelberg_2006_2009_stdevs_trend.iloc[0:34]
 
-heidelberg_2012_2016_results = heidelberg_2012_2016_results[2]
-heidelberg_2012_2016_mean = heidelberg_2012_2016_results['Means']
-heidelberg_2012_2016_stdevs = heidelberg_2012_2016_results['stdevs']
-heidelberg_2012_2016_mean = heidelberg_2012_2016_mean.iloc[1:40]
-heidelberg_2012_2016_mean = heidelberg_2012_2016_mean.reset_index(drop=True)
-heidelberg_2012_2016_stdevs = heidelberg_2012_2016_stdevs.iloc[1:40]
-heidelberg_2012_2016_stdevs = heidelberg_2012_2016_stdevs.reset_index(drop=True)
+heidelberg_2012_2016_results_trend = heidelberg_2012_2016_results_trend[2]
+heidelberg_2012_2016_mean_trend = heidelberg_2012_2016_results_trend['Means']
+heidelberg_2012_2016_stdevs_trend = heidelberg_2012_2016_results_trend['stdevs']
+heidelberg_2012_2016_mean_trend = heidelberg_2012_2016_mean_trend.iloc[1:40]
+heidelberg_2012_2016_mean_trend = heidelberg_2012_2016_mean_trend.reset_index(drop=True)
+heidelberg_2012_2016_stdevs_trend = heidelberg_2012_2016_stdevs_trend.iloc[1:40]
+heidelberg_2012_2016_stdevs_trend = heidelberg_2012_2016_stdevs_trend.reset_index(drop=True)
 
-bhd_1986_1991_results = bhd_1986_1991_results[2]
-bhd_1986_1991_mean = bhd_1986_1991_results['Means']
-bhd_1986_1991_stdevs = bhd_1986_1991_results['stdevs']
+bhd_1986_1991_results_trend = bhd_1986_1991_results_trend[2]
+bhd_1986_1991_mean_trend = bhd_1986_1991_results_trend['Means']
+bhd_1986_1991_stdevs_trend = bhd_1986_1991_results_trend['stdevs']
 
-bhd_1991_1994_results = bhd_1991_1994_results[2]
-bhd_1991_1994_mean = bhd_1991_1994_results['Means']
-bhd_1991_1994_stdevs = bhd_1991_1994_results['stdevs']
+bhd_1991_1994_results_trend = bhd_1991_1994_results_trend[2]
+bhd_1991_1994_mean_trend = bhd_1991_1994_results_trend['Means']
+bhd_1991_1994_stdevs_trend = bhd_1991_1994_results_trend['stdevs']
 
-bhd_2006_2016_results = bhd_2006_2016_results[2]
-bhd_2006_2016_mean = bhd_2006_2016_results['Means']
-bhd_2006_2016_stdevs = bhd_2006_2016_results['stdevs']
+bhd_2006_2016_results_trend = bhd_2006_2016_results_trend[2]
+bhd_2006_2016_mean_trend = bhd_2006_2016_results_trend['Means']
+bhd_2006_2016_stdevs_trend = bhd_2006_2016_results_trend['stdevs']
 
 # TODO Figure out why the final row of this goes to NaN...
-bhd_2006_2009_results = bhd_2006_2009_results[2]
-bhd_2006_2009_mean = bhd_2006_2009_results['Means']
-bhd_2006_2009_stdevs = bhd_2006_2009_results['stdevs']
+bhd_2006_2009_results_trend = bhd_2006_2009_results_trend[2]
+bhd_2006_2009_mean_trend = bhd_2006_2009_results_trend['Means']
+bhd_2006_2009_stdevs_trend = bhd_2006_2009_results_trend['stdevs']
 # TODO currently I'm snipping the 2006-2009 files of the last row that goes to NaN cuz I can't debug it...
-bhd_2006_2009_mean = bhd_2006_2009_mean.iloc[0:34]
-bhd_2006_2009_stdevs = bhd_2006_2009_stdevs.iloc[0:34]
+bhd_2006_2009_mean_trend = bhd_2006_2009_mean_trend.iloc[0:34]
+bhd_2006_2009_stdevs_trend = bhd_2006_2009_stdevs_trend.iloc[0:34]
 
-bhd_2012_2016_results = bhd_2012_2016_results[2]
-bhd_2012_2016_mean = bhd_2012_2016_results['Means']
-bhd_2012_2016_stdevs = bhd_2012_2016_results['stdevs']
+bhd_2012_2016_results_trend = bhd_2012_2016_results_trend[2]
+bhd_2012_2016_mean_trend = bhd_2012_2016_results_trend['Means']
+bhd_2012_2016_stdevs_trend = bhd_2012_2016_results_trend['stdevs']
 # TODO currently I'm snipping the first row because beginning is NAN of the last row that goes to NaN cuz I can't debug it...
-bhd_2012_2016_mean = bhd_2012_2016_mean.iloc[1:40]
-bhd_2012_2016_mean = bhd_2012_2016_mean.reset_index(drop=True)
-bhd_2012_2016_stdevs = bhd_2012_2016_stdevs.iloc[1:40]
-bhd_2012_2016_stdevs = bhd_2012_2016_stdevs.reset_index(drop=True)
+bhd_2012_2016_mean_trend = bhd_2012_2016_mean_trend.iloc[1:40]
+bhd_2012_2016_mean_trend = bhd_2012_2016_mean_trend.reset_index(drop=True)
+bhd_2012_2016_stdevs_trend = bhd_2012_2016_stdevs_trend.iloc[1:40]
+bhd_2012_2016_stdevs_trend = bhd_2012_2016_stdevs_trend.reset_index(drop=True)
 
 """ paired t-tests of each of the datasets"""
 
-two_tail_paired_t_test(bhd_1986_1991_mean, bhd_1986_1991_stdevs, heidelberg_1986_1991_mean, heidelberg_1986_1991_stdevs)
-two_tail_paired_t_test(bhd_1991_1994_mean, bhd_1991_1994_stdevs, heidelberg_1991_1994_mean, heidelberg_1991_1994_stdevs)
-two_tail_paired_t_test(bhd_2006_2016_mean, bhd_2006_2016_stdevs, heidelberg_2006_2016_mean, heidelberg_2006_2016_stdevs)
-two_tail_paired_t_test(bhd_2006_2009_mean, bhd_2006_2009_stdevs, heidelberg_2006_2009_mean, heidelberg_2006_2009_stdevs)
-two_tail_paired_t_test(bhd_2012_2016_mean, bhd_2012_2016_stdevs, heidelberg_2012_2016_mean, heidelberg_2012_2016_stdevs)
-
+two_tail_paired_t_test(bhd_1986_1991_mean_trend, bhd_1986_1991_stdevs_trend, heidelberg_1986_1991_mean_trend, heidelberg_1986_1991_stdevs_trend)
+two_tail_paired_t_test(bhd_1991_1994_mean_trend, bhd_1991_1994_stdevs_trend, heidelberg_1991_1994_mean_trend, heidelberg_1991_1994_stdevs_trend)
+two_tail_paired_t_test(bhd_2006_2016_mean_trend, bhd_2006_2016_stdevs_trend, heidelberg_2006_2016_mean_trend, heidelberg_2006_2016_stdevs_trend)
+two_tail_paired_t_test(bhd_2006_2009_mean_trend, bhd_2006_2009_stdevs_trend, heidelberg_2006_2009_mean_trend, heidelberg_2006_2009_stdevs_trend)
+two_tail_paired_t_test(bhd_2012_2016_mean_trend, bhd_2012_2016_stdevs_trend, heidelberg_2012_2016_mean_trend, heidelberg_2012_2016_stdevs_trend)
 
 

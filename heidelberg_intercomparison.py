@@ -460,6 +460,7 @@ z2_heid = heidelberg_1991_1994['weightedstderr_D14C']
 z3_heid = heidelberg_2006_2016['weightedstderr_D14C']
 z4_heid = heidelberg_2006_2009['weightedstderr_D14C']
 z5_heid = heidelberg_2012_2016['weightedstderr_D14C']
+print(type(z5_heid))
 
 """ Simple curve smoothing of all the different data for visual analysis  """
 # Whole baring head record
@@ -613,30 +614,21 @@ my_x_2012_2016 = np.array(bhd_2012_2016_results[6])
 
 
 
-# two_tail_paired_t_test(np.array(heidelberg_1986_1991_results[2]),
-#                        np.array(heidelberg_1986_1991_results[3]),
-#                        np.array(bhd_1986_1991_results[2]),
-#                        np.array(bhd_1986_1991_results[3]))
+two_tail_paired_t_test(np.array(heidelberg_1986_1991_results[2]),
+                       np.array(heidelberg_1986_1991_results[3]),
+                       np.array(bhd_1986_1991_results[2]),
+                       np.array(bhd_1986_1991_results[3]))
+
+two_tail_paired_t_test(np.array(heidelberg_1991_1994_results[2]),
+                       np.array(heidelberg_1991_1994_results[3]),
+                       np.array(bhd_1991_1994_results[2]),
+                       np.array(bhd_1991_1994_results[3]))
+
+two_tail_paired_t_test(np.array(heidelberg_2006_2016_results[2]),
+                       np.array(heidelberg_2006_2016_results[3]),
+                       np.array(bhd_2006_2016_results[2]),
+                       np.array(bhd_2006_2016_results[3]))
 #
-# two_tail_paired_t_test(np.array(heidelberg_1991_1994_results[2]),
-#                        np.array(heidelberg_1991_1994_results[3]),
-#                        np.array(bhd_1991_1994_results[2]),
-#                        np.array(bhd_1991_1994_results[3]))
-#
-# two_tail_paired_t_test(np.array(heidelberg_2006_2016_results[2]),
-#                        np.array(heidelberg_2006_2016_results[3]),
-#                        np.array(bhd_2006_2016_results[2]),
-#                        np.array(bhd_2006_2016_results[3]))
-#
-# two_tail_paired_t_test(np.array(heidelberg_2006_2009_results[2]),
-#                        np.array(heidelberg_2006_2009_results[3]),
-#                        np.array(bhd_2006_2009_results[2]),
-#                        np.array(bhd_2006_2009_results[3]))
-#
-# two_tail_paired_t_test(np.array(heidelberg_2012_2016_results[2]),
-#                        np.array(heidelberg_2012_2016_results[3]),
-#                        np.array(bhd_2012_2016_results[2]),
-#                        np.array(bhd_2012_2016_results[3]))
 
 # TODO Understand why the 4th and 5th time periods are not computing correctly.
 

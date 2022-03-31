@@ -6,6 +6,7 @@ import pandas as pd
 import seaborn as sns
 from miller_curve_algorithm import ccgFilter
 from PyAstronomy import pyasl
+from tabulate import tabulate
 
 # TODO Make 1 singular place to change "n" and "cutoff"
 # TODO Save the Smoothed and Trend data and other crunched data into an excel sheet
@@ -99,7 +100,7 @@ The third for-loop: Find the mean, standard deviation, and upper and lower uncer
 "point" in the dataset. This loop takes the mean of all the first measurements, then all the second, etc.
 """
 
-def monte_carlo_randomization_Trend(x_init, fake_x, y_init, y_error, cutoff):
+def monte_carlo_randomization_Trend(x_init, fake_x, y_init, y_error, cutoff, n):
     # reset indeces for incoming data
     x_init = x_init.reset_index(drop=True)
     y_init = y_init.reset_index(drop=True)
@@ -110,7 +111,6 @@ def monte_carlo_randomization_Trend(x_init, fake_x, y_init, y_error, cutoff):
     # """ Randomization step """
 
     new_array = y_init  # create a new variable on which we will later v-stack randomized lists
-    n = 10
     for i in range(0, n):
         empty_array = []
         for j in range(0, len(y_init)):
@@ -169,7 +169,7 @@ def monte_carlo_randomization_Trend(x_init, fake_x, y_init, y_error, cutoff):
     return randomized_dataframe, smoothed_dataframe, summary
 
 
-def monte_carlo_randomization_Smooth(x_init, fake_x, y_init, y_error, cutoff):
+def monte_carlo_randomization_Smooth(x_init, fake_x, y_init, y_error, cutoff, n):
     # reset indeces for incoming data
     x_init = x_init.reset_index(drop=True)
     y_init = y_init.reset_index(drop=True)
@@ -180,7 +180,6 @@ def monte_carlo_randomization_Smooth(x_init, fake_x, y_init, y_error, cutoff):
     # """ Randomization step """
 
     new_array = y_init  # create a new variable on which we will later v-stack randomized lists
-    n = 10
     for i in range(0, n):
         empty_array = []
         for j in range(0, len(y_init)):
@@ -334,19 +333,23 @@ def two_tail_paired_t_test(y1, y1err, y2, y2err):
         value_crit = value_crits[d_of_f - 1]
 
     if t_stat - t_stat_e6 <= value_crit:
-        print('There is NO DIFFERENCE. ' +
-              'Critical value: ' + str(value_crit) +
-              ', t-stat: ' + str(t_stat) + '\u00B1 ' + str(t_stat_e6) +
-              ', mean: ' + str(mean1) + '\u00B1 ' + str(err_mean) +
-              'degrees of freedom = ' + str(d_of_f))
+
+        data = [t_stat, t_stat_e6, value_crit, mean1, err_mean]
+        headers = ["T-statistic", "\u00B1", "Critical Value", "Mean of Differences", "\u00B1"]
+        data = pd.DataFrame({"Headers" : headers, "Data": data})
+        data = pd.DataFrame.transpose(data)
+        print(data)
+        print('There is NO observed difference at 95% confidence interval')
         result = 1
 
     else:
-        print('There is A DIFFERENCE. ' +
-              ' Critical value: ' + str(value_crit) +
-              ', t-stat: ' + str(t_stat) + ' \u00B1 ' + str(t_stat_e6) +
-              ', mean: ' + str(mean1) + ' \u00B1 ' + str(err_mean) +
-              'degrees of freedom = ' + str(d_of_f))
+        data = [t_stat, t_stat_e6, value_crit, mean1, err_mean]
+        headers = ["T-statistic", "\u00B1", "Critical Value", "Mean of Differences", "\u00B1"]
+        data = pd.DataFrame({"Headers" : headers, "Data": data})
+        data = pd.DataFrame.transpose(data)
+        print(data)
+        print('There IS AN observed difference at 95% confidence interval')
+
         result = 0
 
     return result
@@ -516,6 +519,7 @@ RECORDS SPLIT UP INTO 5 PARTS (1987 - 1991, 1991 - 1994, 2006 - 2016, 2006 - 200
 baringhead_1986_1991 = baringhead.loc[(baringhead['DEC_DECAY_CORR'] >= 1987) & (baringhead['DEC_DECAY_CORR'] <= 1991)]
 baringhead_1991_1994 = baringhead.loc[(baringhead['DEC_DECAY_CORR'] >= 1991) & (baringhead['DEC_DECAY_CORR'] <= 1994)]
 baringhead_2006_2016 = baringhead.loc[(baringhead['DEC_DECAY_CORR'] > 2006) & (baringhead['DEC_DECAY_CORR'] <= 2016)]
+
 baringhead_2006_2009 = baringhead.loc[(baringhead['DEC_DECAY_CORR'] >= 2006) & (baringhead['DEC_DECAY_CORR'] <= 2009)]
 baringhead_2012_2016 = baringhead.loc[(baringhead['DEC_DECAY_CORR'] >= 2012) & (baringhead['DEC_DECAY_CORR'] <= 2016)]
 
@@ -672,18 +676,20 @@ See my function above which does both and returns the data in an array.
 # function return:  new_array, template_array, mean_array, stdev_array, upper_array, lower_array, fake_x
 
 " Smoothing the data using monte carlo randomization and CCGCRV getSmoothValue()"
+n = 10000
+cutoff = 667
 
-heidelberg_1986_1991_results_smooth = monte_carlo_randomization_Smooth(x1_heid, my_x_1986_1991, y1_heid, z1_heid, 667)
-heidelberg_1991_1994_results_smooth = monte_carlo_randomization_Smooth(x2_heid, my_x_1991_1994, y2_heid, z2_heid, 667)
-heidelberg_2006_2016_results_smooth = monte_carlo_randomization_Smooth(x3_heid, my_x_2006_2016, y3_heid, z3_heid, 667)
-heidelberg_2006_2009_results_smooth = monte_carlo_randomization_Smooth(x4_heid, my_x_2006_2009, y4_heid, z4_heid, 667)
-heidelberg_2012_2016_results_smooth = monte_carlo_randomization_Smooth(x5_heid, my_x_2012_2016, y5_heid, z5_heid, 667)
+heidelberg_1986_1991_results_smooth = monte_carlo_randomization_Smooth(x1_heid, my_x_1986_1991, y1_heid, z1_heid, cutoff, n)
+heidelberg_1991_1994_results_smooth = monte_carlo_randomization_Smooth(x2_heid, my_x_1991_1994, y2_heid, z2_heid, cutoff, n)
+heidelberg_2006_2016_results_smooth = monte_carlo_randomization_Smooth(x3_heid, my_x_2006_2016, y3_heid, z3_heid, cutoff, n)
+heidelberg_2006_2009_results_smooth = monte_carlo_randomization_Smooth(x4_heid, my_x_2006_2009, y4_heid, z4_heid, cutoff, n)
+heidelberg_2012_2016_results_smooth = monte_carlo_randomization_Smooth(x5_heid, my_x_2012_2016, y5_heid, z5_heid, cutoff, n)
 
-bhd_1986_1991_results_smooth = monte_carlo_randomization_Smooth(x1_bhd, my_x_1986_1991, y1_bhd, z1_bhd, 667)
-bhd_1991_1994_results_smooth = monte_carlo_randomization_Smooth(x2_bhd, my_x_1991_1994, y2_bhd, z2_bhd, 667)
-bhd_2006_2016_results_smooth = monte_carlo_randomization_Smooth(x3_bhd, my_x_2006_2016, y3_bhd, z3_bhd, 667)
-bhd_2006_2009_results_smooth = monte_carlo_randomization_Smooth(x4_bhd, my_x_2006_2009, y4_bhd, z4_bhd, 667)
-bhd_2012_2016_results_smooth = monte_carlo_randomization_Smooth(x5_bhd, my_x_2012_2016, y5_bhd, z5_bhd, 667)
+bhd_1986_1991_results_smooth = monte_carlo_randomization_Smooth(x1_bhd, my_x_1986_1991, y1_bhd, z1_bhd, cutoff, n)
+bhd_1991_1994_results_smooth = monte_carlo_randomization_Smooth(x2_bhd, my_x_1991_1994, y2_bhd, z2_bhd, cutoff, n)
+bhd_2006_2016_results_smooth = monte_carlo_randomization_Smooth(x3_bhd, my_x_2006_2016, y3_bhd, z3_bhd, cutoff, n)
+bhd_2006_2009_results_smooth = monte_carlo_randomization_Smooth(x4_bhd, my_x_2006_2009, y4_bhd, z4_bhd, cutoff, n)
+bhd_2012_2016_results_smooth = monte_carlo_randomization_Smooth(x5_bhd, my_x_2012_2016, y5_bhd, z5_bhd, cutoff, n)
 
 """ Extracting the data back out after the randomization and smoothing """
 heidelberg_1986_1991_randoms_smooth = heidelberg_1986_1991_results_smooth[0]
@@ -746,27 +752,37 @@ bhd_2012_2016_stdevs_smooth = bhd_2012_2016_stdevs_smooth.reset_index(drop=True)
 
 """ paired t-tests of each of the datasets"""
 two_tail_paired_t_test(bhd_1986_1991_mean_smooth, bhd_1986_1991_stdevs_smooth, heidelberg_1986_1991_mean_smooth, heidelberg_1986_1991_stdevs_smooth)
+print()
+print()
 two_tail_paired_t_test(bhd_1991_1994_mean_smooth, bhd_1991_1994_stdevs_smooth, heidelberg_1991_1994_mean_smooth, heidelberg_1991_1994_stdevs_smooth)
+print()
+print()
 two_tail_paired_t_test(bhd_2006_2016_mean_smooth, bhd_2006_2016_stdevs_smooth, heidelberg_2006_2016_mean_smooth, heidelberg_2006_2016_stdevs_smooth)
+print()
+print()
 two_tail_paired_t_test(bhd_2006_2009_mean_smooth, bhd_2006_2009_stdevs_smooth, heidelberg_2006_2009_mean_smooth, heidelberg_2006_2009_stdevs_smooth)
+print()
+print()
 two_tail_paired_t_test(bhd_2012_2016_mean_smooth, bhd_2012_2016_stdevs_smooth, heidelberg_2012_2016_mean_smooth, heidelberg_2012_2016_stdevs_smooth)
+print()
+print()
 print('Abpve are smooth tests')
 
 """
 REPEAT ALL THE ABOVE LINES OF CODE BUT WITH THE getTrendValue (instead of getSmoothValue)
 """
 
-heidelberg_1986_1991_results_trend = monte_carlo_randomization_Trend(x1_heid, my_x_1986_1991, y1_heid, z1_heid, 667)
-heidelberg_1991_1994_results_trend = monte_carlo_randomization_Trend(x2_heid, my_x_1991_1994, y2_heid, z2_heid, 667)
-heidelberg_2006_2016_results_trend = monte_carlo_randomization_Trend(x3_heid, my_x_2006_2016, y3_heid, z3_heid, 667)
-heidelberg_2006_2009_results_trend = monte_carlo_randomization_Trend(x4_heid, my_x_2006_2009, y4_heid, z4_heid, 667)
-heidelberg_2012_2016_results_trend = monte_carlo_randomization_Trend(x5_heid, my_x_2012_2016, y5_heid, z5_heid, 667)
+heidelberg_1986_1991_results_trend = monte_carlo_randomization_Trend(x1_heid, my_x_1986_1991, y1_heid, z1_heid, cutoff, n)
+heidelberg_1991_1994_results_trend = monte_carlo_randomization_Trend(x2_heid, my_x_1991_1994, y2_heid, z2_heid, cutoff, n)
+heidelberg_2006_2016_results_trend = monte_carlo_randomization_Trend(x3_heid, my_x_2006_2016, y3_heid, z3_heid, cutoff, n)
+heidelberg_2006_2009_results_trend = monte_carlo_randomization_Trend(x4_heid, my_x_2006_2009, y4_heid, z4_heid, cutoff, n)
+heidelberg_2012_2016_results_trend = monte_carlo_randomization_Trend(x5_heid, my_x_2012_2016, y5_heid, z5_heid, cutoff, n)
 
-bhd_1986_1991_results_trend = monte_carlo_randomization_Trend(x1_bhd, my_x_1986_1991, y1_bhd, z1_bhd, 667)
-bhd_1991_1994_results_trend = monte_carlo_randomization_Trend(x2_bhd, my_x_1991_1994, y2_bhd, z2_bhd, 667)
-bhd_2006_2016_results_trend = monte_carlo_randomization_Trend(x3_bhd, my_x_2006_2016, y3_bhd, z3_bhd, 667)
-bhd_2006_2009_results_trend = monte_carlo_randomization_Trend(x4_bhd, my_x_2006_2009, y4_bhd, z4_bhd, 667)
-bhd_2012_2016_results_trend = monte_carlo_randomization_Trend(x5_bhd, my_x_2012_2016, y5_bhd, z5_bhd, 667)
+bhd_1986_1991_results_trend = monte_carlo_randomization_Trend(x1_bhd, my_x_1986_1991, y1_bhd, z1_bhd, cutoff, n)
+bhd_1991_1994_results_trend = monte_carlo_randomization_Trend(x2_bhd, my_x_1991_1994, y2_bhd, z2_bhd, cutoff, n)
+bhd_2006_2016_results_trend = monte_carlo_randomization_Trend(x3_bhd, my_x_2006_2016, y3_bhd, z3_bhd, cutoff, n)
+bhd_2006_2009_results_trend = monte_carlo_randomization_Trend(x4_bhd, my_x_2006_2009, y4_bhd, z4_bhd, cutoff, n)
+bhd_2012_2016_results_trend = monte_carlo_randomization_Trend(x5_bhd, my_x_2012_2016, y5_bhd, z5_bhd, cutoff, n)
 
 """ Extracting the data back out after the randomization and smoothing """
 
@@ -828,9 +844,17 @@ bhd_2012_2016_stdevs_trend = bhd_2012_2016_stdevs_trend.reset_index(drop=True)
 """ paired t-tests of each of the datasets"""
 
 two_tail_paired_t_test(bhd_1986_1991_mean_trend, bhd_1986_1991_stdevs_trend, heidelberg_1986_1991_mean_trend, heidelberg_1986_1991_stdevs_trend)
+print()
+print()
 two_tail_paired_t_test(bhd_1991_1994_mean_trend, bhd_1991_1994_stdevs_trend, heidelberg_1991_1994_mean_trend, heidelberg_1991_1994_stdevs_trend)
+print()
+print()
 two_tail_paired_t_test(bhd_2006_2016_mean_trend, bhd_2006_2016_stdevs_trend, heidelberg_2006_2016_mean_trend, heidelberg_2006_2016_stdevs_trend)
+print()
+print()
 two_tail_paired_t_test(bhd_2006_2009_mean_trend, bhd_2006_2009_stdevs_trend, heidelberg_2006_2009_mean_trend, heidelberg_2006_2009_stdevs_trend)
+print()
+print()
 two_tail_paired_t_test(bhd_2012_2016_mean_trend, bhd_2012_2016_stdevs_trend, heidelberg_2012_2016_mean_trend, heidelberg_2012_2016_stdevs_trend)
 
 

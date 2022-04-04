@@ -8,6 +8,8 @@ from miller_curve_algorithm import ccgFilter
 from PyAstronomy import pyasl
 from tabulate import tabulate
 
+f = open("output.txt", "a")  # where I want the result to be stored
+
 # TODO Make 1 singular place to change "n" and "cutoff"
 # TODO Save the Smoothed and Trend data and other crunched data into an excel sheet
 """
@@ -335,20 +337,22 @@ def two_tail_paired_t_test(y1, y1err, y2, y2err):
     if t_stat - t_stat_e6 <= value_crit:
 
         data = [t_stat, t_stat_e6, value_crit, mean1, err_mean]
-        headers = ["T-statistic", "\u00B1", "Critical Value", "Mean of Differences", "\u00B1"]
-        data = pd.DataFrame({"Headers" : headers, "Data": data})
-        data = pd.DataFrame.transpose(data)
-        print(data)
-        print('There is NO observed difference at 95% confidence interval')
+        headers = ['t-statistic', 't-statistic error', 'critical value', 'mean of differences', 'error of mean']
+        data = pd.DataFrame(data, headers)
+        print(data, file=f)
+        print('There is NO observed difference at 95% confidence interval', file=f)
+        print('', file=f)
+        print('', file=f)
         result = 1
 
     else:
         data = [t_stat, t_stat_e6, value_crit, mean1, err_mean]
-        headers = ["T-statistic", "\u00B1", "Critical Value", "Mean of Differences", "\u00B1"]
-        data = pd.DataFrame({"Headers" : headers, "Data": data})
-        data = pd.DataFrame.transpose(data)
-        print(data)
-        print('There IS AN observed difference at 95% confidence interval')
+        headers = ['t-statistic', 't-statistic error', 'critical value', 'mean of differences', 'error of mean']
+        data = pd.DataFrame(data, headers)
+        print(data, file=f)
+        print('There IS AN observed difference at 95% confidence interval', file=f)
+        print('', file=f)
+        print('', file=f)
 
         result = 0
 
@@ -676,8 +680,12 @@ See my function above which does both and returns the data in an array.
 # function return:  new_array, template_array, mean_array, stdev_array, upper_array, lower_array, fake_x
 
 " Smoothing the data using monte carlo randomization and CCGCRV getSmoothValue()"
+
 n = 10000
 cutoff = 667
+print('For this run of heidelberg_intercomparison.py, "n" is {} and the CCGCRV cutoff is {}'.format(n, cutoff), file = f)
+print()
+print()
 
 heidelberg_1986_1991_results_smooth = monte_carlo_randomization_Smooth(x1_heid, my_x_1986_1991, y1_heid, z1_heid, cutoff, n)
 heidelberg_1991_1994_results_smooth = monte_carlo_randomization_Smooth(x2_heid, my_x_1991_1994, y2_heid, z2_heid, cutoff, n)
@@ -751,22 +759,27 @@ bhd_2012_2016_stdevs_smooth = bhd_2012_2016_stdevs_smooth.iloc[1:40]
 bhd_2012_2016_stdevs_smooth = bhd_2012_2016_stdevs_smooth.reset_index(drop=True)
 
 """ paired t-tests of each of the datasets"""
+print('Baring Head vs Cape Grim between 1986 - 1991 using CCGCRV Smooth Fit', file=f)
 two_tail_paired_t_test(bhd_1986_1991_mean_smooth, bhd_1986_1991_stdevs_smooth, heidelberg_1986_1991_mean_smooth, heidelberg_1986_1991_stdevs_smooth)
 print()
 print()
+print('Baring Head vs Cape Grim between 1991 - 1994 using CCGCRV Smooth Fit', file=f)
 two_tail_paired_t_test(bhd_1991_1994_mean_smooth, bhd_1991_1994_stdevs_smooth, heidelberg_1991_1994_mean_smooth, heidelberg_1991_1994_stdevs_smooth)
 print()
 print()
+print('Baring Head vs Cape Grim between 2006 - 2016 using CCGCRV Smooth Fit', file=f)
 two_tail_paired_t_test(bhd_2006_2016_mean_smooth, bhd_2006_2016_stdevs_smooth, heidelberg_2006_2016_mean_smooth, heidelberg_2006_2016_stdevs_smooth)
 print()
 print()
+print('Baring Head vs Cape Grim between 2006 - 2009 using CCGCRV Smooth Fit', file=f)
 two_tail_paired_t_test(bhd_2006_2009_mean_smooth, bhd_2006_2009_stdevs_smooth, heidelberg_2006_2009_mean_smooth, heidelberg_2006_2009_stdevs_smooth)
 print()
 print()
+print('Baring Head vs Cape Grim between 2012 - 2016 using CCGCRV Smooth Fit', file=f)
 two_tail_paired_t_test(bhd_2012_2016_mean_smooth, bhd_2012_2016_stdevs_smooth, heidelberg_2012_2016_mean_smooth, heidelberg_2012_2016_stdevs_smooth)
 print()
 print()
-print('Abpve are smooth tests')
+
 
 """
 REPEAT ALL THE ABOVE LINES OF CODE BUT WITH THE getTrendValue (instead of getSmoothValue)
@@ -842,19 +855,23 @@ bhd_2012_2016_stdevs_trend = bhd_2012_2016_stdevs_trend.iloc[1:40]
 bhd_2012_2016_stdevs_trend = bhd_2012_2016_stdevs_trend.reset_index(drop=True)
 
 """ paired t-tests of each of the datasets"""
-
+print('Baring Head vs Cape Grim between 1986 - 1991 using CCGCRV Trend Fit', file=f)
 two_tail_paired_t_test(bhd_1986_1991_mean_trend, bhd_1986_1991_stdevs_trend, heidelberg_1986_1991_mean_trend, heidelberg_1986_1991_stdevs_trend)
 print()
 print()
+print('Baring Head vs Cape Grim between 1991 - 1994 using CCGCRV Trend Fit', file=f)
 two_tail_paired_t_test(bhd_1991_1994_mean_trend, bhd_1991_1994_stdevs_trend, heidelberg_1991_1994_mean_trend, heidelberg_1991_1994_stdevs_trend)
 print()
 print()
+print('Baring Head vs Cape Grim between 2000 - 2016 using CCGCRV Trend Fit', file=f)
 two_tail_paired_t_test(bhd_2006_2016_mean_trend, bhd_2006_2016_stdevs_trend, heidelberg_2006_2016_mean_trend, heidelberg_2006_2016_stdevs_trend)
 print()
 print()
+print('Baring Head vs Cape Grim between 2006 - 2009 using CCGCRV Trend Fit', file=f)
 two_tail_paired_t_test(bhd_2006_2009_mean_trend, bhd_2006_2009_stdevs_trend, heidelberg_2006_2009_mean_trend, heidelberg_2006_2009_stdevs_trend)
 print()
 print()
+print('Baring Head vs Cape Grim between 2012 - 2016 using CCGCRV Trend Fit', file=f)
 two_tail_paired_t_test(bhd_2012_2016_mean_trend, bhd_2012_2016_stdevs_trend, heidelberg_2012_2016_mean_trend, heidelberg_2012_2016_stdevs_trend)
 
-
+f.close()

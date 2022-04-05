@@ -456,7 +456,9 @@ baringhead = pd.read_excel(r'G:\My Drive\Work\GNS Radiocarbon Scientist\The Scie
 
 df2_dates = pd.read_excel(r'G:\My Drive\Work\GNS Radiocarbon Scientist\The Science\Datasets'
                           r'\BHD_MeasurementDates.xlsx')
-
+extraction_dates = pd.read_excel(r'G:\My Drive\Work\GNS Radiocarbon Scientist\The Science\Datasets'
+                                 r'\BHDFlasks_WithExtractionDates.xlsx')
+#
 """ TIDY UP THE DATA FILES"""
 # add decimal dates to DataFrame if not there already
 x_init_heid = heidelberg['Average pf Start-date and enddate']  # x-values from heidelberg dataset
@@ -469,30 +471,6 @@ heidelberg = heidelberg.loc[(heidelberg['D14C'] > 10)]
 heidelberg.reset_index()   # filter out the one outlying measurement around 2019
 baringhead = baringhead.dropna(subset=['DELTA14C'])
 
-""" Merge Baring Head file with that of measurement dates"""
-
-df2_dates = df2_dates.drop(columns=['∆14C', '∆14C_err',
-                                    'Flag', 'CollectionMethod'], axis=1)
-df2_dates = df2_dates.dropna(subset=['DateMeasured'])
-df2_dates = df2_dates.reset_index()
-# change the format of dates in the df2_dates
-forchange = df2_dates['DateMeasured']
-forchange = long_date_to_decimal_date(forchange)
-df2_dates['DateMeasured_Decimal'] = forchange
-
-# find the difference between measurement date and collection date and append this to the measurement file
-df2_dates['difference'] = df2_dates['DateMeasured_Decimal'] - np.float64(df2_dates['DecimalDateCollected'])
-# rename the New Zealand ID for easy merging along this axis
-df2_dates = df2_dates.rename(columns={"NZ/NZA": "NZ"})
-# drop more columns to simplify the merge
-df2_dates = df2_dates.drop(columns=['index', 'DecimalDateCollected', 'DateMeasured',
-                                    'DateMeasured_Decimal'], axis=1)
-df2_dates.drop_duplicates(subset ="NZ", keep = False, inplace = True)
-
-
-baringhead = baringhead.merge(df2_dates, how='outer')
-baringhead = baringhead.dropna(subset=['DELTA14C'])
-baringhead.to_excel('testing2.xlsx')
 
 """CAREFULLY SPLIT UP THE DATA INTO DIFFERENT CHUNKS IN TIME AND GRAB VARIABLES """
 
@@ -500,6 +478,8 @@ baringhead.to_excel('testing2.xlsx')
 baringhead = baringhead.loc[(baringhead['DEC_DECAY_CORR'] > 1980)]
 baringhead = baringhead.loc[(baringhead['DELTA14C_ERR'] > 0)]  # get rid of data where the error flag is -1000
 baringhead = baringhead.reset_index(drop=True)  # index currently goes to 0 :)
+
+
 # variables:
 xtot_bhd = baringhead['DEC_DECAY_CORR']
 ytot_bhd = baringhead['DELTA14C']
@@ -681,7 +661,7 @@ See my function above which does both and returns the data in an array.
 
 " Smoothing the data using monte carlo randomization and CCGCRV getSmoothValue()"
 
-n = 10000
+n = 10
 cutoff = 667
 print('For this run of heidelberg_intercomparison.py, "n" is {} and the CCGCRV cutoff is {}'.format(n, cutoff), file = f)
 print()
@@ -875,3 +855,126 @@ print('Baring Head vs Cape Grim between 2012 - 2016 using CCGCRV Trend Fit', fil
 two_tail_paired_t_test(bhd_2012_2016_mean_trend, bhd_2012_2016_stdevs_trend, heidelberg_2012_2016_mean_trend, heidelberg_2012_2016_stdevs_trend)
 
 f.close()
+
+
+""" 
+Answering the Question "Does time in the collection flask alter final 14C value? 
+To answer this: first we looked at difference in measurement - collection time. This is good initially but doesn't 
+account for situation in which the CO2 was extracted from the flask early and not measured for a while. 
+Therefore I will rely on the data where we have all 1) collection, 2) extraction and 3) measurement data. 
+"""
+""" 
+The below block of code was used for the file in which we have measurement but not extraction data. Ignore for now. 
+"""
+# df2_dates = df2_dates.drop(columns=['∆14C', '∆14C_err',
+#                                     'Flag', 'CollectionMethod'], axis=1)
+# df2_dates = df2_dates.dropna(subset=['DateMeasured'])
+# df2_dates = df2_dates.reset_index()
+# # change the format of dates in the df2_dates
+# forchange = df2_dates['DateMeasured']
+# forchange = long_date_to_decimal_date(forchange)
+# df2_dates['DateMeasured_Decimal'] = forchange
+#
+# # find the difference between measurement date and collection date and append this to the measurement file
+# df2_dates['difference'] = df2_dates['DateMeasured_Decimal'] - np.float64(df2_dates['DecimalDateCollected'])
+# # rename the New Zealand ID for easy merging along this axis
+# df2_dates = df2_dates.rename(columns={"NZ/NZA": "NZ"})
+# # drop more columns to simplify the merge
+# df2_dates = df2_dates.drop(columns=['index', 'DecimalDateCollected', 'DateMeasured',
+#                                     'DateMeasured_Decimal'], axis=1)
+# df2_dates.drop_duplicates(subset ="NZ", keep = False, inplace = True)
+#
+# baringhead = baringhead.merge(df2_dates, how='outer')
+# baringhead = baringhead.dropna(subset=['DELTA14C'])
+# # baringhead.to_excel('testing2.xlsx')
+
+""" 
+This block of code deals with the extraction dates. 
+I'll merge this data with the baring head file, and compare how far the D14C data is from the trend-line as a function
+of time waiting in the flask. 
+
+"""
+extraction_dates = extraction_dates.drop(columns=['Job', 'Samples::Sample Description', 'Samples::Sample ID',
+                                                  'AMS Submission Results Complete::Collection Date',
+                                                  'AMS Submission Results Complete::DELTA14C',
+                                                  'AMS Submission Results Complete::DELTA14C_Error',
+                                                  'AMS Submission Results Complete::Weight Initial',
+                                                  'AMS Submission Results Complete::TP',
+                                                  'AMS Submission Results Complete::TW',
+                                                  'AMS Submission Results Complete::Date Run',
+                                                  'AMS Submission Results Complete::delta13C_IRMS',
+                                                  'AMS Submission Results Complete::delta13C_AMS',
+                                                  'AMS Submission Results Complete::F_corrected_normed',
+                                                  'AMS Submission Results Complete::F_corrected_normed_error',
+                                                  'Graphite Completed::End Date', 'Graphite Completed::CO2_Yield',
+                                                  'Graphite Completed::Prebake_Yield',
+                                                  'Graphite Completed::Graphite_Yield',
+                                                  'AMS Submission Results Complete::Quality Flag',
+                                                  'Samples::Pretreatment by Submitter', 'Samples::Sample Date Start',
+                                                  'Samples::Sample Time Start', 'Samples::Sample Date End',
+                                                  'Samples::Sample Time End', 'Samples::Sample Days Exposed',
+                                                  'Samples::Latitude', 'Samples::Longitude', 'Samples::Location',
+                                                  'Samples::Sampling Height'], axis=1)
+
+extraction_dates = extraction_dates.rename(columns={"NZA": "NZ"})
+# With this line, the baring head data is now merged with that of the extraction dates.
+baringhead = baringhead.merge(extraction_dates, how='outer')
+# This line creates a new DataFrame that includes only data that has an extraction date. This
+# is an easier way to dump the data into an excel file for viewing.
+baringhead_plus_extract = baringhead.dropna(subset='Extraction of CO2 from Air Date')
+
+""" 
+There is more data in the "extraction date" column than the other column after this merge because
+There is excess data without NZ numbers in the orginal file. 
+Right now I'm only taking data that has a unique NZ number. 
+"""
+baringhead_plus_extract = baringhead_plus_extract.dropna(subset='DELTA14C')
+baringhead_plus_extract = baringhead_plus_extract.reset_index(drop=True)
+
+# now I need to grab the extraction dates and convert them to decimals to compare with DEC_DECAY_CORR.
+extract_date = baringhead_plus_extract['Extraction of CO2 from Air Date']
+extract_date = long_date_to_decimal_date(extract_date)
+baringhead_plus_extract['DateExtracted_Decimal'] = extract_date  # add the new column of decimal data onto DataFrame
+# find the difference between collection and extraction in time.
+baringhead_plus_extract['Differences'] = baringhead_plus_extract['DateExtracted_Decimal'] \
+                                         - baringhead_plus_extract['DEC_DECAY_CORR']
+
+# re-extract all data after 2012 from the original Baring Head data-file so we can create a new smooth curve
+# to compare against (the next three lines contain the data I'll use to create the new smooth fit).
+baringhead_timetest = baringhead.loc[(baringhead['DEC_DECAY_CORR'] > 2012)]
+x_timetest = baringhead_timetest['DEC_DECAY_CORR'].reset_index(drop = True)
+y_timetest = baringhead_timetest['DELTA14C'].reset_index(drop = True)
+
+# these are the data we want to test
+x_extracts = baringhead_plus_extract['DEC_DECAY_CORR'].reset_index(drop = True)
+y_extracts = baringhead_plus_extract['DELTA14C'].reset_index(drop = True)
+time_extracts = baringhead_plus_extract['Differences'].reset_index(drop = True)
+
+time_test = ccgFilter(x_timetest, y_timetest, cutoff).getTrendValue(x_extracts)
+
+"""
+Now I want to plot: the time waiting in the flask VS deviation in the measured value from the smoothed fit. 
+"""
+delta = y_extracts - time_test
+plt.scatter(time_extracts, delta)
+plt.show()
+"""
+LOOKS LIKE NO TREND, JUST SCATTER, using both getTREND and getSMOOTH values. 
+"""
+# print(time_test)
+# plt.scatter()
+
+
+
+
+
+
+
+
+
+
+
+
+
+# baringhead_plus_extract.to_excel('testing2.xlsx')
+

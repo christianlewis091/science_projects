@@ -1,9 +1,7 @@
-import matplotlib.pyplot as plt
 import matplotlib as mpl
-import matplotlib.gridspec as gridspec
+import matplotlib.pyplot as plt
 import seaborn as sns
-import pandas as pd
-import numpy as np
+
 # the raw data for plotting
 from heidelberg_intercomparison import xtot_bhd, ytot_bhd, ztot_bhd  # full dates, data, and measurements errors: BHD
 from heidelberg_intercomparison import xtot_heid, ytot_heid, ztot_heid  # same as above, for Heidelberg
@@ -308,28 +306,28 @@ size1 = 5
 #             dpi=300, bbox_inches="tight")
 # plt.close()
 #
-# colors3 = sns.color_palette("mako", 6)
-# fig = plt.figure(9)
-# plt.errorbar(xtot_heid, ytot_heid, yerr=ztot_heid, fmt='x', color=colors[1], ecolor='black', elinewidth=1, capsize=2, label='CGO Data', alpha=0.3)
-#
-# plt.plot(xs, curve1, color = colors3[0], label = 'Randomization Iteration 1 Smooth Curve Fit', alpha = 0.3)
-# plt.plot(xs, curve2, color = colors3[1],  label = 'Randomization Iteration 2 Smooth Curve Fit', alpha = 0.3)
-# plt.plot(xs, curve3, color = colors3[2],  label = 'Randomization Iteration 2 Smooth Curve Fit', alpha = 0.3)
-# plt.plot(xs, curve4, color = colors3[3],  label = 'Randomization Iteration 2 Smooth Curve Fit', alpha = 0.3)
-# plt.plot(xs, curve5, color =colors3[4],  label = 'Randomization Iteration 2 Smooth Curve Fit', alpha = 0.3)
-# plt.plot(xs, heidelberg_1986_1991_mean_smooth, color = 'black', label = 'MEAN of smooth curve fits')
-# plt.legend()
-# plt.title('Visualization of Randomization Process')
-# plt.xlim([1987, 1991])
-# plt.ylim([140, 190])
-# plt.xlabel('Date', fontsize=14)
-# plt.legend()
-# plt.ylabel('\u0394$^1$$^4$CO$_2$ (\u2030)', fontsize=14)  # label the y axis
+colors3 = sns.color_palette("mako", 6)
+fig = plt.figure(9)
+plt.errorbar(xtot_heid, ytot_heid, yerr=ztot_heid, fmt='x', color=colors[1], ecolor='black', elinewidth=1, capsize=2, label='CGO Data', alpha=0.3)
+
+plt.plot(xs, curve1, color = colors3[0], label = 'Randomization Iteration 1 Smooth Curve Fit', alpha = 0.3)
+plt.plot(xs, curve2, color = colors3[1],  label = 'Randomization Iteration 2 Smooth Curve Fit', alpha = 0.3)
+plt.plot(xs, curve3, color = colors3[2],  label = 'Randomization Iteration 2 Smooth Curve Fit', alpha = 0.3)
+plt.plot(xs, curve4, color = colors3[3],  label = 'Randomization Iteration 2 Smooth Curve Fit', alpha = 0.3)
+plt.plot(xs, curve5, color =colors3[4],  label = 'Randomization Iteration 2 Smooth Curve Fit', alpha = 0.3)
+plt.plot(xs, heidelberg_1986_1991_mean_smooth, color = 'black', label = 'MEAN of smooth curve fits')
+plt.legend()
+plt.title('Visualization of Randomization Process')
+plt.xlim([1987, 1991])
+plt.ylim([140, 190])
+plt.xlabel('Date', fontsize=14)
+plt.legend()
+plt.ylabel('\u0394$^1$$^4$CO$_2$ (\u2030)', fontsize=14)  # label the y axis
 # plt.savefig('C:/Users/lewis/venv/python310/python-masterclass-remaster-shared/'
 #             'radiocarbon_intercomparison/plots/cleanedFigs_9.png',
 #             dpi=300, bbox_inches="tight")
-#
-# plt.close()
+plt.show()
+plt.close()
 #
 
 """
@@ -438,53 +436,52 @@ Combination of the last 2 Figures
 # for ax in axs.flat:
 #     ax.label_outer()
 
-fig, axs = plt.subplots(2, 2)
-
-axs[0, 0].scatter(x1_bhd, y1_bhd, marker='o', color=colors[1], s=size1, alpha = 0.3)
-axs[0, 0].scatter(x2_bhd, y2_bhd, marker='o', color=colors[1], s=size1, alpha = 0.3)
-axs[0, 0].scatter(x1_heid, y1_heid, marker='x', label='CGO', color=colors2[1], s=size1, alpha = 0.3)
-axs[0, 0].scatter(x2_heid, y2_heid, marker='x', label='CGO', color=colors2[1], s=size1, alpha = 0.3)
-axs[0, 0].plot(my_x_1986_1991['x'], bhd_1986_1991_mean_smooth, label='BHD Mean', color=colors[1])
-axs[0, 0].plot(my_x_1991_1994['x'], bhd_1991_1994_mean_smooth, color=colors[1])
-axs[0, 0].plot(my_x_1986_1991['x'], heidelberg_1986_1991_mean_smooth, label='CGO Mean', color=colors2[1])
-axs[0, 0].plot(my_x_1991_1994['x'], heidelberg_1991_1994_mean_smooth, color=colors2[1])
-
-axs[0, 1].scatter(x3_bhd, y3_bhd, marker='o', label='BHD', color=colors[1], s=size1, alpha = 0.3)
-axs[0, 1].scatter(x3_heid, y3_heid, marker='x', label='CGO', color=colors2[1], s=size1, alpha = 0.3)
-axs[0, 1].plot(my_x_2006_2016['x'], bhd_2006_2016_mean_smooth, color=colors[1])
-axs[0, 1].plot(my_x_2006_2016['x'], heidelberg_2006_2016_mean_smooth,  color=colors2[1])
-
-axs[1, 0].scatter(x1_bhd, y1_bhd, marker='o', label='BHD', color=colors[1], s=size1, alpha = 0.3)
-axs[1, 0].scatter(x2_bhd, y2_bhd, marker='o', label='BHD', color=colors[1], s=size1, alpha = 0.3)
-axs[1, 0].scatter(x1_heid, y1_heid, marker='x', label='CGO', color=colors2[1], s=size1, alpha = 0.3)
-axs[1, 0].scatter(x2_heid, y2_heid, marker='x', label='CGO', color=colors2[1], s=size1, alpha = 0.3)
-axs[1, 0].plot(my_x_1986_1991['x'], bhd_1986_1991_mean_trend,  color=colors[1])
-axs[1, 0].plot(my_x_1991_1994['x'], bhd_1991_1994_mean_trend, color=colors[1])
-axs[1, 0].plot(my_x_1986_1991['x'], heidelberg_1986_1991_mean_trend, color=colors2[1])
-axs[1, 0].plot(my_x_1991_1994['x'], heidelberg_1991_1994_mean_trend, color=colors2[1])
-
-axs[1, 1].scatter(x3_bhd, y3_bhd, marker='o',  color=colors[1], s=size1, alpha = 0.3)
-axs[1, 1].scatter(x3_heid, y3_heid, marker='x',  color=colors2[1], s=size1, alpha = 0.3)
-axs[1, 1].plot(my_x_2006_2016['x'], bhd_2006_2016_mean_trend, color=colors[1])
-axs[1, 1].plot(my_x_2006_2016['x'], heidelberg_2006_2016_mean_trend, color=colors2[1])
-
-axs[0, 0].set_title('1987 - 1994, CCGCRV Smoothed')
-axs[0, 1].set_title('2006 - 2016, CCGCRV Smoothed')
-axs[1, 0].set_title('1987 - 1994, CCGCRV Trend')
-axs[1, 1].set_title('2006 - 2016, CCGCRV Trend')
-axs[0, 0].legend()
-for ax in axs.flat:
-    ax.set(xlabel='Date', ylabel='\u0394$^1$$^4$CO$_2$ (\u2030)')
-
-# Hide x labels and tick labels for top plots and y ticks for right plots.
-for ax in axs.flat:
-    ax.label_outer()
-
-plt.savefig('C:/Users/lewis/venv/python310/python-masterclass-remaster-shared/'
-            'radiocarbon_intercomparison/plots/cleanedFigs_12.png',
-            dpi=300, bbox_inches="tight")
-plt.close()
-
+# fig, axs = plt.subplots(2, 2)
+#
+# axs[0, 0].scatter(x1_bhd, y1_bhd, marker='o', color=colors[1], s=size1, alpha = 0.3)
+# axs[0, 0].scatter(x2_bhd, y2_bhd, marker='o', color=colors[1], s=size1, alpha = 0.3)
+# axs[0, 0].scatter(x1_heid, y1_heid, marker='x', label='CGO', color=colors2[1], s=size1, alpha = 0.3)
+# axs[0, 0].scatter(x2_heid, y2_heid, marker='x', label='CGO', color=colors2[1], s=size1, alpha = 0.3)
+# axs[0, 0].plot(my_x_1986_1991['x'], bhd_1986_1991_mean_smooth, label='BHD Mean', color=colors[1])
+# axs[0, 0].plot(my_x_1991_1994['x'], bhd_1991_1994_mean_smooth, color=colors[1])
+# axs[0, 0].plot(my_x_1986_1991['x'], heidelberg_1986_1991_mean_smooth, label='CGO Mean', color=colors2[1])
+# axs[0, 0].plot(my_x_1991_1994['x'], heidelberg_1991_1994_mean_smooth, color=colors2[1])
+#
+# axs[0, 1].scatter(x3_bhd, y3_bhd, marker='o', label='BHD', color=colors[1], s=size1, alpha = 0.3)
+# axs[0, 1].scatter(x3_heid, y3_heid, marker='x', label='CGO', color=colors2[1], s=size1, alpha = 0.3)
+# axs[0, 1].plot(my_x_2006_2016['x'], bhd_2006_2016_mean_smooth, color=colors[1])
+# axs[0, 1].plot(my_x_2006_2016['x'], heidelberg_2006_2016_mean_smooth,  color=colors2[1])
+#
+# axs[1, 0].scatter(x1_bhd, y1_bhd, marker='o', label='BHD', color=colors[1], s=size1, alpha = 0.3)
+# axs[1, 0].scatter(x2_bhd, y2_bhd, marker='o', label='BHD', color=colors[1], s=size1, alpha = 0.3)
+# axs[1, 0].scatter(x1_heid, y1_heid, marker='x', label='CGO', color=colors2[1], s=size1, alpha = 0.3)
+# axs[1, 0].scatter(x2_heid, y2_heid, marker='x', label='CGO', color=colors2[1], s=size1, alpha = 0.3)
+# axs[1, 0].plot(my_x_1986_1991['x'], bhd_1986_1991_mean_trend,  color=colors[1])
+# axs[1, 0].plot(my_x_1991_1994['x'], bhd_1991_1994_mean_trend, color=colors[1])
+# axs[1, 0].plot(my_x_1986_1991['x'], heidelberg_1986_1991_mean_trend, color=colors2[1])
+# axs[1, 0].plot(my_x_1991_1994['x'], heidelberg_1991_1994_mean_trend, color=colors2[1])
+#
+# axs[1, 1].scatter(x3_bhd, y3_bhd, marker='o',  color=colors[1], s=size1, alpha = 0.3)
+# axs[1, 1].scatter(x3_heid, y3_heid, marker='x',  color=colors2[1], s=size1, alpha = 0.3)
+# axs[1, 1].plot(my_x_2006_2016['x'], bhd_2006_2016_mean_trend, color=colors[1])
+# axs[1, 1].plot(my_x_2006_2016['x'], heidelberg_2006_2016_mean_trend, color=colors2[1])
+#
+# axs[0, 0].set_title('1987 - 1994, CCGCRV Smoothed')
+# axs[0, 1].set_title('2006 - 2016, CCGCRV Smoothed')
+# axs[1, 0].set_title('1987 - 1994, CCGCRV Trend')
+# axs[1, 1].set_title('2006 - 2016, CCGCRV Trend')
+# axs[0, 0].legend()
+# for ax in axs.flat:
+#     ax.set(xlabel='Date', ylabel='\u0394$^1$$^4$CO$_2$ (\u2030)')
+#
+# # Hide x labels and tick labels for top plots and y ticks for right plots.
+# for ax in axs.flat:
+#     ax.label_outer()
+#
+# plt.savefig('C:/Users/lewis/venv/python310/python-masterclass-remaster-shared/'
+#             'radiocarbon_intercomparison/plots/cleanedFigs_12.png')
+# plt.close()
+#
 
 
 

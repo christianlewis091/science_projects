@@ -8,6 +8,8 @@ import pandas as pd
 import seaborn as sns
 from miller_curve_algorithm import ccgFilter
 from PyAstronomy import pyasl
+from datetime import datetime
+
 
 from tabulate import tabulate
 
@@ -717,10 +719,13 @@ getSmoothValues and getTrendValues
 """
 # function input: def monte_carlo_randomization(x_init, fake_x, y_init, y_error, cutoff):
 # function return:  new_array, template_array, mean_array, stdev_array, upper_array, lower_array, fake_x
+now = datetime.now()
+current_time = now.strftime("%H:%M:%S")
+print("Current Time is :", current_time)
 
 n = 10          # set the amount of times the code will iterate (set to 10,000 once everything is final)
 cutoff = 667
-print('For this run of heidelberg_intercomparison.py, "n" is {} and the CCGCRV cutoff is {}'.format(n, cutoff), file=f)
+print('For this run of heidelberg_intercomparison.py, "n" is {} and the CCGCRV cutoff is {}. This was run on {}'.format(n, cutoff, current_time), file=f)
 print()
 print()
 
@@ -753,6 +758,12 @@ bhd_2012_2016_results_trend = monte_carlo_randomization_Trend(x5_bhd, my_x_2012_
 #######################################################################################################################
 #######################################################################################################################
 #######################################################################################################################
+#######################################################################################################################
+#######################################################################################################################
+#######################################################################################################################
+####################################################################################################################### 
+#######################################################################################################################
+####################################################################################################################### 
 Extract the data back out after the smoothing process. 
 The function returns:
 1. A dataframe of the randomized data
@@ -763,7 +774,13 @@ The function returns:
 #######################################################################################################################
 ####################################################################################################################### 
 #######################################################################################################################
+#######################################################################################################################
+#######################################################################################################################
+#######################################################################################################################
+#######################################################################################################################
 ####################################################################################################################### 
+#######################################################################################################################
+#######################################################################################################################  
 """
 
 # Function output
@@ -801,363 +818,407 @@ xs = summary['my_xs']
 summary2 = bhd_1986_1991_results_trend[2]
 means2 = summary2['Means']
 
+"""
+Data from getSmoothValue 
+"""
 
-#
-#
-heidelberg_1986_1991_randoms_smooth = heidelberg_1986_1991_results_smooth[0]
-
-#
-
-summary = heidelberg_1986_1991_results_smooth[2]
-heidelberg_1986_1991_smoothcurves_smooth = heidelberg_1986_1991_results_smooth[1]
 heidelberg_1986_1991_results_smooth = heidelberg_1986_1991_results_smooth[2]
 heidelberg_1986_1991_mean_smooth = heidelberg_1986_1991_results_smooth['Means']
 heidelberg_1986_1991_stdevs_smooth = heidelberg_1986_1991_results_smooth['stdevs']
-xs = heidelberg_1986_1991_results_smooth['my_xs']
 #
+heidelberg_1991_1994_results_smooth = heidelberg_1991_1994_results_smooth[2]
+heidelberg_1991_1994_mean_smooth = heidelberg_1991_1994_results_smooth['Means']
+heidelberg_1991_1994_stdevs_smooth = heidelberg_1991_1994_results_smooth['stdevs']
+
+heidelberg_2006_2016_results_smooth = heidelberg_2006_2016_results_smooth[2]
+heidelberg_2006_2016_mean_smooth = heidelberg_2006_2016_results_smooth['Means']
+heidelberg_2006_2016_stdevs_smooth = heidelberg_2006_2016_results_smooth['stdevs']
+
+heidelberg_2006_2009_results_smooth = heidelberg_2006_2009_results_smooth[2]
+heidelberg_2006_2009_mean_smooth = heidelberg_2006_2009_results_smooth['Means']
+heidelberg_2006_2009_stdevs_smooth = heidelberg_2006_2009_results_smooth['stdevs']
+heidelberg_2006_2009_mean_smooth = heidelberg_2006_2009_mean_smooth.iloc[0:34]
+heidelberg_2006_2009_stdevs_smooth = heidelberg_2006_2009_stdevs_smooth.iloc[0:34]
+
+heidelberg_2012_2016_results_smooth = heidelberg_2012_2016_results_smooth[2]
+heidelberg_2012_2016_mean_smooth = heidelberg_2012_2016_results_smooth['Means']
+heidelberg_2012_2016_stdevs_smooth = heidelberg_2012_2016_results_smooth['stdevs']
+heidelberg_2012_2016_mean_smooth = heidelberg_2012_2016_mean_smooth.iloc[1:40]
+heidelberg_2012_2016_mean_smooth = heidelberg_2012_2016_mean_smooth.reset_index(drop=True)
+heidelberg_2012_2016_stdevs_smooth = heidelberg_2012_2016_stdevs_smooth.iloc[1:40]
+heidelberg_2012_2016_stdevs_smooth = heidelberg_2012_2016_stdevs_smooth.reset_index(drop=True)
+
+bhd_1986_1991_results_smooth = bhd_1986_1991_results_smooth[2]
+bhd_1986_1991_mean_smooth = bhd_1986_1991_results_smooth['Means']
+bhd_1986_1991_stdevs_smooth = bhd_1986_1991_results_smooth['stdevs']
+
+bhd_1991_1994_results_smooth = bhd_1991_1994_results_smooth[2]
+bhd_1991_1994_mean_smooth = bhd_1991_1994_results_smooth['Means']
+bhd_1991_1994_stdevs_smooth = bhd_1991_1994_results_smooth['stdevs']
+
+bhd_2006_2016_results_smooth = bhd_2006_2016_results_smooth[2]
+bhd_2006_2016_mean_smooth = bhd_2006_2016_results_smooth['Means']
+bhd_2006_2016_stdevs_smooth = bhd_2006_2016_results_smooth['stdevs']
+
+# TODO Figure out why the final row of this goes to NaN...
+bhd_2006_2009_results_smooth = bhd_2006_2009_results_smooth[2]
+bhd_2006_2009_mean_smooth = bhd_2006_2009_results_smooth['Means']
+bhd_2006_2009_stdevs_smooth = bhd_2006_2009_results_smooth['stdevs']
+# TODO currently I'm snipping the 2006-2009 files of the last row that goes to NaN cuz I can't debug it...
+bhd_2006_2009_mean_smooth = bhd_2006_2009_mean_smooth.iloc[0:34]
+bhd_2006_2009_stdevs_smooth = bhd_2006_2009_stdevs_smooth.iloc[0:34]
+
+bhd_2012_2016_results_smooth = bhd_2012_2016_results_smooth[2]
+bhd_2012_2016_mean_smooth = bhd_2012_2016_results_smooth['Means']
+bhd_2012_2016_stdevs_smooth = bhd_2012_2016_results_smooth['stdevs']
+# TODO currently I'm snipping the first row because beginning is NAN of the last row that goes to NaN cuz I can't debug it...
+bhd_2012_2016_mean_smooth = bhd_2012_2016_mean_smooth.iloc[1:40]
+bhd_2012_2016_mean_smooth = bhd_2012_2016_mean_smooth.reset_index(drop=True)
+bhd_2012_2016_stdevs_smooth = bhd_2012_2016_stdevs_smooth.iloc[1:40]
+bhd_2012_2016_stdevs_smooth = bhd_2012_2016_stdevs_smooth.reset_index(drop=True)
+
+"""
+Data from gettrendValue 
+"""
+heidelberg_1986_1991_results_trend = heidelberg_1986_1991_results_trend[2]
+heidelberg_1986_1991_mean_trend = heidelberg_1986_1991_results_trend['Means']
+heidelberg_1986_1991_stdevs_trend = heidelberg_1986_1991_results_trend['stdevs']
+
+heidelberg_1991_1994_results_trend = heidelberg_1991_1994_results_trend[2]
+heidelberg_1991_1994_mean_trend = heidelberg_1991_1994_results_trend['Means']
+heidelberg_1991_1994_stdevs_trend = heidelberg_1991_1994_results_trend['stdevs']
+
+heidelberg_2006_2016_results_trend = heidelberg_2006_2016_results_trend[2]
+heidelberg_2006_2016_mean_trend = heidelberg_2006_2016_results_trend['Means']
+heidelberg_2006_2016_stdevs_trend = heidelberg_2006_2016_results_trend['stdevs']
+
+heidelberg_2006_2009_results_trend = heidelberg_2006_2009_results_trend[2]
+heidelberg_2006_2009_mean_trend = heidelberg_2006_2009_results_trend['Means']
+heidelberg_2006_2009_stdevs_trend = heidelberg_2006_2009_results_trend['stdevs']
+heidelberg_2006_2009_mean_trend = heidelberg_2006_2009_mean_trend.iloc[0:34]
+heidelberg_2006_2009_stdevs_trend = heidelberg_2006_2009_stdevs_trend.iloc[0:34]
+
+heidelberg_2012_2016_results_trend = heidelberg_2012_2016_results_trend[2]
+heidelberg_2012_2016_mean_trend = heidelberg_2012_2016_results_trend['Means']
+heidelberg_2012_2016_stdevs_trend = heidelberg_2012_2016_results_trend['stdevs']
+heidelberg_2012_2016_mean_trend = heidelberg_2012_2016_mean_trend.iloc[1:40]
+heidelberg_2012_2016_mean_trend = heidelberg_2012_2016_mean_trend.reset_index(drop=True)
+heidelberg_2012_2016_stdevs_trend = heidelberg_2012_2016_stdevs_trend.iloc[1:40]
+heidelberg_2012_2016_stdevs_trend = heidelberg_2012_2016_stdevs_trend.reset_index(drop=True)
+
+bhd_1986_1991_results_trend = bhd_1986_1991_results_trend[2]
+bhd_1986_1991_mean_trend = bhd_1986_1991_results_trend['Means']
+bhd_1986_1991_stdevs_trend = bhd_1986_1991_results_trend['stdevs']
+
+bhd_1991_1994_results_trend = bhd_1991_1994_results_trend[2]
+bhd_1991_1994_mean_trend = bhd_1991_1994_results_trend['Means']
+bhd_1991_1994_stdevs_trend = bhd_1991_1994_results_trend['stdevs']
+
+bhd_2006_2016_results_trend = bhd_2006_2016_results_trend[2]
+bhd_2006_2016_mean_trend = bhd_2006_2016_results_trend['Means']
+bhd_2006_2016_stdevs_trend = bhd_2006_2016_results_trend['stdevs']
+
+# TODO Figure out why the final row of this goes to NaN...
+bhd_2006_2009_results_trend = bhd_2006_2009_results_trend[2]
+bhd_2006_2009_mean_trend = bhd_2006_2009_results_trend['Means']
+bhd_2006_2009_stdevs_trend = bhd_2006_2009_results_trend['stdevs']
+# TODO currently I'm snipping the 2006-2009 files of the last row that goes to NaN cuz I can't debug it...
+bhd_2006_2009_mean_trend = bhd_2006_2009_mean_trend.iloc[0:34]
+bhd_2006_2009_stdevs_trend = bhd_2006_2009_stdevs_trend.iloc[0:34]
+
+bhd_2012_2016_results_trend = bhd_2012_2016_results_trend[2]
+bhd_2012_2016_mean_trend = bhd_2012_2016_results_trend['Means']
+bhd_2012_2016_stdevs_trend = bhd_2012_2016_results_trend['stdevs']
+# TODO currently I'm snipping the first row because beginning is NAN of the last row that goes to NaN cuz I can't debug it...
+bhd_2012_2016_mean_trend = bhd_2012_2016_mean_trend.iloc[1:40]
+bhd_2012_2016_mean_trend = bhd_2012_2016_mean_trend.reset_index(drop=True)
+bhd_2012_2016_stdevs_trend = bhd_2012_2016_stdevs_trend.iloc[1:40]
+bhd_2012_2016_stdevs_trend = bhd_2012_2016_stdevs_trend.reset_index(drop=True)
+
+"""
+#######################################################################################################################
+#######################################################################################################################
+#######################################################################################################################
+#######################################################################################################################
+#######################################################################################################################
+#######################################################################################################################
+#######################################################################################################################
+#######################################################################################################################
+#######################################################################################################################
+#######################################################################################################################
+Perform paired t-tests on sets of data and write result to file. 
+#######################################################################################################################
+#######################################################################################################################
+#######################################################################################################################
+####################################################################################################################### 
+#######################################################################################################################
+#######################################################################################################################
+#######################################################################################################################
+#######################################################################################################################
+#######################################################################################################################
+#######################################################################################################################
+####################################################################################################################### 
+"""
+
+""" paired t-tests of each of the datasets"""
+print('Baring Head vs Cape Grim between 1986 - 1991 using CCGCRV Smooth Fit', file=f)
+two_tail_paired_t_test(bhd_1986_1991_mean_smooth, bhd_1986_1991_stdevs_smooth, heidelberg_1986_1991_mean_smooth,
+                       heidelberg_1986_1991_stdevs_smooth)
+print()
+print()
+print('Baring Head vs Cape Grim between 1991 - 1994 using CCGCRV Smooth Fit', file=f)
+two_tail_paired_t_test(bhd_1991_1994_mean_smooth, bhd_1991_1994_stdevs_smooth, heidelberg_1991_1994_mean_smooth,
+                       heidelberg_1991_1994_stdevs_smooth)
+print()
+print()
+print('Baring Head vs Cape Grim between 2006 - 2016 using CCGCRV Smooth Fit', file=f)
+two_tail_paired_t_test(bhd_2006_2016_mean_smooth, bhd_2006_2016_stdevs_smooth, heidelberg_2006_2016_mean_smooth,
+                       heidelberg_2006_2016_stdevs_smooth)
+print()
+print()
+print('Baring Head vs Cape Grim between 2006 - 2009 using CCGCRV Smooth Fit', file=f)
+two_tail_paired_t_test(bhd_2006_2009_mean_smooth, bhd_2006_2009_stdevs_smooth, heidelberg_2006_2009_mean_smooth,
+                       heidelberg_2006_2009_stdevs_smooth)
+print()
+print()
+print('Baring Head vs Cape Grim between 2012 - 2016 using CCGCRV Smooth Fit', file=f)
+two_tail_paired_t_test(bhd_2012_2016_mean_smooth, bhd_2012_2016_stdevs_smooth, heidelberg_2012_2016_mean_smooth,
+                       heidelberg_2012_2016_stdevs_smooth)
+print()
+print()
+
+""" paired t-tests of each of the datasets"""
+print('Baring Head vs Cape Grim between 1986 - 1991 using CCGCRV Trend Fit', file=f)
+two_tail_paired_t_test(bhd_1986_1991_mean_trend, bhd_1986_1991_stdevs_trend, heidelberg_1986_1991_mean_trend,
+                       heidelberg_1986_1991_stdevs_trend)
+print()
+print()
+print('Baring Head vs Cape Grim between 1991 - 1994 using CCGCRV Trend Fit', file=f)
+two_tail_paired_t_test(bhd_1991_1994_mean_trend, bhd_1991_1994_stdevs_trend, heidelberg_1991_1994_mean_trend,
+                       heidelberg_1991_1994_stdevs_trend)
+print()
+print()
+print('Baring Head vs Cape Grim between 2000 - 2016 using CCGCRV Trend Fit', file=f)
+two_tail_paired_t_test(bhd_2006_2016_mean_trend, bhd_2006_2016_stdevs_trend, heidelberg_2006_2016_mean_trend,
+                       heidelberg_2006_2016_stdevs_trend)
+print()
+print()
+print('Baring Head vs Cape Grim between 2006 - 2009 using CCGCRV Trend Fit', file=f)
+two_tail_paired_t_test(bhd_2006_2009_mean_trend, bhd_2006_2009_stdevs_trend, heidelberg_2006_2009_mean_trend,
+                       heidelberg_2006_2009_stdevs_trend)
+print()
+print()
+print('Baring Head vs Cape Grim between 2012 - 2016 using CCGCRV Trend Fit', file=f)
+two_tail_paired_t_test(bhd_2012_2016_mean_trend, bhd_2012_2016_stdevs_trend, heidelberg_2012_2016_mean_trend,
+                       heidelberg_2012_2016_stdevs_trend)
+
+
+"""
+#######################################################################################################################
+#######################################################################################################################
+#######################################################################################################################
+#######################################################################################################################
+#######################################################################################################################
+#######################################################################################################################
+#######################################################################################################################
+#######################################################################################################################
+#######################################################################################################################
+#######################################################################################################################
+Answering the Question "Does time in the collection flask alter final 14C value?
+To answer this: first we looked at difference in measurement - collection time. This is good initially but doesn't
+account for situation in which the CO2 was extracted from the flask early and not measured for a while.
+Therefore I will rely on the data where we have all 1) collection, 2) extraction and 3) measurement data. 
+#######################################################################################################################
+#######################################################################################################################
+#######################################################################################################################
+####################################################################################################################### 
+#######################################################################################################################
+#######################################################################################################################
+#######################################################################################################################
+#######################################################################################################################
+#######################################################################################################################
+#######################################################################################################################
+####################################################################################################################### 
+"""
+"""
+The below block of code was used for the file in which we have measurement but not extraction data. Ignore for now.
+"""
+# df2_dates = df2_dates.drop(columns=['∆14C', '∆14C_err',
+#                                     'Flag', 'CollectionMethod'], axis=1)
+# df2_dates = df2_dates.dropna(subset=['DateMeasured'])
+# df2_dates = df2_dates.reset_index()
+# # change the format of dates in the df2_dates
+# forchange = df2_dates['DateMeasured']
+# forchange = long_date_to_decimal_date(forchange)
+# df2_dates['DateMeasured_Decimal'] = forchange
 #
+# # find the difference between measurement date and collection date and append this to the measurement file
+# df2_dates['difference'] = df2_dates['DateMeasured_Decimal'] - np.float64(df2_dates['DecimalDateCollected'])
+# # rename the New Zealand ID for easy merging along this axis
+# df2_dates = df2_dates.rename(columns={"NZ/NZA": "NZ"})
+# # drop more columns to simplify the merge
+# df2_dates = df2_dates.drop(columns=['index', 'DecimalDateCollected', 'DateMeasured',
+#                                     'DateMeasured_Decimal'], axis=1)
+# df2_dates.drop_duplicates(subset ="NZ", keep = False, inplace = True)
 #
-#
-# heidelberg_1991_1994_results_smooth = heidelberg_1991_1994_results_smooth[2]
-# heidelberg_1991_1994_mean_smooth = heidelberg_1991_1994_results_smooth['Means']
-# heidelberg_1991_1994_stdevs_smooth = heidelberg_1991_1994_results_smooth['stdevs']
-#
-# heidelberg_2006_2016_results_smooth = heidelberg_2006_2016_results_smooth[2]
-# heidelberg_2006_2016_mean_smooth = heidelberg_2006_2016_results_smooth['Means']
-# heidelberg_2006_2016_stdevs_smooth = heidelberg_2006_2016_results_smooth['stdevs']
-#
-# heidelberg_2006_2009_results_smooth = heidelberg_2006_2009_results_smooth[2]
-# heidelberg_2006_2009_mean_smooth = heidelberg_2006_2009_results_smooth['Means']
-# heidelberg_2006_2009_stdevs_smooth = heidelberg_2006_2009_results_smooth['stdevs']
-# heidelberg_2006_2009_mean_smooth = heidelberg_2006_2009_mean_smooth.iloc[0:34]
-# heidelberg_2006_2009_stdevs_smooth = heidelberg_2006_2009_stdevs_smooth.iloc[0:34]
-#
-# heidelberg_2012_2016_results_smooth = heidelberg_2012_2016_results_smooth[2]
-# heidelberg_2012_2016_mean_smooth = heidelberg_2012_2016_results_smooth['Means']
-# heidelberg_2012_2016_stdevs_smooth = heidelberg_2012_2016_results_smooth['stdevs']
-# heidelberg_2012_2016_mean_smooth = heidelberg_2012_2016_mean_smooth.iloc[1:40]
-# heidelberg_2012_2016_mean_smooth = heidelberg_2012_2016_mean_smooth.reset_index(drop=True)
-# heidelberg_2012_2016_stdevs_smooth = heidelberg_2012_2016_stdevs_smooth.iloc[1:40]
-# heidelberg_2012_2016_stdevs_smooth = heidelberg_2012_2016_stdevs_smooth.reset_index(drop=True)
-#
-# bhd_1986_1991_results_smooth = bhd_1986_1991_results_smooth[2]
-# bhd_1986_1991_mean_smooth = bhd_1986_1991_results_smooth['Means']
-# bhd_1986_1991_stdevs_smooth = bhd_1986_1991_results_smooth['stdevs']
-#
-# bhd_1991_1994_results_smooth = bhd_1991_1994_results_smooth[2]
-# bhd_1991_1994_mean_smooth = bhd_1991_1994_results_smooth['Means']
-# bhd_1991_1994_stdevs_smooth = bhd_1991_1994_results_smooth['stdevs']
-#
-# bhd_2006_2016_results_smooth = bhd_2006_2016_results_smooth[2]
-# bhd_2006_2016_mean_smooth = bhd_2006_2016_results_smooth['Means']
-# bhd_2006_2016_stdevs_smooth = bhd_2006_2016_results_smooth['stdevs']
-#
-# # TODO Figure out why the final row of this goes to NaN...
-# bhd_2006_2009_results_smooth = bhd_2006_2009_results_smooth[2]
-# bhd_2006_2009_mean_smooth = bhd_2006_2009_results_smooth['Means']
-# bhd_2006_2009_stdevs_smooth = bhd_2006_2009_results_smooth['stdevs']
-# # TODO currently I'm snipping the 2006-2009 files of the last row that goes to NaN cuz I can't debug it...
-# bhd_2006_2009_mean_smooth = bhd_2006_2009_mean_smooth.iloc[0:34]
-# bhd_2006_2009_stdevs_smooth = bhd_2006_2009_stdevs_smooth.iloc[0:34]
-#
-# bhd_2012_2016_results_smooth = bhd_2012_2016_results_smooth[2]
-# bhd_2012_2016_mean_smooth = bhd_2012_2016_results_smooth['Means']
-# bhd_2012_2016_stdevs_smooth = bhd_2012_2016_results_smooth['stdevs']
-# # TODO currently I'm snipping the first row because beginning is NAN of the last row that goes to NaN cuz I can't debug it...
-# bhd_2012_2016_mean_smooth = bhd_2012_2016_mean_smooth.iloc[1:40]
-# bhd_2012_2016_mean_smooth = bhd_2012_2016_mean_smooth.reset_index(drop=True)
-# bhd_2012_2016_stdevs_smooth = bhd_2012_2016_stdevs_smooth.iloc[1:40]
-# bhd_2012_2016_stdevs_smooth = bhd_2012_2016_stdevs_smooth.reset_index(drop=True)
-#
-# """ paired t-tests of each of the datasets"""
-# print('Baring Head vs Cape Grim between 1986 - 1991 using CCGCRV Smooth Fit', file=f)
-# two_tail_paired_t_test(bhd_1986_1991_mean_smooth, bhd_1986_1991_stdevs_smooth, heidelberg_1986_1991_mean_smooth,
-#                        heidelberg_1986_1991_stdevs_smooth)
-# print()
-# print()
-# print('Baring Head vs Cape Grim between 1991 - 1994 using CCGCRV Smooth Fit', file=f)
-# two_tail_paired_t_test(bhd_1991_1994_mean_smooth, bhd_1991_1994_stdevs_smooth, heidelberg_1991_1994_mean_smooth,
-#                        heidelberg_1991_1994_stdevs_smooth)
-# print()
-# print()
-# print('Baring Head vs Cape Grim between 2006 - 2016 using CCGCRV Smooth Fit', file=f)
-# two_tail_paired_t_test(bhd_2006_2016_mean_smooth, bhd_2006_2016_stdevs_smooth, heidelberg_2006_2016_mean_smooth,
-#                        heidelberg_2006_2016_stdevs_smooth)
-# print()
-# print()
-# print('Baring Head vs Cape Grim between 2006 - 2009 using CCGCRV Smooth Fit', file=f)
-# two_tail_paired_t_test(bhd_2006_2009_mean_smooth, bhd_2006_2009_stdevs_smooth, heidelberg_2006_2009_mean_smooth,
-#                        heidelberg_2006_2009_stdevs_smooth)
-# print()
-# print()
-# print('Baring Head vs Cape Grim between 2012 - 2016 using CCGCRV Smooth Fit', file=f)
-# two_tail_paired_t_test(bhd_2012_2016_mean_smooth, bhd_2012_2016_stdevs_smooth, heidelberg_2012_2016_mean_smooth,
-#                        heidelberg_2012_2016_stdevs_smooth)
-# print()
-# print()
-#
-# """
-# REPEAT ALL THE ABOVE LINES OF CODE BUT WITH THE getTrendValue (instead of getSmoothValue)
-# """
-#
-# heidelberg_1986_1991_results_trend = monte_carlo_randomization_Trend(x1_heid, my_x_1986_1991, y1_heid, z1_heid, cutoff,
-#                                                                      n)
-# heidelberg_1991_1994_results_trend = monte_carlo_randomization_Trend(x2_heid, my_x_1991_1994, y2_heid, z2_heid, cutoff,
-#                                                                      n)
-# heidelberg_2006_2016_results_trend = monte_carlo_randomization_Trend(x3_heid, my_x_2006_2016, y3_heid, z3_heid, cutoff,
-#                                                                      n)
-# heidelberg_2006_2009_results_trend = monte_carlo_randomization_Trend(x4_heid, my_x_2006_2009, y4_heid, z4_heid, cutoff,
-#                                                                      n)
-# heidelberg_2012_2016_results_trend = monte_carlo_randomization_Trend(x5_heid, my_x_2012_2016, y5_heid, z5_heid, cutoff,
-#                                                                      n)
-#
-#
-#
-# """ Extracting the data back out after the randomization and smoothing """
-#
-# heidelberg_1986_1991_results_trend = heidelberg_1986_1991_results_trend[2]
-# heidelberg_1986_1991_mean_trend = heidelberg_1986_1991_results_trend['Means']
-# heidelberg_1986_1991_stdevs_trend = heidelberg_1986_1991_results_trend['stdevs']
-#
-# heidelberg_1991_1994_results_trend = heidelberg_1991_1994_results_trend[2]
-# heidelberg_1991_1994_mean_trend = heidelberg_1991_1994_results_trend['Means']
-# heidelberg_1991_1994_stdevs_trend = heidelberg_1991_1994_results_trend['stdevs']
-#
-# heidelberg_2006_2016_results_trend = heidelberg_2006_2016_results_trend[2]
-# heidelberg_2006_2016_mean_trend = heidelberg_2006_2016_results_trend['Means']
-# heidelberg_2006_2016_stdevs_trend = heidelberg_2006_2016_results_trend['stdevs']
-#
-# heidelberg_2006_2009_results_trend = heidelberg_2006_2009_results_trend[2]
-# heidelberg_2006_2009_mean_trend = heidelberg_2006_2009_results_trend['Means']
-# heidelberg_2006_2009_stdevs_trend = heidelberg_2006_2009_results_trend['stdevs']
-# heidelberg_2006_2009_mean_trend = heidelberg_2006_2009_mean_trend.iloc[0:34]
-# heidelberg_2006_2009_stdevs_trend = heidelberg_2006_2009_stdevs_trend.iloc[0:34]
-#
-# heidelberg_2012_2016_results_trend = heidelberg_2012_2016_results_trend[2]
-# heidelberg_2012_2016_mean_trend = heidelberg_2012_2016_results_trend['Means']
-# heidelberg_2012_2016_stdevs_trend = heidelberg_2012_2016_results_trend['stdevs']
-# heidelberg_2012_2016_mean_trend = heidelberg_2012_2016_mean_trend.iloc[1:40]
-# heidelberg_2012_2016_mean_trend = heidelberg_2012_2016_mean_trend.reset_index(drop=True)
-# heidelberg_2012_2016_stdevs_trend = heidelberg_2012_2016_stdevs_trend.iloc[1:40]
-# heidelberg_2012_2016_stdevs_trend = heidelberg_2012_2016_stdevs_trend.reset_index(drop=True)
-#
-# bhd_1986_1991_results_trend = bhd_1986_1991_results_trend[2]
-# bhd_1986_1991_mean_trend = bhd_1986_1991_results_trend['Means']
-# bhd_1986_1991_stdevs_trend = bhd_1986_1991_results_trend['stdevs']
-#
-# bhd_1991_1994_results_trend = bhd_1991_1994_results_trend[2]
-# bhd_1991_1994_mean_trend = bhd_1991_1994_results_trend['Means']
-# bhd_1991_1994_stdevs_trend = bhd_1991_1994_results_trend['stdevs']
-#
-# bhd_2006_2016_results_trend = bhd_2006_2016_results_trend[2]
-# bhd_2006_2016_mean_trend = bhd_2006_2016_results_trend['Means']
-# bhd_2006_2016_stdevs_trend = bhd_2006_2016_results_trend['stdevs']
-#
-# # TODO Figure out why the final row of this goes to NaN...
-# bhd_2006_2009_results_trend = bhd_2006_2009_results_trend[2]
-# bhd_2006_2009_mean_trend = bhd_2006_2009_results_trend['Means']
-# bhd_2006_2009_stdevs_trend = bhd_2006_2009_results_trend['stdevs']
-# # TODO currently I'm snipping the 2006-2009 files of the last row that goes to NaN cuz I can't debug it...
-# bhd_2006_2009_mean_trend = bhd_2006_2009_mean_trend.iloc[0:34]
-# bhd_2006_2009_stdevs_trend = bhd_2006_2009_stdevs_trend.iloc[0:34]
-#
-# bhd_2012_2016_results_trend = bhd_2012_2016_results_trend[2]
-# bhd_2012_2016_mean_trend = bhd_2012_2016_results_trend['Means']
-# bhd_2012_2016_stdevs_trend = bhd_2012_2016_results_trend['stdevs']
-# # TODO currently I'm snipping the first row because beginning is NAN of the last row that goes to NaN cuz I can't debug it...
-# bhd_2012_2016_mean_trend = bhd_2012_2016_mean_trend.iloc[1:40]
-# bhd_2012_2016_mean_trend = bhd_2012_2016_mean_trend.reset_index(drop=True)
-# bhd_2012_2016_stdevs_trend = bhd_2012_2016_stdevs_trend.iloc[1:40]
-# bhd_2012_2016_stdevs_trend = bhd_2012_2016_stdevs_trend.reset_index(drop=True)
-#
-# """ paired t-tests of each of the datasets"""
-# print('Baring Head vs Cape Grim between 1986 - 1991 using CCGCRV Trend Fit', file=f)
-# two_tail_paired_t_test(bhd_1986_1991_mean_trend, bhd_1986_1991_stdevs_trend, heidelberg_1986_1991_mean_trend,
-#                        heidelberg_1986_1991_stdevs_trend)
-# print()
-# print()
-# print('Baring Head vs Cape Grim between 1991 - 1994 using CCGCRV Trend Fit', file=f)
-# two_tail_paired_t_test(bhd_1991_1994_mean_trend, bhd_1991_1994_stdevs_trend, heidelberg_1991_1994_mean_trend,
-#                        heidelberg_1991_1994_stdevs_trend)
-# print()
-# print()
-# print('Baring Head vs Cape Grim between 2000 - 2016 using CCGCRV Trend Fit', file=f)
-# two_tail_paired_t_test(bhd_2006_2016_mean_trend, bhd_2006_2016_stdevs_trend, heidelberg_2006_2016_mean_trend,
-#                        heidelberg_2006_2016_stdevs_trend)
-# print()
-# print()
-# print('Baring Head vs Cape Grim between 2006 - 2009 using CCGCRV Trend Fit', file=f)
-# two_tail_paired_t_test(bhd_2006_2009_mean_trend, bhd_2006_2009_stdevs_trend, heidelberg_2006_2009_mean_trend,
-#                        heidelberg_2006_2009_stdevs_trend)
-# print()
-# print()
-# print('Baring Head vs Cape Grim between 2012 - 2016 using CCGCRV Trend Fit', file=f)
-# two_tail_paired_t_test(bhd_2012_2016_mean_trend, bhd_2012_2016_stdevs_trend, heidelberg_2012_2016_mean_trend,
-#                        heidelberg_2012_2016_stdevs_trend)
-#
-#
-# """
-# Answering the Question "Does time in the collection flask alter final 14C value?
-# To answer this: first we looked at difference in measurement - collection time. This is good initially but doesn't
-# account for situation in which the CO2 was extracted from the flask early and not measured for a while.
-# Therefore I will rely on the data where we have all 1) collection, 2) extraction and 3) measurement data.
-# """
-# """
-# The below block of code was used for the file in which we have measurement but not extraction data. Ignore for now.
-# """
-# # df2_dates = df2_dates.drop(columns=['∆14C', '∆14C_err',
-# #                                     'Flag', 'CollectionMethod'], axis=1)
-# # df2_dates = df2_dates.dropna(subset=['DateMeasured'])
-# # df2_dates = df2_dates.reset_index()
-# # # change the format of dates in the df2_dates
-# # forchange = df2_dates['DateMeasured']
-# # forchange = long_date_to_decimal_date(forchange)
-# # df2_dates['DateMeasured_Decimal'] = forchange
-# #
-# # # find the difference between measurement date and collection date and append this to the measurement file
-# # df2_dates['difference'] = df2_dates['DateMeasured_Decimal'] - np.float64(df2_dates['DecimalDateCollected'])
-# # # rename the New Zealand ID for easy merging along this axis
-# # df2_dates = df2_dates.rename(columns={"NZ/NZA": "NZ"})
-# # # drop more columns to simplify the merge
-# # df2_dates = df2_dates.drop(columns=['index', 'DecimalDateCollected', 'DateMeasured',
-# #                                     'DateMeasured_Decimal'], axis=1)
-# # df2_dates.drop_duplicates(subset ="NZ", keep = False, inplace = True)
-# #
-# # baringhead = baringhead.merge(df2_dates, how='outer')
-# # baringhead = baringhead.dropna(subset=['DELTA14C'])
-# # # baringhead.to_excel('testing2.xlsx')
-#
-# """
-# This block of code deals with the extraction dates.
-# I'll merge this data with the baring head file, and compare how far the D14C data is from the trend-line as a function
-# of time waiting in the flask.
-#
-# """
-# extraction_dates = extraction_dates.drop(columns=['Job', 'Samples::Sample Description', 'Samples::Sample ID',
-#                                                   'AMS Submission Results Complete::Collection Date',
-#                                                   'AMS Submission Results Complete::DELTA14C',
-#                                                   'AMS Submission Results Complete::DELTA14C_Error',
-#                                                   'AMS Submission Results Complete::Weight Initial',
-#                                                   'AMS Submission Results Complete::TP',
-#                                                   'AMS Submission Results Complete::TW',
-#                                                   'AMS Submission Results Complete::Date Run',
-#                                                   'AMS Submission Results Complete::delta13C_IRMS',
-#                                                   'AMS Submission Results Complete::delta13C_AMS',
-#                                                   'AMS Submission Results Complete::F_corrected_normed',
-#                                                   'AMS Submission Results Complete::F_corrected_normed_error',
-#                                                   'Graphite Completed::End Date', 'Graphite Completed::CO2_Yield',
-#                                                   'Graphite Completed::Prebake_Yield',
-#                                                   'Graphite Completed::Graphite_Yield',
-#                                                   'AMS Submission Results Complete::Quality Flag',
-#                                                   'Samples::Pretreatment by Submitter', 'Samples::Sample Date Start',
-#                                                   'Samples::Sample Time Start', 'Samples::Sample Date End',
-#                                                   'Samples::Sample Time End', 'Samples::Sample Days Exposed',
-#                                                   'Samples::Latitude', 'Samples::Longitude', 'Samples::Location',
-#                                                   'Samples::Sampling Height'], axis=1)
-#
-# extraction_dates = extraction_dates.rename(columns={"NZA": "NZ"})
-# # With this line, the baring head data is now merged with that of the extraction dates.
-# baringhead = baringhead.merge(extraction_dates, how='outer')
-# # This line creates a new DataFrame that includes only data that has an extraction date. This
-# # is an easier way to dump the data into an excel file for viewing.
-# baringhead_plus_extract = baringhead.dropna(subset='Extraction of CO2 from Air Date')
-#
-# """
-# There is more data in the "extraction date" column than the other column after this merge because
-# There is excess data without NZ numbers in the orginal file.
-# Right now I'm only taking data that has a unique NZ number.
-# """
-#
-# baringhead_plus_extract = baringhead_plus_extract.dropna(subset='DELTA14C')
-# baringhead_plus_extract = baringhead_plus_extract.reset_index(drop=True)
-#
-# # now I need to grab the extraction dates and convert them to decimals to compare with DEC_DECAY_CORR.
-# extract_date = baringhead_plus_extract['Extraction of CO2 from Air Date']
-# extract_date = long_date_to_decimal_date(extract_date)
-# baringhead_plus_extract['DateExtracted_Decimal'] = extract_date  # add the new column of decimal data onto DataFrame
-# # find the difference between collection and extraction in time.
-# baringhead_plus_extract['Differences'] = baringhead_plus_extract['DateExtracted_Decimal'] \
-#                                          - baringhead_plus_extract['DEC_DECAY_CORR']
-#
-# # re-extract all data after 2012 from the original Baring Head data-file so we can create a new smooth curve
-# # to compare against (the next three lines contain the data I'll use to create the new smooth fit).
-# baringhead_timetest = baringhead.loc[(baringhead['DEC_DECAY_CORR'] > 2012)]
-# x_timetest = baringhead_timetest['DEC_DECAY_CORR'].reset_index(drop=True)
-# y_timetest = baringhead_timetest['DELTA14C'].reset_index(drop=True)
-#
-# # these are the data we want to test
-# x_extracts = baringhead_plus_extract['DEC_DECAY_CORR'].reset_index(drop=True)
-# y_extracts = baringhead_plus_extract['DELTA14C'].reset_index(drop=True)
-# time_extracts = baringhead_plus_extract['Differences'].reset_index(drop=True)
-#
-# time_test = ccgFilter(x_timetest, y_timetest, cutoff).getTrendValue(x_extracts)
-#
-# """
-# Now I want to plot: the time waiting in the flask VS deviation in the measured value from the smoothed fit.
-# """
-# # delta = y_extracts - time_test
-# # plt.scatter(time_extracts, delta)
-# # # plt.show()
-# # plt.close()
-# """
-# LOOKS LIKE NO TREND, JUST SCATTER, using both getTREND and getSMOOTH values.
-# """
-#
-# """
-# Answering the Question "What about the monthly means?"
-# We should at least do this simple analysis at the very minimum to say that we did it this way.
-#
-# First, I'll grab the monthly means of both datasets (Full BHD and Heidelberg),
-# and then snip the BHD data to only be as large as heidelberg,
-# and then do a paired t-test to see where they're different.
-# """
-# # TODO fix this code so it chops off the decimals or something and makes all the months the same (
-# test = monthly_averages(xtot_bhd, ytot_bhd, ztot_bhd)
-#
-# test_x = test[0]
-# test_y = test[1]
-# test_z = test[2]
-# df_test = pd.DataFrame({'x': test_x, 'y_bhd': test_y, 'z_bhd': test_z})
-#
-# test2 = monthly_averages(xtot_heid, ytot_heid, ztot_heid)
-# test2_x = test2[0]
-# test2_y = test2[1]
-# test2_z = test2[2]
-# df_test2 = pd.DataFrame({'x': test2_x, 'y_heid': test2_y, 'z_heid': test2_z})  # putting both into a dataframe so I can merge on the similar dates
-#
-# df_test3 = df_test.merge(df_test2, how='outer')
-# df_test3.to_excel('testing2.xlsx')
-# df_test3 = df_test3.dropna(subset='y_heid')
-# df_test3 = df_test3.dropna(subset='y_bhd')
-# df_test3 = df_test3.reset_index(drop=True)
-# print(df_test3)
-#
-#
-# df_test3.to_excel('testing2.xlsx')
-# test3_x = df_test3['x']
-# test3_y_bhd = df_test3['y_bhd']
-# test3_y_heid = df_test3['y_heid']
-# test3_z_bhd = df_test3['z_bhd']
-# test3_z_heid = df_test3['z_heid']
-# """
-# There is 194 cases in which we have the monthly averages for both BHD and Heid in the same month.
-# The lines above where I dropna on both datasets is to find only the months where they are the same.
-#
-# Now I can do a quick paired t-test, lets see if they are the same...
-# """
-#
-# plt.scatter(test3_x, test3_y_bhd)
-# plt.scatter(test3_x, test3_y_heid)
-# # plt.show()
-#
-# #  order to do a two-tail paired t-test, I need to propogate the uncertainties in the monthly averages function...
-# two_tail_paired_t_test(test3_y_bhd, test3_z_bhd, test3_y_heid, test3_z_heid)
-#
-# f.close()
-#
-# """
-# Monthly averages two-tailed t-test also finds a difference.
-# """
+# baringhead = baringhead.merge(df2_dates, how='outer')
+# baringhead = baringhead.dropna(subset=['DELTA14C'])
+# # baringhead.to_excel('testing2.xlsx')
+
+"""
+This block of code deals with the extraction dates.
+I'll merge this data with the baring head file, and compare how far the D14C data is from the trend-line as a function
+of time waiting in the flask.
+
+"""
+extraction_dates = extraction_dates.drop(columns=['Job', 'Samples::Sample Description', 'Samples::Sample ID',
+                                                  'AMS Submission Results Complete::Collection Date',
+                                                  'AMS Submission Results Complete::DELTA14C',
+                                                  'AMS Submission Results Complete::DELTA14C_Error',
+                                                  'AMS Submission Results Complete::Weight Initial',
+                                                  'AMS Submission Results Complete::TP',
+                                                  'AMS Submission Results Complete::TW',
+                                                  'AMS Submission Results Complete::Date Run',
+                                                  'AMS Submission Results Complete::delta13C_IRMS',
+                                                  'AMS Submission Results Complete::delta13C_AMS',
+                                                  'AMS Submission Results Complete::F_corrected_normed',
+                                                  'AMS Submission Results Complete::F_corrected_normed_error',
+                                                  'Graphite Completed::End Date', 'Graphite Completed::CO2_Yield',
+                                                  'Graphite Completed::Prebake_Yield',
+                                                  'Graphite Completed::Graphite_Yield',
+                                                  'AMS Submission Results Complete::Quality Flag',
+                                                  'Samples::Pretreatment by Submitter', 'Samples::Sample Date Start',
+                                                  'Samples::Sample Time Start', 'Samples::Sample Date End',
+                                                  'Samples::Sample Time End', 'Samples::Sample Days Exposed',
+                                                  'Samples::Latitude', 'Samples::Longitude', 'Samples::Location',
+                                                  'Samples::Sampling Height'], axis=1)
+
+extraction_dates = extraction_dates.rename(columns={"NZA": "NZ"})
+# With this line, the baring head data is now merged with that of the extraction dates.
+baringhead = baringhead.merge(extraction_dates, how='outer')
+# This line creates a new DataFrame that includes only data that has an extraction date. This
+# is an easier way to dump the data into an excel file for viewing.
+baringhead_plus_extract = baringhead.dropna(subset='Extraction of CO2 from Air Date')
+
+"""
+There is more data in the "extraction date" column than the other column after this merge because
+There is excess data without NZ numbers in the orginal file.
+Right now I'm only taking data that has a unique NZ number.
+"""
+
+baringhead_plus_extract = baringhead_plus_extract.dropna(subset='DELTA14C')
+baringhead_plus_extract = baringhead_plus_extract.reset_index(drop=True)
+
+# now I need to grab the extraction dates and convert them to decimals to compare with DEC_DECAY_CORR.
+extract_date = baringhead_plus_extract['Extraction of CO2 from Air Date']
+extract_date = long_date_to_decimal_date(extract_date)
+baringhead_plus_extract['DateExtracted_Decimal'] = extract_date  # add the new column of decimal data onto DataFrame
+# find the difference between collection and extraction in time.
+baringhead_plus_extract['Differences'] = baringhead_plus_extract['DateExtracted_Decimal'] \
+                                         - baringhead_plus_extract['DEC_DECAY_CORR']
+
+# re-extract all data after 2012 from the original Baring Head data-file so we can create a new smooth curve
+# to compare against (the next three lines contain the data I'll use to create the new smooth fit).
+baringhead_timetest = baringhead.loc[(baringhead['DEC_DECAY_CORR'] > 2012)]
+x_timetest = baringhead_timetest['DEC_DECAY_CORR'].reset_index(drop=True)
+y_timetest = baringhead_timetest['DELTA14C'].reset_index(drop=True)
+
+# these are the data we want to test
+x_extracts = baringhead_plus_extract['DEC_DECAY_CORR'].reset_index(drop=True)
+y_extracts = baringhead_plus_extract['DELTA14C'].reset_index(drop=True)
+time_extracts = baringhead_plus_extract['Differences'].reset_index(drop=True)
+
+time_test = ccgFilter(x_timetest, y_timetest, cutoff).getTrendValue(x_extracts)
+delta = y_extracts - time_test
+
+"""
+Now I want to plot: the time waiting in the flask VS deviation in the measured value from the smoothed fit.
+"""
+
+
+"""
+LOOKS LIKE NO TREND, JUST SCATTER, using both getTREND and getSMOOTH values.
+"""
+
+"""
+#######################################################################################################################
+#######################################################################################################################
+#######################################################################################################################
+#######################################################################################################################
+#######################################################################################################################
+#######################################################################################################################
+#######################################################################################################################
+#######################################################################################################################
+#######################################################################################################################
+#######################################################################################################################
+Answering the Question "What about the monthly means?"
+We should at least do this simple analysis at the very minimum to say that we did it this way.
+
+First, I'll grab the monthly means of both datasets (Full BHD and Heidelberg),
+and then snip the BHD data to only be as large as heidelberg,
+and then do a paired t-test to see where they're different.
+#######################################################################################################################
+#######################################################################################################################
+#######################################################################################################################
+####################################################################################################################### 
+#######################################################################################################################
+#######################################################################################################################
+#######################################################################################################################
+#######################################################################################################################
+#######################################################################################################################
+#######################################################################################################################
+####################################################################################################################### 
+"""
+
+# TODO fix this code so it chops off the decimals or something and makes all the months the same (
+test = monthly_averages(xtot_bhd, ytot_bhd, ztot_bhd)
+
+test_x = test[0]
+test_y = test[1]
+test_z = test[2]
+df_test = pd.DataFrame({'x': test_x, 'y_bhd': test_y, 'z_bhd': test_z})
+
+test2 = monthly_averages(xtot_heid, ytot_heid, ztot_heid)
+test2_x = test2[0]
+test2_y = test2[1]
+test2_z = test2[2]
+df_test2 = pd.DataFrame({'x': test2_x, 'y_heid': test2_y, 'z_heid': test2_z})  # putting both into a dataframe so I can merge on the similar dates
+
+df_test3 = df_test.merge(df_test2, how='outer')
+df_test3.to_excel('testing2.xlsx')
+df_test3 = df_test3.dropna(subset='y_heid')
+df_test3 = df_test3.dropna(subset='y_bhd')
+df_test3 = df_test3.reset_index(drop=True)
+print(df_test3)
+
+
+df_test3.to_excel('testing2.xlsx')
+test3_x = df_test3['x']
+test3_y_bhd = df_test3['y_bhd']
+test3_y_heid = df_test3['y_heid']
+test3_z_bhd = df_test3['z_bhd']
+test3_z_heid = df_test3['z_heid']
+"""
+There is 194 cases in which we have the monthly averages for both BHD and Heid in the same month.
+The lines above where I dropna on both datasets is to find only the months where they are the same.
+
+Now I can do a quick paired t-test, lets see if they are the same...
+"""
+
+plt.scatter(test3_x, test3_y_bhd)
+plt.scatter(test3_x, test3_y_heid)
+# plt.show()
+
+#  order to do a two-tail paired t-test, I need to propogate the uncertainties in the monthly averages function...
+print('Here is the result of the paired t-test between BHD and CGO Monthly means for all instances where data overlaps', file=f)
+two_tail_paired_t_test(test3_y_bhd, test3_z_bhd, test3_y_heid, test3_z_heid)
+
+
+f.close()
+
+"""
+Monthly averages two-tailed t-test also finds a difference.
+"""
 
 """
 #######################################################################################################################
@@ -1315,4 +1376,18 @@ plt.savefig('C:/Users/lewis/venv/python310/python-masterclass-remaster-shared/'
             'radiocarbon_intercomparison/plots/FirstDraft_S1.png',
             dpi=300, bbox_inches="tight")
 # plt.show()
-# plt.close()
+plt.close()
+
+"""
+Figure S2. Does the time CO2 sits in flask between collection and extraction impact 14C value? 
+"""
+fig = plt.figure(1)
+plt.scatter(time_extracts, delta, marker='o', label='Rafter Baring Head Record (BHD)', color=colors[3], s=20)
+plt.legend()
+plt.title('Does the time CO2 sits in flask between collection and extraction impact 14C value? ')
+plt.xlabel('Decimal interval (Extraction - Collection)', fontsize=14)
+plt.ylabel('\u0394\u0394$^1$$^4$CO$_2$ (\u2030)', fontsize=14)  # label the y axis
+plt.savefig('C:/Users/lewis/venv/python310/python-masterclass-remaster-shared/'
+            'radiocarbon_intercomparison/plots/FirstDraft_S2.png',
+            dpi=300, bbox_inches="tight")
+plt.close()

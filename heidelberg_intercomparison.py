@@ -866,6 +866,7 @@ bhd_2006_2009_mean_smooth = bhd_2006_2009_results_smooth['Means']
 bhd_2006_2009_stdevs_smooth = bhd_2006_2009_results_smooth['stdevs']
 # TODO currently I'm snipping the 2006-2009 files of the last row that goes to NaN cuz I can't debug it...
 bhd_2006_2009_mean_smooth = bhd_2006_2009_mean_smooth.iloc[0:34]
+my_x_2006_2009_trimmed = my_x_2006_2009.iloc[0:34]
 bhd_2006_2009_stdevs_smooth = bhd_2006_2009_stdevs_smooth.iloc[0:34]
 
 bhd_2012_2016_results_smooth = bhd_2012_2016_results_smooth[2]
@@ -874,6 +875,7 @@ bhd_2012_2016_stdevs_smooth = bhd_2012_2016_results_smooth['stdevs']
 # TODO currently I'm snipping the first row because beginning is NAN of the last row that goes to NaN cuz I can't debug it...
 bhd_2012_2016_mean_smooth = bhd_2012_2016_mean_smooth.iloc[1:40]
 bhd_2012_2016_mean_smooth = bhd_2012_2016_mean_smooth.reset_index(drop=True)
+my_x_2012_2016_trimmed = my_x_2012_2016[1:40]
 bhd_2012_2016_stdevs_smooth = bhd_2012_2016_stdevs_smooth.iloc[1:40]
 bhd_2012_2016_stdevs_smooth = bhd_2012_2016_stdevs_smooth.reset_index(drop=True)
 
@@ -1294,6 +1296,84 @@ plt.savefig('C:/Users/lewis/venv/python310/python-masterclass-remaster-shared/'
 plt.close()
 
 """
+Figure 3. A breakdown of the 5 period of time that we test for the intercomparison, 
+and how the smooth and trend data compare for each. 
+"""
+
+fig = plt.figure(1, figsize=(5, 5))
+gs = gridspec.GridSpec(2,2)
+gs.update(wspace=0.2, hspace=0.25)
+
+
+xtr_subsplot = fig.add_subplot(gs[0:1, 0:1])
+# First subplot (Top Left : 1986 - 1991)
+plt.scatter(xtot_bhd, ytot_bhd, marker='o', label='Rafter Baring Head Record (BHD)', color=colors[1], s=size1)
+plt.scatter(xtot_heid, ytot_heid, marker='x', label='Heidelberg Cape Grim Record (CGO)', color=colors2[1], s=size1)
+plt.scatter(my_x_1986_1991, bhd_1986_1991_mean_smooth, marker='o', label='Rafter Baring Head Record (BHD)', color=colors[1], s=size1)
+plt.scatter(my_x_1986_1991, heidelberg_1986_1991_mean_smooth, marker='x', label='Heidelberg Cape Grim Record (CGO)', color=colors2[1], s=size1)
+plt.xlim([1987, 1991])
+plt.ylim([140, 190])
+
+xtr_subsplot = fig.add_subplot(gs[0:1, 1:2])
+# Second subplot (Top middle : 1991 - 1994)
+plt.scatter(xtot_bhd, ytot_bhd, marker='o', label='Rafter Baring Head Record (BHD)', color=colors[1], s=size1)
+plt.scatter(xtot_heid, ytot_heid, marker='x', label='Heidelberg Cape Grim Record (CGO)', color=colors2[1], s=size1)
+plt.scatter(my_x_1991_1994, bhd_1991_1994_mean_smooth, marker='o', label='Rafter Baring Head Record (BHD)', color=colors[1], s=size1)
+plt.scatter(my_x_1991_1994, heidelberg_1991_1994_mean_smooth, marker='x', label='Heidelberg Cape Grim Record (CGO)', color=colors2[1], s=size1)
+plt.xlim([1991, 1994])
+plt.ylim([115, 150])
+
+xtr_subsplot = fig.add_subplot(gs[1:2, 0:1])
+# Third subplot (Bottom left : 2006 - 2016)
+plt.scatter(xtot_bhd, ytot_bhd, marker='o', label='Rafter Baring Head Record (BHD)', color=colors[1], s=size1)
+plt.scatter(xtot_heid, ytot_heid, marker='x', label='Heidelberg Cape Grim Record (CGO)', color=colors2[1], s=size1)
+plt.scatter(my_x_2006_2009_trimmed, bhd_2006_2009_mean_smooth, marker='o', label='Rafter Baring Head Record (BHD)', color=colors[1], s=size1)
+plt.scatter(my_x_2006_2009_trimmed, heidelberg_2006_2009_mean_smooth, marker='x', label='Heidelberg Cape Grim Record (CGO)', color=colors2[1], s=size1)
+plt.xlim([2006, 2009])
+plt.ylim([45, 65])
+
+xtr_subsplot = fig.add_subplot(gs[1:2, 1:2])
+# Fourth subplot (Bottom moddle: 2009 - 2012)
+plt.scatter(xtot_bhd, ytot_bhd, marker='o', label='Rafter Baring Head Record (BHD)', color=colors[1], s=size1)
+plt.scatter(xtot_heid, ytot_heid, marker='x', label='Heidelberg Cape Grim Record (CGO)', color=colors2[1], s=size1)
+plt.scatter(my_x_2012_2016_trimmed, bhd_2012_2016_mean_smooth, marker='o', label='Rafter Baring Head Record (BHD)', color=colors[1], s=size1)
+plt.scatter(my_x_2012_2016_trimmed, heidelberg_2012_2016_mean_smooth, marker='x', label='Heidelberg Cape Grim Record (CGO)', color=colors2[1], s=size1)
+plt.xlim([2012, 2016])
+plt.ylim([20, 40])
+plt.show()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+"""
 Figure S1. Visual Example of the randomization and smoothing process, broken into 4 panels.
 """
 fig = plt.figure(4, figsize=(10,3))
@@ -1304,6 +1384,7 @@ gs.update(wspace=1, hspace=0.1)
 size2 = 15
 xtr_subsplot = fig.add_subplot(gs[0:1, 0:2])
 # plot data for left panel
+plt.text(1990.75, 167.5, "A", fontsize=12)
 plt.errorbar(xtot_bhd, ytot_bhd, label='CGO Data' , yerr=ztot_bhd, fmt='none', color='black', ecolor='black', elinewidth=1, capsize=2)
 plt.scatter(xtot_bhd, ytot_bhd, marker='o', label='Rafter Baring Head Record (BHD)', color='black', s=size2)
 plt.scatter(x1_bhd, data1, color = colors[0], label = 'Monte Carlo Iteration 1', alpha = 0.35, marker = 'x', s = size2)
@@ -1321,7 +1402,7 @@ plt.ylabel('\u0394$^1$$^4$CO$_2$ (\u2030)', fontsize=14)  # label the y axis
 
 xtr_subsplot = fig.add_subplot(gs[0:1, 2:4])
 # plot data for left panel
-
+plt.text(1990.75, 167.5, "B", fontsize=12)
 plt.errorbar(xtot_bhd, ytot_bhd, label='CGO Data' , yerr=ztot_bhd, fmt='none', color='black', ecolor='black', elinewidth=1, capsize=2)
 plt.scatter(xtot_bhd, ytot_bhd, marker='o', label='Rafter Baring Head Record (BHD)', color='black', s=size2)
 plt.scatter(x1_bhd, data1, color = colors[0], label = 'Monte Carlo Iteration 1', alpha = 0.35, marker = 'x', s = size2)
@@ -1339,7 +1420,7 @@ xtr_subsplot.set_yticklabels([])
 
 xtr_subsplot = fig.add_subplot(gs[0:1, 4:6])
 # plot data for left panel
-
+plt.text(1990.75, 167.5, "C", fontsize=12)
 plt.errorbar(xtot_bhd, ytot_bhd, label='CGO Data' , yerr=ztot_bhd, fmt='none', color='black', ecolor='black', elinewidth=1, capsize=2)
 plt.scatter(xtot_bhd, ytot_bhd, marker='o', label='Rafter Baring Head Record (BHD)', color='black', s=size2)
 plt.scatter(x1_bhd, data1, color = colors[0], label = 'Monte Carlo Iteration 1', alpha = 0.35, marker = 'x', s = size2)
@@ -1356,7 +1437,7 @@ xtr_subsplot.set_yticklabels([])
 
 xtr_subsplot = fig.add_subplot(gs[0:1, 6:8])
 # plot data for left panel
-
+plt.text(1990.75, 167.5, "D", fontsize=12)
 plt.errorbar(xtot_bhd, ytot_bhd, label='CGO Data' , yerr=ztot_bhd, fmt='none', color='black', ecolor='black', elinewidth=1, capsize=2)
 plt.scatter(xtot_bhd, ytot_bhd, marker='o', label='Rafter Baring Head Record (BHD)', color='black', s=size2)
 plt.scatter(x1_bhd, data1, color = colors[0], label = 'Monte Carlo Iteration 1', alpha = 0.35, marker = 'x', s = size2)
@@ -1382,7 +1463,7 @@ plt.close()
 Figure S2. Does the time CO2 sits in flask between collection and extraction impact 14C value? 
 """
 fig = plt.figure(1)
-plt.scatter(time_extracts, delta, marker='o', label='Rafter Baring Head Record (BHD)', color=colors[3], s=20)
+plt.scatter(time_extracts, delta, marker='o', label='Rafter Baring Head Record (BHD)', color=colors2[3], s=20)
 plt.legend()
 plt.title('Does the time CO2 sits in flask between collection and extraction impact 14C value? ')
 plt.xlabel('Decimal interval (Extraction - Collection)', fontsize=14)

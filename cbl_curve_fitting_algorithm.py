@@ -12,9 +12,9 @@ import numpy as np
 import pandas as pd
 from numpy.fft import fft, ifft
 
-df = pd.read_excel(r'C:\Users\lewis\venv\python310\python-masterclass-remaster-shared\RadiocarbonIntercomparison\output3.xlsx')
-x = df['time_decimal']
-y = df['value']
+# df = pd.read_excel(r'C:\Users\lewis\venv\python310\python-masterclass-remaster-shared\RadiocarbonIntercomparison\output3.xlsx')
+# x = df['time_decimal']
+# y = df['value']
 
 def cbl_curve_fit(x,y):
     n = 4
@@ -65,4 +65,4 @@ def cbl_curve_fit(x,y):
 
     return smoothed_trend
 
-cbl_curve_fit(x,y)
+# cbl_curve_fit(x,y)

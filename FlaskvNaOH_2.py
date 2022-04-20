@@ -120,18 +120,19 @@ seshadri = ['#c3121e', '#0348a1', '#ffb01c', '#027608', '#0193b0', '#9c5300', '#
 #            0sangre,   1neptune,  2pumpkin,  3clover,   4denim,    5cocoa,    6cumin,    7berry
 
 
-# dflask_dtrend = y_flask - smoothed_trend
-# fig = plt.figure(1, figsize=(5, 5))
-# plt.scatter(x, y_naoh, linestyle='-', marker='o', label='Select NaOH Measured 14CO2 at BARING HEAD from RRL', color=colors[2]) # plot data
-# plt.plot(x, Degree_to_test, linestyle='--', marker='' , label='Polynomial Fit', color='black') # plot data
-# plt.plot(x, smoothed_trend, linestyle='-', marker='' , label='Smoothed Line of Select NaOH Data - 667 Day Cutoff', color=colors[1]) # plot data
-# plt.scatter(x, y_flask, linestyle='-', marker='^' , label='Flask Measurement', color=colors[0]) # plot data
-# # plt.scatter(date, Del14C_flask, linestyle='-', marker='^', label='Select FLASK Measurements from BARING HEAD', color=colors[0]) # plot data
-# # create a legend
-# plt.legend(fontsize=6)
-# plt.xlabel('Date', fontsize=14)
-# plt.ylabel('14CO2', fontsize=14)  # label the y axis
-# plt.legend(fontsize=6)  # add the legend (will default to 'best' location)
+dflask_dtrend = y_flask - smoothed_trend
+fig = plt.figure(1, figsize=(5, 5))
+plt.scatter(x, y_naoh, linestyle='-', marker='o', label='Select NaOH Measured 14CO2 at BARING HEAD from RRL', color=colors[2]) # plot data
+plt.plot(x, Degree_to_test, linestyle='--', marker='' , label='Polynomial Fit', color='black') # plot data
+plt.plot(x, smoothed_trend, linestyle='-', marker='' , label='Smoothed Line of Select NaOH Data - 667 Day Cutoff', color=colors[1]) # plot data
+plt.scatter(x, y_flask, linestyle='-', marker='^' , label='Flask Measurement', color=colors[0]) # plot data
+# plt.scatter(date, Del14C_flask, linestyle='-', marker='^', label='Select FLASK Measurements from BARING HEAD', color=colors[0]) # plot data
+# create a legend
+plt.legend(fontsize=6)
+plt.xlabel('Date', fontsize=14)
+plt.ylabel('14CO2', fontsize=14)  # label the y axis
+plt.legend(fontsize=6)  # add the legend (will default to 'best' location)
+plt.show()
 # plt.savefig(r'G:/My Drive/Work/GNS Radiocarbon Scientist/The Science/Stats and Data Analysis/Matlab and Python Files/FlaskvNaOH_667cutoff_3rdDegree.png', dpi=300, bbox_inches="tight")
 
 
@@ -192,7 +193,9 @@ plt.legend(fontsize=6)
 plt.xlabel('Date', fontsize=14)
 plt.ylabel('Residual', fontsize=14)  # label the y axis
 plt.legend(fontsize=6)  # add the legend (will default to 'best' location)
-plt.savefig(r'G:/My Drive/Work/GNS Radiocarbon Scientist/The Science/Stats and Data Analysis/Matlab and Python Files/NaOH_v_Flask_Residual', dpi=300, bbox_inches="tight")
+plt.show()
+# plt.savefig(r'G:/My Drive/Work/GNS Radiocarbon Scientist/The Science/Stats and Data Analysis/Matlab and Python Files/NaOH_v_Flask_Residual', dpi=300, bbox_inches="tight")
+
 d_mean = np.abs(np.average(resid_1) - np.average(resid_2))
 print(d_mean)
 d_of_f = (len(resid_1) + len(resid_2)) - 2

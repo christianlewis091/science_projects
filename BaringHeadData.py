@@ -5,7 +5,7 @@ using Christian's curve fitting program
 """
 from cbl_curve_fitting_algorithm import cbl_curve_fit
 from miller_curve_algorithm import ccgFilter
-from year_month_to_decimaldate import year_month_todecimaldate
+from my_functions import year_month_todecimaldate
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -60,8 +60,8 @@ seshadri = ['#c3121e', '#0348a1', '#ffb01c', '#027608', '#0193b0', '#9c5300', '#
 
 plt.plot(flask_miller_x, flask_miller_y, linestyle='solid', marker='', label='Flask Data Smoothed (Miller Algorithm)', color= 'tab:blue')
 plt.plot(naoh_miller_x, naoh_miller_y, linestyle='solid', marker='', label='NaOH Data Smoothed (Miller Algorithm)', color='tab:red')
-# plt.plot(flask_x, flask_smooth, linestyle='dashed', marker='', label='Flask Data Smoothed (CBL Algorithm)', color= 'tab:blue')
-# plt.plot(naoh_x, naoh_smooth, linestyle='dashed', marker='', label='NaOH Data Smoothed (CBL Algorithm)', color= 'tab:red')
+plt.plot(flask_x, flask_smooth, linestyle='dashed', marker='', label='Flask Data Smoothed (CBL Algorithm)', color= 'tab:blue')
+plt.plot(naoh_x, naoh_smooth, linestyle='dashed', marker='', label='NaOH Data Smoothed (CBL Algorithm)', color= 'tab:red')
 plt.scatter(naoh_x, naoh_y, marker='^', label='NaOH Final Data', color='tab:red', edgecolors='black')
 plt.scatter(flask_x, flask_y, marker='o', label='NaOH Final Data', color='tab:blue', edgecolors='black')
 plt.legend(fontsize=6)  # add the legend (will default to 'best' location)
@@ -70,7 +70,8 @@ plt.xlim([2010, 2020])
 plt.ylim([0, 60])
 plt.xlabel('Date', fontsize=14)
 plt.ylabel('\u0394 14CO2', fontsize=14)  # label the y axis
-plt.savefig(r'C:/Users/lewis/venv/python310/python-masterclass-remaster-shared/Radiocarbonintercomparison/plots/BaringHead_final_zoom_b.png', dpi=300, bbox_inches="tight")
+plt.show()
+# plt.savefig(r'C:/Users/lewis/venv/python310/python-masterclass-remaster-shared/Radiocarbonintercomparison/plots/BaringHead_final_zoom_b.png', dpi=300, bbox_inches="tight")
 
 
 

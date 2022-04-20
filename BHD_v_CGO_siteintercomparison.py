@@ -9,7 +9,7 @@ import datetime
 import scipy.stats as stats
 from cbl_curve_fitting_algorithm import cbl_curve_fit
 from miller_curve_algorithm import ccgFilter
-from year_month_to_decimaldate import year_month_todecimaldate
+from my_functions import year_month_todecimaldate
 
 """ 
 INITIAL READ IN OF THE DATA

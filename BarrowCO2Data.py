@@ -14,7 +14,7 @@ import seaborn as sns
 from scipy import optimize
 from cbl_curve_fitting_algorithm import cbl_curve_fit
 from miller_curve_algorithm import ccgFilter
-from year_month_to_decimaldate import year_month_todecimaldate
+from my_functions import year_month_todecimaldate
 warnings.simplefilter('ignore', np.RankWarning)
 # Source:
 # IMPORT DATA INTO PYTHON
@@ -45,7 +45,8 @@ plt.legend()
 # plt.ylim([0, 60])
 plt.xlabel('Date', fontsize=14)
 plt.ylabel('[CO2] ppm', fontsize=14)  # label the y axis
-plt.savefig(r'C:/Users/lewis/venv/python310/python-masterclass-remaster-shared/Radiocarbonintercomparison/plots/BarrowCO2_final.png', dpi=300, bbox_inches="tight")
+plt.show()
+# plt.savefig(r'C:/Users/lewis/venv/python310/python-masterclass-remaster-shared/Radiocarbonintercomparison/plots/BarrowCO2_final.png', dpi=300, bbox_inches="tight")
 
 
 

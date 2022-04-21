@@ -41,3 +41,4 @@ print(Fire)
 # Filter = df.loc[df['Type 1'].str.contains('Fire|Grass', flags = re.I, regex = True)]
 #
 # print(Filter)
+#test .....

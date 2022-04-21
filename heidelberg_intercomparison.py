@@ -41,16 +41,30 @@ DEFINE ALL THE FUNCTIONS THAT I WILL BE USING
 them to decimal dates more useful for performing curve smoothing on. 
 """
 
-
 def long_date_to_decimal_date(x):
-    array = []
-    for i in range(0, len(x)):
-        j = x[i]
-        decy = pyasl.decimalYear(j)
-        decy = float(decy)
-        # print(decy)
-        array.append(decy)
-    # print(array)
+    """convert list of dates from dd/mm/yyyy to decimal dates
+
+    ARGS:
+    x: list of dates in format dd/mm/yyyy
+
+    RETURNS:
+    list of length len(x) containing the dates in decimal date format
+    """
+    # it's good practice to document every function in triple quotes, as above.
+    # This is called a docstring, and many python development environments
+    # (pycharm, pyright, etc.) know to display the information in the docstring
+    # with a mouse hover or keystroke or something. Defining ARGS and RETURNS
+    # like this is also good practice because it plays nicely with some
+    # documentation engines.
+    #
+    # also, when you're ready to dive into a next step take a look at list
+    # comprehension:
+    # (https://docs.python.org/3/tutorial/datastructures.html#list-comprehensions)
+    # The way you've implemented this function is exactly what you'd do in C or
+    # Fortran or Matlab. List comprehension is one of the things Python offers
+    # that can make code much more concise and elegant (that is, readable!).
+    # Here's how this function might look using list comprehension:
+    array = [float(pyasl.decimalYear(j)) for j in x]
     return array
 
 

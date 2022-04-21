@@ -1,3 +1,20 @@
+"""short one-line summary of the module (<= 81 characters)
+
+It's good practice to start every module (i.e. .py file) with a docstring like
+this to describe what it does. The first line should be a short summary
+description, kind of like a table of contents entry. The skip a line and write
+as much as you want to here.
+
+This is a script that processes X Y Z data.
+
+- or -
+
+This module provides functions function_one() and function_two() that do this
+great thing that I now describe.
+
+etc.
+"""
+
 # from __future__ import print_function, division
 import numpy as np
 import random

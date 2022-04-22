@@ -19,11 +19,13 @@ etc.
 import numpy as np
 import random
 import matplotlib.pyplot as plt
+import datetime
 import pandas as pd
 import seaborn as sns
 from miller_curve_algorithm import ccgFilter
 from PyAstronomy import pyasl
 from tabulate import tabulate
+
 
 f = open("output.txt", "a")  # where I want the result to be stored
 
@@ -69,6 +71,15 @@ def long_date_to_decimal_date(x):
 
 
 def year_month_todecimaldate(x, y):
+    """I think this is converting two arrays of [day] and [year] to decimal dates?
+
+    I think you ought to use PyAstronomy.pyasl.decimalYear() here... If you have
+    a choice between a library/package and coding something yourself, always use
+    the library! You usually get to stand on the already-completed work of many
+    debuggers that way.
+
+    https://pyastronomy.readthedocs.io/en/latest/pyaslDoc/aslDoc/decimalYear.html#decimal-representation-of-year
+    """
     L = np.linspace(0, 1, 365)
     # add the number that is 1/2 of the previous month plus the current month
     Jan = 31
@@ -283,20 +294,12 @@ def monthly_averages(x_values, y_values, y_err):
     y_values = np.array(y_values)
     y_err = np.array(y_err)
 
-    Begin = 0
-    Jan = 31
-    Feb = 28 + 31
-    Mar = 31 + 31 + 28
-    Apr = 30 + 31 + 28 + 31
-    May = 31 + 31 + 28 + 31 + 30
-    June = 30 + 31 + 28 + 31 + 30 + 31
-    July = 31 + 31 + 28 + 31 + 30 + 31 + 30
-    August = 31 + 31 + 28 + 31 + 30 + 31 + 30 + 31
-    Sep = 30 + 31 + 28 + 31 + 30 + 31 + 30 + 31 + 31
-    Oct = 31 + 31 + 28 + 31 + 30 + 31 + 30 + 31 + 31 + 30
-    Nov = 30 + 31 + 28 + 31 + 30 + 31 + 30 + 31 + 31 + 30 + 30
-    Dec = 31 + 31 + 28 + 31 + 30 + 31 + 30 + 31 + 31 + 30 + 30 + 30
-    months = np.array([Begin, Jan, Feb, Mar, Apr, May, June, July, August, Sep, Oct, Nov, Dec])
+    # here's a more "pythonic" way to do this
+    YEAR = 2022 # any non-leap year will do
+    JAN_ONE = datetime.date(YEAR, 1, 1)
+    months = np.array(
+        [(datetime.date(YEAR, m, 1) - JAN_ONE).days for m in range(1, 13)]
+    )
     months = months / 365
 
     # first, enter the available years on file:
@@ -367,7 +370,8 @@ This function does a paired two-tail t-test. The t-value range comes from the st
 Monte Carlo function above, and errors are propagated through the t-test mathematics. 
 """
 
-
+# maybe use one of the ttest... functions in scipy.stats?
+# https://docs.scipy.org/doc/scipy/reference/stats.html#statistical-tests
 def two_tail_paired_t_test(y1, y1err, y2, y2err):
     """ Subtract the data from each other (first step in paired t-test)"""
     difference = np.subtract(y1, y2)  # subtract the data from each other

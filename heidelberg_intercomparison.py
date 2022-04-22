@@ -538,6 +538,61 @@ z_combined = snip['DELTA14C_ERR']
 """
 RECORDS SPLIT UP INTO 5 PARTS (1987 - 1991, 1991 - 1994, 2006 - 2016, 2006 - 2009, 2012 - 2016)
 """
+
+# without the data I can't run it to understand for sure what this is doing;
+# that said, I am pretty sure you could make the below (~500 lines of code!)
+# much more concise.  A few observations:
+# - you are frequently pulling columns out of dataframe and assigning them to
+#   variables. How come? Like `x1_bhd = baringhead_1986_1991['DEC_DECAY_CORR']`.
+#   Why not simply use baringhead_1986_1991['DEC_DECAY_CORR'] through the code?
+#   That's part of what DataFrames are for: referring concisely to related data.
+# - I think you could do the year-grouping (1987-1991, etc) and give each line a label
+#
+#if you're copying and pasting, start thinking "should this be a function or
+# class?" Something like the below could be run on both baringhead and
+# heidelberg, and gives you a single dataframe with categorical columns
+# 'time_range' and 'location'. Then you can concatenate baringhead and
+# heidelberg, and then use pd.DataFrame.groupby, pd.DataFrame.aggregate, etc. to
+# run the curve fits more elegantly. The below is not tested, because I don't
+# have the data, but could, I think, be the start of tidying up this next
+# section into a class or module that you could reuse with other data.
+#
+def split_df_by_year(df: pd.DataFrame, col: str, site: str):
+    """split data frame into relevant year ranges
+
+    Split data frame df into intervals 1986-1991, 1991-1994, 2006-2016,
+    2006-2009, 2012-2016. Repeats the data for 2009-2016.
+
+    ARGS:
+    df: pandas data frame
+    col: string specifying the column containing the date
+    site: string specifying the observation site
+
+    RETURNS:
+    data frame with two additional columns: 'time_range', labeling each
+    observation's time interval, and 'location', specifying the site of each
+    observation.
+
+    """
+    df_1986_1991 = df.loc[(df[col] >= 1987) & (df[col] <= 1991)]
+    df_1991_1994 = df.loc[(df[col] >= 1991) & (df[col] <= 1994)]
+    df_2006_2016 = df.loc[(df[col] > 2006) & (df[col] <= 2016)]
+    df_2006_2009 = df.loc[(df[col] >= 2006) & (df[col] <= 2009)]
+    df_2012_2016 = df.loc[(df[col] >= 2012) & (df[col] <= 2016)]
+
+    df_1986_1991["time_range"] = "1986_1991"
+    df_1991_1994["time_range"] = "1991_1994"
+    df_2006_2016["time_range"] = "2006_2016"
+    df_2006_2009["time_range"] = "2006_2009"
+    df_2012_2016["time_range"] = "2012_2016"
+
+    df_out = pd.concat(
+        [df_1986_1991, df_1991_1994, df_2006_2016, df_2006_2009, df_2012_2016]
+    )
+    df_out['location'] = site
+    return df_out
+
+
 baringhead_1986_1991 = baringhead.loc[(baringhead['DEC_DECAY_CORR'] >= 1987) & (baringhead['DEC_DECAY_CORR'] <= 1991)]
 baringhead_1991_1994 = baringhead.loc[(baringhead['DEC_DECAY_CORR'] >= 1991) & (baringhead['DEC_DECAY_CORR'] <= 1994)]
 baringhead_2006_2016 = baringhead.loc[(baringhead['DEC_DECAY_CORR'] > 2006) & (baringhead['DEC_DECAY_CORR'] <= 2016)]

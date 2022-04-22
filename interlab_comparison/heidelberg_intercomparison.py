@@ -1207,7 +1207,7 @@ plt.ylim([0, 300])
 plt.xlabel('Date', fontsize=14)
 plt.ylabel('\u0394$^1$$^4$CO$_2$ (\u2030)', fontsize=14)  # label the y axis
 plt.savefig('C:/Users/lewis/venv/python310/python-masterclass-remaster-shared/'
-            'radiocarbon_intercomparison/plots/FirstDraft_Fig1.png',
+            'radiocarbon_intercomparison2/interlab_comparison/plots/FirstDraft_Fig1.png',
             dpi=300, bbox_inches="tight")
 plt.close()
 
@@ -1232,7 +1232,7 @@ plt.legend()
 plt.xlabel('Date', fontsize=14)
 plt.ylabel('\u0394$^1$$^4$CO$_2$ (\u2030)', fontsize=14)  # label the y axis
 plt.savefig('C:/Users/lewis/venv/python310/python-masterclass-remaster-shared/'
-            'radiocarbon_intercomparison/plots/FirstDraft_Figure2.png',
+            'radiocarbon_intercomparison2/interlab_comparison/plots/FirstDraft_Figure2.png',
             dpi=300, bbox_inches="tight")
 # plt.show()
 plt.close()
@@ -1274,7 +1274,7 @@ plt.ylim([0, 200])
 plt.xlim([1986, 2020])
 plt.legend()
 plt.savefig('C:/Users/lewis/venv/python310/python-masterclass-remaster-shared/'
-            'radiocarbon_intercomparison/plots/FirstDraft_Figuretest.png',
+            'radiocarbon_intercomparison2/interlab_comparison/plots/FirstDraft_Figuretest.png',
             dpi=300, bbox_inches="tight")
 # plt.show()
 plt.close()
@@ -1336,7 +1336,7 @@ plt.xlim([min(np.array(my_x_2012_2016_trimmed)), max(np.array(my_x_2012_2016_tri
 plt.ylim([min(bhd_2012_2016_mean_smooth), max(bhd_2012_2016_mean_smooth)])
 plt.legend(loc=(1.04,0.5))
 plt.savefig('C:/Users/lewis/venv/python310/python-masterclass-remaster-shared/'
-            'radiocarbon_intercomparison/plots/FirstDraft_Figure3a.png',
+            'radiocarbon_intercomparison2/interlab_comparison/plots/FirstDraft_Figure3a.png',
             dpi=300, bbox_inches="tight")
 # plt.show()
 plt.close()
@@ -1399,7 +1399,7 @@ plt.plot(np.array(my_x_2012_2016_trimmed), heidelberg_2012_2016_mean_trend, colo
 plt.xlim([min(np.array(my_x_2012_2016_trimmed)), max(np.array(my_x_2012_2016_trimmed))])
 plt.ylim([min(bhd_2012_2016_mean_smooth), max(bhd_2012_2016_mean_smooth)])
 plt.savefig('C:/Users/lewis/venv/python310/python-masterclass-remaster-shared/'
-            'radiocarbon_intercomparison/plots/FirstDraft_Figure3b.png',
+            'radiocarbon_intercomparison2/interlab_comparison/plots/FirstDraft_Figure3b.png',
             dpi=300, bbox_inches="tight")
 # plt.show()
 plt.close()
@@ -1486,7 +1486,7 @@ plt.legend(loc=(1.04,0.5))
 xtr_subsplot.set_yticklabels([])
 
 plt.savefig('C:/Users/lewis/venv/python310/python-masterclass-remaster-shared/'
-            'radiocarbon_intercomparison/plots/FirstDraft_S1.png',
+            'radiocarbon_intercomparison2/interlab_comparison/plots/FirstDraft_S1.png',
             dpi=300, bbox_inches="tight")
 # plt.show()
 plt.close()
@@ -1501,6 +1501,6 @@ plt.title('Does the time CO2 sits in flask between collection and extraction imp
 plt.xlabel('Decimal interval (Extraction - Collection)', fontsize=14)
 plt.ylabel('\u0394\u0394$^1$$^4$CO$_2$ (\u2030)', fontsize=14)  # label the y axis
 plt.savefig('C:/Users/lewis/venv/python310/python-masterclass-remaster-shared/'
-            'radiocarbon_intercomparison/plots/FirstDraft_S2.png',
+            'radiocarbon_intercomparison2/interlab_comparison/plots/FirstDraft_S2.png',
             dpi=300, bbox_inches="tight")
 plt.close()

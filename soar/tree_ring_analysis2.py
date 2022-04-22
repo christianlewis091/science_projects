@@ -31,7 +31,7 @@ I have run lines 8 - 15 and saved the file, while I import for future use on lin
 # # print(df.columns)
 
 df = pd.read_excel(r'C:\Users\lewis\venv\python310\python-masterclass-remaster-shared'
-                   r'\radiocarbon_intercomparison\SOAR_dropna_subset14C.xlsx')
+                   r'\radiocarbon_intercomparison2\data\SOAR_dropna_subset14C.xlsx')
 # df = df.drop(['C14Flag'] == -999)
 df.drop(df[df['C14Flag'] == -999].index, inplace=True)
 
@@ -131,9 +131,8 @@ plt.legend()
 plt.xlabel('Year of Growth', fontsize=14)
 plt.ylabel('\u0394$^1$$^4$CO$_2$ (\u2030)', fontsize=14)  # label the y axis
 plt.savefig('C:/Users/lewis/venv/python310/python-masterclass-remaster-shared/'
-            'radiocarbon_intercomparison/plots/chile_compare.png',
+            'radiocarbon_intercomparison2/soar/plots/chile_compare.png',
             dpi=300, bbox_inches="tight")
-plt.close()
-
+plt.show()
 # changes test
 

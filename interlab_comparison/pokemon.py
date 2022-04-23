@@ -1,10 +1,9 @@
 import pandas as pd
 import re
 # import the data from the excel sheet...
-df = pd.read_csv(r'C:\Users\lewis\Google Drive\Work'
-                   r'\GNS Radiocarbon Scientist\The Science'
-                   r'\Stats and Data Analysis\MATLAB Methods'
-                   r'\pokemon_data.csv')
+df = pd.read_csv(r'G:\My Drive\Work\GNS Radiocarbon Scientist\The Science\Datasets'
+                           r'\pokemon_data.csv')
+print(df.columns)
 # print(df)
 # print(df.head(3)) # print top 3 rows
 # print(df['Name']) # prints a list of that column
@@ -12,15 +11,15 @@ df = pd.read_csv(r'C:\Users\lewis\Google Drive\Work'
 # print(df.iloc[2,1])
 # for index, row in df.iterrows():
 #     print(index, row['Name'])
-Fire = df.loc[df['Type 1'] == "Fire" ]
+Fire = df.loc[df['Type 1'] == "Fire"]
 print(Fire)
 # df.sort_values(['Type 1', 'HP'], ascending=[1,0]) Sort values
 # print(df)
 # https://www.youtube.com/watch?v=vmEHCJofslg&t=399s&ab_channel=KeithGalli
 # Add a new column based on doing some math with the other values....
 
-# df['Total'] = df['HP'] + df['Attack'] + df['Defense'] + df['Sp. Atk'] + df['Sp. Def'] + df['Speed']
-
+df['Total'] = df['HP'] + df['Attack'] + df['Defense'] + df['Sp. Atk'] + df['Sp. Def'] + df['Speed']
+print(df)
 # df.head(5)
 # df = df.drop(columns=['Total'])
 # print(df)

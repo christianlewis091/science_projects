@@ -161,6 +161,13 @@ harm_xs = harmonized['Decimal_date'] # see dataset_harmonization.py
 harm_ys = harmonized['D14C']  # see dataset_harmonization.py
 sample_xs = (df['DecimalDate'])
 sample_ys = (df['∆14C'])
+# to appease the code, I have to adjust the format of the sample x's.
+# the original monte carlo code had to extract a column ['x'] from a dataframe
+# and its bugging because it doesn't see that here. So I'll just create one versus
+# changing the function and risking ruining the other code.
+fake_x = {'x': sample_xs}
+fake_x = pd.DataFrame(data=fake_x)
+
 cutoff = 667
 n = 10
 # input is: 1) x data, 2) y data that you want smoothed, then, 3) x-values at which you want y's output
@@ -168,7 +175,7 @@ harmonized_trend = ccgFilter(harmonized['Decimal_date'], harmonized['D14C'], cut
 # to input below(x_init, fake_x, y_init, y_error, cutoff, n):
 # x_init and y_init come from the harmonized dataset, while the "fake_x" is where
 # I select what x-output values are, and this is my sample x's!!!!
-errors = monte_carlo_randomization_Trend(harm_xs, sample_xs, sample_ys, harmonized['weightedstderr_D14C'], cutoff, n)
+errors = monte_carlo_randomization_Trend(harm_xs, fake_x, sample_ys, harmonized['weightedstderr_D14C'], cutoff, n)
 
 # What does this function return?
 # summary = pd.DataFrame({"Means": mean_array,

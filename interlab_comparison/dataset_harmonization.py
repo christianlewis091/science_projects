@@ -61,7 +61,10 @@ heidelberg = pd.read_excel(r'G:\My Drive\Work\GNS Radiocarbon Scientist\The Scie
 # Baring Head data excel file
 baringhead = pd.read_excel(r'G:\My Drive\Work\GNS Radiocarbon Scientist\The Science\Datasets'
                            r'\BHD_14CO2_datasets_20211013.xlsx')
-
+# remove some of the columns that I dont want/need, to simplify the later merge
+heidelberg['key'] = np.ones(len(heidelberg))
+baringhead['key'] = np.zeros(len(baringhead))
+# print(baringhead.columns)
 # tidy up the data
 # add decimal dates to DataFrame if not there already
 x_init_heid = heidelberg['Average pf Start-date and enddate']  # x-values from heidelberg dataset
@@ -82,6 +85,17 @@ snip = pd.merge(snip, snip3, how='outer')
 baringhead = snip.reset_index(drop=True)
 # plt.scatter(baringhead['DEC_DECAY_CORR'], baringhead['DELTA14C'])
 # plt.show()
+# print(heidelberg.columns)
+heidelberg = heidelberg.drop(columns=['#location', 'sampler_id', 'samplingheight', 'startdate', 'enddate',
+                                      'Average pf Start-date and enddate', 'date_d_mm_yr', 'date_as_number',
+                                      'samplingpattern',
+                                      'wheightedanalyticalstdev_D14C', 'nbanalysis_D14C', 'd13C', 'flag_D14C',
+                                      ], axis=1)
+
+baringhead = baringhead.drop(columns=['SITE', 'NZPREFIX', 'NZ', 'DATE_ST', 'DATE_END', 'DAYS_EXP',
+                                      'DATE_COLL', 'date_as_number', 'DELTA13C_IRMS',
+                                      'F14C', 'F14C_ERR', 'FLAG', 'METH_VESSEL',
+                                      'METH_COLL'])
 
 """ STEP 2: INDEX THE DATA ACCORDING TO TIMES LISTED ABOVE"""
 # Baring head data does not need indexing because we will not apply corrections to it
@@ -117,34 +131,67 @@ error4 = 0.07
 error5 = 0
 error6 = 0.06
 
-h1['D14C_corrected'] = h1['D14C'] + offset1
-h2['D14C_corrected'] = h2['D14C'] + offset2
-h3['D14C_corrected'] = h3['D14C'] + offset3
-h4['D14C_corrected'] = h4['D14C'] + offset4
-h5['D14C_corrected'] = h5['D14C'] + offset5
-h6['D14C_corrected'] = h6['D14C'] + offset6
+h1['D14C'] = h1['D14C'] + offset1
+h2['D14C'] = h2['D14C'] + offset2
+h3['D14C'] = h3['D14C'] + offset3
+h4['D14C'] = h4['D14C'] + offset4
+h5['D14C'] = h5['D14C'] + offset5
+h6['D14C'] = h6['D14C'] + offset6
 h1['D14C_corr_err'] = np.sqrt(h1['weightedstderr_D14C']**2 + error1**2)
 h2['D14C_corr_err'] = np.sqrt(h2['weightedstderr_D14C']**2 + error2**2)
 h3['D14C_corr_err'] = np.sqrt(h3['weightedstderr_D14C']**2 + error3**2)
 h4['D14C_corr_err'] = np.sqrt(h4['weightedstderr_D14C']**2 + error4**2)
 h5['D14C_corr_err'] = np.sqrt(h5['weightedstderr_D14C']**2 + error5**2)
 h6['D14C_corr_err'] = np.sqrt(h6['weightedstderr_D14C']**2 + error6**2)
-# print(heidelberg.columns)
-
 
 """ STEP 4: MERGE ALL THE DATA! """
 
 # TODO: need to change all the column names to be the same!
-# You can't merge Baring Head and Heidelberg together that easy
-# because all the column names are different!
+# for simplicity (and beacuse I'm indexing the Heidelberg dataset much
+# more than the Baring Head dataset right now, I'm going to change the
+# baringhead column names to match those of the Heidelberg dataset
+# print(baringhead.columns)
+# print(h1.columns)
+# df2_dates = df2_dates.rename(columns={"NZ/NZA": "NZ"})
+baringhead = baringhead.rename(columns={"DEC_DECAY_CORR": "Decimal_date"})
+baringhead = baringhead.rename(columns={"DELTA14C": "D14C"})
+baringhead = baringhead.rename(columns={"DELTA14C_ERR": "weightedstderr_D14C"})
 
-# df1.merge(df2, left_on='lkey', right_on='rkey')
-#
-#
-#
-# harmonized = pd.merge(baringhead, h1)
-# # harmonized = pd.merge(harmonized, h2, how='outer')
-# # harmonized = pd.merge(harmonized, h3, how='outer')
-# # harmonized = pd.merge(harmonized, h4, how='outer')
-# # harmonized = pd.merge(harmonized, h5, how='outer')
-# # harmonized = pd.merge(harmonized, h6, how='outer')
+harmonized = pd.merge(baringhead, h1, how='outer')
+harmonized = pd.merge(harmonized, h2, how='outer')
+harmonized = pd.merge(harmonized, h3, how='outer')
+harmonized = pd.merge(harmonized, h4, how='outer')
+harmonized = pd.merge(harmonized, h5, how='outer')
+harmonized = pd.merge(harmonized, h6, how='outer')
+
+harmonized.sort_values(by=['Decimal_date'], inplace=True)
+harmonized.to_excel('harmonized_dataset.xlsx')
+harm1 = harmonized.loc[(harmonized['key'] == 0)]
+harm2 = harmonized.loc[(harmonized['key'] == 1)]
+x_bars = harm1['Decimal_date']
+y_bars = harm1['D14C']
+x_heids = harm2['Decimal_date']
+y_heids = harm2['D14C']
+
+colors = sns.color_palette("rocket", 6)
+colors2 = sns.color_palette("mako", 6)
+mpl.rcParams['pdf.fonttype'] = 42
+mpl.rcParams['font.size'] = 10
+size1 = 5
+"""
+Figure 1. All the data together
+"""
+fig = plt.figure(1)
+plt.scatter(x_bars, y_bars, marker='o', label='Data from Baring Head (RRL)', color=colors[3], s=size1, alpha = 0.5)
+plt.scatter(x_heids, y_heids, marker='o', label='Data from CGO (Heidelberg)', color=colors2[3], s=size1, alpha = 0.5)
+plt.legend()
+# plt.title('All available data after 1980')
+# plt.xlim([1980, 2020])
+# plt.ylim([0, 300])
+plt.xlabel('Date', fontsize=14)
+plt.ylabel('\u0394$^1$$^4$CO$_2$ (\u2030)', fontsize=14)  # label the y axis
+plt.savefig('C:/Users/lewis/venv/python310/python-masterclass-remaster-shared/'
+            'radiocarbon_intercomparison2/interlab_comparison/plots/Harmonized_dataset.png',
+            dpi=300, bbox_inches="tight")
+plt.show()
+

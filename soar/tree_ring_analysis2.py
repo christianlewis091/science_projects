@@ -136,3 +136,11 @@ plt.savefig('C:/Users/lewis/venv/python310/python-masterclass-remaster-shared/'
 plt.show()
 # changes test
 
+"""
+To actually USE the harmonized dataset, we need x-values that directly 
+correspond to the data that we're trying to compare. Therefore, I'm going to 
+smooth the harmonized dataset using CCGCRV getTrendValue, and ensure that 
+the tree ring x-values are in the output. 
+"""
+xs = np.linspace(min())
+L = np.linspace(0, 1, 365)

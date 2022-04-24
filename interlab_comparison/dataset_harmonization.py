@@ -137,12 +137,12 @@ h3['D14C'] = h3['D14C'] + offset3
 h4['D14C'] = h4['D14C'] + offset4
 h5['D14C'] = h5['D14C'] + offset5
 h6['D14C'] = h6['D14C'] + offset6
-h1['D14C_corr_err'] = np.sqrt(h1['weightedstderr_D14C']**2 + error1**2)
-h2['D14C_corr_err'] = np.sqrt(h2['weightedstderr_D14C']**2 + error2**2)
-h3['D14C_corr_err'] = np.sqrt(h3['weightedstderr_D14C']**2 + error3**2)
-h4['D14C_corr_err'] = np.sqrt(h4['weightedstderr_D14C']**2 + error4**2)
-h5['D14C_corr_err'] = np.sqrt(h5['weightedstderr_D14C']**2 + error5**2)
-h6['D14C_corr_err'] = np.sqrt(h6['weightedstderr_D14C']**2 + error6**2)
+h1['weightedstderr_D14C'] = np.sqrt(h1['weightedstderr_D14C']**2 + error1**2) # propogate the error and REPLACE original
+h2['weightedstderr_D14C'] = np.sqrt(h2['weightedstderr_D14C']**2 + error2**2)
+h3['weightedstderr_D14C'] = np.sqrt(h3['weightedstderr_D14C']**2 + error3**2)
+h4['weightedstderr_D14C'] = np.sqrt(h4['weightedstderr_D14C']**2 + error4**2)
+h5['weightedstderr_D14C'] = np.sqrt(h5['weightedstderr_D14C']**2 + error5**2)
+h6['weightedstderr_D14C'] = np.sqrt(h6['weightedstderr_D14C']**2 + error6**2)
 
 """ STEP 4: MERGE ALL THE DATA! """
 
@@ -172,6 +172,7 @@ x_bars = harm1['Decimal_date']
 y_bars = harm1['D14C']
 x_heids = harm2['Decimal_date']
 y_heids = harm2['D14C']
+
 
 colors = sns.color_palette("rocket", 6)
 colors2 = sns.color_palette("mako", 6)

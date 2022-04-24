@@ -1043,7 +1043,7 @@ baringhead_plus_extract = baringhead.dropna(subset='Extraction of CO2 from Air D
 
 """
 There is more data in the "extraction date" column than the other column after this merge because
-There is excess data without NZ numbers in the orginal file.
+There is excess data without NZ numbers in the original file.
 Right now I'm only taking data that has a unique NZ number.
 """
 

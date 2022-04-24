@@ -5,7 +5,7 @@ import pandas as pd
 import seaborn as sns
 from dataset_harmonization import harmonized
 from miller_curve_algorithm import ccgFilter
-
+from heidelberg_intercomparison import monte_carlo_randomization_Trend
 """
 #######################################################################
 #######################################################################
@@ -157,27 +157,76 @@ is put my sample's x-values in the final section of the method-call
 ###############################################################################
 ###############################################################################
 """
+harm_xs = harmonized['Decimal_date'] # see dataset_harmonization.py
+harm_ys = harmonized['D14C']  # see dataset_harmonization.py
 sample_xs = (df['DecimalDate'])
 sample_ys = (df['∆14C'])
 cutoff = 667
+n = 10
 # input is: 1) x data, 2) y data that you want smoothed, then, 3) x-values at which you want y's output
-harmonized_trend = ccgFilter(harmonized['Decimal_date'], harmonized['D14C'], cutoff).getTrendValue(sample_xs)  # inital values for stacking
+harmonized_trend = ccgFilter(harmonized['Decimal_date'], harmonized['D14C'], cutoff).getTrendValue(sample_xs)
+# to input below(x_init, fake_x, y_init, y_error, cutoff, n):
+# x_init and y_init come from the harmonized dataset, while the "fake_x" is where
+# I select what x-output values are, and this is my sample x's!!!!
+errors = monte_carlo_randomization_Trend(harm_xs, sample_xs, sample_ys, harmonized['weightedstderr_D14C'], cutoff, n)
+
+# What does this function return?
+# summary = pd.DataFrame({"Means": mean_array,
+#                         "stdevs": stdev_array,
+#                         "error_upperbound": upper_array,
+#                         "error_lowerbound": lower_array,
+#                         "my_xs": fake_x_for_dataframe})
+#
+# return randomized_dataframe, smoothed_dataframe, summary
+final_errors = errors[1]  # extract the real data I want out of the summary array.
+print(final_errors)
 """
 We can quickly see differences in a rough way by taking the offset between the output directly above, 
 and the y-values from our samples...
 """
 offsets = sample_ys - harmonized_trend
+"""
+But none of this means anything without some quality error propagation...
+Actually, I need to do a Monte Carlo analysis on this new CCGCRV in order to get
+error bars that I can use to propogate...
+"""
 
-fig = plt.figure(2)
-plt.scatter(sample_xs, offsets, label='Tree Rings Data offset from Harmonized Background', color='black', alpha = 0.15)
-plt.legend()
-plt.xlabel('Year of Growth', fontsize=14)
-plt.ylabel('\u0394$^1$$^4$CO$_2$ (\u2030)', fontsize=14)  # label the y axis
-plt.ylim([-50, 50])
-plt.savefig('C:/Users/lewis/venv/python310/python-masterclass-remaster-shared/'
-            'radiocarbon_intercomparison2/interlab_comparison/plots/tree_ring_offsets2.png',
-            dpi=300, bbox_inches="tight")
-plt.close()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# fig = plt.figure(2)
+# plt.scatter(sample_xs, offsets, label='Tree Rings Data offset from Harmonized Background', color='black', alpha = 0.15)
+# plt.legend()
+# plt.xlabel('Year of Growth', fontsize=14)
+# plt.ylabel('\u0394$^1$$^4$CO$_2$ (\u2030)', fontsize=14)  # label the y axis
+# plt.ylim([-50, 50])
+# plt.savefig('C:/Users/lewis/venv/python310/python-masterclass-remaster-shared/'
+#             'radiocarbon_intercomparison2/interlab_comparison/plots/tree_ring_offsets2.png',
+#             dpi=300, bbox_inches="tight")
+# plt.close()
 
 
 

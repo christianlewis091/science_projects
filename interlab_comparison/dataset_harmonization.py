@@ -193,5 +193,5 @@ plt.ylabel('\u0394$^1$$^4$CO$_2$ (\u2030)', fontsize=14)  # label the y axis
 plt.savefig('C:/Users/lewis/venv/python310/python-masterclass-remaster-shared/'
             'radiocarbon_intercomparison2/interlab_comparison/plots/Harmonized_dataset.png',
             dpi=300, bbox_inches="tight")
-plt.show()
+plt.close()
 

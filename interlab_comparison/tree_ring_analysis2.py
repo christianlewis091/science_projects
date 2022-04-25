@@ -149,9 +149,11 @@ plt.close()
 ###############################################################################
 ###############################################################################
 Compare Tree Rings with harmonized data: 
-to actually USE the harmonized dataset, we need x-values that directly 
-correspond to the data that we're trying to compare. Therefore, all I have to do 
-is put my sample's x-values in the final section of the method-call
+Use CCGCRV Trend to get Trend Values for Harmonized Dataset at the exact x-values 
+we need to compare with our samples. 
+THen, use Monte Carlo to get errors on those Harmonized Dataset values. 
+Then, we can calculate offsets and propogate errors. 
+
 ###############################################################################
 ###############################################################################
 ###############################################################################
@@ -169,13 +171,15 @@ fake_x = {'x': sample_xs}
 fake_x = pd.DataFrame(data=fake_x)
 
 cutoff = 667
-n = 10
+n = 2
 # input is: 1) x data, 2) y data that you want smoothed, then, 3) x-values at which you want y's output
 harmonized_trend = ccgFilter(harmonized['Decimal_date'], harmonized['D14C'], cutoff).getTrendValue(sample_xs)
 # to input below(x_init, fake_x, y_init, y_error, cutoff, n):
 # x_init and y_init come from the harmonized dataset, while the "fake_x" is where
 # I select what x-output values are, and this is my sample x's!!!!
-errors = monte_carlo_randomization_Trend(harm_xs, fake_x, sample_ys, harmonized['weightedstderr_D14C'], cutoff, n)
+# print(np.shape(harmonized['weightedstderr_D14C']))
+# print(harmonized['weightedstderr_D14C'])
+errors = monte_carlo_randomization_Trend(harm_xs, fake_x, harm_ys, harmonized['weightedstderr_D14C'], cutoff, n)
 
 # What does this function return?
 # summary = pd.DataFrame({"Means": mean_array,
@@ -185,8 +189,9 @@ errors = monte_carlo_randomization_Trend(harm_xs, fake_x, sample_ys, harmonized[
 #                         "my_xs": fake_x_for_dataframe})
 #
 # return randomized_dataframe, smoothed_dataframe, summary
-final_errors = errors[1]  # extract the real data I want out of the summary array.
-print(final_errors)
+harmonized_dataset_errors = errors[2] # extract the summary dataframe
+harmonized_dataset_errors = harmonized_dataset_errors['stdevs']
+# print(harmonized_dataset_errors)
 """
 We can quickly see differences in a rough way by taking the offset between the output directly above, 
 and the y-values from our samples...
@@ -197,46 +202,28 @@ But none of this means anything without some quality error propagation...
 Actually, I need to do a Monte Carlo analysis on this new CCGCRV in order to get
 error bars that I can use to propogate...
 """
+print(df['∆14Cerr'])
+print(offsets)
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+offset_error_prop = np.sqrt(df['∆14Cerr']**2) + (offsets**2) # error prop between the tree ring 14C error, and background error from MOnte Carlo
+print(offset_error_prop)
+# TODO There are some problems with the dataset, including really low offset values, and some extremely high errors (>1000, see index 2)
+# TODO See how error prop produces extremely large errors across the board, see my plot files
+#
 # fig = plt.figure(2)
-# plt.scatter(sample_xs, offsets, label='Tree Rings Data offset from Harmonized Background', color='black', alpha = 0.15)
+# plt.errorbar(sample_xs, offsets, label='Tree Rings offset from background' , yerr=offset_error_prop, fmt='o', color='black', ecolor='black', elinewidth=1, capsize=2, alpha = 0.15)
+# # plt.scatter(sample_xs, offsets, label='Tree Rings Data offset from Harmonized Background', color='black', alpha = 0.15)
 # plt.legend()
 # plt.xlabel('Year of Growth', fontsize=14)
 # plt.ylabel('\u0394$^1$$^4$CO$_2$ (\u2030)', fontsize=14)  # label the y axis
 # plt.ylim([-50, 50])
 # plt.savefig('C:/Users/lewis/venv/python310/python-masterclass-remaster-shared/'
-#             'radiocarbon_intercomparison2/interlab_comparison/plots/tree_ring_offsets2.png',
+#             'radiocarbon_intercomparison2/interlab_comparison/plots/tree_ring_offsets3.png',
 #             dpi=300, bbox_inches="tight")
 # plt.close()
-
-
-
+# # #
+#
+#
 
 
 

@@ -647,7 +647,7 @@ getSmoothValues and getTrendValues
 # function return:  new_array, template_array, mean_array, stdev_array, upper_array, lower_array, fake_x
 now = datetime.now()
 current_time = now.strftime("%H:%M:%S")
-print("Current Time is :", current_time)
+# print("Current Time is :", current_time)
 
 n = 10          # set the amount of times the code will iterate (set to 10,000 once everything is final)
 cutoff = 667
@@ -1285,9 +1285,9 @@ gs.update(wspace=1, hspace=0.1)
 # Generate first panel
 # remember, the grid spec is rows, then columns
 
-print(type(my_x_1986_1991))
-print(type(np.array(my_x_1986_1991)))
-print(type(bhd_1986_1991_mean_smooth))
+# print(type(my_x_1986_1991))
+# print(type(np.array(my_x_1986_1991)))
+# print(type(bhd_1986_1991_mean_smooth))
 
 xtr_subsplot = fig.add_subplot(gs[0:1, 0:2])
 # plot data for left panel
@@ -1348,9 +1348,9 @@ gs.update(wspace=1, hspace=0.1)
 # Generate first panel
 # remember, the grid spec is rows, then columns
 
-print(type(my_x_1986_1991))
-print(type(np.array(my_x_1986_1991)))
-print(type(bhd_1986_1991_mean_smooth))
+# print(type(my_x_1986_1991))
+# print(type(np.array(my_x_1986_1991)))
+# print(type(bhd_1986_1991_mean_smooth))
 
 xtr_subsplot = fig.add_subplot(gs[0:1, 0:2])
 # plot data for left panel

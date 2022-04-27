@@ -164,6 +164,18 @@ harmonized = pd.merge(harmonized, h4, how='outer')
 harmonized = pd.merge(harmonized, h5, how='outer')
 harmonized = pd.merge(harmonized, h6, how='outer')
 
+""" 
+A few of the data have errors of -1000 and this is throwing everything off
+in later calculations...
+I need to get rid of these...
+"""
+
+harmonized = harmonized.loc[(harmonized['weightedstderr_D14C'] > 0)]
+harmonized = harmonized.drop(columns=['index'], axis=1)
+print(np.shape(harmonized))
+harmonized = harmonized.dropna()
+print(np.shape(harmonized))
+
 harmonized.sort_values(by=['Decimal_date'], inplace=True)
 harmonized.to_excel('harmonized_dataset.xlsx')
 harm1 = harmonized.loc[(harmonized['key'] == 0)]

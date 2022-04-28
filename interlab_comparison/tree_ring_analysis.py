@@ -20,6 +20,11 @@ And there are a lot of missing data.
 In this iteration, I'm going to do all the math FIRST, and then index the data
 after. 
 """
+"""Omitted lines re-create the SOAR excel file without missing 14C values (there were a lot)"""
+# df = pd.read_excel(r'G:\My Drive\Work\GNS Radiocarbon Scientist\The Science\Datasets'
+#                    r'\SOARTreeRingData2022-02-01.xlsx')
+# df = df.dropna(subset = '∆14C').reset_index()
+# df.to_excel('adjusted_SOAR.xlsx')
 
 df = pd.read_excel(r'C:\Users\lewis\venv\python310'
                    r'\python-masterclass-remaster-shared'

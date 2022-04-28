@@ -28,14 +28,18 @@ Import and tidy the data
 # importing baring head record for background visual reference
 baringhead = pd.read_excel(r'G:\My Drive\Work\GNS Radiocarbon Scientist\The Science\Datasets'
                            r'\BHD_14CO2_datasets_20211013.xlsx')
-df = pd.read_excel(r'C:\Users\lewis\venv\python310\python-masterclass-remaster-shared\radiocarbon_intercomparison2\interlab_comparison\adjusted_SOAR.xlsx')
-# harmonized = harmonized.dropna()
+df = pd.read_excel(r'C:\Users\lewis\venv\python310'
+                   r'\python-masterclass-remaster-shared'
+                   r'\radiocarbon_intercomparison2\interlab_comparison'
+                   r'\adjusted_SOAR.xlsx')
+
+
 df.sort_values(by=['DecimalDate'], inplace=True)
+
 # The following line of code removes items before 1954 beacuse, for an unknown reason,
 # the CCGCRV (ccgFilter Trend) ouput in a few lines returned NaN for those years, and it threw
 # off the rest of the code/ plotting. Need to figure this outn in the future but need to move on at the moment.
-df = df.loc[(df['DecimalDate'] > 1955)]
-
+# df = df.loc[(df['DecimalDate'] > 1955)]
 
 
 df['Lon'] = df['Lon'].fillna(-999)  # fill all missing values with -999
@@ -93,67 +97,68 @@ sample_y_err = (df['∆14Cerr'])
 # and its bugging because it doesn't see that here. So I'll just create one versus
 # changing the function and risking ruining the other code.
 sample_xs2 = pd.DataFrame({'x': sample_xs})
-
-
-
 cutoff = 667
 n = 10  # TODO change back to 10,000
 # input is: 1) x data, 2) y data that you want smoothed, then, 3) x-values at which you want y's output
 harmonized_trend = ccgFilter(harm_xs, harm_ys, cutoff).getTrendValue(sample_xs2)
 # TODO This line of code above causes some NaN's in the output, and I really don't know why.
+
+
+
 # testingNans = pd.DataFrame({'sample_xs': sample_xs,
 #                            'harmonized_trend': harmonized_trend})
 # testingNans.to_excel('testingNaNs.xlsx')
-# print(harmonized_trend)
-# NANs appear between 1948 and 1954, for unknown reasons.
-
-smooth_trend = ccgFilter(harm_xs, harm_ys, cutoff).getSmoothValue(sample_xs2)
-
-""" EXECUTE STEP 2 """
-# def monte_carlo_randomization_Smooth(x_init, fake_x, y_init, y_error, cutoff, n):
-# errors = monte_carlo_randomization_Trend(harm_xs, sample_xs2, harm_ys, sample_y_err, cutoff, n)
-errors = monte_carlo_randomization_Trend(harm_xs, sample_xs2, harm_ys, harm_y_errs, cutoff, n)
-errors_fin = errors[2]  # extract the summary dataframe
-errors_fin = errors_fin['stdevs']
-
-errors2 = monte_carlo_randomization_Smooth(harm_xs, sample_xs2, harm_ys, harm_y_errs, cutoff, n)
-errors_fin2 = errors2[2]  # extract the summary dataframe
-errors_fin2 = errors_fin2['stdevs']
-
-
-""" EXECUTING STEP 3: Append a few final items to DataFrame that already includes all the data. """
-
-df['CCGCRV_Trend_D14C'] = harmonized_trend
-df['CCGCRV_Trend_D14C_errors'] = errors_fin
-df['CCGCRV_Smooth_D14C'] = smooth_trend
-df['CCGCRV_Smooth_D14C_errors'] = errors_fin2
-df.sort_values(by=['DecimalDate'], inplace=True)
-df.to_excel('Tree_Ring_Analysis_Part1.xlsx')
-
-""" 
-It may seem strange at first that the data is so evenly spaced in time  but remember these are TREE RINGS, and each one 
-corresponds to 1 year. Hence the even spacing in plot below (have to remind myself). 
-
-Why the large errors in 1984- 1986? 
-"""
+# # print(harmonized_trend)
+# # NANs appear between 1948 and 1954, for unknown reasons.
+#
+# smooth_trend = ccgFilter(harm_xs, harm_ys, cutoff).getSmoothValue(sample_xs2)
+#
+# """ EXECUTE STEP 2 """
+# # def monte_carlo_randomization_Smooth(x_init, fake_x, y_init, y_error, cutoff, n):
+# # errors = monte_carlo_randomization_Trend(harm_xs, sample_xs2, harm_ys, sample_y_err, cutoff, n)
+# errors = monte_carlo_randomization_Trend(harm_xs, sample_xs2, harm_ys, harm_y_errs, cutoff, n)
+# errors_fin = errors[2]  # extract the summary dataframe
+# errors_fin = errors_fin['stdevs']
+#
+# errors2 = monte_carlo_randomization_Smooth(harm_xs, sample_xs2, harm_ys, harm_y_errs, cutoff, n)
+# errors_fin2 = errors2[2]  # extract the summary dataframe
+# errors_fin2 = errors_fin2['stdevs']
+#
+#
+# """ EXECUTING STEP 3: Append a few final items to DataFrame that already includes all the data. """
+#
+# df['CCGCRV_Trend_D14C'] = harmonized_trend
+# df['CCGCRV_Trend_D14C_errors'] = errors_fin
+# df['CCGCRV_Smooth_D14C'] = smooth_trend
+# df['CCGCRV_Smooth_D14C_errors'] = errors_fin2
+# df.sort_values(by=['DecimalDate'], inplace=True)
+# df.to_excel('Tree_Ring_Analysis_Part1.xlsx')
+#
+# """
+# It may seem strange at first that the data is so evenly spaced in time  but remember these are TREE RINGS, and each one
+# corresponds to 1 year. Hence the even spacing in plot below (have to remind myself).
+#
+# Why the large errors in 1984- 1986?
+# """
 print(np.amax(sample_xs, axis=0))
-print(np.amax(harmonized_trend, axis=0))
-print(np.amax(sample_ys, axis=0))
+print(np.amax(sample_xs2, axis=0))
+# print(np.amax(harmonized_trend, axis=0))
+# print(np.amax(sample_ys, axis=0))
 # Harmonized Trend has an NaN value.
 # # TODO Why do I get an error when running this plot?
-plt.errorbar(sample_xs, harmonized_trend, label='Error of Harmonized Data, including Tree Ring x-values' , yerr=errors_fin, fmt='o', color='black', ecolor='black', elinewidth=1, capsize=2, alpha = 0.15)
-plt.errorbar(sample_xs, sample_ys, label = 'Tree Ring Samples and Errors', yerr = sample_y_err, fmt='x', color='black', ecolor='black', elinewidth=1, capsize=2, alpha = 0.15)
-plt.scatter(sample_xs, harmonized_trend)
-plt.legend()
-plt.xlabel('Year of Growth', fontsize=14)
-plt.ylabel('\u0394$^1$$^4$CO$_2$ (\u2030)', fontsize=14)  # label the y axis
-# plt.xlim([1983, 1995])
-# plt.ylim([70, 270])
-# plt.savefig('C:/Users/lewis/venv/python310/python-masterclass-remaster-shared/'
-#             'radiocarbon_intercomparison2/interlab_comparison/plots/harmonized_background_werrors_wTreeRings_x_vals.png',
-#             dpi=300, bbox_inches="tight")
-plt.show()
-plt.close()
+# plt.errorbar(sample_xs, harmonized_trend, label='Error of Harmonized Data, including Tree Ring x-values' , yerr=errors_fin, fmt='o', color='black', ecolor='black', elinewidth=1, capsize=2, alpha = 0.15)
+# plt.errorbar(sample_xs, sample_ys, label = 'Tree Ring Samples and Errors', yerr = sample_y_err, fmt='x', color='black', ecolor='black', elinewidth=1, capsize=2, alpha = 0.15)
+# plt.scatter(sample_xs, harmonized_trend)
+# plt.legend()
+# plt.xlabel('Year of Growth', fontsize=14)
+# plt.ylabel('\u0394$^1$$^4$CO$_2$ (\u2030)', fontsize=14)  # label the y axis
+# # plt.xlim([1983, 1995])
+# # plt.ylim([70, 270])
+# # plt.savefig('C:/Users/lewis/venv/python310/python-masterclass-remaster-shared/'
+# #             'radiocarbon_intercomparison2/interlab_comparison/plots/harmonized_background_werrors_wTreeRings_x_vals.png',
+# #             dpi=300, bbox_inches="tight")
+# plt.show()
+# plt.close()
 
 
 

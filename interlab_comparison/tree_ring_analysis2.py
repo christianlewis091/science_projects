@@ -34,6 +34,33 @@ df = pd.read_excel(r'C:\Users\lewis\venv\python310'
                    r'\adjusted_SOAR.xlsx')
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 df.sort_values(by=['DecimalDate'], inplace=True)
 
 # The following line of code removes items before 1954 beacuse, for an unknown reason,
@@ -101,6 +128,7 @@ cutoff = 667
 n = 10  # TODO change back to 10,000
 # input is: 1) x data, 2) y data that you want smoothed, then, 3) x-values at which you want y's output
 harmonized_trend = ccgFilter(harm_xs, harm_ys, cutoff).getTrendValue(sample_xs2)
+print(harmonized_trend)
 # TODO This line of code above causes some NaN's in the output, and I really don't know why.
 
 

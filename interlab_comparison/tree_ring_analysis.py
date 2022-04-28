@@ -82,7 +82,11 @@ print(df)
 
 # plt.scatter(sample_xs, df['offset'])
 plt.errorbar(sample_xs, df['offset'], label='Tree Rings offset from background', yerr=df['offset_err_prop'], fmt='o', color='black', ecolor='black', elinewidth=1, capsize=2, alpha = 0.15)
-plt.show()
+plt.savefig('C:/Users/lewis/venv/python310/python-masterclass-remaster-shared/'
+            'radiocarbon_intercomparison2/interlab_comparison/plots/Tree_ring_offsets.png',
+            dpi=300, bbox_inches="tight")
+
+# TODO DEAL WITH BAD RING COUNTS! Still a lot to do here...
 
 
 """ Later, when I need to adjust the Chilean values to negative lon, here is the code"""

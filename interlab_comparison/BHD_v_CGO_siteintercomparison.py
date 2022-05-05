@@ -1,3 +1,19 @@
+"""
+Purpose:
+
+The purpose of this code is to check if measurements from GNS made at Baring Head
+and at Cape Grim are statistically different.
+
+Outcome:
+
+They are NOT DIFFERENT.
+This result is also described in my file "Skeleton First Draft.docx" in my folder
+The Science/Papers/Heidelberg_Intercomparison, in which I have some of my original notes from OneNote that
+I made while working as a remote contractor.
+
+"""
+
+
 import pandas as pd
 import openpyxl
 import matplotlib.pyplot as plt

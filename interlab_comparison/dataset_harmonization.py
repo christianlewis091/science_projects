@@ -1,3 +1,32 @@
+"""
+Purpose:
+
+This file merges and corrects Heidelberg group's Cape Grim data to GNS Baring Head data.
+The corrections were calculated using heidelberg_intercomparison.py, although there is no explicit dependencies
+between that file and this file. I just write the number in a certain part of the code below.
+Currently, we are waiting to speak with collaborators before finalizing the corrections we will
+use in THIS file.
+However, the following code is ready to run once those final changes are made.
+
+Outcome:
+
+This file creates a new DataFrame that can be referenced in future analyses, such as the
+SOAR tree ring analyses.
+
+
+
+
+
+
+
+
+"""
+
+
+
+
+
+
 import numpy as np
 import random
 import matplotlib as mpl

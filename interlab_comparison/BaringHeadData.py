@@ -1,6 +1,13 @@
 """
+Purpose:
+
 This file curve fits the Baring Head Data that Jocelyn sent to me
-using Christian's curve fitting program
+using Christian's curve fitting program.
+This file is used to TEST my curve fitting program that I wrote as a remote contractor before arriving in New
+Zealand. As of today: 6/5/22, this code is largely obsolete because we will be using the Miller algorithm
+
+Outcome:
+NA
 
 """
 import openpyxl

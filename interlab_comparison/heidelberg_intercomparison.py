@@ -1,3 +1,34 @@
+"""
+Purpose:
+
+This code intercompares the Baring Head RRL CO2 record with the Heidelberg Groups's CGO measurements.
+This code first cleans up the data (beacuse we remove certain data from BHD record)
+Then it uses a CCGCRV Curve smoother and a Monte Carlo error analysis to determine
+Offsets between the two datasets in time.
+
+It also does a paired t-test of the datasets at different points in time.
+
+The file outputs a text file with the t-test results. However, it will keep adding to the file, so if you want a fresh
+one, delete the remaining text file from the directory.
+
+If you want to run it for real, change n = 10,000.
+
+Outcome:
+
+it works! We're just waiting to chat with Dr. Levin and Hammer to make judgements about final offsets.
+
+"""
+
+
+
+
+
+
+
+
+
+
+
 # from __future__ import print_function, division
 import numpy as np
 import random

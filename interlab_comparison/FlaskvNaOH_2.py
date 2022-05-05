@@ -1,3 +1,17 @@
+"""
+Purpose:
+
+While I was a remote contractor before arriving in New Zealand, one of my first tasks was to try and find
+an offset between Flask and NaOH measurements made by GNS at Baring Head. This code analyzes those data.
+
+Output:
+See the final lines. There is NO OBSERVED DIFFERENCE between flask and NaOH measurements made by GNS.
+This was one of the first code I wrote and could be massively updated but it is NOT a priority at the current moment.
+
+"""
+
+
+
 import pandas as pd
 import openpyxl
 import matplotlib.pyplot as plt

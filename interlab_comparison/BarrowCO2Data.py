@@ -1,8 +1,13 @@
 """
+Purpose:
 This data was imported from NOAA to test if I can recreate the smooth curve
 fits that Jocelyn and Thorning make and then try to recreate it on our data
 https://gml.noaa.gov/aftp/data/trace_gases/co2/in-situ/surface/brw/co2_brw_surface-insitu_1_ccgg_MonthlyData.txt
 https://gml.noaa.gov/ccgg/mbl/crvfit/
+
+Outcome:
+The Miller Smoothing algoritm works.
+Mine kind of works but we will not be using it, so it largely obsolete.
 """
 
 import pandas as pd

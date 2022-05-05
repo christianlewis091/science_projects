@@ -22,3 +22,5 @@ plt.ylabel('\u0394$^1$$^4$CO$_2$ (\u2030)', fontsize=14)  # label the y axis
 
 plt.show()
 plt.close()
+
+print('test')

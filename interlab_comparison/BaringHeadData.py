@@ -3,6 +3,7 @@ This file curve fits the Baring Head Data that Jocelyn sent to me
 using Christian's curve fitting program
 
 """
+import openpyxl
 from cbl_curve_fitting_algorithm import cbl_curve_fit
 from miller_curve_algorithm import ccgFilter
 from my_functions import year_month_todecimaldate
@@ -12,10 +13,9 @@ import seaborn as sns
 
 """ Import all of the data and extract / name variables """
 
-df = pd.read_excel(r'G:\My Drive\Work\GNS Radiocarbon Scientist'
-                   r'\The Science\Datasets\BHD_14CO2_datasets_20211013.xlsx',
+df = pd.read_excel(r'H:\The Science\Datasets\BHD_14CO2_datasets_20211013.xlsx',
                    sheet_name='bhd_final_screened_data2')
-
+#
 df = df[['DEC_DECAY_CORR','DELTA14C', 'METH_COLL']]  # print only the data I want to see # this duplicates line 15
 meth_coll = (df['METH_COLL'])  # pull out the method collection data
 date = (df['DEC_DECAY_CORR'])  # pull out the date data
@@ -74,7 +74,9 @@ plt.show()
 # plt.savefig(r'C:/Users/lewis/venv/python310/python-masterclass-remaster-shared/Radiocarbonintercomparison/plots/BaringHead_final_zoom_b.png', dpi=300, bbox_inches="tight")
 
 
+print('test')
 
+print('this is a commit test')
 
 
 

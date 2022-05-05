@@ -1,3 +1,20 @@
+"""
+Purpose:
+
+Use the harmonized Southern Hemisphere dataset to see if we can find shifts in SOAR tree rings
+to understand Southern ocean upwelling.
+
+Outcome:
+
+FILE STILL IN PROGRESS.
+
+
+
+"""
+
+
+
+
 import numpy as np
 import matplotlib as mpl
 import matplotlib.pyplot as plt

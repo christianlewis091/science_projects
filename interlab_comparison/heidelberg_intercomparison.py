@@ -421,8 +421,7 @@ def two_tail_paired_t_test(y1, y1err, y2, y2err):
     d_of_f = len(y1) + len(y2) - 2
     # find the degrees of freedom, and the closest number in the table to my degrees of freedom
     dfx = pd.read_excel(
-        r'G:\My Drive\Work\GNS Radiocarbon Scientist\The Science\Stats and Data Analysis\Matlab and Python '
-        r'Files\tables.xlsx',
+        r'H:\The Science\Datasets\tables.xlsx',
         sheet_name='ttable_adjusted')
     # print(dfx)
     # locate where the degrees of freedom is equal to my degrees of freedom:
@@ -475,15 +474,15 @@ Import and clean up data
 """
 
 # Heidelberg data excel file
-heidelberg = pd.read_excel(r'G:\My Drive\Work\GNS Radiocarbon Scientist\The Science\Datasets'
+heidelberg = pd.read_excel(r'H:\The Science\Datasets'
                            r'\heidelberg_cape_grim.xlsx', skiprows=40)
 # Baring Head data excel file
-baringhead = pd.read_excel(r'G:\My Drive\Work\GNS Radiocarbon Scientist\The Science\Datasets'
+baringhead = pd.read_excel(r'H:\The Science\Datasets'
                            r'\BHD_14CO2_datasets_20211013.xlsx')
 
-df2_dates = pd.read_excel(r'G:\My Drive\Work\GNS Radiocarbon Scientist\The Science\Datasets'
+df2_dates = pd.read_excel(r'H:\The Science\Datasets'
                           r'\BHD_MeasurementDates.xlsx')
-extraction_dates = pd.read_excel(r'G:\My Drive\Work\GNS Radiocarbon Scientist\The Science\Datasets'
+extraction_dates = pd.read_excel(r'H:\The Science\Datasets'
                                  r'\BHDFlasks_WithExtractionDates.xlsx')
 #
 """ TIDY UP THE DATA FILES"""
@@ -1206,8 +1205,7 @@ plt.xlim([1980, 2020])
 plt.ylim([0, 300])
 plt.xlabel('Date', fontsize=14)
 plt.ylabel('\u0394$^1$$^4$CO$_2$ (\u2030)', fontsize=14)  # label the y axis
-plt.savefig('C:/Users/lewis/venv/python310/python-masterclass-remaster-shared/'
-            'radiocarbon_intercomparison2/interlab_comparison/plots/FirstDraft_Fig1.png',
+plt.savefig('C:/Users/clewis/IdeaProjects/GNS/radiocarbon_intercomparison/interlab_comparison/plots/FirstDraft_figure1.png',
             dpi=300, bbox_inches="tight")
 plt.close()
 
@@ -1231,8 +1229,7 @@ plt.ylim([140, 170])
 plt.legend()
 plt.xlabel('Date', fontsize=14)
 plt.ylabel('\u0394$^1$$^4$CO$_2$ (\u2030)', fontsize=14)  # label the y axis
-plt.savefig('C:/Users/lewis/venv/python310/python-masterclass-remaster-shared/'
-            'radiocarbon_intercomparison2/interlab_comparison/plots/FirstDraft_Figure2.png',
+plt.savefig('C:/Users/clewis/IdeaProjects/GNS/radiocarbon_intercomparison/interlab_comparison/plots/FirstDraft_figure2.png',
             dpi=300, bbox_inches="tight")
 # plt.show()
 plt.close()
@@ -1273,8 +1270,7 @@ plt.xlabel('Date', fontsize=14)  # label the y axis
 plt.ylim([0, 200])
 plt.xlim([1986, 2020])
 plt.legend()
-plt.savefig('C:/Users/lewis/venv/python310/python-masterclass-remaster-shared/'
-            'radiocarbon_intercomparison2/interlab_comparison/plots/FirstDraft_Figuretest.png',
+plt.savefig('C:/Users/clewis/IdeaProjects/GNS/radiocarbon_intercomparison/interlab_comparison/plots/FirstDraft_Figuretest.png',
             dpi=300, bbox_inches="tight")
 # plt.show()
 plt.close()
@@ -1335,8 +1331,7 @@ plt.plot(np.array(my_x_2012_2016_trimmed), heidelberg_2012_2016_mean_smooth, col
 plt.xlim([min(np.array(my_x_2012_2016_trimmed)), max(np.array(my_x_2012_2016_trimmed))])
 plt.ylim([min(bhd_2012_2016_mean_smooth), max(bhd_2012_2016_mean_smooth)])
 plt.legend(loc=(1.04,0.5))
-plt.savefig('C:/Users/lewis/venv/python310/python-masterclass-remaster-shared/'
-            'radiocarbon_intercomparison2/interlab_comparison/plots/FirstDraft_Figure3a.png',
+plt.savefig('C:/Users/clewis/IdeaProjects/GNS/radiocarbon_intercomparison/interlab_comparison/plots/FirstDraft_figure3a.png',
             dpi=300, bbox_inches="tight")
 # plt.show()
 plt.close()
@@ -1398,8 +1393,7 @@ plt.plot(np.array(my_x_2012_2016_trimmed), bhd_2012_2016_mean_trend, color=color
 plt.plot(np.array(my_x_2012_2016_trimmed), heidelberg_2012_2016_mean_trend, color=colors2[3])
 plt.xlim([min(np.array(my_x_2012_2016_trimmed)), max(np.array(my_x_2012_2016_trimmed))])
 plt.ylim([min(bhd_2012_2016_mean_smooth), max(bhd_2012_2016_mean_smooth)])
-plt.savefig('C:/Users/lewis/venv/python310/python-masterclass-remaster-shared/'
-            'radiocarbon_intercomparison2/interlab_comparison/plots/FirstDraft_Figure3b.png',
+plt.savefig('C:/Users/clewis/IdeaProjects/GNS/radiocarbon_intercomparison/interlab_comparison/plots/FirstDraft_figure3b.png',
             dpi=300, bbox_inches="tight")
 # plt.show()
 plt.close()
@@ -1485,8 +1479,7 @@ plt.ylim([140, 170])
 plt.legend(loc=(1.04,0.5))
 xtr_subsplot.set_yticklabels([])
 
-plt.savefig('C:/Users/lewis/venv/python310/python-masterclass-remaster-shared/'
-            'radiocarbon_intercomparison2/interlab_comparison/plots/FirstDraft_S1.png',
+plt.savefig('C:/Users/clewis/IdeaProjects/GNS/radiocarbon_intercomparison/interlab_comparison/plots/FirstDraft_figureS1.png',
             dpi=300, bbox_inches="tight")
 # plt.show()
 plt.close()
@@ -1500,7 +1493,6 @@ plt.legend()
 plt.title('Does the time CO2 sits in flask between collection and extraction impact 14C value? ')
 plt.xlabel('Decimal interval (Extraction - Collection)', fontsize=14)
 plt.ylabel('\u0394\u0394$^1$$^4$CO$_2$ (\u2030)', fontsize=14)  # label the y axis
-plt.savefig('C:/Users/lewis/venv/python310/python-masterclass-remaster-shared/'
-            'radiocarbon_intercomparison2/interlab_comparison/plots/FirstDraft_S2.png',
+plt.savefig('C:/Users/clewis/IdeaProjects/GNS/radiocarbon_intercomparison/interlab_comparison/plots/FirstDraft_figureS2.png',
             dpi=300, bbox_inches="tight")
 plt.close()

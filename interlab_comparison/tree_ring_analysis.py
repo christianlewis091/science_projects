@@ -7,6 +7,7 @@ from dataset_harmonization import harmonized
 from miller_curve_algorithm import ccgFilter
 from heidelberg_intercomparison import monte_carlo_randomization_Trend
 from heidelberg_intercomparison import monte_carlo_randomization_Smooth
+
 """
 In the previous iteration of this file, I tried indexing and cleaning the 
 tree ring file BEFORE doing the math. 
@@ -21,15 +22,16 @@ In this iteration, I'm going to do all the math FIRST, and then index the data
 after. 
 """
 """Omitted lines re-create the SOAR excel file without missing 14C values (there were a lot)"""
-# df = pd.read_excel(r'G:\My Drive\Work\GNS Radiocarbon Scientist\The Science\Datasets'
-#                    r'\SOARTreeRingData2022-02-01.xlsx')
-# df = df.dropna(subset = '∆14C').reset_index()
-# df.to_excel('adjusted_SOAR.xlsx')
 
-df = pd.read_excel(r'C:\Users\lewis\venv\python310'
-                   r'\python-masterclass-remaster-shared'
-                   r'\radiocarbon_intercomparison2\interlab_comparison'
-                   r'\adjusted_SOAR.xlsx')
+df = pd.read_excel(r'H:\The Science\Datasets'
+                   r'\SOARTreeRingData2022-02-01.xlsx')
+df = df.dropna(subset = '∆14C').reset_index()
+# df.to_excel('adjusted_SOAR.xlsx')
+#
+# df = pd.read_excel(r'C:\Users\lewis\venv\python310'
+#                    r'\python-masterclass-remaster-shared'
+#                    r'\radiocarbon_intercomparison2\interlab_comparison'
+#                    r'\adjusted_SOAR.xlsx')
 
 harm_xs = harmonized['Decimal_date']  # see dataset_harmonization.py
 harm_ys = harmonized['D14C']  # see dataset_harmonization.py
@@ -82,8 +84,7 @@ print(df)
 
 # plt.scatter(sample_xs, df['offset'])
 plt.errorbar(sample_xs, df['offset'], label='Tree Rings offset from background', yerr=df['offset_err_prop'], fmt='o', color='black', ecolor='black', elinewidth=1, capsize=2, alpha = 0.15)
-plt.savefig('C:/Users/lewis/venv/python310/python-masterclass-remaster-shared/'
-            'radiocarbon_intercomparison2/interlab_comparison/plots/Tree_ring_offsets.png',
+plt.savefig('C:/Users/clewis/IdeaProjects/GNS/radiocarbon_intercomparison/interlab_comparison/plots/Tree_ring_offsets.png',
             dpi=300, bbox_inches="tight")
 
 # TODO DEAL WITH BAD RING COUNTS! Still a lot to do here...

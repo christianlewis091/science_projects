@@ -6,11 +6,9 @@ import numpy as np
 from numpy.fft import fft, ifft
 import seaborn as sns
 
-df1 = pd.read_excel(r'G:\My Drive\Work\GNS Radiocarbon Scientist'
-                    r'\The Science\Datasets\BHD_naoh_v_flask_methodintercomparison.xlsx')
+df1 = pd.read_excel(r'H:\The Science\Datasets\BHD_naoh_v_flask_methodintercomparison.xlsx')
                     # import the data with the flask and naoh data i'm interested in comparing
-df2 = pd.read_excel(r'G:\My Drive\Work\GNS Radiocarbon Scientist'
-                    r'\The Science\Datasets\BHD_winds.xlsx')
+df2 = pd.read_excel(r'H:\The Science\Datasets\BHD_winds.xlsx')
                     # import the data with the wind data I want to add
 
 df1 = df1.drop(columns=['Collection_Date_Rachel_Curran_xcel',

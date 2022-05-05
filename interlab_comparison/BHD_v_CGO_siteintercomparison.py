@@ -14,8 +14,7 @@ from my_functions import year_month_todecimaldate
 """ 
 INITIAL READ IN OF THE DATA
 """
-df = pd.read_excel(r'G:\My Drive\Work\GNS Radiocarbon Scientist'
-                   r'\The Science\Datasets\BHD_v_CGO_NaOH_siteintercomparison.xlsx')
+df = pd.read_excel(r'H:\The Science\Datasets\BHD_v_CGO_NaOH_siteintercomparison.xlsx')
 bhd_date = (df['bhd_naoh_date'])  # pull out the date data
 bhd_date2 = (df['date_as_number'])
 bhd_14c = (df['bhd_del14c'])

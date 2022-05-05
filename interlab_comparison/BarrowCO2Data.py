@@ -18,9 +18,7 @@ from my_functions import year_month_todecimaldate
 warnings.simplefilter('ignore', np.RankWarning)
 # Source:
 # IMPORT DATA INTO PYTHON
-df = pd.read_csv(r'C:\Users\lewis\Google Drive\Work'
-                 r'\GNS Radiocarbon Scientist\The Science'
-                 r'\Stats and Data Analysis\Matlab and Python Files'
+df = pd.read_csv(r'H:\The Science\Datasets'
                  r'\co2_brw_surface-insitu_1_ccgg_DailyData.csv')
 
 # print(df.columns)  # Shows the column names in imported data
@@ -45,9 +43,9 @@ plt.legend()
 # plt.ylim([0, 60])
 plt.xlabel('Date', fontsize=14)
 plt.ylabel('[CO2] ppm', fontsize=14)  # label the y axis
-plt.show()
-# plt.savefig(r'C:/Users/lewis/venv/python310/python-masterclass-remaster-shared/Radiocarbonintercomparison/plots/BarrowCO2_final.png', dpi=300, bbox_inches="tight")
 
+plt.savefig('C:/Users/clewis/IdeaProjects/GNS/radiocarbon_intercomparison/interlab_comparison/plots/BarrowCO2Data_py_result.png',
+            dpi=300, bbox_inches="tight")
 
 
 

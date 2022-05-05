@@ -56,10 +56,10 @@ EXECUTE THE ABOVE STEPS
 #######################################################################
 """
 """ STEP 1: LOAD UP AND TIDY THE DATA"""
-heidelberg = pd.read_excel(r'G:\My Drive\Work\GNS Radiocarbon Scientist\The Science\Datasets'
+heidelberg = pd.read_excel(r'H:\The Science\Datasets'
                            r'\heidelberg_cape_grim.xlsx', skiprows=40)
 # Baring Head data excel file
-baringhead = pd.read_excel(r'G:\My Drive\Work\GNS Radiocarbon Scientist\The Science\Datasets'
+baringhead = pd.read_excel(r'H:\The Science\Datasets'
                            r'\BHD_14CO2_datasets_20211013.xlsx')
 # remove some of the columns that I dont want/need, to simplify the later merge
 heidelberg['key'] = np.ones(len(heidelberg))
@@ -203,8 +203,7 @@ plt.legend()
 # plt.ylim([0, 300])
 plt.xlabel('Date', fontsize=14)
 plt.ylabel('\u0394$^1$$^4$CO$_2$ (\u2030)', fontsize=14)  # label the y axis
-plt.savefig('C:/Users/lewis/venv/python310/python-masterclass-remaster-shared/'
-            'radiocarbon_intercomparison2/interlab_comparison/plots/Harmonized_dataset.png',
+plt.savefig('C:/Users/clewis/IdeaProjects/GNS/radiocarbon_intercomparison/interlab_comparison/plots/Harmonized_dataset.png',
             dpi=300, bbox_inches="tight")
 plt.close()
 

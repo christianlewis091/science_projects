@@ -1,8 +1,25 @@
 """
+Purpose:
+
+
 In this code, I will be doing an inter-comparison of the AMS system / 14C
 results from LLNL and RRL. This will be done using data that Jocelyn sent to me on Feb. 14, 2022.
 This is part of the larger radiocarbon inter-comparison work that
 is required to create a harmonized Southern Hemisphere radiocarbon dataset.
+
+
+Outcome:
+This analysis got quite confusing. In the end,
+some of the original 13C data I was using was not properly corrected for fractionation.
+After using the correct data, I was able to perfectly reproduce the result for RRL / LLNL / SIO offset
+that is found in Rachel's thesis.
+
+To follow the record of these analyses, see The Science/Papers/Heidelberg_Intercomparison/Skeleton First Draft
+and then bullet point "SIO / LLNL: OFFSET APPLIED". read this, and then find the power point description
+in the file The Science/Current Projects/Lab Intercomparison Data/Radiocarbon Intercomparison Project Figures
+
+In the end, we are going to leave this data out anyway beacuse it is too funny, and we have an entire filled record
+using the Heidelberg and RRL data anyway
 """
 import pandas as pd
 import matplotlib.pyplot as plt

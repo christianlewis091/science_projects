@@ -354,8 +354,48 @@ plt.savefig('C:/Users/clewis/IdeaProjects/GNS/radiocarbon_intercomparison/interl
 plt.close()
 
 
+fig, axs = plt.subplots(2, 5, sharex=True, sharey=True, figsize=(20, 8))
+axs[0, 0].plot(NZ_37_S_x, NZ_37_S_off, label='NZ_39_S', color=colors[0])
+axs[0, 0].set_title("37\xb0S (Muriwai Beach)")
+axs[0, 0].axhline(y=0, color='black', linestyle='-')
+# axs[0, 0].xlim([1980, 2015])
 
+axs[0, 1].plot(NZ_39_S_x, NZ_39_S_off, label='NZ_39_S',color=colors[1])
+axs[0, 1].set_title("39\xb0S (Kapuni Beach)")
+axs[0, 1].axhline(y=0, color='black', linestyle='-')
 
+axs[0, 3].plot(NZ_41_S_x, NZ_41_S_off, label='NZ_41_S',color=colors[2])
+axs[0, 3].set_title("41\xb0S (Eastbourne)")
+axs[0, 3].axhline(y=0, color='black', linestyle='-')
+
+axs[0, 2].plot(NZ_41_S_2_x, NZ_41_S_2_off, label='NZ_41_S_2',color=colors[3])
+axs[0, 2].set_title("41\xb0S (Baring Head)")
+axs[0, 2].axhline(y=0, color='black', linestyle='-')
+
+axs[0, 4].plot(NZ_41_S_3_x, NZ_41_S_3_off, label='NZ_41_S_3',color=colors[4])
+axs[0, 4].set_title("41\xb0S (Eastbourne)")
+axs[0, 4].axhline(y=0, color='black', linestyle='-')
+# axs[1, 0].ylabel('\u0394$^1$$^4$C (\u2030)', fontsize=14)  # label the y axis
+
+axs[1, 1].plot(NZ_44_S_x, NZ_44_S_off, label='NZ_44_S',color=colors[5])
+axs[1, 1].set_title("44\xb0S (Haast Beach)")
+axs[1, 1].axhline(y=0, color='black', linestyle='-')
+
+axs[1, 2].plot(NZ_46_S_x, NZ_46_S_off, label='NZ_46_S',color=colors[0])
+axs[1, 2].set_title("46\xb0S (Oreti Beach)")
+axs[1, 2].axhline(y=0, color='black', linestyle='-')
+
+axs[1, 3].plot(NZ_47_S_x, NZ_47_S_off, label='NZ_47_S' ,color=colors[1])
+axs[1, 3].set_title("47\xb0S (Mason's Bay)")
+axs[1, 3].axhline(y=0, color='black', linestyle='-')
+
+axs[1, 4].plot(NZ_53_S_x, NZ_53_S_off, label='NZ_53_S' ,color=colors[1])
+axs[1, 4].set_title("53\xb0S (World's Lonliest Tree)")
+axs[1, 4].axhline(y=0, color='black', linestyle='-')
+
+plt.savefig('C:/Users/clewis/IdeaProjects/GNS/radiocarbon_intercomparison/interlab_comparison/plots/NZ_offsets.png',
+            dpi=300, bbox_inches="tight")
+plt.close()
 
 
 

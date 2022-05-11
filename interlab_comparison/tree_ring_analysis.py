@@ -172,78 +172,108 @@ First, I need to split up the data into different sites. I'll keep her original 
 CH_41_S = df.loc[(df['Site'] == 'Bahia San Pedro, Chile')]
 CH_41_S_x = CH_41_S['DecimalDate']
 CH_41_S_y = CH_41_S['∆14C']
+CH_41_S_off = CH_41_S['offset']
+CH_41_S_off_err = CH_41_S['offset_err_prop']
 
 CH_44_S = df.loc[(df['Site'] == 'Raul Marin Balmaceda')]
 CH_44_S_x = CH_44_S['DecimalDate']
-CH_44_S_y =CH_44_S['∆14C']
+CH_44_S_y = CH_44_S['∆14C']
+CH_44_S_off = CH_44_S['offset']
+CH_44_S_off_err = CH_44_S['offset_err_prop']
 
 CH_48_S = df.loc[(df['Site'] == 'Tortel island')]
-CH_48_S_x =CH_48_S['DecimalDate']
-CH_48_S_y =CH_48_S['∆14C']
-
+CH_48_S_x = CH_48_S['DecimalDate']
+CH_48_S_y = CH_48_S['∆14C']
+CH_48_S_off = CH_48_S['offset']
+CH_48_S_off_err = CH_48_S['offset_err_prop']
 
 CH_48_S_2 = df.loc[(df['Site'] == 'Tortel river')]
-CH_48_S_2_x =CH_48_S_2['DecimalDate']
-CH_48_S_2_y =CH_48_S_2['∆14C']
+CH_48_S_2_x = CH_48_S_2['DecimalDate']
+CH_48_S_2_y = CH_48_S_2['∆14C']
+CH_48_S_2_off = CH_48_S_2['offset']
+CH_48_S_2_off_err = CH_48_S_2['offset_err_prop']
 
 CH_53_S = df.loc[(df['Site'] == 'Seno Skyring')]
-CH_53_S_x =CH_53_S['DecimalDate']
-CH_53_S_y =CH_53_S['∆14C']
+CH_53_S_x = CH_53_S['DecimalDate']
+CH_53_S_y = CH_53_S['∆14C']
+CH_53_S_off = CH_53_S['offset']
+CH_53_S_off_err = CH_53_S['offset_err_prop']
 
 CH_54_S = df.loc[(df['Site'] == 'Monte Tarn, Punta Arenas')]
-CH_54_S_x =CH_54_S['DecimalDate']
-CH_54_S_y =CH_54_S['∆14C']
+CH_54_S_x = CH_54_S['DecimalDate']
+CH_54_S_y = CH_54_S['∆14C']
+CH_54_S_off = CH_54_S['offset']
+CH_54_S_off_err = CH_54_S['offset_err_prop']
 
 CH_55_S = df.loc[(df['Site'] == 'Baja Rosales, Isla Navarino')]
-CH_55_S_x =CH_55_S['DecimalDate']
-CH_55_S_y =CH_55_S['∆14C']
+CH_55_S_x = CH_55_S['DecimalDate']
+CH_55_S_y = CH_55_S['∆14C']
+CH_55_S_off = CH_55_S['offset']
+CH_55_S_off_err = CH_55_S['offset_err_prop']
 
 CH_55_S_2 = df.loc[(df['Site'] == 'Puerto Navarino, Isla Navarino')]
-CH_55_S_2_x =CH_55_S_2['DecimalDate']
-CH_55_S_2_y =CH_55_S_2['∆14C']
+CH_55_S_2_x = CH_55_S_2['DecimalDate']
+CH_55_S_2_y = CH_55_S_2['∆14C']
+CH_55_S_2_off = CH_55_S_2['offset']
+CH_55_S_2_off_err = CH_55_S_2['offset_err_prop']
 
 NZ_37_S = df.loc[(df['Site'] == 'Muriwai Beach Surf Club')]
-NZ_37_S_x =NZ_37_S['DecimalDate']
-NZ_37_S_y =NZ_37_S['∆14C']
+NZ_37_S_x = NZ_37_S['DecimalDate']
+NZ_37_S_y = NZ_37_S['∆14C']
+NZ_37_S_off = NZ_37_S['offset']
+NZ_37_S_off_err = NZ_37_S['offset_err_prop']
 
 NZ_39_S = df.loc[(df['Site'] == 'near Kapuni school field, NZ')]
 NZ_39_S_x =NZ_39_S['DecimalDate']
 NZ_39_S_y =NZ_39_S['∆14C']
-
+NZ_39_S_off =NZ_39_S['offset']
+NZ_39_S_off_err =NZ_39_S['offset_err_prop']
 
 NZ_41_S = df.loc[(df['Site'] == '19 Nikau St, Eastbourne, NZ')]
 NZ_41_S_x =NZ_41_S['DecimalDate']
 NZ_41_S_y =NZ_41_S['∆14C']
+NZ_41_S_off =NZ_41_S['offset']
+NZ_41_S_off_err =NZ_41_S['offset_err_prop']
 
 NZ_41_S_2 = df.loc[(df['Site'] == 'Baring Head, NZ')]
-NZ_41_S_2_x =NZ_41_S_2['DecimalDate']
-NZ_41_S_2_y =NZ_41_S_2['∆14C']
+NZ_41_S_2_x = NZ_41_S_2['DecimalDate']
+NZ_41_S_2_y = NZ_41_S_2['∆14C']
+NZ_41_S_2_off = NZ_41_S_2['offset']
+NZ_41_S_2_off_err = NZ_41_S_2['offset_err_prop']
 
 NZ_41_S_3 = df.loc[(df['Site'] == '23 Nikau St, Eastbourne, NZ')]
-NZ_41_S_3_x =NZ_41_S_3['DecimalDate']
-NZ_41_S_3_y =NZ_41_S_3['∆14C']
+NZ_41_S_3_x = NZ_41_S_3['DecimalDate']
+NZ_41_S_3_y = NZ_41_S_3['∆14C']
+NZ_41_S_3_off = NZ_41_S_3['offset']
+NZ_41_S_3_off_err = NZ_41_S_3['offset_err_prop']
 
 NZ_44_S = df.loc[(df['Site'] == 'Haast Beach, paddock near beach')]
-NZ_44_S_x =NZ_44_S['DecimalDate']
-NZ_44_S_y =NZ_44_S['∆14C']
+NZ_44_S_x = NZ_44_S['DecimalDate']
+NZ_44_S_y = NZ_44_S['∆14C']
+NZ_44_S_off = NZ_44_S['offset']
+NZ_44_S_off_err = NZ_44_S['offset_err_prop']
 
 NZ_46_S = df.loc[(df['Site'] == 'Oreti Beach')]
-NZ_46_S_x =NZ_46_S['DecimalDate']
-NZ_46_S_y =NZ_46_S['∆14C']
+NZ_46_S_x = NZ_46_S['DecimalDate']
+NZ_46_S_y = NZ_46_S['∆14C']
+NZ_46_S_off = NZ_46_S['offset']
+NZ_46_S_off_err = NZ_46_S['offset_err_prop']
 
 NZ_47_S = df.loc[(df['Site'] == "Mason's Bay Homestead")]
-NZ_47_S_x =NZ_47_S['DecimalDate']
-NZ_47_S_y =NZ_47_S['∆14C']
+NZ_47_S_x = NZ_47_S['DecimalDate']
+NZ_47_S_y = NZ_47_S['∆14C']
+NZ_47_S_off = NZ_47_S['offset']
+NZ_47_S_off_err = NZ_47_S['offset_err_prop']
 
 NZ_53_S = df.loc[(df['Site'] == "World's Loneliest Tree, Camp Cove, Campbell island")]
-NZ_53_S_x =NZ_53_S['DecimalDate']
-NZ_53_S_y =NZ_53_S['∆14C']
-
-
+NZ_53_S_x = NZ_53_S['DecimalDate']
+NZ_53_S_y = NZ_53_S['∆14C']
+NZ_53_S_off = NZ_53_S['offset']
+NZ_53_S_off_err = NZ_53_S['offset_err_prop']
 
 size1 = 30
 fig = plt.figure(2)
-plt.plot(xtot_bhd, ytot_bhd, label='Southern Hemisphere Harmonized Dataset', color=colors2[5])
+plt.scatter(sample_xs2, harmonized_trend, label='harmonized', color='black')
 plt.plot(CH_41_S_x, CH_41_S_y, label='CH_41_S', color=colors[0])
 plt.plot(CH_44_S_x, CH_44_S_y, label='CH_44_S', color=colors[1])
 plt.plot(CH_48_S_x, CH_48_S_y, label='CH_48_S', color=colors[2])
@@ -263,14 +293,94 @@ plt.plot(NZ_46_S_x, NZ_46_S_y, label='NZ_46_S', color=colors2[0])
 plt.plot(NZ_47_S_x, NZ_47_S_y, label='NZ_47_S', color=colors2[1])
 plt.plot(NZ_53_S_x, NZ_53_S_y, label='NZ_53_S', color=colors2[2])
 
-plt.legend()
+plt.legend(loc='upper right')
 plt.title('Plotting individual sites')
 plt.xlim([1980, 2015])
 plt.ylim([0, 300])
 plt.xlabel('Date', fontsize=14)
-plt.ylabel('\u0394$^1$$^4$CO$_2$ (\u2030)', fontsize=14)  # label the y axis
-# plt.savefig('C:/Users/clewis/IdeaProjects/GNS/radiocarbon_intercomparison/interlab_comparison/plots/Individual_Sites.png',
+plt.ylabel('\u0394$^1$$^4$C (\u2030)', fontsize=14)  # label the y axis
+plt.savefig('C:/Users/clewis/IdeaProjects/GNS/radiocarbon_intercomparison/interlab_comparison/plots/Individual_Sites.png',
+            dpi=300, bbox_inches="tight")
+plt.close()
+"""
+So now we can see how close the tree rings from each site are to the background harmonized dataset. 
+At the bomb peak, you can clearly see a discrepancy between the tree rings and the bomb peak. 
+But what does it mean at this exact point? And how do I identify meaningful differences between the datasets before
+and after the peak? 
+
+I have pasted the comparison of Rachel's and mine up to this point in my notes. 
+
+How do our offsets compare? 
+
+"""
+
+size1 = 30
+fig = plt.figure(3)
+# plt.scatter(sample_xs2, harmonized_trend, label='harmonized', color='black')
+plt.errorbar(CH_41_S_x, CH_41_S_off, label='CH_41_S', yerr= CH_41_S_off_err, fmt='o', color=colors[0], ecolor='black', elinewidth=1, capsize=2)
+plt.errorbar(CH_44_S_x, CH_44_S_off, label='CH_44_S', yerr= CH_44_S_off_err, fmt='o', color=colors[1], ecolor='black', elinewidth=1, capsize=2)
+# plt.errorbar(CH_48_S_x, CH_48_S_off, label='CH_48_S', yerr= CH_48_S_off_err, fmt='o', color=colors[2], ecolor='black', elinewidth=1, capsize=2)
+# plt.errorbar(CH_48_S_2_x, CH_48_S_2_off, label='CH_48_S_2', yerr= CH_48_S_2_off_err, fmt='o', color=colors[3], ecolor='black', elinewidth=1, capsize=2)
+# plt.errorbar(CH_53_S_x, CH_53_S_off, label='CH_53_S', yerr= CH_53_S_off_err, fmt='o', color=colors[4], ecolor='black', elinewidth=1, capsize=2)
+# plt.errorbar(CH_54_S_x, CH_54_S_off, label='CH_54_S', yerr= CH_54_S_off_err, fmt='o', color=colors[5], ecolor='black', elinewidth=1, capsize=2)
+# plt.errorbar(CH_55_S_x, CH_55_S_off, label='CH_55_S', yerr= CH_55_S_off_err, fmt='o', color=colors[0], ecolor='black', elinewidth=1, capsize=2)
+# plt.errorbar(CH_55_S_2_x, CH_55_S_2_off, label='CH_55_S_2', yerr= CH_55_S_2_off_err, fmt='o', color=colors[1], ecolor='black', elinewidth=1, capsize=2)
+plt.legend()
+plt.title('Pacific Sector Offsets')
+plt.xlim([1980, 2015])
+plt.ylim([-15, 10])
+plt.xlabel('Date', fontsize=14)
+plt.ylabel('\u0394$^1$$^4$C (\u2030)', fontsize=14)  # label the y axis
+# plt.savefig('C:/Users/clewis/IdeaProjects/GNS/radiocarbon_intercomparison/interlab_comparison/plots/Pacific_Sector_offsets_1980.png',
 #             dpi=300, bbox_inches="tight")
+plt.close()
+# plt.show()
+plt.plot(CH_41_S_x, CH_41_S_off, label='CH_41_S', color=colors[0])
+plt.plot(CH_44_S_x, CH_44_S_off, label='CH_44_S',color=colors[1])
+plt.plot(CH_48_S_x, CH_48_S_off, label='CH_48_S',color=colors[2])
+plt.plot(CH_48_S_2_x, CH_48_S_2_off, label='CH_48_S_2',color=colors[3])
+# plt.plot(CH_53_S_x, CH_53_S_off, label='CH_53_S',color=colors[4])
+# plt.plot(CH_54_S_x, CH_54_S_off, label='CH_54_S',color=colors[5])
+# plt.plot(CH_55_S_x, CH_55_S_off, label='CH_55_S',color=colors[0])
+# plt.plot(CH_55_S_2_x, CH_55_S_2_off, label='CH_55_S_2' ,color=colors[1])
+
+fig, axs = plt.subplots(2, 4, sharex=True, sharey=True)
+
+# marker symbol
+axs[0, 0].plot(CH_41_S_x, CH_41_S_off, label='CH_41_S', color=colors[0])
+axs[0, 0].set_title("Chile 41S")
+axs[0, 0].axhline(y=0, color='black', linestyle='-')
+
+# marker from TeX
+axs[0, 1].plot(CH_44_S_x, CH_44_S_off, label='CH_44_S',color=colors[1])
+axs[0, 1].set_title("Chile 44S")
+axs[0, 1].axhline(y=0, color='black', linestyle='-')
+# marker from path
+# verts = [[-1, -1], [1, -1], [1, 1], [-1, -1]]
+axs[0, 2].plot(CH_48_S_x, CH_48_S_off, label='CH_48_S',color=colors[2])
+axs[0, 2].set_title("Chile 48S")
+axs[0, 2].axhline(y=0, color='black', linestyle='-')
+# regular polygon marker
+axs[0, 3].plot(CH_48_S_2_x, CH_48_S_2_off, label='CH_48_S_2',color=colors[3])
+axs[0, 3].set_title("Chile 48S - 2")
+axs[0, 3].axhline(y=0, color='black', linestyle='-')
+# regular star marker
+axs[1, 0].plot(CH_53_S_x, CH_53_S_off, label='CH_53_S',color=colors[4])
+axs[1, 0].set_title("Chile 53S")
+axs[1, 0].axhline(y=0, color='black', linestyle='-')
+# regular asterisk marker
+axs[1, 1].plot(CH_54_S_x, CH_54_S_off, label='CH_54_S',color=colors[5])
+axs[1, 1].set_title("Chile 54S")
+axs[1, 1].axhline(y=0, color='black', linestyle='-')
+# regular asterisk marker
+axs[1, 2].plot(CH_55_S_x, CH_55_S_off, label='CH_55_S',color=colors[0])
+axs[1, 2].set_title("Chile 55S")
+axs[1, 2].axhline(y=0, color='black', linestyle='-')
+# regular asterisk marker
+axs[1, 3].plot(CH_55_S_2_x, CH_55_S_2_off, label='CH_55_S_2' ,color=colors[1])
+axs[1, 3].set_title("Chile 55S - 2")
+axs[1, 3].axhline(y=0, color='black', linestyle='-')
+plt.tight_layout()
 plt.show()
 
 
@@ -278,6 +388,38 @@ plt.show()
 
 
 
+
+
+
+
+
+
+
+
+
+
+#
+# size1 = 30
+# fig = plt.figure(3)
+# # plt.scatter(sample_xs2, harmonized_trend, label='harmonized', color='black')
+# plt.plot(CH_41_S_x, CH_41_S_off, label='CH_41_S', color=colors[0])
+# plt.plot(CH_44_S_x, CH_44_S_off, label='CH_44_S',color=colors[1])
+# plt.plot(CH_48_S_x, CH_48_S_off, label='CH_48_S',color=colors[2])
+# plt.plot(CH_48_S_2_x, CH_48_S_2_off, label='CH_48_S_2',color=colors[3])
+# # plt.plot(CH_53_S_x, CH_53_S_off, label='CH_53_S',color=colors[4])
+# # plt.plot(CH_54_S_x, CH_54_S_off, label='CH_54_S',color=colors[5])
+# # plt.plot(CH_55_S_x, CH_55_S_off, label='CH_55_S',color=colors[0])
+# # plt.plot(CH_55_S_2_x, CH_55_S_2_off, label='CH_55_S_2' ,color=colors[1])
+# plt.legend()
+# plt.title('Pacific Sector Offsets')
+# plt.xlim([1980, 2015])
+# plt.ylim([-15, 10])
+# plt.xlabel('Date', fontsize=14)
+# plt.ylabel('\u0394$^1$$^4$C (\u2030)', fontsize=14)  # label the y axis
+# # plt.savefig('C:/Users/clewis/IdeaProjects/GNS/radiocarbon_intercomparison/interlab_comparison/plots/Pacific_Sector_offsets_lines.png',
+# #             dpi=300, bbox_inches="tight")
+# # plt.close()
+# plt.show()
 
 
 

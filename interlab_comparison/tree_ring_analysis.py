@@ -314,74 +314,44 @@ How do our offsets compare?
 
 """
 
-size1 = 30
-fig = plt.figure(3)
-# plt.scatter(sample_xs2, harmonized_trend, label='harmonized', color='black')
-plt.errorbar(CH_41_S_x, CH_41_S_off, label='CH_41_S', yerr= CH_41_S_off_err, fmt='o', color=colors[0], ecolor='black', elinewidth=1, capsize=2)
-plt.errorbar(CH_44_S_x, CH_44_S_off, label='CH_44_S', yerr= CH_44_S_off_err, fmt='o', color=colors[1], ecolor='black', elinewidth=1, capsize=2)
-# plt.errorbar(CH_48_S_x, CH_48_S_off, label='CH_48_S', yerr= CH_48_S_off_err, fmt='o', color=colors[2], ecolor='black', elinewidth=1, capsize=2)
-# plt.errorbar(CH_48_S_2_x, CH_48_S_2_off, label='CH_48_S_2', yerr= CH_48_S_2_off_err, fmt='o', color=colors[3], ecolor='black', elinewidth=1, capsize=2)
-# plt.errorbar(CH_53_S_x, CH_53_S_off, label='CH_53_S', yerr= CH_53_S_off_err, fmt='o', color=colors[4], ecolor='black', elinewidth=1, capsize=2)
-# plt.errorbar(CH_54_S_x, CH_54_S_off, label='CH_54_S', yerr= CH_54_S_off_err, fmt='o', color=colors[5], ecolor='black', elinewidth=1, capsize=2)
-# plt.errorbar(CH_55_S_x, CH_55_S_off, label='CH_55_S', yerr= CH_55_S_off_err, fmt='o', color=colors[0], ecolor='black', elinewidth=1, capsize=2)
-# plt.errorbar(CH_55_S_2_x, CH_55_S_2_off, label='CH_55_S_2', yerr= CH_55_S_2_off_err, fmt='o', color=colors[1], ecolor='black', elinewidth=1, capsize=2)
-plt.legend()
-plt.title('Pacific Sector Offsets')
-plt.xlim([1980, 2015])
-plt.ylim([-15, 10])
-plt.xlabel('Date', fontsize=14)
-plt.ylabel('\u0394$^1$$^4$C (\u2030)', fontsize=14)  # label the y axis
-# plt.savefig('C:/Users/clewis/IdeaProjects/GNS/radiocarbon_intercomparison/interlab_comparison/plots/Pacific_Sector_offsets_1980.png',
-#             dpi=300, bbox_inches="tight")
-plt.close()
-# plt.show()
-plt.plot(CH_41_S_x, CH_41_S_off, label='CH_41_S', color=colors[0])
-plt.plot(CH_44_S_x, CH_44_S_off, label='CH_44_S',color=colors[1])
-plt.plot(CH_48_S_x, CH_48_S_off, label='CH_48_S',color=colors[2])
-plt.plot(CH_48_S_2_x, CH_48_S_2_off, label='CH_48_S_2',color=colors[3])
-# plt.plot(CH_53_S_x, CH_53_S_off, label='CH_53_S',color=colors[4])
-# plt.plot(CH_54_S_x, CH_54_S_off, label='CH_54_S',color=colors[5])
-# plt.plot(CH_55_S_x, CH_55_S_off, label='CH_55_S',color=colors[0])
-# plt.plot(CH_55_S_2_x, CH_55_S_2_off, label='CH_55_S_2' ,color=colors[1])
-
-fig, axs = plt.subplots(2, 4, sharex=True, sharey=True)
-
-# marker symbol
+fig, axs = plt.subplots(2, 4, sharex=True, sharey=True, figsize=(20, 8))
 axs[0, 0].plot(CH_41_S_x, CH_41_S_off, label='CH_41_S', color=colors[0])
-axs[0, 0].set_title("Chile 41S")
+axs[0, 0].set_title("41\xb0S (Bahia, San Pedro)")
 axs[0, 0].axhline(y=0, color='black', linestyle='-')
+# axs[0, 0].xlim([1980, 2015])
 
-# marker from TeX
 axs[0, 1].plot(CH_44_S_x, CH_44_S_off, label='CH_44_S',color=colors[1])
-axs[0, 1].set_title("Chile 44S")
+axs[0, 1].set_title("44\xb0S (Raul Marin Balcemeda)")
 axs[0, 1].axhline(y=0, color='black', linestyle='-')
-# marker from path
-# verts = [[-1, -1], [1, -1], [1, 1], [-1, -1]]
+
 axs[0, 2].plot(CH_48_S_x, CH_48_S_off, label='CH_48_S',color=colors[2])
-axs[0, 2].set_title("Chile 48S")
+axs[0, 2].set_title("48\xb0S (Tortel Island)")
 axs[0, 2].axhline(y=0, color='black', linestyle='-')
-# regular polygon marker
+
 axs[0, 3].plot(CH_48_S_2_x, CH_48_S_2_off, label='CH_48_S_2',color=colors[3])
-axs[0, 3].set_title("Chile 48S - 2")
+axs[0, 3].set_title("48\xb0S (Tortel River)")
 axs[0, 3].axhline(y=0, color='black', linestyle='-')
-# regular star marker
+
 axs[1, 0].plot(CH_53_S_x, CH_53_S_off, label='CH_53_S',color=colors[4])
-axs[1, 0].set_title("Chile 53S")
+axs[1, 0].set_title("53\xb0S (Seno Skyring)")
 axs[1, 0].axhline(y=0, color='black', linestyle='-')
-# regular asterisk marker
+# axs[1, 0].ylabel('\u0394$^1$$^4$C (\u2030)', fontsize=14)  # label the y axis
+
 axs[1, 1].plot(CH_54_S_x, CH_54_S_off, label='CH_54_S',color=colors[5])
-axs[1, 1].set_title("Chile 54S")
+axs[1, 1].set_title("54\xb0S (Monte Tarn, Punta Arenas)")
 axs[1, 1].axhline(y=0, color='black', linestyle='-')
-# regular asterisk marker
+
 axs[1, 2].plot(CH_55_S_x, CH_55_S_off, label='CH_55_S',color=colors[0])
-axs[1, 2].set_title("Chile 55S")
+axs[1, 2].set_title("55\xb0S (Baja Rosales, Isla Navarino)")
 axs[1, 2].axhline(y=0, color='black', linestyle='-')
-# regular asterisk marker
+
 axs[1, 3].plot(CH_55_S_2_x, CH_55_S_2_off, label='CH_55_S_2' ,color=colors[1])
-axs[1, 3].set_title("Chile 55S - 2")
+axs[1, 3].set_title("55\xb0S (Puerto Navarino, Isla Navarino)")
 axs[1, 3].axhline(y=0, color='black', linestyle='-')
-plt.tight_layout()
-plt.show()
+
+plt.savefig('C:/Users/clewis/IdeaProjects/GNS/radiocarbon_intercomparison/interlab_comparison/plots/Chile_offsets.png',
+            dpi=300, bbox_inches="tight")
+plt.close()
 
 
 
@@ -421,6 +391,26 @@ plt.show()
 # # plt.close()
 # plt.show()
 
+# size1 = 30
+# fig = plt.figure(3)
+# # plt.scatter(sample_xs2, harmonized_trend, label='harmonized', color='black')
+# plt.errorbar(CH_41_S_x, CH_41_S_off, label='CH_41_S', yerr= CH_41_S_off_err, fmt='o', color=colors[0], ecolor='black', elinewidth=1, capsize=2)
+# plt.errorbar(CH_44_S_x, CH_44_S_off, label='CH_44_S', yerr= CH_44_S_off_err, fmt='o', color=colors[1], ecolor='black', elinewidth=1, capsize=2)
+# # plt.errorbar(CH_48_S_x, CH_48_S_off, label='CH_48_S', yerr= CH_48_S_off_err, fmt='o', color=colors[2], ecolor='black', elinewidth=1, capsize=2)
+# # plt.errorbar(CH_48_S_2_x, CH_48_S_2_off, label='CH_48_S_2', yerr= CH_48_S_2_off_err, fmt='o', color=colors[3], ecolor='black', elinewidth=1, capsize=2)
+# # plt.errorbar(CH_53_S_x, CH_53_S_off, label='CH_53_S', yerr= CH_53_S_off_err, fmt='o', color=colors[4], ecolor='black', elinewidth=1, capsize=2)
+# # plt.errorbar(CH_54_S_x, CH_54_S_off, label='CH_54_S', yerr= CH_54_S_off_err, fmt='o', color=colors[5], ecolor='black', elinewidth=1, capsize=2)
+# # plt.errorbar(CH_55_S_x, CH_55_S_off, label='CH_55_S', yerr= CH_55_S_off_err, fmt='o', color=colors[0], ecolor='black', elinewidth=1, capsize=2)
+# # plt.errorbar(CH_55_S_2_x, CH_55_S_2_off, label='CH_55_S_2', yerr= CH_55_S_2_off_err, fmt='o', color=colors[1], ecolor='black', elinewidth=1, capsize=2)
+# plt.legend()
+# plt.title('Pacific Sector Offsets')
+# plt.xlim([1980, 2015])
+# plt.ylim([-15, 10])
+# plt.xlabel('Date', fontsize=14)
+# plt.ylabel('\u0394$^1$$^4$C (\u2030)', fontsize=14)  # label the y axis
+# # plt.savefig('C:/Users/clewis/IdeaProjects/GNS/radiocarbon_intercomparison/interlab_comparison/plots/Pacific_Sector_offsets_1980.png',
+# #             dpi=300, bbox_inches="tight")
+# plt.close()
 
 
 

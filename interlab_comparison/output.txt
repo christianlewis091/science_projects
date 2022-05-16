@@ -13653,3 +13653,558 @@ error of mean        0.241030
 There IS AN observed difference at 95% confidence interval
 
 
+For this run of heidelberg_intercomparison.py, "n" is 10 and the CCGCRV cutoff is 667. This was run on 08:41:10
+Baring Head vs Cape Grim between 1986 - 1991 using CCGCRV Smooth Fit
+                            0
+t-statistic          6.021990
+t-statistic error    2.196539
+critical value       1.987934
+mean of differences  1.822001
+error of mean        0.154804
+There IS AN observed difference at 95% confidence interval
+
+
+Baring Head vs Cape Grim between 1991 - 1994 using CCGCRV Smooth Fit
+                            0
+t-statistic          4.441499
+t-statistic error    1.635243
+critical value       1.998972
+mean of differences  1.743143
+error of mean        0.183584
+There IS AN observed difference at 95% confidence interval
+
+
+Baring Head vs Cape Grim between 2006 - 2016 using CCGCRV Smooth Fit
+                            0
+t-statistic          5.006663
+t-statistic error    0.851765
+critical value       1.980000
+mean of differences  1.065984
+error of mean        0.042980
+There IS AN observed difference at 95% confidence interval
+
+
+Baring Head vs Cape Grim between 2006 - 2009 using CCGCRV Smooth Fit
+                            0
+t-statistic          1.875347
+t-statistic error    0.773241
+critical value       1.996564
+mean of differences  0.461892
+error of mean        0.107244
+There is NO observed difference at 95% confidence interval
+
+
+Baring Head vs Cape Grim between 2012 - 2016 using CCGCRV Smooth Fit
+                            0
+t-statistic          2.207670
+t-statistic error    0.837214
+critical value       1.991673
+mean of differences -0.480832
+error of mean        0.098059
+There is NO observed difference at 95% confidence interval
+
+
+Baring Head vs Cape Grim between 1986 - 1991 using CCGCRV Trend Fit
+                             0
+t-statistic          21.370472
+t-statistic error    12.671393
+critical value        1.987934
+mean of differences   1.788412
+error of mean         0.116487
+There IS AN observed difference at 95% confidence interval
+
+
+Baring Head vs Cape Grim between 1991 - 1994 using CCGCRV Trend Fit
+                            0
+t-statistic          9.475525
+t-statistic error    4.397996
+critical value       1.998972
+mean of differences  1.874625
+error of mean        0.147009
+There IS AN observed difference at 95% confidence interval
+
+
+Baring Head vs Cape Grim between 2000 - 2016 using CCGCRV Trend Fit
+                            0
+t-statistic          5.406582
+t-statistic error    0.880899
+critical value       1.980000
+mean of differences  1.067581
+error of mean        0.034624
+There IS AN observed difference at 95% confidence interval
+
+
+Baring Head vs Cape Grim between 2006 - 2009 using CCGCRV Trend Fit
+                            0
+t-statistic          4.773915
+t-statistic error    1.758735
+critical value       1.996564
+mean of differences  0.614341
+error of mean        0.065860
+There IS AN observed difference at 95% confidence interval
+
+
+Baring Head vs Cape Grim between 2012 - 2016 using CCGCRV Trend Fit
+                            0
+t-statistic          4.374765
+t-statistic error    1.723322
+critical value       1.991673
+mean of differences -0.485578
+error of mean        0.063660
+There IS AN observed difference at 95% confidence interval
+
+
+Here is the result of the paired t-test between BHD and CGO Monthly means for all instances where data overlaps
+                            0
+t-statistic          5.462975
+t-statistic error    1.631964
+critical value       1.980000
+mean of differences  2.017872
+error of mean        0.241030
+There IS AN observed difference at 95% confidence interval
+
+
+For this run of heidelberg_intercomparison.py, "n" is 10 and the CCGCRV cutoff is 667. This was run on 11:08:28
+Baring Head vs Cape Grim between 1986 - 1991 using CCGCRV Smooth Fit
+                            0
+t-statistic          6.029311
+t-statistic error    2.023144
+critical value       1.987934
+mean of differences  1.921445
+error of mean        0.156156
+There IS AN observed difference at 95% confidence interval
+
+
+Baring Head vs Cape Grim between 1991 - 1994 using CCGCRV Smooth Fit
+                            0
+t-statistic          3.911214
+t-statistic error    1.391128
+critical value       1.998972
+mean of differences  1.668005
+error of mean        0.180331
+There IS AN observed difference at 95% confidence interval
+
+
+Baring Head vs Cape Grim between 2006 - 2016 using CCGCRV Smooth Fit
+                            0
+t-statistic          4.934946
+t-statistic error    0.817993
+critical value       1.980000
+mean of differences  1.036069
+error of mean        0.040429
+There IS AN observed difference at 95% confidence interval
+
+
+Baring Head vs Cape Grim between 2006 - 2009 using CCGCRV Smooth Fit
+                            0
+t-statistic          1.481351
+t-statistic error    0.675331
+critical value       1.996564
+mean of differences  0.364722
+error of mean        0.111465
+There is NO observed difference at 95% confidence interval
+
+
+Baring Head vs Cape Grim between 2012 - 2016 using CCGCRV Smooth Fit
+                            0
+t-statistic          2.202485
+t-statistic error    0.795349
+critical value       1.991673
+mean of differences -0.482920
+error of mean        0.090845
+There is NO observed difference at 95% confidence interval
+
+
+Baring Head vs Cape Grim between 1986 - 1991 using CCGCRV Trend Fit
+                             0
+t-statistic          19.944701
+t-statistic error    10.267843
+critical value        1.987934
+mean of differences   1.808425
+error of mean         0.108416
+There IS AN observed difference at 95% confidence interval
+
+
+Baring Head vs Cape Grim between 1991 - 1994 using CCGCRV Trend Fit
+                             0
+t-statistic          10.076457
+t-statistic error     4.834724
+critical value        1.998972
+mean of differences   2.036990
+error of mean         0.135540
+There IS AN observed difference at 95% confidence interval
+
+
+Baring Head vs Cape Grim between 2000 - 2016 using CCGCRV Trend Fit
+                            0
+t-statistic          5.571877
+t-statistic error    0.887593
+critical value       1.980000
+mean of differences  1.094243
+error of mean        0.036604
+There IS AN observed difference at 95% confidence interval
+
+
+Baring Head vs Cape Grim between 2006 - 2009 using CCGCRV Trend Fit
+                            0
+t-statistic          3.797739
+t-statistic error    1.348381
+critical value       1.996564
+mean of differences  0.535336
+error of mean        0.063538
+There IS AN observed difference at 95% confidence interval
+
+
+Baring Head vs Cape Grim between 2012 - 2016 using CCGCRV Trend Fit
+                            0
+t-statistic          5.407741
+t-statistic error    2.087329
+critical value       1.991673
+mean of differences -0.556606
+error of mean        0.059570
+There IS AN observed difference at 95% confidence interval
+
+
+Here is the result of the paired t-test between BHD and CGO Monthly means for all instances where data overlaps
+                            0
+t-statistic          5.462975
+t-statistic error    1.631964
+critical value       1.980000
+mean of differences  2.017872
+error of mean        0.241030
+There IS AN observed difference at 95% confidence interval
+
+
+For this run of heidelberg_intercomparison.py, "n" is 10 and the CCGCRV cutoff is 667. This was run on 11:12:09
+Baring Head vs Cape Grim between 1986 - 1991 using CCGCRV Smooth Fit
+                            0
+t-statistic          6.026827
+t-statistic error    2.295246
+critical value       1.987934
+mean of differences  1.864398
+error of mean        0.174814
+There IS AN observed difference at 95% confidence interval
+
+
+Baring Head vs Cape Grim between 1991 - 1994 using CCGCRV Smooth Fit
+                            0
+t-statistic          4.261965
+t-statistic error    1.618955
+critical value       1.998972
+mean of differences  1.789947
+error of mean        0.203056
+There IS AN observed difference at 95% confidence interval
+
+
+Baring Head vs Cape Grim between 2006 - 2016 using CCGCRV Smooth Fit
+                            0
+t-statistic          4.971087
+t-statistic error    0.856281
+critical value       1.980000
+mean of differences  1.079891
+error of mean        0.043765
+There IS AN observed difference at 95% confidence interval
+
+
+Baring Head vs Cape Grim between 2006 - 2009 using CCGCRV Smooth Fit
+                            0
+t-statistic          2.303697
+t-statistic error    0.817776
+critical value       1.996564
+mean of differences  0.589923
+error of mean        0.102216
+There is NO observed difference at 95% confidence interval
+
+
+Baring Head vs Cape Grim between 2012 - 2016 using CCGCRV Smooth Fit
+                            0
+t-statistic          2.563687
+t-statistic error    0.889878
+critical value       1.991673
+mean of differences -0.521947
+error of mean        0.085095
+There is NO observed difference at 95% confidence interval
+
+
+Baring Head vs Cape Grim between 1986 - 1991 using CCGCRV Trend Fit
+                             0
+t-statistic          21.360027
+t-statistic error    12.112762
+critical value        1.987934
+mean of differences   1.732124
+error of mean         0.110033
+There IS AN observed difference at 95% confidence interval
+
+
+Baring Head vs Cape Grim between 1991 - 1994 using CCGCRV Trend Fit
+                            0
+t-statistic          8.556110
+t-statistic error    3.550873
+critical value       1.998972
+mean of differences  1.900886
+error of mean        0.124870
+There IS AN observed difference at 95% confidence interval
+
+
+Baring Head vs Cape Grim between 2000 - 2016 using CCGCRV Trend Fit
+                            0
+t-statistic          5.904765
+t-statistic error    0.832437
+critical value       1.980000
+mean of differences  1.131125
+error of mean        0.030974
+There IS AN observed difference at 95% confidence interval
+
+
+Baring Head vs Cape Grim between 2006 - 2009 using CCGCRV Trend Fit
+                            0
+t-statistic          3.503857
+t-statistic error    1.370765
+critical value       1.996564
+mean of differences  0.534298
+error of mean        0.077486
+There IS AN observed difference at 95% confidence interval
+
+
+Baring Head vs Cape Grim between 2012 - 2016 using CCGCRV Trend Fit
+                            0
+t-statistic          4.978951
+t-statistic error    1.858070
+critical value       1.991673
+mean of differences -0.507067
+error of mean        0.055805
+There IS AN observed difference at 95% confidence interval
+
+
+Here is the result of the paired t-test between BHD and CGO Monthly means for all instances where data overlaps
+                            0
+t-statistic          5.462975
+t-statistic error    1.631964
+critical value       1.980000
+mean of differences  2.017872
+error of mean        0.241030
+There IS AN observed difference at 95% confidence interval
+
+
+For this run of heidelberg_intercomparison.py, "n" is 10 and the CCGCRV cutoff is 667. This was run on 11:16:05
+Baring Head vs Cape Grim between 1986 - 1991 using CCGCRV Smooth Fit
+                            0
+t-statistic          5.831917
+t-statistic error    2.121749
+critical value       1.987934
+mean of differences  1.785754
+error of mean        0.165848
+There IS AN observed difference at 95% confidence interval
+
+
+Baring Head vs Cape Grim between 1991 - 1994 using CCGCRV Smooth Fit
+                            0
+t-statistic          4.042010
+t-statistic error    1.610333
+critical value       1.998972
+mean of differences  1.725469
+error of mean        0.224253
+There IS AN observed difference at 95% confidence interval
+
+
+Baring Head vs Cape Grim between 2006 - 2016 using CCGCRV Smooth Fit
+                            0
+t-statistic          4.595539
+t-statistic error    0.785335
+critical value       1.980000
+mean of differences  1.005828
+error of mean        0.041372
+There IS AN observed difference at 95% confidence interval
+
+
+Baring Head vs Cape Grim between 2006 - 2009 using CCGCRV Smooth Fit
+                            0
+t-statistic          2.017046
+t-statistic error    0.857354
+critical value       1.996564
+mean of differences  0.482265
+error of mean        0.114829
+There is NO observed difference at 95% confidence interval
+
+
+Baring Head vs Cape Grim between 2012 - 2016 using CCGCRV Smooth Fit
+                            0
+t-statistic          2.377790
+t-statistic error    0.824152
+critical value       1.991673
+mean of differences -0.485783
+error of mean        0.082211
+There is NO observed difference at 95% confidence interval
+
+
+Baring Head vs Cape Grim between 1986 - 1991 using CCGCRV Trend Fit
+                             0
+t-statistic          20.613507
+t-statistic error    10.490352
+critical value        1.987934
+mean of differences   1.717770
+error of mean         0.092617
+There IS AN observed difference at 95% confidence interval
+
+
+Baring Head vs Cape Grim between 1991 - 1994 using CCGCRV Trend Fit
+                             0
+t-statistic          11.085852
+t-statistic error     6.355700
+critical value        1.998972
+mean of differences   1.932618
+error of mean         0.150264
+There IS AN observed difference at 95% confidence interval
+
+
+Baring Head vs Cape Grim between 2000 - 2016 using CCGCRV Trend Fit
+                            0
+t-statistic          5.631319
+t-statistic error    0.877763
+critical value       1.980000
+mean of differences  1.101871
+error of mean        0.031201
+There IS AN observed difference at 95% confidence interval
+
+
+Baring Head vs Cape Grim between 2006 - 2009 using CCGCRV Trend Fit
+                            0
+t-statistic          3.035699
+t-statistic error    1.144998
+critical value       1.996564
+mean of differences  0.447974
+error of mean        0.073294
+There is NO observed difference at 95% confidence interval
+
+
+Baring Head vs Cape Grim between 2012 - 2016 using CCGCRV Trend Fit
+                            0
+t-statistic          4.831405
+t-statistic error    1.864868
+critical value       1.991673
+mean of differences -0.502320
+error of mean        0.058552
+There IS AN observed difference at 95% confidence interval
+
+
+Here is the result of the paired t-test between BHD and CGO Monthly means for all instances where data overlaps
+                            0
+t-statistic          5.462975
+t-statistic error    1.631964
+critical value       1.980000
+mean of differences  2.017872
+error of mean        0.241030
+There IS AN observed difference at 95% confidence interval
+
+
+For this run of heidelberg_intercomparison.py, "n" is 10 and the CCGCRV cutoff is 667. This was run on 11:18:40
+Baring Head vs Cape Grim between 1986 - 1991 using CCGCRV Smooth Fit
+                            0
+t-statistic          5.591782
+t-statistic error    2.183037
+critical value       1.987934
+mean of differences  1.650699
+error of mean        0.172815
+There IS AN observed difference at 95% confidence interval
+
+
+Baring Head vs Cape Grim between 1991 - 1994 using CCGCRV Smooth Fit
+                            0
+t-statistic          4.161867
+t-statistic error    1.674724
+critical value       1.998972
+mean of differences  1.705624
+error of mean        0.218238
+There IS AN observed difference at 95% confidence interval
+
+
+Baring Head vs Cape Grim between 2006 - 2016 using CCGCRV Smooth Fit
+                            0
+t-statistic          4.931519
+t-statistic error    0.882198
+critical value       1.980000
+mean of differences  1.028201
+error of mean        0.046628
+There IS AN observed difference at 95% confidence interval
+
+
+Baring Head vs Cape Grim between 2006 - 2009 using CCGCRV Smooth Fit
+                            0
+t-statistic          2.025843
+t-statistic error    0.817089
+critical value       1.996564
+mean of differences  0.483655
+error of mean        0.108320
+There is NO observed difference at 95% confidence interval
+
+
+Baring Head vs Cape Grim between 2012 - 2016 using CCGCRV Smooth Fit
+                            0
+t-statistic          2.179070
+t-statistic error    0.797464
+critical value       1.991673
+mean of differences -0.460498
+error of mean        0.089914
+There is NO observed difference at 95% confidence interval
+
+
+Baring Head vs Cape Grim between 1986 - 1991 using CCGCRV Trend Fit
+                             0
+t-statistic          22.406967
+t-statistic error    12.025124
+critical value        1.987934
+mean of differences   1.842210
+error of mean         0.093708
+There IS AN observed difference at 95% confidence interval
+
+
+Baring Head vs Cape Grim between 1991 - 1994 using CCGCRV Trend Fit
+                            0
+t-statistic          8.428457
+t-statistic error    4.330566
+critical value       1.998972
+mean of differences  1.665172
+error of mean        0.136935
+There IS AN observed difference at 95% confidence interval
+
+
+Baring Head vs Cape Grim between 2000 - 2016 using CCGCRV Trend Fit
+                            0
+t-statistic          5.969056
+t-statistic error    0.993888
+critical value       1.980000
+mean of differences  1.149504
+error of mean        0.037655
+There IS AN observed difference at 95% confidence interval
+
+
+Baring Head vs Cape Grim between 2006 - 2009 using CCGCRV Trend Fit
+                            0
+t-statistic          4.222426
+t-statistic error    1.576866
+critical value       1.996564
+mean of differences  0.556103
+error of mean        0.064593
+There IS AN observed difference at 95% confidence interval
+
+
+Baring Head vs Cape Grim between 2012 - 2016 using CCGCRV Trend Fit
+                            0
+t-statistic          5.062181
+t-statistic error    1.867543
+critical value       1.991673
+mean of differences -0.528604
+error of mean        0.055846
+There IS AN observed difference at 95% confidence interval
+
+
+Here is the result of the paired t-test between BHD and CGO Monthly means for all instances where data overlaps
+                            0
+t-statistic          5.462975
+t-statistic error    1.631964
+critical value       1.980000
+mean of differences  2.017872
+error of mean        0.241030
+There IS AN observed difference at 95% confidence interval
+
+

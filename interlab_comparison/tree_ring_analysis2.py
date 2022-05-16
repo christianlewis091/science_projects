@@ -25,14 +25,14 @@ df = pd.read_excel(
 
 # break up the data into two DataFrames based on their location, and remove all data before 1980.
 df = df.loc[(df['DecimalDate'] >= 1980)]  # TODO after analysis is finished, come back to time before 1980
-nz = df.loc[(df['Lon'] > 100) | (df['Lon'] == -999)]  # -999 grabs the data that's in Eastbourne
+nz = df.loc[(df['Lon'] > 100)]
 chile = df.loc[(df['Lon'] < 100) & (df['Lon'] > 0)]
 # Chile data still needs LONS to be changed to negative, but OK for now
 
 # index the NZ Data based on Latitude
 nz_40 = nz.loc[(nz['Lat'] >= -40)]  # check it's working: print(np.unique(nz_40.Site))
 nz_40_45 = nz.loc[
-    (nz['Lat'] >= -45) & (nz['Lat'] < -40) | (nz['Lat'] == -999)]  # -999's include Eastborne data in there.
+    (nz['Lat'] >= -45) & (nz['Lat'] < -40)]
 nz_45_50 = nz.loc[(nz['Lat'] >= -50) & (nz['Lat'] < -45)]
 nz_50_55 = nz.loc[(nz['Lat'] > -998) & (nz['Lat'] < -50)]  # > -998 keeps this portion from grabbing the Eastborne data.
 # check it works -> print(np.unique(nz_50_55.Site))
@@ -78,7 +78,7 @@ plt.legend()
 # plt.ylim([0, 300])
 plt.xlabel('Date', fontsize=14)
 plt.ylabel('\u0394$^1$$^4$CO$_2$ (\u2030)', fontsize=14)  # label the y axis
-plt.savefig('C:/Users/clewis/IdeaProjects/GNS/radiocarbon_intercomparison/interlab_comparison/plots/Tree_ring_analysis_NZ.png',
+plt.savefig('C:/Users/clewis/IdeaProjects/GNS/radiocarbon_intercomparison/interlab_comparison/plots/Tree_ring_analysis_NZ2.png',
             dpi=300, bbox_inches="tight")
 plt.close()
 
@@ -107,7 +107,7 @@ plt.legend()
 # plt.ylim([0, 300])
 plt.xlabel('Date', fontsize=14)
 plt.ylabel('\u0394$^1$$^4$CO$_2$ (\u2030)', fontsize=14)  # label the y axis
-plt.savefig('C:/Users/clewis/IdeaProjects/GNS/radiocarbon_intercomparison/interlab_comparison/plots/Tree_ring_analysis2_Chilean.png',
+plt.savefig('C:/Users/clewis/IdeaProjects/GNS/radiocarbon_intercomparison/interlab_comparison/plots/Tree_ring_analysis2_Chilean2.png',
             dpi=300, bbox_inches="tight")
 plt.close()
 

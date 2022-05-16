@@ -140,8 +140,8 @@ df = df.drop(df[df['abs_offset'] > 150].index)  # works
 print(np.shape(df))
 print(df)
 df = df.sort_values(by=['DecimalDate']).reset_index()
-df['Lon'] = df['Lon'].fillna(-999)  # fill all missing values with -999
-df['Lat'] = df['Lat'].fillna(-999)  # fill all missing values with -999
+df['Lon'] = df['Lon'].fillna(174)  # all missing values are at Eastborne with this lon
+df['Lat'] = df['Lat'].fillna(-41)  # all missing values are at Eastborne with this latitude
 df.to_excel('tree_ring_analysis_py.xlsx')
 # so now I'm going to re-extract these variables before plotting...
 sample_xs = df['DecimalDate']

@@ -25,7 +25,7 @@ nz_a2 = nz.loc[(nz['Lat'] >= -40) & (nz['DecimalDate'] >= 1990) & (nz['DecimalDa
 nz_a3 = nz.loc[(nz['Lat'] >= -40) & (nz['DecimalDate'] >= 2000) & (nz['DecimalDate'] < 2010)]  # etc...
 nz_a4 = nz.loc[(nz['Lat'] >= -40) & (nz['DecimalDate'] >= 2010) & (nz['DecimalDate'] < 2020)]
 
-nz_b1 = nz.loc[(nz['Lat'] >= -45) & (nz['Lat'] < -40) & (nz['DecimalDate'] >= 1980) & (nz['DecimalDate'] < 1990)]  # TODO EASTBORNE DATA IS CURRENTLY MISSING, LAT SET TO -999.
+nz_b1 = nz.loc[(nz['Lat'] >= -45) & (nz['Lat'] < -40) & (nz['DecimalDate'] >= 1980) & (nz['DecimalDate'] < 1990)]
 nz_b2 = nz.loc[(nz['Lat'] >= -45) & (nz['Lat'] < -40) & (nz['DecimalDate'] >= 1990) & (nz['DecimalDate'] < 2000)]
 nz_b3 = nz.loc[(nz['Lat'] >= -45) & (nz['Lat'] < -40) & (nz['DecimalDate'] >= 2000) & (nz['DecimalDate'] < 2010)]
 nz_b4 = nz.loc[(nz['Lat'] >= -45) & (nz['Lat'] < -40) & (nz['DecimalDate'] >= 2010) & (nz['DecimalDate'] < 2020)]
@@ -137,14 +137,14 @@ plt.scatter(nz_d1['DecimalDate'], nz_d1['offset'], alpha = a, color=colors[5], s
 plt.scatter(nz_d2['DecimalDate'], nz_d2['offset'], alpha = a, color=colors[5], s = size1)
 plt.scatter(nz_d3['DecimalDate'], nz_d3['offset'], alpha = a, color=colors[5], s = size1)
 plt.scatter(nz_d4['DecimalDate'], nz_d4['offset'], alpha = a, color=colors[5], s = size1)
-plt.axhline(y=0, color='black', linestyle='-')
+plt.axhline(y=0, color='black', linestyle='-', alpha = 0.15)
 plt.xlim([1980, 2020])
 plt.ylim([-15, 10])
 plt.legend()
 plt.savefig('C:/Users/clewis/IdeaProjects/GNS/radiocarbon_intercomparison/interlab_comparison/plots/Tree_ring2_dev.png',
             dpi=300, bbox_inches="tight")
 plt.close()
-plt.show()
+
 
 
 

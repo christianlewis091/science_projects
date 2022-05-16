@@ -6,8 +6,9 @@ to understand Southern ocean upwelling.
 
 Outcome:
 
-FILE STILL IN PROGRESS.
-
+Cleans up the data and outputs a new dataframe into excel sheet used for Tree_ring_analysis2.
+Creates a nice plot that gives an overview of the data-offsets relative to the harmonized dataset.
+Propogated errors are currently run at 10 iterations of Monte Carlo.
 """
 import numpy as np
 import matplotlib as mpl
@@ -138,8 +139,10 @@ df['abs_offset'] = abs(df['offset'])
 df = df.drop(df[df['abs_offset'] > 150].index)  # works
 print(np.shape(df))
 print(df)
-df = df.sort_values(by=['DecimalDate'])
-# df.to_excel('df.xlsx')
+df = df.sort_values(by=['DecimalDate']).reset_index()
+df['Lon'] = df['Lon'].fillna(-999)  # fill all missing values with -999
+df['Lat'] = df['Lat'].fillna(-999)  # fill all missing values with -999
+df.to_excel('tree_ring_analysis_py.xlsx')
 # so now I'm going to re-extract these variables before plotting...
 sample_xs = df['DecimalDate']
 sample_ys = df['∆14C']
@@ -515,42 +518,20 @@ plt.savefig('C:/Users/clewis/IdeaProjects/GNS/radiocarbon_intercomparison/interl
             dpi=300, bbox_inches="tight")
 plt.close()
 
+"""
+At this point, I have the plots. But these are useful just to generaly know how the data looks. 
+Rachel found latitudinal gradients in, which don't seem as obvious to me at least at first. 
 
+I don't really like the way that Rachel explains her data analysis in her thesis beacuse 
+there is not much explanation of how she treated the data, 
+which leaves me in the dark about how to recreate her result. 
 
+At first glance, there does seem to be some decrease in 14C from north to south by looking at my plots 
+In general 53S (Lonliest Tree) does look lower than the more northern ones. 
 
+To see this more clearly, I'm going to draw a linear regression through each one and then compare those lines. 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+"""
 
 """ Later, when I need to adjust the Chilean values to negative lon, here is the code"""
 # df['Lon'] = df['Lon'].fillna(-999)  # fill all missing values with -999

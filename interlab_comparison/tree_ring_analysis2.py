@@ -97,7 +97,7 @@ n_50_56, d_50_56 = np.linalg.lstsq(B_50_56, ch_50_56['offset'], rcond=None)[0]
 size1 = 30
 fig = plt.figure(2)
 # plt.scatter(nz_40['DecimalDate'], nz_40['offset'], marker='o', label='Southern Hemisphere Harmonized Dataset',
-#             color=colors2[5], s=size1, alpha=0.7)
+#             color=colors2[5], s=size1, alpha=0.7)plt.
 plt.plot(ch_40_45['DecimalDate'], n_40_45 * ch_40_45['DecimalDate'] + d_40_45, label='40-45S', color=colors2[2], linestyle = "dashdot")
 plt.plot(ch_45_50['DecimalDate'], n_45_50 * ch_45_50['DecimalDate'] + d_45_50, label='45-50S', color=colors2[3], linestyle = "dashed")
 plt.plot(ch_50_56['DecimalDate'], n_50_56 * ch_50_56['DecimalDate'] + d_50_56, label='50-56S', color=colors2[4])

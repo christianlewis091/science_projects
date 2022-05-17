@@ -74,6 +74,9 @@ df['offset'] = sample_ys - harm_ys
 df['offset_err_prop'] = np.sqrt((sample_y_err**2) + (harm_y_err**2))
 
 plt.errorbar(sample_xs, df['offset'], label='Tree Rings offset from background', yerr=df['offset_err_prop'], fmt='o', color='black', ecolor='black', elinewidth=1, capsize=2, alpha = 0.15)
+plt.xlabel('Date', fontsize=14)
+plt.ylabel('\u0394$^1$$^4$C (\u2030)', fontsize=14)  # label the y axis
+plt.title('Tree Ring Offsets From Background')
 plt.savefig('C:/Users/clewis/IdeaProjects/GNS/radiocarbon_intercomparison/interlab_comparison/plots/Tree_ring_analysis_Figure1.png',
             dpi=300, bbox_inches="tight")
 plt.close()
@@ -106,7 +109,6 @@ plt.close()
 """
 We can clearly see where bad ring counts exist - and the first thing I can do is remove wherever Jocelyn first flagged bad ring counts from the dataframe. 
 """
-print(np.shape(df))
 # testing the logic
 # df = df.drop(df[df['index'] < 50].index)  # works
 # drop all the data where Jocelyn noted that the ring counts are incorrect.
@@ -133,9 +135,9 @@ sample_y_err = df['∆14Cerr']
 size1 = 30
 fig = plt.figure(2)
 plt.scatter(xtot_bhd, ytot_bhd, label='Southern Hemisphere Harmonized Dataset', color=colors2[5], s = size1)
-plt.scatter(sample_xs, sample_ys, label='Tree Ring Records', color=colors2[2], s = size1)
+plt.scatter(sample_xs, sample_ys, label='Tree Ring Records', color=colors2[2], s = size1, marker = 'x')
 plt.legend()
-plt.title('Harmonized Southern Hemisphere data versus Tree Ring record - Bad Ring Counts Removed')
+plt.title('Harmonized Southern Hemisphere data versus Tree Ring record - Offsets > {} removed'.format(OFFSET_FILTER))
 # plt.xlim([1950, 1970])
 # plt.ylim([0, 300])
 plt.xlabel('Date', fontsize=14)
@@ -342,6 +344,7 @@ axs[1, 3].errorbar(CH_55_S_2_x, CH_55_S_2_off, label='CH_41_S', yerr=CH_55_S_2_o
 axs[1, 3].set_title("55\xb0S (Puerto Navarino, Isla Navarino)")
 axs[1, 3].axhline(y=0, color='black', linestyle='-')
 axs[1, 3].set_ylim(-20, 20)
+
 plt.savefig('C:/Users/clewis/IdeaProjects/GNS/radiocarbon_intercomparison/interlab_comparison/plots/Tree_ring_analysis_Figure5.png',
             dpi=300, bbox_inches="tight")
 plt.close()
@@ -416,10 +419,11 @@ chile = df.loc[(df['Lon'] < 100) & (df['Lon'] > 0)]
 # Chile data still needs LONS to be changed to negative, but OK for now
 
 # index the NZ Data based on Latitude
-nz_40 = nz.loc[(nz['Lat'] >= -40)]  # check it's working: print(np.unique(nz_40.Site))
-nz_40_45 = nz.loc[
-    (nz['Lat'] >= -45) & (nz['Lat'] < -40)]
-nz_45_50 = nz.loc[(nz['Lat'] >= -50) & (nz['Lat'] < -45)]
+# I'm changing this from a previous version to bound the data at latitudes based on our data availability, rather
+# than arbitrarily at 5 degree increments.
+# nz_40 = nz.loc[(nz['Lat'] >= -40)]  # check it's working: print(np.unique(nz_40.Site))
+nz_40_45 = nz.loc[(nz['Lat'] >= -42) & (nz['Lat'] < -36)]
+nz_45_50 = nz.loc[(nz['Lat'] >= -48) & (nz['Lat'] < -43)]
 nz_50_55 = nz.loc[(nz['Lat'] > -998) & (nz['Lat'] < -50)]  # > -998 keeps this portion from grabbing the Eastborne data.
 # check it works -> print(np.unique(nz_50_55.Site))
 
@@ -427,13 +431,13 @@ nz_50_55 = nz.loc[(nz['Lat'] > -998) & (nz['Lat'] < -50)]  # > -998 keeps this p
 ch_40_45 = chile.loc[(chile['Lat'] > -45) & (chile['Lat'] <= -40)]
 ch_45_50 = chile.loc[(chile['Lat'] > -50) & (chile['Lat'] <= -45)]
 ch_50_56 = chile.loc[(chile['Lat'] > -56) & (chile['Lat'] <= -50)]
-print(np.unique(ch_50_56.Site))
+# print(np.unique(ch_50_56.Site))
 
 """
 LINEAR REGRESSION OF NZ DATA
 """
-A_40 = np.vstack([nz_40['DecimalDate'], np.ones(len(nz_40['DecimalDate']))]).T
-m_40, c_40 = np.linalg.lstsq(A_40, nz_40['offset'], rcond=None)[0]
+# A_40 = np.vstack([nz_40['DecimalDate'], np.ones(len(nz_40['DecimalDate']))]).T
+# m_40, c_40 = np.linalg.lstsq(A_40, nz_40['offset'], rcond=None)[0]
 
 A_40_45 = np.vstack([nz_40_45['DecimalDate'], np.ones(len(nz_40_45['DecimalDate']))]).T
 m_40_45, c_40_45 = np.linalg.lstsq(A_40_45, nz_40_45['offset'], rcond=None)[0]
@@ -449,16 +453,17 @@ size1 = 30
 fig = plt.figure(7)
 # plt.scatter(nz_40['DecimalDate'], nz_40['offset'], marker='o', label='Southern Hemisphere Harmonized Dataset',
 #             color=colors2[5], s=size1, alpha=0.7)
-plt.plot(nz_40['DecimalDate'], m_40 * nz_40['DecimalDate'] + c_40, label='40S', color=colors2[1], linestyle = "dotted")
-plt.plot(nz_40_45['DecimalDate'], m_40_45 * nz_40_45['DecimalDate'] + c_40_45, label='40-45S', color=colors2[2], linestyle = "dashdot")
-plt.plot(nz_45_50['DecimalDate'], m_45_50 * nz_45_50['DecimalDate'] + c_45_50, label='45-50S', color=colors2[3], linestyle = "dashed")
-plt.plot(nz_50_55['DecimalDate'], m_50_55 * nz_50_55['DecimalDate'] + c_50_55, label='50-55S', color=colors2[4])
+# plt.plot(nz_40['DecimalDate'], m_40 * nz_40['DecimalDate'] + c_40, label='40S', color=colors2[1], linestyle = "dotted")
+plt.plot(nz_40_45['DecimalDate'], m_40_45 * nz_40_45['DecimalDate'] + c_40_45, label='36-42S', color=colors2[2], linestyle = "dashdot")
+plt.plot(nz_45_50['DecimalDate'], m_45_50 * nz_45_50['DecimalDate'] + c_45_50, label='43-48S', color=colors2[3], linestyle = "dashed")
+plt.plot(nz_50_55['DecimalDate'], m_50_55 * nz_50_55['DecimalDate'] + c_50_55, label='53S', color=colors2[4])
 plt.title('New Zealand Tree Ring Offsets Linearly Regressed')
 plt.legend()
 # plt.xlim([1980, 2020])
-# plt.ylim([0, 300])
+plt.ylim([-15, 10])
 plt.xlabel('Date', fontsize=14)
-plt.ylabel('\u0394$^1$$^4$CO$_2$ (\u2030)', fontsize=14)  # label the y axis
+plt.ylabel('\u0394\u0394$^1$$^4$CO$_2$ (\u2030)', fontsize=14)  # label the y axis
+plt.axhline(y=0, color='black', linestyle='-', alpha = 0.15)
 plt.savefig('C:/Users/clewis/IdeaProjects/GNS/radiocarbon_intercomparison/interlab_comparison/plots/Tree_ring_analysis_Figure7.png',
             dpi=300, bbox_inches="tight")
 plt.close()
@@ -487,7 +492,7 @@ plt.legend()
 # plt.xlim([1980, 2020])
 # plt.ylim([0, 300])
 plt.xlabel('Date', fontsize=14)
-plt.ylabel('\u0394$^1$$^4$CO$_2$ (\u2030)', fontsize=14)  # label the y axis
+plt.ylabel('\u0394\u0394$^1$$^4$CO$_2$ (\u2030)', fontsize=14)  # label the y axis
 plt.savefig('C:/Users/clewis/IdeaProjects/GNS/radiocarbon_intercomparison/interlab_comparison/plots/Tree_ring_analysis_Figure8.png',
             dpi=300, bbox_inches="tight")
 plt.close()
@@ -505,20 +510,22 @@ AND THEN YOU CAN INDEX BASED ON LATITUDE AND TIME.
 """
 
 # indexing the data according to the matrix in my DataScience Notebook:
-nz_a1 = nz.loc[(nz['Lat'] >= -40) & (nz['DecimalDate'] >= 1980) & (nz['DecimalDate'] < 1990)]  # North of 40S, 1980 - 1990
-nz_a2 = nz.loc[(nz['Lat'] >= -40) & (nz['DecimalDate'] >= 1990) & (nz['DecimalDate'] < 2000)]  # North of 40S, 1990 - 2000
-nz_a3 = nz.loc[(nz['Lat'] >= -40) & (nz['DecimalDate'] >= 2000) & (nz['DecimalDate'] < 2010)]  # etc...
-nz_a4 = nz.loc[(nz['Lat'] >= -40) & (nz['DecimalDate'] >= 2010) & (nz['DecimalDate'] < 2020)]
+# I'm changing this from a previous version to bound the data at latitudes based on our data availability, rather
+# than arbitrarily at 5 degree increments.
+# nz_a1 = nz.loc[(nz['Lat'] >= -40) & (nz['DecimalDate'] >= 1980) & (nz['DecimalDate'] < 1990)]  # North of 40S, 1980 - 1990
+# nz_a2 = nz.loc[(nz['Lat'] >= -40) & (nz['DecimalDate'] >= 1990) & (nz['DecimalDate'] < 2000)]  # North of 40S, 1990 - 2000
+# nz_a3 = nz.loc[(nz['Lat'] >= -40) & (nz['DecimalDate'] >= 2000) & (nz['DecimalDate'] < 2010)]  # etc...
+# nz_a4 = nz.loc[(nz['Lat'] >= -40) & (nz['DecimalDate'] >= 2010) & (nz['DecimalDate'] < 2020)]
 
-nz_b1 = nz.loc[(nz['Lat'] >= -45) & (nz['Lat'] < -40) & (nz['DecimalDate'] >= 1980) & (nz['DecimalDate'] < 1990)]
-nz_b2 = nz.loc[(nz['Lat'] >= -45) & (nz['Lat'] < -40) & (nz['DecimalDate'] >= 1990) & (nz['DecimalDate'] < 2000)]
-nz_b3 = nz.loc[(nz['Lat'] >= -45) & (nz['Lat'] < -40) & (nz['DecimalDate'] >= 2000) & (nz['DecimalDate'] < 2010)]
-nz_b4 = nz.loc[(nz['Lat'] >= -45) & (nz['Lat'] < -40) & (nz['DecimalDate'] >= 2010) & (nz['DecimalDate'] < 2020)]
+nz_b1 = nz.loc[(nz['Lat'] >= -42) & (nz['Lat'] < -36) & (nz['DecimalDate'] >= 1980) & (nz['DecimalDate'] < 1990)]
+nz_b2 = nz.loc[(nz['Lat'] >= -42) & (nz['Lat'] < -36) & (nz['DecimalDate'] >= 1990) & (nz['DecimalDate'] < 2000)]
+nz_b3 = nz.loc[(nz['Lat'] >= -42) & (nz['Lat'] < -36) & (nz['DecimalDate'] >= 2000) & (nz['DecimalDate'] < 2010)]
+nz_b4 = nz.loc[(nz['Lat'] >= -42) & (nz['Lat'] < -36) & (nz['DecimalDate'] >= 2010) & (nz['DecimalDate'] < 2020)]
 
-nz_c1 = nz.loc[(nz['Lat'] >= -50) & (nz['Lat'] < -45) & (nz['DecimalDate'] >= 1980) & (nz['DecimalDate'] < 1990)]
-nz_c2 = nz.loc[(nz['Lat'] >= -50) & (nz['Lat'] < -45) & (nz['DecimalDate'] >= 1990) & (nz['DecimalDate'] < 2000)]
-nz_c3 = nz.loc[(nz['Lat'] >= -50) & (nz['Lat'] < -45) & (nz['DecimalDate'] >= 2000) & (nz['DecimalDate'] < 2010)]
-nz_c4 = nz.loc[(nz['Lat'] >= -50) & (nz['Lat'] < -45) & (nz['DecimalDate'] >= 2010) & (nz['DecimalDate'] < 2020)]
+nz_c1 = nz.loc[(nz['Lat'] >= -48) & (nz['Lat'] < -43) & (nz['DecimalDate'] >= 1980) & (nz['DecimalDate'] < 1990)]
+nz_c2 = nz.loc[(nz['Lat'] >= -48) & (nz['Lat'] < -43) & (nz['DecimalDate'] >= 1990) & (nz['DecimalDate'] < 2000)]
+nz_c3 = nz.loc[(nz['Lat'] >= -48) & (nz['Lat'] < -43) & (nz['DecimalDate'] >= 2000) & (nz['DecimalDate'] < 2010)]
+nz_c4 = nz.loc[(nz['Lat'] >= -48) & (nz['Lat'] < -43) & (nz['DecimalDate'] >= 2010) & (nz['DecimalDate'] < 2020)]
 
 nz_d1 = nz.loc[(nz['Lat'] > -998) & (nz['Lat'] < -50) & (nz['DecimalDate'] >= 1980) & (nz['DecimalDate'] < 1990)]  # > -998 keeps this portion from grabbing the Eastborne data set at -999.
 nz_d2 = nz.loc[(nz['Lat'] > -998) & (nz['Lat'] < -50) & (nz['DecimalDate'] >= 1990) & (nz['DecimalDate'] < 2000)]
@@ -530,10 +537,10 @@ Perform the linear regression for each time period and latitude range:
 
 https://numpy.org/doc/stable/reference/generated/numpy.linalg.lstsq.html
 """
-A_nz_a1 = np.vstack([nz_a1['DecimalDate'], np.ones(len(nz_a1['DecimalDate']))]).T
-A_nz_a2 = np.vstack([nz_a2['DecimalDate'], np.ones(len(nz_a2['DecimalDate']))]).T
-A_nz_a3 = np.vstack([nz_a3['DecimalDate'], np.ones(len(nz_a3['DecimalDate']))]).T
-A_nz_a4 = np.vstack([nz_a4['DecimalDate'], np.ones(len(nz_a4['DecimalDate']))]).T
+# A_nz_a1 = np.vstack([nz_a1['DecimalDate'], np.ones(len(nz_a1['DecimalDate']))]).T
+# A_nz_a2 = np.vstack([nz_a2['DecimalDate'], np.ones(len(nz_a2['DecimalDate']))]).T
+# A_nz_a3 = np.vstack([nz_a3['DecimalDate'], np.ones(len(nz_a3['DecimalDate']))]).T
+# A_nz_a4 = np.vstack([nz_a4['DecimalDate'], np.ones(len(nz_a4['DecimalDate']))]).T
 
 A_nz_b1 = np.vstack([nz_b1['DecimalDate'], np.ones(len(nz_b1['DecimalDate']))]).T
 A_nz_b2 = np.vstack([nz_b2['DecimalDate'], np.ones(len(nz_b2['DecimalDate']))]).T
@@ -550,10 +557,10 @@ A_nz_d2 = np.vstack([nz_d2['DecimalDate'], np.ones(len(nz_d2['DecimalDate']))]).
 A_nz_d3 = np.vstack([nz_d3['DecimalDate'], np.ones(len(nz_d3['DecimalDate']))]).T
 A_nz_d4 = np.vstack([nz_d4['DecimalDate'], np.ones(len(nz_d4['DecimalDate']))]).T
 
-m_a1, c_a1 = np.linalg.lstsq(A_nz_a1, nz_a1['offset'], rcond=None)[0]
-m_a2, c_a2 = np.linalg.lstsq(A_nz_a2, nz_a2['offset'], rcond=None)[0]
-m_a3, c_a3 = np.linalg.lstsq(A_nz_a3, nz_a3['offset'], rcond=None)[0]
-m_a4, c_a4 = np.linalg.lstsq(A_nz_a4, nz_a4['offset'], rcond=None)[0]
+# m_a1, c_a1 = np.linalg.lstsq(A_nz_a1, nz_a1['offset'], rcond=None)[0]
+# m_a2, c_a2 = np.linalg.lstsq(A_nz_a2, nz_a2['offset'], rcond=None)[0]
+# m_a3, c_a3 = np.linalg.lstsq(A_nz_a3, nz_a3['offset'], rcond=None)[0]
+# m_a4, c_a4 = np.linalg.lstsq(A_nz_a4, nz_a4['offset'], rcond=None)[0]
 
 m_b1, c_b1 = np.linalg.lstsq(A_nz_b1, nz_b1['offset'], rcond=None)[0]
 m_b2, c_b2 = np.linalg.lstsq(A_nz_b2, nz_b2['offset'], rcond=None)[0]
@@ -581,51 +588,54 @@ mpl.rcParams['font.size'] = 10
 a = 0.15
 size1 = 15
 fig = plt.figure(2)
-plt.plot(nz_a1['DecimalDate'], m_a1*nz_a1['DecimalDate'] + c_a1, label='North of 40S', color='black', linestyle = "dashdot")
-plt.plot(nz_a2['DecimalDate'], m_a2*nz_a2['DecimalDate'] + c_a2, color='black', linestyle = "dashdot")
-plt.plot(nz_a3['DecimalDate'], m_a3*nz_a3['DecimalDate'] + c_a3, color='black', linestyle = "dashdot")
-plt.plot(nz_a4['DecimalDate'], m_a4*nz_a4['DecimalDate'] + c_a4, color='black', linestyle = "dashdot")
-
-plt.scatter(nz_a1['DecimalDate'], nz_a1['offset'], alpha = a, color='black', s = size1)
-plt.scatter(nz_a2['DecimalDate'], nz_a2['offset'], alpha = a, color='black', s = size1)
-plt.scatter(nz_a3['DecimalDate'], nz_a3['offset'], alpha = a, color='black', s = size1)
-plt.scatter(nz_a4['DecimalDate'], nz_a4['offset'], alpha = a, color='black', s = size1)
+# plt.plot(nz_a1['DecimalDate'], m_a1*nz_a1['DecimalDate'] + c_a1, label='North of 40S', color='black', linestyle = "dashdot")
+# plt.plot(nz_a2['DecimalDate'], m_a2*nz_a2['DecimalDate'] + c_a2, color='black', linestyle = "dashdot")
+# plt.plot(nz_a3['DecimalDate'], m_a3*nz_a3['DecimalDate'] + c_a3, color='black', linestyle = "dashdot")
+# plt.plot(nz_a4['DecimalDate'], m_a4*nz_a4['DecimalDate'] + c_a4, color='black', linestyle = "dashdot")
+#
+# plt.scatter(nz_a1['DecimalDate'], nz_a1['offset'], alpha = a, color='black', s = size1)
+# plt.scatter(nz_a2['DecimalDate'], nz_a2['offset'], alpha = a, color='black', s = size1)
+# plt.scatter(nz_a3['DecimalDate'], nz_a3['offset'], alpha = a, color='black', s = size1)
+# plt.scatter(nz_a4['DecimalDate'], nz_a4['offset'], alpha = a, color='black', s = size1)
 
 # TODO fix the B part of the matrix - doesn't seem to be indexing properly.
-plt.plot(nz_b1['DecimalDate'], m_b1*nz_b1['DecimalDate'] + c_b1, label='40-45S', color=colors[1], linestyle = "dotted")
-plt.plot(nz_b2['DecimalDate'], m_b2*nz_b2['DecimalDate'] + c_b2, color=colors[1], linestyle = "dotted")
-plt.plot(nz_b3['DecimalDate'], m_b3*nz_b3['DecimalDate'] + c_b3, color=colors[1], linestyle = "dotted")
-plt.plot(nz_b4['DecimalDate'], m_b4*nz_b4['DecimalDate'] + c_b4, color=colors[1], linestyle = "dotted")
+plt.plot(nz_b1['DecimalDate'], m_b1*nz_b1['DecimalDate'] + c_b1, label='36-42S', color=colors2[2], linestyle = "dashdot")
+plt.plot(nz_b2['DecimalDate'], m_b2*nz_b2['DecimalDate'] + c_b2, color=colors2[2], linestyle = "dashdot")
+plt.plot(nz_b3['DecimalDate'], m_b3*nz_b3['DecimalDate'] + c_b3, color=colors2[2], linestyle = "dashdot")
+plt.plot(nz_b4['DecimalDate'], m_b4*nz_b4['DecimalDate'] + c_b4, color=colors2[2], linestyle = "dashdot")
 
-plt.scatter(nz_b1['DecimalDate'], nz_b1['offset'], alpha = a, color=colors[1], s = size1)
-plt.scatter(nz_b2['DecimalDate'], nz_b2['offset'], alpha = a, color=colors[1], s = size1)
-plt.scatter(nz_b3['DecimalDate'], nz_b3['offset'], alpha = a, color=colors[1], s = size1)
-plt.scatter(nz_b4['DecimalDate'], nz_b4['offset'], alpha = a, color=colors[1], s = size1)
+plt.scatter(nz_b1['DecimalDate'], nz_b1['offset'], alpha = a, color=colors2[2], s = size1)
+plt.scatter(nz_b2['DecimalDate'], nz_b2['offset'], alpha = a, color=colors2[2], s = size1)
+plt.scatter(nz_b3['DecimalDate'], nz_b3['offset'], alpha = a, color=colors2[2], s = size1)
+plt.scatter(nz_b4['DecimalDate'], nz_b4['offset'], alpha = a, color=colors2[2], s = size1)
 
 
-plt.plot(nz_c1['DecimalDate'], m_c1*nz_c1['DecimalDate'] + c_c1, label='45-50S', color=colors2[1], linestyle = "dashed")
-plt.plot(nz_c2['DecimalDate'], m_c2*nz_c2['DecimalDate'] + c_c2, color=colors2[1], linestyle = "dashed")
-plt.plot(nz_c3['DecimalDate'], m_c3*nz_c3['DecimalDate'] + c_c3, color=colors2[1], linestyle = "dashed")
-plt.plot(nz_c4['DecimalDate'], m_c4*nz_c4['DecimalDate'] + c_c4,  color=colors2[1], linestyle = "dashed")
+plt.plot(nz_c1['DecimalDate'], m_c1*nz_c1['DecimalDate'] + c_c1, label='43-48S', color=colors2[3], linestyle = "dashed")
+plt.plot(nz_c2['DecimalDate'], m_c2*nz_c2['DecimalDate'] + c_c2, color=colors2[3], linestyle = "dashed")
+plt.plot(nz_c3['DecimalDate'], m_c3*nz_c3['DecimalDate'] + c_c3, color=colors2[3], linestyle = "dashed")
+plt.plot(nz_c4['DecimalDate'], m_c4*nz_c4['DecimalDate'] + c_c4,  color=colors2[3], linestyle = "dashed")
 
-plt.scatter(nz_c1['DecimalDate'], nz_c1['offset'], alpha = a, color=colors2[1], s = size1)
-plt.scatter(nz_c2['DecimalDate'], nz_c2['offset'], alpha = a, color=colors2[1], s = size1)
-plt.scatter(nz_c3['DecimalDate'], nz_c3['offset'], alpha = a, color=colors2[1], s = size1)
-plt.scatter(nz_c4['DecimalDate'], nz_c4['offset'], alpha = a, color=colors2[1], s = size1)
+plt.scatter(nz_c1['DecimalDate'], nz_c1['offset'], alpha = a, color=colors2[3], s = size1)
+plt.scatter(nz_c2['DecimalDate'], nz_c2['offset'], alpha = a, color=colors2[3], s = size1)
+plt.scatter(nz_c3['DecimalDate'], nz_c3['offset'], alpha = a, color=colors2[3], s = size1)
+plt.scatter(nz_c4['DecimalDate'], nz_c4['offset'], alpha = a, color=colors2[3], s = size1)
 
-plt.plot(nz_d1['DecimalDate'], m_d1*nz_d1['DecimalDate'] + c_d1, label='50-55S', color=colors[5], linestyle = "solid")
-plt.plot(nz_d2['DecimalDate'], m_d2*nz_d2['DecimalDate'] + c_d2, color=colors[5], linestyle = "solid")
-plt.plot(nz_d3['DecimalDate'], m_d3*nz_d3['DecimalDate'] + c_d3, color=colors[5], linestyle = "solid")
-plt.plot(nz_d4['DecimalDate'], m_d4*nz_d4['DecimalDate'] + c_d4, color=colors[5], linestyle = "solid")
+plt.plot(nz_d1['DecimalDate'], m_d1*nz_d1['DecimalDate'] + c_d1, label='53S', color=colors2[4], linestyle = "solid")
+plt.plot(nz_d2['DecimalDate'], m_d2*nz_d2['DecimalDate'] + c_d2, color=colors2[4], linestyle = "solid")
+plt.plot(nz_d3['DecimalDate'], m_d3*nz_d3['DecimalDate'] + c_d3, color=colors2[4], linestyle = "solid")
+plt.plot(nz_d4['DecimalDate'], m_d4*nz_d4['DecimalDate'] + c_d4, color=colors2[4], linestyle = "solid")
 
-plt.scatter(nz_d1['DecimalDate'], nz_d1['offset'], alpha = a, color=colors[5], s = size1)
-plt.scatter(nz_d2['DecimalDate'], nz_d2['offset'], alpha = a, color=colors[5], s = size1)
-plt.scatter(nz_d3['DecimalDate'], nz_d3['offset'], alpha = a, color=colors[5], s = size1)
-plt.scatter(nz_d4['DecimalDate'], nz_d4['offset'], alpha = a, color=colors[5], s = size1)
+plt.scatter(nz_d1['DecimalDate'], nz_d1['offset'], alpha = a, color=colors2[4], s = size1)
+plt.scatter(nz_d2['DecimalDate'], nz_d2['offset'], alpha = a, color=colors2[4], s = size1)
+plt.scatter(nz_d3['DecimalDate'], nz_d3['offset'], alpha = a, color=colors2[4], s = size1)
+plt.scatter(nz_d4['DecimalDate'], nz_d4['offset'], alpha = a, color=colors2[4], s = size1)
 plt.axhline(y=0, color='black', linestyle='-', alpha = 0.15)
 plt.xlim([1980, 2020])
 plt.ylim([-15, 10])
 plt.legend()
+plt.title('New Zealand Tree Ring Offsets by Latitude and Year')
+plt.xlabel('Date', fontsize=14)
+plt.ylabel('\u0394\u0394$^1$$^4$CO$_2$ (\u2030)', fontsize=14)  # label the y axis
 plt.savefig('C:/Users/clewis/IdeaProjects/GNS/radiocarbon_intercomparison/interlab_comparison/plots/Tree_ring_analysis_Figure9.png',
             dpi=300, bbox_inches="tight")
 plt.close()
@@ -706,15 +716,16 @@ mpl.rcParams['font.size'] = 10
 a = 0.15
 size1 = 15
 fig = plt.figure(3)
-plt.plot(chile_a1['DecimalDate'], m_a1*chile_a1['DecimalDate'] + c_a1, label='North of 40S', color='black', linestyle = "dashdot")
-plt.plot(chile_a2['DecimalDate'], m_a2*chile_a2['DecimalDate'] + c_a2, color='black', linestyle = "dashdot")
-plt.plot(chile_a3['DecimalDate'], m_a3*chile_a3['DecimalDate'] + c_a3, color='black', linestyle = "dashdot")
-plt.plot(chile_a4['DecimalDate'], m_a4*chile_a4['DecimalDate'] + c_a4, color='black', linestyle = "dashdot")
-
-plt.scatter(chile_a1['DecimalDate'], chile_a1['offset'], alpha = a, color='black', s = size1)
-plt.scatter(chile_a2['DecimalDate'], chile_a2['offset'], alpha = a, color='black', s = size1)
-plt.scatter(chile_a3['DecimalDate'], chile_a3['offset'], alpha = a, color='black', s = size1)
-plt.scatter(chile_a4['DecimalDate'], chile_a4['offset'], alpha = a, color='black', s = size1)
+# plt.plot(chile_a1['DecimalDate'], m_a1*chile_a1['DecimalDate'] + c_a1, label='North of 40S', color='black', linestyle = "dashdot")
+# plt.plot(chile_a2['DecimalDate'], m_a2*chile_a2['DecimalDate'] + c_a2, color='black', linestyle = "dashdot")
+# plt.plot(chile_a3['DecimalDate'], m_a3*chile_a3['DecimalDate'] + c_a3, color='black', linestyle = "dashdot")
+# plt.plot(chile_a4['DecimalDate'], m_a4*chile_a4['DecimalDate'] + c_a4, color='black', linestyle = "dashdot")
+#
+# plt.scatter(chile_a1['DecimalDate'], chile_a1['offset'], alpha = a, color='black', s = size1)
+# plt.scatter(chile_a2['DecimalDate'], chile_a2['offset'], alpha = a, color='black', s = size1)
+# plt.scatter(chile_a3['DecimalDate'], chile_a3['offset'], alpha = a, color='black', s = size1)
+# plt.scatter(chile_a4['DecimalDate'], chile_a4['offset'], alpha = a, color='black', s = size1)
+# There is no data at higher than 40S for the Chilean sites#
 
 plt.plot(chile_b1['DecimalDate'], m_b1*chile_b1['DecimalDate'] + c_b1, label='40-45S', color=colors[1], linestyle = "dotted")
 plt.plot(chile_b2['DecimalDate'], m_b2*chile_b2['DecimalDate'] + c_b2, color=colors[1], linestyle = "dotted")
@@ -725,7 +736,6 @@ plt.scatter(chile_b1['DecimalDate'], chile_b1['offset'], alpha = a, color=colors
 plt.scatter(chile_b2['DecimalDate'], chile_b2['offset'], alpha = a, color=colors[1], s = size1)
 plt.scatter(chile_b3['DecimalDate'], chile_b3['offset'], alpha = a, color=colors[1], s = size1)
 plt.scatter(chile_b4['DecimalDate'], chile_b4['offset'], alpha = a, color=colors[1], s = size1)
-
 
 plt.plot(chile_c1['DecimalDate'], m_c1*chile_c1['DecimalDate'] + c_c1, label='45-50S', color=colors2[1], linestyle = "dashed")
 plt.plot(chile_c2['DecimalDate'], m_c2*chile_c2['DecimalDate'] + c_c2, color=colors2[1], linestyle = "dashed")
@@ -747,10 +757,20 @@ plt.scatter(chile_d2['DecimalDate'], chile_d2['offset'], alpha = a, color=colors
 plt.scatter(chile_d3['DecimalDate'], chile_d3['offset'], alpha = a, color=colors[5], s = size1)
 plt.scatter(chile_d4['DecimalDate'], chile_d4['offset'], alpha = a, color=colors[5], s = size1)
 plt.axhline(y=0, color='black', linestyle='-', alpha = 0.15)
+plt.title('Chilean Tree Ring Record Offsets Linearly Regressed')
 # plt.xlim([1980, 2020])
 # plt.ylim([-15, 10])
 plt.legend()
+plt.title('Chile Tree Ring Offsets by Latitude and Year')
+plt.xlabel('Date', fontsize=14)
+plt.ylabel('\u0394\u0394$^1$$^4$CO$_2$ (\u2030)', fontsize=14)  # label the y axis
 plt.savefig('C:/Users/clewis/IdeaProjects/GNS/radiocarbon_intercomparison/interlab_comparison/plots/Tree_ring_analysis_Figure10.png',
             dpi=300, bbox_inches="tight")
 plt.close()
 
+"""
+The trends seen in the data above: Figures 9 and 10, aren't really that helpful. For example, one line can be drawn from 
+20 points while the other is 1 or 2 points. This is not represented at all in the Figure and will lead to unoptomized
+interpretations. 
+I need to figure out some way to weigh the trend-lines based on how many data points are there. 
+"""

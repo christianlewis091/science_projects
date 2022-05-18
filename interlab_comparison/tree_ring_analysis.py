@@ -21,6 +21,7 @@ from heidelberg_intercomparison import monte_carlo_randomization_Trend
 from mpl_toolkits.basemap import Basemap
 import matplotlib.pyplot as plt
 
+plt.close()
 colors = sns.color_palette("rocket", 6)
 colors2 = sns.color_palette("mako", 6)
 mpl.rcParams['pdf.fonttype'] = 42
@@ -29,7 +30,7 @@ size1 = 5
 
 df = pd.read_excel(r'H:\The Science\Datasets'
                    r'\SOARTreeRingData2022-02-01.xlsx')
-df = df.dropna(subset = '∆14C').reset_index()
+df = df.dropna(subset = '∆14C').reset_index(drop=True)
 
 # importing harmonized southern hemisphere dataset from the previous python file.
 harm_xs = harmonized['Decimal_date']  # see dataset_harmonization.py
@@ -59,7 +60,7 @@ errors_fin = errors_fin['stdevs']
 df['harmonized_dataset_trended'] = harmonized_trend
 df['harmonized_dataset_errors'] = errors_fin
 
-""" 
+"""
 I think NOW I have to finally drop the NAN's because the math has trouble
 when there are missing values
 """
@@ -84,7 +85,7 @@ plt.savefig('C:/Users/clewis/IdeaProjects/GNS/radiocarbon_intercomparison/interl
 plt.close()
 
 """
-Now I need to clean up the dataset, including removing bad ring counts, etc. But lets start with the bad ring counts. 
+Now I need to clean up the dataset, including removing bad ring counts, etc. But lets start with the bad ring counts.
 """
 
 baringhead = pd.read_excel(r'H:\The Science\Datasets'
@@ -109,21 +110,21 @@ plt.savefig('C:/Users/clewis/IdeaProjects/GNS/radiocarbon_intercomparison/interl
             dpi=300, bbox_inches="tight")
 plt.close()
 """
-We can clearly see where bad ring counts exist - and the first thing I can do is remove wherever Jocelyn first flagged bad ring counts from the dataframe. 
+We can clearly see where bad ring counts exist - and the first thing I can do is remove wherever Jocelyn first flagged bad ring counts from the dataframe.
 """
 # testing the logic
 # df = df.drop(df[df['index'] < 50].index)  # works
 # drop all the data where Jocelyn noted that the ring counts are incorrect.
 df = df.drop(df[df['C14 comment'] == 'RING COUNT IS INCORRECT BASED ON 14C AMS measurement of this sample was performed at the Australian tiol University AMS facility.  All preparation (pretreatment, combustion, graphitisation, target packing) and data reduction was performed at the Rafter facility in our usual way.  The data quality meets our usual high standard, indicated by standard materials that agree with previous measurements of the same material made in our lab within one standard deviation.'].index)
 """
-The above line of code only removes three rows of data, so I'll add another filter based on how far off the offset is 
-"if the tree ring data is X away from the harmonized record, we can be sure it's bad" 
+The above line of code only removes three rows of data, so I'll add another filter based on how far off the offset is
+"if the tree ring data is X away from the harmonized record, we can be sure it's bad"
 """
 df['abs_offset'] = abs(df['offset'])
 # currently, if the offset is greater than 50, the data is removed.
 OFFSET_FILTER = 50
 df = df.drop(df[df['abs_offset'] > OFFSET_FILTER].index)  # works
-df = df.sort_values(by=['DecimalDate']).reset_index()
+df = df.sort_values(by=['DecimalDate']).reset_index(drop=True)
 df['Lon'] = df['Lon'].fillna(174)  # all missing values are at Eastborne with this lon
 df['Lat'] = df['Lat'].fillna(-41)  # all missing values are at Eastborne with this latitude
 
@@ -297,12 +298,12 @@ plt.savefig('C:/Users/clewis/IdeaProjects/GNS/radiocarbon_intercomparison/interl
 plt.close()
 
 """
-So now we can see how close the tree rings from each site are to the background harmonized dataset. 
-At the bomb peak, you can clearly see a discrepancy between the tree rings and the bomb peak. 
+So now we can see how close the tree rings from each site are to the background harmonized dataset.
+At the bomb peak, you can clearly see a discrepancy between the tree rings and the bomb peak.
 But what does it mean at this exact point? And how do I identify meaningful differences between the datasets before
-and after the peak? 
-I have pasted the comparison of Rachel's and mine up to this point in my notes. 
-How do our offsets compare? 
+and after the peak?
+I have pasted the comparison of Rachel's and mine up to this point in my notes.
+How do our offsets compare?
 """
 plt.errorbar(sample_xs, df['offset'], label='Tree Rings offset from background', yerr=df['offset_err_prop'], fmt='o', color='black', ecolor='black', elinewidth=1, capsize=2, alpha = 0.5)
 
@@ -415,9 +416,12 @@ We can also index according to LATITUDE ONLY and see how the plots look
 #######################################################################################################################
 """
 # break up the data into two DataFrames based on their location, and remove all data before 1980.
-df = df.loc[(df['DecimalDate'] >= 1980)]  # TODO after analysis is finished, come back to time before 1980
-nz = df.loc[(df['Lon'] > 100)]
-chile = df.loc[(df['Lon'] < 100) & (df['Lon'] > 0)]
+df = df.loc[(df['DecimalDate'] >= 1980)].reset_index(drop=True)  # TODO after analysis is finished, come back to time before 1980
+nz = df.loc[(df['Lon'] > 100)].reset_index(drop=True)
+chile = df.loc[(df['Lon'] < 100) & (df['Lon'] > 0)].reset_index(drop=True)
+chile['new_Lon'] = chile['Lon'] * -1
+# chile.to_excel('chile.xlsx')
+# chile['Lon_adjust'] = np.prod(chile['Lon'], -1)
 # Chile data still needs LONS to be changed to negative, but OK for now
 
 # index the NZ Data based on Latitude
@@ -504,7 +508,7 @@ plt.close()
 #######################################################################################################################
 #######################################################################################################################
 #######################################################################################################################
-AND THEN YOU CAN INDEX BASED ON LATITUDE AND TIME. 
+AND THEN YOU CAN INDEX BASED ON LATITUDE AND TIME.
 #######################################################################################################################
 #######################################################################################################################
 #######################################################################################################################
@@ -535,7 +539,7 @@ nz_d3 = nz.loc[(nz['Lat'] > -998) & (nz['Lat'] < -50) & (nz['DecimalDate'] >= 20
 nz_d4 = nz.loc[(nz['Lat'] > -998) & (nz['Lat'] < -50) & (nz['DecimalDate'] >= 2010) & (nz['DecimalDate'] < 2020)]
 
 """
-Perform the linear regression for each time period and latitude range: 
+Perform the linear regression for each time period and latitude range:
 
 https://numpy.org/doc/stable/reference/generated/numpy.linalg.lstsq.html
 """
@@ -771,41 +775,79 @@ plt.savefig('C:/Users/clewis/IdeaProjects/GNS/radiocarbon_intercomparison/interl
 plt.close()
 
 """
-The trends seen in the data above: Figures 9 and 10, aren't really that helpful. For example, one line can be drawn from 
+The trends seen in the data above: Figures 9 and 10, aren't really that helpful. For example, one line can be drawn from
 20 points while the other is 1 or 2 points. This is not represented at all in the Figure and will lead to unoptomized
-interpretations. 
-I need to figure out some way to weigh the trend-lines based on how many data points are there. 
+interpretations.
+I need to figure out some way to weigh the trend-lines based on how many data points are there.
 
-It also occurs to me now that a useful way to understand how to interpret my data is to actually understand 
+It also occurs to me now that a useful way to understand how to interpret my data is to actually understand
 visually where my data IS. ::: See Below
 
 """
-#
-map = Basemap(
-              llcrnrlon=150,
-              llcrnrlat=-60,
-              urcrnrlon=190,
-              urcrnrlat=-30,
-lat_0= -52, lon_0= 169 )
 
-chile_lat = chile['Lat']
-chile_lon = chile['Lon']
+plt.close()  # some other figure kept popping up...
+
+fig=plt.figure()
+ax=fig.add_axes([0.1,0.1,0.8,0.8])
+# setup mercator map projection.
+map = Basemap(
+    llcrnrlon=150,
+    llcrnrlat=-60,
+    urcrnrlon=190,
+    urcrnrlat=-30,
+    lat_0= -52, lon_0= 169 )
+
 nz_lat = nz['Lat']
 nz_lon = nz['Lon']
 
-#
 map.drawcoastlines()
 map.drawmapboundary(fill_color='aqua')
 map.fillcontinents(color='coral',lake_color='aqua')
 map.drawcoastlines()
 map.drawcountries()
-map.drawparallels(range(-90, 100, 10), linewidth=2, dashes=[4, 2], labels=[1,0,0,1], color='r', zorder=0 )
 
-lons = nz_lon
-lats = nz_lat
-
-x, y = map(lons, lats)
-
+map.drawparallels(np.arange(-90,90,5),labels=[1,1,0,1])
+# draw meridians
+map.drawmeridians(np.arange(-180,180,10),labels=[1,1,0,1])
+x, y = map(nz_lon, nz_lat)
 map.scatter(x, y, marker='D',color='m')
 
-plt.show()
+ax.set_title('New Zealand Tree Ring Sampling Sites')
+plt.savefig('C:/Users/clewis/IdeaProjects/GNS/radiocarbon_intercomparison/interlab_comparison/plots/NZ_map.png',
+            dpi=300, bbox_inches="tight")
+plt.close()
+
+"""
+I need to add a new Lon column cuz the Chile Longitudes need to be multiplied by -1
+"""
+
+fig=plt.figure()
+ax=fig.add_axes([0.1,0.1,0.8,0.8])
+# setup mercator map projection.
+map = Basemap(
+    llcrnrlon=-90,
+    llcrnrlat=-60,
+    urcrnrlon=-60,
+    urcrnrlat=-30,
+    lat_0= -52, lon_0= 169)
+
+map.drawcoastlines()
+map.drawmapboundary(fill_color='aqua')
+map.fillcontinents(color='coral',lake_color='aqua')
+map.drawcoastlines()
+map.drawcountries()
+# map.drawparallels(np.arange(-90,90,20),labels=[1,1,0,1])
+# map.drawmeridians(np.arange(-180,180,30),labels=[1,1,0,1])
+chile_lat = chile['Lat']
+chile_lon = chile['new_Lon']
+x, y = map(nz_lon, nz_lat)
+z, a = map(chile_lon, chile_lat)
+map.scatter(x, y, marker='D',color='m')
+map.scatter(z, a, marker='D',color='m')
+ax.set_title('All Sampling sites')
+plt.savefig('C:/Users/clewis/IdeaProjects/GNS/radiocarbon_intercomparison/interlab_comparison/plots/chile_map.png',
+            dpi=300, bbox_inches="tight")
+
+
+
+

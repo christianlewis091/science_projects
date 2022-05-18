@@ -78,9 +78,9 @@ plt.ylim([0, 60])
 plt.xlabel('Date', fontsize=14)
 plt.ylabel('\u0394 14CO2', fontsize=14)  # label the y axis
 # plt.show()
-plt.savefig('C:/Users/clewis/IdeaProjects/GNS/radiocarbon_intercomparison/interlab_comparison/plots/BaringHead_py_result.png',
-            dpi=300, bbox_inches="tight")
-
+# plt.savefig('C:/Users/clewis/IdeaProjects/GNS/radiocarbon_intercomparison/interlab_comparison/plots/BaringHead_py_result.png',
+#             dpi=300, bbox_inches="tight")
+plt.show()
 
 
 

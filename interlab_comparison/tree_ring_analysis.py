@@ -18,7 +18,9 @@ import seaborn as sns
 from dataset_harmonization import harmonized
 from miller_curve_algorithm import ccgFilter
 from heidelberg_intercomparison import monte_carlo_randomization_Trend
-from heidelberg_intercomparison import monte_carlo_randomization_Smooth
+from mpl_toolkits.basemap import Basemap
+import matplotlib.pyplot as plt
+
 colors = sns.color_palette("rocket", 6)
 colors2 = sns.color_palette("mako", 6)
 mpl.rcParams['pdf.fonttype'] = 42
@@ -126,7 +128,7 @@ df['Lon'] = df['Lon'].fillna(174)  # all missing values are at Eastborne with th
 df['Lat'] = df['Lat'].fillna(-41)  # all missing values are at Eastborne with this latitude
 
 # re-write the file to an excel sheet
-df.to_excel('tree_ring_analysis_py.xlsx')
+# df.to_excel('tree_ring_analysis_py.xlsx')
 # so now I'm going to re-extract these variables before plotting...
 sample_xs = df['DecimalDate']
 sample_ys = df['∆14C']
@@ -773,4 +775,37 @@ The trends seen in the data above: Figures 9 and 10, aren't really that helpful.
 20 points while the other is 1 or 2 points. This is not represented at all in the Figure and will lead to unoptomized
 interpretations. 
 I need to figure out some way to weigh the trend-lines based on how many data points are there. 
+
+It also occurs to me now that a useful way to understand how to interpret my data is to actually understand 
+visually where my data IS. ::: See Below
+
 """
+#
+map = Basemap(
+              llcrnrlon=150,
+              llcrnrlat=-60,
+              urcrnrlon=190,
+              urcrnrlat=-30,
+lat_0= -52, lon_0= 169 )
+
+chile_lat = chile['Lat']
+chile_lon = chile['Lon']
+nz_lat = nz['Lat']
+nz_lon = nz['Lon']
+
+#
+map.drawcoastlines()
+map.drawmapboundary(fill_color='aqua')
+map.fillcontinents(color='coral',lake_color='aqua')
+map.drawcoastlines()
+map.drawcountries()
+map.drawparallels(range(-90, 100, 10), linewidth=2, dashes=[4, 2], labels=[1,0,0,1], color='r', zorder=0 )
+
+lons = nz_lon
+lats = nz_lat
+
+x, y = map(lons, lats)
+
+map.scatter(x, y, marker='D',color='m')
+
+plt.show()

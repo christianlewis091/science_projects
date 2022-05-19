@@ -20,6 +20,7 @@ from miller_curve_algorithm import ccgFilter
 from heidelberg_intercomparison import monte_carlo_randomization_Trend
 from mpl_toolkits.basemap import Basemap
 import matplotlib.pyplot as plt
+from matplotlib.patches import Polygon
 
 plt.close()
 colors = sns.color_palette("rocket", 6)
@@ -787,67 +788,94 @@ visually where my data IS. ::: See Below
 
 plt.close()  # some other figure kept popping up...
 
-fig=plt.figure()
-ax=fig.add_axes([0.1,0.1,0.8,0.8])
-# setup mercator map projection.
-map = Basemap(
-    llcrnrlon=150,
-    llcrnrlat=-60,
-    urcrnrlon=190,
-    urcrnrlat=-30,
-    lat_0= -52, lon_0= 169 )
-
-nz_lat = nz['Lat']
-nz_lon = nz['Lon']
-
-map.drawcoastlines()
-map.drawmapboundary(fill_color='aqua')
-map.fillcontinents(color='coral',lake_color='aqua')
-map.drawcoastlines()
-map.drawcountries()
-
-map.drawparallels(np.arange(-90,90,5),labels=[1,1,0,1])
-# draw meridians
-map.drawmeridians(np.arange(-180,180,10),labels=[1,1,0,1])
-x, y = map(nz_lon, nz_lat)
-map.scatter(x, y, marker='D',color='m')
-
-ax.set_title('New Zealand Tree Ring Sampling Sites')
-plt.savefig('C:/Users/clewis/IdeaProjects/GNS/radiocarbon_intercomparison/interlab_comparison/plots/NZ_map.png',
-            dpi=300, bbox_inches="tight")
-plt.close()
-
 """
-I need to add a new Lon column cuz the Chile Longitudes need to be multiplied by -1
+First, initialize the figure and prepare to draw the squares
+"""
+# initialize where the boxes will go, and where my figures a and b will be drawn.
+maxlat = -30
+minlat = -60
+nz_max_lon = 180
+nz_min_lon = 160
+chile_max_lon = -60
+chile_min_lon = -80
+
+# initialize the figure and subplots.
+fig = plt.figure()
+plt.subplots_adjust(wspace=.2)
+res = 'i'  # todo switch to i for intermediate
+land = 'coral'
+# what do i want the size of the dots to be where the tree rings are from?
+size1 = 10
+"""
+Add first subplot: the globe centered around antarctica
 """
 
-fig=plt.figure()
-ax=fig.add_axes([0.1,0.1,0.8,0.8])
-# setup mercator map projection.
-map = Basemap(
-    llcrnrlon=-90,
-    llcrnrlat=-60,
-    urcrnrlon=-60,
-    urcrnrlat=-30,
-    lat_0= -52, lon_0= 169)
+ax = fig.add_subplot(131)
+map = Basemap(lat_0=-90, lon_0=0, resolution=res, projection='ortho')
+map.drawcoastlines(linewidth=0.5)
+map.drawmapboundary(fill_color='paleturquoise', linewidth=0.1)
+map.fillcontinents(color=land, lake_color='aqua')
+map.drawcountries(linewidth=0.5)
 
-map.drawcoastlines()
-map.drawmapboundary(fill_color='aqua')
-map.fillcontinents(color='coral',lake_color='aqua')
-map.drawcoastlines()
-map.drawcountries()
-# map.drawparallels(np.arange(-90,90,20),labels=[1,1,0,1])
-# map.drawmeridians(np.arange(-180,180,30),labels=[1,1,0,1])
+# plot where my new zealand subplot is on the globe
+x1, y1 = map(nz_min_lon, maxlat)
+x2, y2 = map(nz_max_lon, maxlat)
+x3, y3 = map(nz_max_lon, minlat)
+x4, y4 = map(nz_min_lon, minlat)
+poly = Polygon([(x1,y1),(x2,y2),(x3,y3),(x4,y4)], facecolor="none", edgecolor='black',linewidth=1, alpha=1)
+plt.gca().add_patch(poly)
+
+# plot where my chile subplot is on the globe
+x5, y5 = map(chile_min_lon, maxlat)
+x6, y6 = map(chile_max_lon, maxlat)
+x7, y7 = map(chile_max_lon, minlat)
+x8, y8 = map(chile_min_lon, minlat)
+poly2 = Polygon([(x5,y5),(x6,y6),(x7,y7),(x8,y8)], facecolor="none",edgecolor='black',linewidth=1,alpha=1)
+plt.gca().add_patch(poly2)
+
+
+"""
+Add second subplot
+"""
+
+ax = fig.add_subplot(132)
+plt.subplots_adjust(wspace=.25)
+# ax.set_title("Chilean Tree Ring Sites")
+map = Basemap(llcrnrlat=minlat, urcrnrlat=maxlat, llcrnrlon=chile_min_lon, urcrnrlon=chile_max_lon, resolution=res)
+# parameters to make the plot more beautiful
+map.drawcoastlines(linewidth=0.5)
+map.drawmapboundary(fill_color='paleturquoise', linewidth=0.5)
+map.fillcontinents(color=land, lake_color='aqua')
+map.drawcountries(linewidth=0.5)
+map.drawparallels(np.arange(-90, 90, 10), labels=[True, False, False, False], fontsize=7, linewidth=0.5)
+map.drawmeridians(np.arange(-180, 180, 10), labels=[1, 1, 0, 1], fontsize=7, linewidth=0.5)
 chile_lat = chile['Lat']
 chile_lon = chile['new_Lon']
-x, y = map(nz_lon, nz_lat)
-z, a = map(chile_lon, chile_lat)
-map.scatter(x, y, marker='D',color='m')
-map.scatter(z, a, marker='D',color='m')
-ax.set_title('All Sampling sites')
-plt.savefig('C:/Users/clewis/IdeaProjects/GNS/radiocarbon_intercomparison/interlab_comparison/plots/chile_map.png',
-            dpi=300, bbox_inches="tight")
 
+z, a = map(chile_lon, chile_lat)
+
+map.scatter(z, a, marker='D',color='m', s = size1)
+"""
+Add third subplot
+"""
+ax = fig.add_subplot(133)
+map = Basemap(llcrnrlat=minlat, urcrnrlat=maxlat, llcrnrlon=nz_min_lon, urcrnrlon=nz_max_lon, resolution=res)
+# parameters to make the plot more beautiful
+map.drawcoastlines(linewidth=0.5)
+map.drawmapboundary(fill_color='paleturquoise', linewidth=0.5)
+map.fillcontinents(color=land, lake_color='aqua')
+map.drawcountries()
+map.drawparallels(np.arange(-90, 90, 10), labels=[False, False, False, False], fontsize=7, linewidth=0.5)
+map.drawmeridians(np.arange(-180, 180, 10), labels=[1, 1, 0, 1], fontsize=7, linewidth=0.5)
+nz_lat = nz['Lat']
+nz_lon = nz['Lon']
+x, y = map(nz_lon, nz_lat)
+map.scatter(x, y, marker='D',color='m', s= size1)
+
+# ax.set_title('New Zealand Tree Ring Sampling Sites')
+plt.savefig('C:/Users/clewis/IdeaProjects/GNS/radiocarbon_intercomparison/interlab_comparison/plots/maptest.png',
+            dpi=300, bbox_inches="tight")
+# plt.close()
 
 
 

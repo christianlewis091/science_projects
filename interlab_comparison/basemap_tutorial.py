@@ -3,71 +3,50 @@ This file shows some examples of how to use the basemap class to make nice maps
 
 # https://basemaptutorial.readthedocs.io/en/latest/first_map.html
 """
-
+#
 from mpl_toolkits.basemap import Basemap
 import matplotlib.pyplot as plt
-#
-map = Basemap()
+import numpy as np
+fig=plt.figure()
 
+# add the first subplot - chile
+ax = fig.add_subplot(121)
+plt.subplots_adjust(wspace=.1)
+# ax.set_title("Chilean Tree Ring Sites")
+maxlat = -30
+minlat = -60
+nz_max_lon = 190
+nz_min_lon = 150
+chile_max_lon = -50
+chile_min_lon = -90
+
+
+map = Basemap(llcrnrlat=minlat, urcrnrlat=maxlat, llcrnrlon=chile_min_lon, urcrnrlon=chile_max_lon)
+# parameters to make the plot more beautiful
 map.drawcoastlines()
 map.drawmapboundary(fill_color='aqua')
 map.fillcontinents(color='coral',lake_color='aqua')
 map.drawcoastlines()
+map.drawcountries()
 
-lons = [0, 10, -20, -20]
-lats = [0, -10, 40, -20]
+# here is the data I want to plot
+map.drawparallels(np.arange(-90,90,5),labels=[True,False,False,False])
+map.drawmeridians(np.arange(-180,180,10),labels=[1,1,0,1])
 
-x, y = map(lons, lats)
+# add the second subplot - nz
+ax = fig.add_subplot(122)
+map = Basemap(llcrnrlat=minlat, urcrnrlat=maxlat, llcrnrlon=nz_min_lon, urcrnrlon=nz_max_lon)
+# parameters to make the plot more beautiful
+map.drawcoastlines()
+map.drawmapboundary(fill_color='aqua')
+map.fillcontinents(color='coral',lake_color='aqua')
+map.drawcoastlines()
+map.drawcountries()
 
-map.scatter(x, y, marker='D',color='m')
+# here is the data I want to plot
+map.drawparallels(np.arange(-90,90,5),labels=[False,False,False,False]) # (Labels = left y-axis,
+map.drawmeridians(np.arange(-180,180,10),labels=[1,1,0,1])
 
+# ax.set_title('New Zealand Tree Ring Sampling Sites')
 plt.show()
-# plt.show()
-# plt.savefig('test.png')
-
-"""
-The first two lines include the Basemap library and matplotlib. Both are necessary
-The map is created using the Basemap class, which has many options. 
-Without passing any option, the map has the Plate Carrée projection centered at longitude and latitude = 0
-After setting the map, we can draw what we want.
- 
-In this case, the coast lines layer, which comes already with the library, using the method drawcoastlines()
-Finally, the map has to be shown or saved. The methods from mathplotlib are used. 
-In this example, plt.show() opens a window to explore the result. plt.savefig(‘file_name’) would save the map into an image.
-
-Changing the projection is easy, just add the projection argument and lat_0 and lon_0 to the Basemap contructor.
-
-Even with the new projection, the map is still a bit poor, 
-so let’s fill the oceans and continents with some colors The methods fillcontinents() and drawmapboundary() will do it:
-
-
-"""
-# map = Basemap(projection='ortho',
-#               lat_0=0, lon_0=0)
-#
-# #Fill the globe with a blue color
-# map.drawmapboundary(fill_color='aqua')
-# #Fill the continents with the land color
-# map.fillcontinents(color='coral',lake_color='aqua')
-#
-# map.drawcoastlines()
-# plt.show()
-
-
-"""
-"""
-# map = Basemap(projection='aeqd',
-#               lat_0=0, lon_0=0)
-#
-# map.drawmapboundary(fill_color='aqua')
-# map.fillcontinents(color='coral',lake_color='aqua')
-# map.drawcoastlines()
-#
-# lons = [0, 10, -20, -20]
-# lats = [0, -10, 40, -20]
-#
-# x, y = map(lons, lats)
-#
-# map.scatter(x, y, marker='D',color='m')
-#
-# plt.show()
+plt.close()

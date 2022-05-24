@@ -13,20 +13,8 @@ Outcome:
 This file creates a new DataFrame that can be referenced in future analyses, such as the
 SOAR tree ring analyses.
 
-
-
-
-
-
-
-
 """
-
-
-
-
-
-
+#
 import numpy as np
 import random
 import matplotlib as mpl
@@ -54,25 +42,25 @@ run it later and get the answer.
 # 2006 - 2009: Add 0.49 +- 0.07 to Heidelberg
 # 2009 - 2012: Apply NO offset
 # 2012 - 2016: Subtract 0.52 +- 0.06 to Heidelberg.
-
-# steps to harmonize the dataset
-# 1. Check what Rachel did. (see her page 203. It seems she just applied
-# the offsets that she calculated and combined the datasets.
-
-# 2. Load up all the data.
-
-# 3. Index them according to the times above, and apply the offsets.
-
-# 4. Merge the datasets into one.
-
-# 5. Create a template of x-values to output
-
-# (in the future, users can just add their samples x-values to this template and
-# get the output they need to do subtraction)
-
-# 6. Re-smooth the data using CCGCRV getTrendValues, with specific x's in mind
-# (what x-values do I want to return that will be most useful?
-
+#
+# # steps to harmonize the dataset
+# # 1. Check what Rachel did. (see her page 203. It seems she just applied
+# # the offsets that she calculated and combined the datasets.
+#
+# # 2. Load up all the data.
+#
+# # 3. Index them according to the times above, and apply the offsets.
+#
+# # 4. Merge the datasets into one.
+#
+# # 5. Create a template of x-values to output
+#
+# # (in the future, users can just add their samples x-values to this template and
+# # get the output they need to do subtraction)
+#
+# # 6. Re-smooth the data using CCGCRV getTrendValues, with specific x's in mind
+# # (what x-values do I want to return that will be most useful?
+#
 """
 #######################################################################
 #######################################################################
@@ -144,7 +132,7 @@ h4 = heidelberg.loc[(heidelberg['Decimal_date'] > 2006) & (heidelberg['Decimal_d
 h5 = heidelberg.loc[(heidelberg['Decimal_date'] > 2009) & (heidelberg['Decimal_date'] < 2012)].reset_index()
 h6 = heidelberg.loc[(heidelberg['Decimal_date'] > 2012) & (heidelberg['Decimal_date'] < 2016)].reset_index()
 """
-In order to apply the offsets, I'm going to add a new column with the new value, rather than try 
+In order to apply the offsets, I'm going to add a new column with the new value, rather than try
 to change to original value
 """
 offset1 = 1.80
@@ -193,7 +181,7 @@ harmonized = pd.merge(harmonized, h4, how='outer')
 harmonized = pd.merge(harmonized, h5, how='outer')
 harmonized = pd.merge(harmonized, h6, how='outer')
 
-""" 
+"""
 A few of the data have errors of -1000 and this is throwing everything off
 in later calculations...
 I need to get rid of these...
@@ -213,8 +201,6 @@ x_bars = harm1['Decimal_date']
 y_bars = harm1['D14C']
 x_heids = harm2['Decimal_date']
 y_heids = harm2['D14C']
-
-
 colors = sns.color_palette("rocket", 6)
 colors2 = sns.color_palette("mako", 6)
 mpl.rcParams['pdf.fonttype'] = 42

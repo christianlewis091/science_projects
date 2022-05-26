@@ -1,9 +1,6 @@
 import numpy as np
 from miller_curve_algorithm import ccgFilter
-import matplotlib as mpl
-import matplotlib.pyplot as plt
 import pandas as pd
-import seaborn as sns
 from PyAstronomy import pyasl
 
 """
@@ -17,7 +14,6 @@ array = column of dates in the form yyyy.decimal
 To see an example, uncomment the following lines of code directly below the function definition: 
 """
 
-
 def long_date_to_decimal_date(x):
     array = []  # define an empty array in which the data will be stored
     for i in range(0, len(x)):  # initialize the for loop to run the length of our dataset (x)
@@ -26,7 +22,6 @@ def long_date_to_decimal_date(x):
         decy = float(decy)  # change to a float - this may be required for appending data to the array
         array.append(decy)  # append it all together into a useful column of data
     return array  # return the new data
-
 
 # df = pd.read_excel(r'H:\The Science\Datasets\my_functions_examples'
 #                    r'\long_date_to_decimal_date_example.xlsx')  # import the data
@@ -80,6 +75,9 @@ y_error: y-value errors of the dataset that you want to smooth.
 cutoff: for the CCGCRV algoritm, lower numbers smooth less, and higher numbers smooth more. 
     See hyperlink above for more details. 
 n: how many iterations do you want to run? When writing code, keep this low. Once code is solid, increase to 10,000. 
+
+### If you want to see this function in action, refer to "MonteCarlo_Explained.py"
+https://github.com/christianlewis091/radiocarbon_intercomparison/blob/dev/interlab_comparison/MonteCarlo_Explained.py
 
 """
 
@@ -143,12 +141,12 @@ def monte_carlo_randomization_trend(x_init, y_init, y_error, fake_x, cutoff, n):
     mean_array = []
     stdev_array = []
     for i in range(0, len(smoothed_dataframe_trans)):
-        row = smoothed_dataframe_trans.iloc[i]        # grab the first row of data
-        stdev = np.std(row)                           # compute the standard deviation of that row
-        sum1 = np.sum(row)                            # take the sum, and then mean (next line) of that data
-        mean1 = sum1 / len(row)                       # find the mean of that row
-        mean_array.append(mean1)                      # append the mean it to a new array
-        stdev_array.append(stdev)                     # append the stdev to a new array
+        row = smoothed_dataframe_trans.iloc[i]  # grab the first row of data
+        stdev = np.std(row)  # compute the standard deviation of that row
+        sum1 = np.sum(row)  # take the sum, and then mean (next line) of that data
+        mean1 = sum1 / len(row)  # find the mean of that row
+        mean_array.append(mean1)  # append the mean it to a new array
+        stdev_array.append(stdev)  # append the stdev to a new array
 
     summary = pd.DataFrame({"Means": mean_array, "Error": stdev_array})
 
@@ -214,196 +212,35 @@ def monte_carlo_randomization_smooth(x_init, y_init, y_error, fake_x, cutoff, n)
     mean_array = []
     stdev_array = []
     for i in range(0, len(smoothed_dataframe_trans)):
-        row = smoothed_dataframe_trans.iloc[i]        # grab the first row of data
-        stdev = np.std(row)                           # compute the standard deviation of that row
-        sum1 = np.sum(row)                            # take the sum, and then mean (next line) of that data
-        mean1 = sum1 / len(row)                       # find the mean of that row
-        mean_array.append(mean1)                      # append the mean it to a new array
-        stdev_array.append(stdev)                     # append the stdev to a new array
+        row = smoothed_dataframe_trans.iloc[i]  # grab the first row of data
+        stdev = np.std(row)  # compute the standard deviation of that row
+        sum1 = np.sum(row)  # take the sum, and then mean (next line) of that data
+        mean1 = sum1 / len(row)  # find the mean of that row
+        mean_array.append(mean1)  # append the mean it to a new array
+        stdev_array.append(stdev)  # append the stdev to a new array
 
     summary = pd.DataFrame({"Means": mean_array, "Error": stdev_array})
 
     return randomized_dataframe, smoothed_dataframe, summary
 
+"""
+######################################################################################################################
+######################################################################################################################
+######################################################################################################################
+RETIRED FUNCTIONS NO LONGER IN USE
+######################################################################################################################
+######################################################################################################################
+######################################################################################################################
+"""
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-#
-# def monte_carlo_randomization_Smooth(x_init, fake_x, y_init, y_error, cutoff, n):
-#     # reset indeces for incoming data
-#     x_init = x_init.reset_index(drop=True)
-#     y_init = y_init.reset_index(drop=True)
-#     y_error = y_error.reset_index(drop=True)
-#     fake_x_for_dataframe = fake_x.reset_index(drop=True)
-#     fake_x_for_dataframe = fake_x_for_dataframe['x']
-#
-#     # """ Randomization step """
-#
-#     new_array = y_init  # create a new variable on which we will later v-stack randomized lists
-#     for i in range(0, n):
-#         empty_array = []
-#         for j in range(0, len(y_init)):
-#             a = y_init[j]  # grab the first item in the set
-#             b = y_error[j]  # grab the uncertainty
-#             rand = random.uniform(b, b * -1)  # create a random uncertainty within the range of the uncertainty
-#             c = a + rand  # add this to the number
-#             empty_array.append(c)  # add this to a list
-#             # print(len(empty_array))
-#
-#         # """ The "new_array" contains the data that will be used in the next step"""
-#         # """ The "randomized_dataframe" contains a more digestible course of data that can be plotted. """
-#         # """ To plot randomized data from the "Randomized Dataframe, index each row using randomized_dataframe.iloc[0]  """
-#
-#         new_array = np.vstack((new_array, empty_array))
-#     randomized_dataframe = pd.DataFrame(new_array)
-#
-#     # SMOOTHING STEP
-#
-#     # Create an initial array on which later arrays that are created will stack
-#     template_array = ccgFilter(x_init, new_array[0], cutoff).getSmoothValue(fake_x)  # inital values for stacking
-#
-#     # this for smooths each row of the randomized array from above, and stacks it up
-#     for k in range(0, len(new_array)):
-#         row = new_array[k]  # grab the first row of the data
-#         smooth = ccgFilter(x_init, row, cutoff).getSmoothValue(fake_x)  # outputs smooth values at my desired times, x
-#         template_array = np.hstack((template_array, smooth))
-#
-#     smoothed_dataframe = pd.DataFrame(template_array)
-#     smoothed_dataframe_trans = pd.DataFrame.transpose(smoothed_dataframe)
-#     mean_array = []
-#     stdev_array = []
-#     upper_array = []
-#     lower_array = []
-#     for i in range(0, len(template_array)):
-#         element1 = smoothed_dataframe.iloc[i]
-#         sum1 = np.sum(element1)  # grab the first ROW of the dataframe and take the sum
-#         mean1 = sum1 / len(element1)  # find the mean of all the values from the Monte Carlo
-#         mean_array.append(mean1)  # append it to a new array
-#
-#         stdev = np.std(element1)  # grab the first ROW of the dataframe find the stdev
-#         stdev_array.append(stdev)
-#
-#         upper = mean1 + stdev
-#         lower = mean1 - stdev
-#         upper_array.append(upper)
-#         lower_array.append(lower)
-#
-#         # create a more digestable summary dataframe
-#     summary = pd.DataFrame({"Means": mean_array,
-#                             "stdevs": stdev_array,
-#                             "error_upperbound": upper_array,
-#                             "error_lowerbound": lower_array,
-#                             "my_xs": fake_x_for_dataframe})
-#
-#     return randomized_dataframe, smoothed_dataframe_trans, summary
-#
-#
-# """
-# The following function should determine monthly averages for a dataset.
-# It will output these monthly averages along with a decimal date being the first decimal of that month.
-# """
-#
-#
-# def monthly_averages(x_values, y_values, y_err):
-#     x_values = np.array(x_values)
-#     y_values = np.array(y_values)
-#     y_err = np.array(y_err)
-#
-#     Begin = 0
-#     Jan = 31
-#     Feb = 28 + 31
-#     Mar = 31 + 31 + 28
-#     Apr = 30 + 31 + 28 + 31
-#     May = 31 + 31 + 28 + 31 + 30
-#     June = 30 + 31 + 28 + 31 + 30 + 31
-#     July = 31 + 31 + 28 + 31 + 30 + 31 + 30
-#     August = 31 + 31 + 28 + 31 + 30 + 31 + 30 + 31
-#     Sep = 30 + 31 + 28 + 31 + 30 + 31 + 30 + 31 + 31
-#     Oct = 31 + 31 + 28 + 31 + 30 + 31 + 30 + 31 + 31 + 30
-#     Nov = 30 + 31 + 28 + 31 + 30 + 31 + 30 + 31 + 31 + 30 + 30
-#     Dec = 31 + 31 + 28 + 31 + 30 + 31 + 30 + 31 + 31 + 30 + 30 + 30
-#     months = np.array([Begin, Jan, Feb, Mar, Apr, May, June, July, August, Sep, Oct, Nov, Dec])
-#     months = months / 365
-#
-#     # first, enter the available years on file:
-#     lin1 = np.linspace(int(min(x_values)),
-#                        int(max(x_values)),
-#                        (int(max(x_values)) - int(min(x_values)) + 1))
-#
-#     # initialize some vars
-#     mean_of_date = 0
-#     mean_of_y = 0
-#
-#     permarray_x = []
-#     permarray_y = []
-#     permarray_z = []
-#     for i in range(0, len(lin1)):  # loop in the years
-#         year = int(lin1[i])  # grab only the integer parts of the years in the data
-#
-#         for j in range(0, len(months)):  # loop in the months
-#
-#             temparray_x = []
-#             temparray_y = []
-#             temparray_z = []
-#             # print('The current month is ' + str(months[j]) + 'in year ' + str(year))
-#             months_min = months[j]
-#             # TODO fix this line of code to filter between one month and the next more accurately
-#             months_max = months_min + 0.08
-#
-#             for k in range(0, len(y_values)):  # grab the data i want to use
-#                 y_current = y_values[k]
-#                 x_current = x_values[k]
-#                 z_current = y_err[k]
-#                 x_decimal_only = x_current - int(x_current)
-#                 x_int = int(x_current)
-#                 # if my data exists in the time frame I'm currently searching through,
-#                 if (x_int == year) and (x_decimal_only >= months_min) and (x_decimal_only < months_max):
-#                     # append that x and y data to initialized arrays
-#                     temparray_x.append(x_int + months_min)
-#                     temparray_y.append(y_current)
-#                     temparray_z.append(z_current)
-#
-#             # if at the end of the month, the length of the temporary arrays are non-zero,
-#             # clean and append that information to a permanent array
-#             if len(temparray_x) != 0:
-#                 tempsum = sum(temparray_x)
-#                 tempmean = tempsum / len(temparray_x)  # this works fine because it averages the same # repeatedly
-#
-#                 tempsum2 = sum(temparray_y)
-#                 tempmean2 = tempsum2 / len(temparray_y)
-#
-#                 tempsum3 = sum(temparray_z)                  # todo change from simple averaging of error to proper prop
-#                 tempmean3 = tempsum3 / len(temparray_z)
-#
-#                 permarray_x.append(tempmean)
-#                 permarray_y.append(tempmean2)
-#                 permarray_z.append(tempmean3)
-#                 # print(permarray_x)
-#                 # print(permarray_y)
-#
-#             # else:
-#             #     permarray_x.append(x_int + months_min)
-#             #     permarray_y.append(-999)
-#
-#     return permarray_x, permarray_y, permarray_z
-#
-#
 # """
 # This function does a paired two-tail t-test. The t-value range comes from the stdev_array in the
 # Monte Carlo function above, and errors are propagated through the t-test mathematics.
+
+# This has been replaced by
+# https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.ttest_rel.html
 # """
-#
+
 #
 # def two_tail_paired_t_test(y1, y1err, y2, y2err):
 #     """ Subtract the data from each other (first step in paired t-test)"""
@@ -560,3 +397,93 @@ def monte_carlo_randomization_smooth(x_init, y_init, y_error, fake_x, cutoff, n)
 #         empty_array.append(r)
 #
 #     return empty_array
+
+# """
+# The following function should determine monthly averages for a dataset.
+# It will output these monthly averages along with a decimal date being the first decimal of that month.
+# """
+#
+#
+# def monthly_averages(x_values, y_values, y_err):
+#     x_values = np.array(x_values)
+#     y_values = np.array(y_values)
+#     y_err = np.array(y_err)
+#
+#     Begin = 0
+#     Jan = 31
+#     Feb = 28 + 31
+#     Mar = 31 + 31 + 28
+#     Apr = 30 + 31 + 28 + 31
+#     May = 31 + 31 + 28 + 31 + 30
+#     June = 30 + 31 + 28 + 31 + 30 + 31
+#     July = 31 + 31 + 28 + 31 + 30 + 31 + 30
+#     August = 31 + 31 + 28 + 31 + 30 + 31 + 30 + 31
+#     Sep = 30 + 31 + 28 + 31 + 30 + 31 + 30 + 31 + 31
+#     Oct = 31 + 31 + 28 + 31 + 30 + 31 + 30 + 31 + 31 + 30
+#     Nov = 30 + 31 + 28 + 31 + 30 + 31 + 30 + 31 + 31 + 30 + 30
+#     Dec = 31 + 31 + 28 + 31 + 30 + 31 + 30 + 31 + 31 + 30 + 30 + 30
+#     months = np.array([Begin, Jan, Feb, Mar, Apr, May, June, July, August, Sep, Oct, Nov, Dec])
+#     months = months / 365
+#
+#     # first, enter the available years on file:
+#     lin1 = np.linspace(int(min(x_values)),
+#                        int(max(x_values)),
+#                        (int(max(x_values)) - int(min(x_values)) + 1))
+#
+#     # initialize some vars
+#     mean_of_date = 0
+#     mean_of_y = 0
+#
+#     permarray_x = []
+#     permarray_y = []
+#     permarray_z = []
+#     for i in range(0, len(lin1)):  # loop in the years
+#         year = int(lin1[i])  # grab only the integer parts of the years in the data
+#
+#         for j in range(0, len(months)):  # loop in the months
+#
+#             temparray_x = []
+#             temparray_y = []
+#             temparray_z = []
+#             # print('The current month is ' + str(months[j]) + 'in year ' + str(year))
+#             months_min = months[j]
+#             # TODO fix this line of code to filter between one month and the next more accurately
+#             months_max = months_min + 0.08
+#
+#             for k in range(0, len(y_values)):  # grab the data i want to use
+#                 y_current = y_values[k]
+#                 x_current = x_values[k]
+#                 z_current = y_err[k]
+#                 x_decimal_only = x_current - int(x_current)
+#                 x_int = int(x_current)
+#                 # if my data exists in the time frame I'm currently searching through,
+#                 if (x_int == year) and (x_decimal_only >= months_min) and (x_decimal_only < months_max):
+#                     # append that x and y data to initialized arrays
+#                     temparray_x.append(x_int + months_min)
+#                     temparray_y.append(y_current)
+#                     temparray_z.append(z_current)
+#
+#             # if at the end of the month, the length of the temporary arrays are non-zero,
+#             # clean and append that information to a permanent array
+#             if len(temparray_x) != 0:
+#                 tempsum = sum(temparray_x)
+#                 tempmean = tempsum / len(temparray_x)  # this works fine because it averages the same # repeatedly
+#
+#                 tempsum2 = sum(temparray_y)
+#                 tempmean2 = tempsum2 / len(temparray_y)
+#
+#                 tempsum3 = sum(temparray_z)                  # todo change from simple averaging of error to proper prop
+#                 tempmean3 = tempsum3 / len(temparray_z)
+#
+#                 permarray_x.append(tempmean)
+#                 permarray_y.append(tempmean2)
+#                 permarray_z.append(tempmean3)
+#                 # print(permarray_x)
+#                 # print(permarray_y)
+#
+#             # else:
+#             #     permarray_x.append(x_int + months_min)
+#             #     permarray_y.append(-999)
+#
+#     return permarray_x, permarray_y, permarray_z
+#

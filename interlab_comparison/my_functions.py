@@ -6,7 +6,6 @@ import pandas as pd
 import seaborn as sns
 from PyAstronomy import pyasl
 
-
 """
 "long_date_to_decimal_date" function takes dates in the form of dd/mm/yyyy and converts them to a decimal. 
 This was required for the heidelberg cape grim dataset, and is quite useful overall while date formatting can be in 
@@ -85,14 +84,12 @@ n: how many iterations do you want to run? When writing code, keep this low. Onc
 """
 
 
-# TODO test that the normal distribution randomization works.
-
 def monte_carlo_randomization_trend(x_init, y_init, y_error, fake_x, cutoff, n):  # explanation of arguments above
     x_init = x_init.reset_index(drop=True)  # ensure x-values begin at index 0
     y_init = y_init.reset_index(drop=True)  # ensure y-values begin at index 0
     y_error = y_error.reset_index(drop=True)  # ensure y err-values begin at index 0
-    fake_x_for_dataframe = fake_x.reset_index(drop=True)  # ensure output x-values at index 0
-    # fake_x_for_dataframe = fake_x_for_dataframe['x']    # if not already extracted, extract the data from the DataFrame
+    # fake_x_for_dataframe = fake_x.reset_index(drop=True)  # ensure output x-values at index 0
+    # fake_x_for_dataframe = fake_x_for_dataframe['x']  # if not already extracted, extract the data from the DataFrame
 
     # First for-loop: randomize the y-values.
 
@@ -118,51 +115,128 @@ def monte_carlo_randomization_trend(x_init, y_init, y_error, fake_x, cutoff, n):
         # This helps format the data in a way where it can be more quickly tested, and used in the future.
         # To plot the randomized data, index each row using randomized_dataframe.iloc[0]
     randomized_dataframe = pd.DataFrame(new_array)
-    return randomized_dataframe
 
-##################################################################################################################
-##################################################################################################################
-##################################################################################################################
+    # end of first for-loop
+    ##################################################################################################################
+    ##################################################################################################################
+    ##################################################################################################################
+    # Second for-loop: smooth the randomized data using John Miller's CCGCRV.
 
-# Second for-loop: smooth the randomized data using John Miller's CCGCRV.
+    # Create an initial, trended array on which later arrays that are created will stack
+    template_array = ccgFilter(x_init, new_array[0], cutoff).getTrendValue(fake_x)
 
-# Create an initial array on which later arrays that are created will stack
-template_array = ccgFilter(x_init, new_array[0], cutoff).getTrendValue(fake_x)  # initial values for stacking
+    # this for smooths each row of the randomized array from above, and stacks it up
+    for k in range(0, len(new_array)):
+        row = new_array[k]  # grab the first row of the data
+        smooth = ccgFilter(x_init, row, cutoff).getTrendValue(fake_x)  # outputs smooth values at my desired times, x
+        template_array = np.vstack((template_array, smooth))
 
-# this for smooths each row of the randomized array from above, and stacks it up
-for k in range(0, len(new_array)):
-    row = new_array[k]  # grab the first row of the data
-    smooth = ccgFilter(x_init, row, cutoff).getTrendValue(fake_x)  # outputs smooth values at my desired times, x
-    template_array = np.hstack((template_array, smooth))
+    # over time I have had to go between horizontal and vertical stacking of the data as I learn more about programming.
+    # beacuse it could lead to confusion, I've provided both types of DataFrames here on the two following lines,
+    # one where each iteration is contained as ROWS and one where each iteration is contained as a COLUMN.
 
-smoothed_dataframe = pd.DataFrame(template_array)
+    # each ROW is a new iteration. each COLUMN in a given X value
+    smoothed_dataframe = pd.DataFrame(template_array)
+    # each COLUMN is a new iteration. Each ROW is a given X value
+    smoothed_dataframe_trans = pd.DataFrame.transpose(smoothed_dataframe)
 
-mean_array = []
-stdev_array = []
-upper_array = []
-lower_array = []
-for i in range(0, len(template_array)):
-    element1 = smoothed_dataframe.iloc[i]
-    sum1 = np.sum(element1)  # grab the first ROW of the dataframe and take the sum
-    mean1 = sum1 / len(element1)  # find the mean of all the values from the Monte Carlo
-    mean_array.append(mean1)  # append it to a new array
+    mean_array = []
+    stdev_array = []
+    for i in range(0, len(smoothed_dataframe_trans)):
+        row = smoothed_dataframe_trans.iloc[i]        # grab the first row of data
+        stdev = np.std(row)                           # compute the standard deviation of that row
+        sum1 = np.sum(row)                            # take the sum, and then mean (next line) of that data
+        mean1 = sum1 / len(row)                       # find the mean of that row
+        mean_array.append(mean1)                      # append the mean it to a new array
+        stdev_array.append(stdev)                     # append the stdev to a new array
 
-    stdev = np.std(element1)  # grab the first ROW of the dataframe find the stdev
-    stdev_array.append(stdev)
+    summary = pd.DataFrame({"Means": mean_array, "Error": stdev_array})
 
-    upper = mean1 + stdev
-    lower = mean1 - stdev
-    upper_array.append(upper)
-    lower_array.append(lower)
+    return randomized_dataframe, smoothed_dataframe, summary
 
-    # create a more digestable summary dataframe
-summary = pd.DataFrame({"Means": mean_array,
-                        "stdevs": stdev_array,
-                        "error_upperbound": upper_array,
-                        "error_lowerbound": lower_array,
-                        "my_xs": fake_x_for_dataframe})
 
-return randomized_dataframe, smoothed_dataframe, summary
+def monte_carlo_randomization_smooth(x_init, y_init, y_error, fake_x, cutoff, n):  # explanation of arguments above
+    x_init = x_init.reset_index(drop=True)  # ensure x-values begin at index 0
+    y_init = y_init.reset_index(drop=True)  # ensure y-values begin at index 0
+    y_error = y_error.reset_index(drop=True)  # ensure y err-values begin at index 0
+    # fake_x_for_dataframe = fake_x.reset_index(drop=True)  # ensure output x-values at index 0
+    # fake_x_for_dataframe = fake_x_for_dataframe['x']  # if not already extracted, extract the data from the DataFrame
+
+    # First for-loop: randomize the y-values.
+
+    # The line below: creates a copy of the y-value column. This is helpful because as I randomize the y-data, I will
+    # stack each new randomized column. So if n = 10, there will 10 stacked, randomized columns. The initial column
+    # was helpful to get the code running - was something to "stick the stack on". Not sure if this was required, but
+    # it helped me get the for-loop to run.
+    new_array = y_init
+
+    for i in range(0, n):  # initialize the for-loop. It will run "n" times.
+        empty_array = []  # initialize an empty array to add each individual value onto.
+        for j in range(0, len(y_init)):  # nested loop: run through the column of y-data, length-of-y times.
+            a = y_init[j]  # grab the j'th item in the y-value set
+            b = y_error[j]  # grab the j'th item in the uncertainty set
+            # return a random value in the normal distribution of a data point/error
+            rand = np.random.normal(a, b, size=None)
+            # (https://numpy.org/doc/stable/reference/random/generated/numpy.random.normal.html)
+            empty_array.append(rand)  # append this randomized value to my growing list, the "empty_array"
+        # the nested loop just finished filling another iteration of the empty array.
+        # Now stack this onto our initialized "new_array" from line 89.
+        new_array = np.vstack((new_array, empty_array))
+        # The line below takes the new array and puts it into a pandas DataFrame.
+        # This helps format the data in a way where it can be more quickly tested, and used in the future.
+        # To plot the randomized data, index each row using randomized_dataframe.iloc[0]
+    randomized_dataframe = pd.DataFrame(new_array)
+
+    # end of first for-loop
+    ##################################################################################################################
+    ##################################################################################################################
+    ##################################################################################################################
+    # Second for-loop: smooth the randomized data using John Miller's CCGCRV.
+
+    # Create an initial, trended array on which later arrays that are created will stack
+    template_array = ccgFilter(x_init, new_array[0], cutoff).getSmoothValue(fake_x)
+
+    # this for smooths each row of the randomized array from above, and stacks it up
+    for k in range(0, len(new_array)):
+        row = new_array[k]  # grab the first row of the data
+        smooth = ccgFilter(x_init, row, cutoff).getSmoothValue(fake_x)  # outputs smooth values at my desired times, x
+        template_array = np.vstack((template_array, smooth))
+
+    # over time I have had to go between horizontal and vertical stacking of the data as I learn more about programming.
+    # beacuse it could lead to confusion, I've provided both types of DataFrames here on the two following lines,
+    # one where each iteration is contained as ROWS and one where each iteration is contained as a COLUMN.
+
+    # each ROW is a new iteration. each COLUMN in a given X value
+    smoothed_dataframe = pd.DataFrame(template_array)
+    # each COLUMN is a new iteration. Each ROW is a given X value
+    smoothed_dataframe_trans = pd.DataFrame.transpose(smoothed_dataframe)
+
+    mean_array = []
+    stdev_array = []
+    for i in range(0, len(smoothed_dataframe_trans)):
+        row = smoothed_dataframe_trans.iloc[i]        # grab the first row of data
+        stdev = np.std(row)                           # compute the standard deviation of that row
+        sum1 = np.sum(row)                            # take the sum, and then mean (next line) of that data
+        mean1 = sum1 / len(row)                       # find the mean of that row
+        mean_array.append(mean1)                      # append the mean it to a new array
+        stdev_array.append(stdev)                     # append the stdev to a new array
+
+    summary = pd.DataFrame({"Means": mean_array, "Error": stdev_array})
+
+    return randomized_dataframe, smoothed_dataframe, summary
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 #

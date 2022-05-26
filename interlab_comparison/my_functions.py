@@ -1,8 +1,11 @@
 import numpy as np
-import random
-import pandas as pd
 from miller_curve_algorithm import ccgFilter
+import matplotlib as mpl
+import matplotlib.pyplot as plt
+import pandas as pd
+import seaborn as sns
 from PyAstronomy import pyasl
+
 
 """
 "long_date_to_decimal_date" function takes dates in the form of dd/mm/yyyy and converts them to a decimal. 
@@ -48,6 +51,17 @@ Takes an input array of time-series data and randomizes each data point
 within its measurements uncertainty. It does this "n" times, and vertically stacks it.
 For example, if you have a dataset with 10 measurements, and "n" is 1000, you will end
 up with an array of dimension (10x1000).
+If you're interested in re-testing how the normal distribution randomization works, you can copy and paste the 
+following few lines of code. This shows that indeed, the randomization does have a higher probability of putting the 
+randomized point closer to the mean, but actually the distribution follows the gaussian curve. 
+###########################
+array = []
+for i in range(0,10000):
+    rand = np.random.normal(10, 2, size=None)
+    array.append(rand)
+plt.hist(array, bins=100)
+plt.show()
+###########################
 
 The second for-loop: 
 Takes each row of the array (each row of "randomized data") and puts it through
@@ -67,84 +81,88 @@ y_error: y-value errors of the dataset that you want to smooth.
 cutoff: for the CCGCRV algoritm, lower numbers smooth less, and higher numbers smooth more. 
     See hyperlink above for more details. 
 n: how many iterations do you want to run? When writing code, keep this low. Once code is solid, increase to 10,000. 
+
 """
 
 
-# TODO edit the randomization to use a normal distribution to calculate, rather than just even probability along the
-#      error bars.
+# TODO test that the normal distribution randomization works.
 
-def monte_carlo_randomization_trend(x_init, fake_x, y_init, y_error, cutoff, n):  # explanation of arguments above
-    x_init = x_init.reset_index(drop=True)                                        # ensure x-values begin at index 0
-    y_init = y_init.reset_index(drop=True)                                        # ensure y-values begin at index 0
-    y_error = y_error.reset_index(drop=True)                                      # ensure y err-values begin at index 0
-    fake_x_for_dataframe = fake_x.reset_index(drop=True)                          # ensure output x-values at index 0
-    fake_x_for_dataframe = fake_x_for_dataframe['x']    # if not already extracted, extract the data from the DataFrame
+def monte_carlo_randomization_trend(x_init, y_init, y_error, fake_x, cutoff, n):  # explanation of arguments above
+    x_init = x_init.reset_index(drop=True)  # ensure x-values begin at index 0
+    y_init = y_init.reset_index(drop=True)  # ensure y-values begin at index 0
+    y_error = y_error.reset_index(drop=True)  # ensure y err-values begin at index 0
+    fake_x_for_dataframe = fake_x.reset_index(drop=True)  # ensure output x-values at index 0
+    # fake_x_for_dataframe = fake_x_for_dataframe['x']    # if not already extracted, extract the data from the DataFrame
 
     # First for-loop: randomize the y-values.
 
     # The line below: creates a copy of the y-value column. This is helpful because as I randomize the y-data, I will
     # stack each new randomized column. So if n = 10, there will 10 stacked, randomized columns. The initial column
-    # was helpful to get the code running - was something to "stick the stack on". Not sure if this was required but
+    # was helpful to get the code running - was something to "stick the stack on". Not sure if this was required, but
     # it helped me get the for-loop to run.
     new_array = y_init
 
-    for i in range(0, n):                     # initialize the for-loop. It will run "n" times.
-        empty_array = []                      # initialize an empty array to add each individual value onto.
-        for j in range(0, len(y_init)):       # nested loop: run through the column of y-data, length-of-y times.
-
-            a = y_init[j]  # grab the first item in the set
-            b = y_error[j]  # grab the uncertainty
-            rand = random.uniform(b, b * -1)  # create a random uncertainty within the range of the uncertainty
-            c = a + rand  # add this to the number
-            empty_array.append(c)  # add this to a list
-            # print(len(empty_array))
-
-        # """ The "new_array" contains the data that will be used in the next step"""
-        # """ The "randomized_dataframe" contains a more digestible course of data that can be plotted. """
-        # """ To plot randomized data from the "Randomized Dataframe, index each row using randomized_dataframe.iloc[0]  """
-
+    for i in range(0, n):  # initialize the for-loop. It will run "n" times.
+        empty_array = []  # initialize an empty array to add each individual value onto.
+        for j in range(0, len(y_init)):  # nested loop: run through the column of y-data, length-of-y times.
+            a = y_init[j]  # grab the j'th item in the y-value set
+            b = y_error[j]  # grab the j'th item in the uncertainty set
+            # return a random value in the normal distribution of a data point/error
+            rand = np.random.normal(a, b, size=None)
+            # (https://numpy.org/doc/stable/reference/random/generated/numpy.random.normal.html)
+            empty_array.append(rand)  # append this randomized value to my growing list, the "empty_array"
+        # the nested loop just finished filling another iteration of the empty array.
+        # Now stack this onto our initialized "new_array" from line 89.
         new_array = np.vstack((new_array, empty_array))
+        # The line below takes the new array and puts it into a pandas DataFrame.
+        # This helps format the data in a way where it can be more quickly tested, and used in the future.
+        # To plot the randomized data, index each row using randomized_dataframe.iloc[0]
     randomized_dataframe = pd.DataFrame(new_array)
+    return randomized_dataframe
 
-    # SMOOTHING STEP
+##################################################################################################################
+##################################################################################################################
+##################################################################################################################
 
-    # Create an initial array on which later arrays that are created will stack
-    template_array = ccgFilter(x_init, new_array[0], cutoff).getTrendValue(fake_x)  # inital values for stacking
+# Second for-loop: smooth the randomized data using John Miller's CCGCRV.
 
-    # this for smooths each row of the randomized array from above, and stacks it up
-    for k in range(0, len(new_array)):
-        row = new_array[k]  # grab the first row of the data
-        smooth = ccgFilter(x_init, row, cutoff).getTrendValue(fake_x)  # outputs smooth values at my desired times, x
-        template_array = np.hstack((template_array, smooth))
+# Create an initial array on which later arrays that are created will stack
+template_array = ccgFilter(x_init, new_array[0], cutoff).getTrendValue(fake_x)  # initial values for stacking
 
-    smoothed_dataframe = pd.DataFrame(template_array)
+# this for smooths each row of the randomized array from above, and stacks it up
+for k in range(0, len(new_array)):
+    row = new_array[k]  # grab the first row of the data
+    smooth = ccgFilter(x_init, row, cutoff).getTrendValue(fake_x)  # outputs smooth values at my desired times, x
+    template_array = np.hstack((template_array, smooth))
 
-    mean_array = []
-    stdev_array = []
-    upper_array = []
-    lower_array = []
-    for i in range(0, len(template_array)):
-        element1 = smoothed_dataframe.iloc[i]
-        sum1 = np.sum(element1)  # grab the first ROW of the dataframe and take the sum
-        mean1 = sum1 / len(element1)  # find the mean of all the values from the Monte Carlo
-        mean_array.append(mean1)  # append it to a new array
+smoothed_dataframe = pd.DataFrame(template_array)
 
-        stdev = np.std(element1)  # grab the first ROW of the dataframe find the stdev
-        stdev_array.append(stdev)
+mean_array = []
+stdev_array = []
+upper_array = []
+lower_array = []
+for i in range(0, len(template_array)):
+    element1 = smoothed_dataframe.iloc[i]
+    sum1 = np.sum(element1)  # grab the first ROW of the dataframe and take the sum
+    mean1 = sum1 / len(element1)  # find the mean of all the values from the Monte Carlo
+    mean_array.append(mean1)  # append it to a new array
 
-        upper = mean1 + stdev
-        lower = mean1 - stdev
-        upper_array.append(upper)
-        lower_array.append(lower)
+    stdev = np.std(element1)  # grab the first ROW of the dataframe find the stdev
+    stdev_array.append(stdev)
 
-        # create a more digestable summary dataframe
-    summary = pd.DataFrame({"Means": mean_array,
-                            "stdevs": stdev_array,
-                            "error_upperbound": upper_array,
-                            "error_lowerbound": lower_array,
-                            "my_xs": fake_x_for_dataframe})
+    upper = mean1 + stdev
+    lower = mean1 - stdev
+    upper_array.append(upper)
+    lower_array.append(lower)
 
-    return randomized_dataframe, smoothed_dataframe, summary
+    # create a more digestable summary dataframe
+summary = pd.DataFrame({"Means": mean_array,
+                        "stdevs": stdev_array,
+                        "error_upperbound": upper_array,
+                        "error_lowerbound": lower_array,
+                        "my_xs": fake_x_for_dataframe})
+
+return randomized_dataframe, smoothed_dataframe, summary
 
 
 #
@@ -423,48 +441,48 @@ def monte_carlo_randomization_trend(x_init, fake_x, y_init, y_error, cutoff, n):
 # where is this one used?
 
 
-def year_month_todecimaldate(x, y):
-    L = np.linspace(0, 1, 365)
-    # add the number that is 1/2 of the previous month plus the current month
-    Jan = 31
-    Feb = (28 / 2) + 31
-    Mar = (31 / 2) + 31 + 28
-    Apr = (30 / 2) + 31 + 28 + 31
-    May = (31 / 2) + 31 + 28 + 31 + 30
-    June = (30 / 2) + 31 + 28 + 31 + 30 + 31
-    July = (31 / 2) + 31 + 28 + 31 + 30 + 31 + 30
-    August = (31 / 2) + 31 + 28 + 31 + 30 + 31 + 30 + 31
-    Sep = (30 / 2) + 31 + 28 + 31 + 30 + 31 + 30 + 31 + 31
-    Oct = (31 / 2) + 31 + 28 + 31 + 30 + 31 + 30 + 31 + 31 + 30
-    Nov = (30 / 2) + 31 + 28 + 31 + 30 + 31 + 30 + 31 + 31 + 30 + 30
-    Dec = (31 / 2) + 31 + 28 + 31 + 30 + 31 + 30 + 31 + 31 + 30 + 30 + 30
-    empty_array = []
-    for i in range(0, len(x)):
-        r = x[i]
-        if y[i] == 1:
-            r = x[i] + L[int(Jan)]
-        elif y[i] == 2:
-            r = x[i] + L[int(Feb)]
-        elif y[i] == 3:
-            r = x[i] + L[int(Mar)]
-        elif y[i] == 4:
-            r = x[i] + L[int(Apr)]
-        elif y[i] == 5:
-            r = x[i] + L[int(May)]
-        elif y[i] == 6:
-            r = x[i] + L[int(June)]
-        elif y[i] == 7:
-            r = x[i] + L[int(July)]
-        elif y[i] == 8:
-            r = x[i] + L[int(August)]
-        elif y[i] == 9:
-            r = x[i] + L[int(Sep)]
-        elif y[i] == 10:
-            r = x[i] + L[int(Oct)]
-        elif y[i] == 11:
-            r = x[i] + L[int(Nov)]
-        elif y[i] == 12:
-            r = x[i] + L[int(Dec)]
-        empty_array.append(r)
-
-    return empty_array
+# def year_month_todecimaldate(x, y):
+#     L = np.linspace(0, 1, 365)
+#     # add the number that is 1/2 of the previous month plus the current month
+#     Jan = 31
+#     Feb = (28 / 2) + 31
+#     Mar = (31 / 2) + 31 + 28
+#     Apr = (30 / 2) + 31 + 28 + 31
+#     May = (31 / 2) + 31 + 28 + 31 + 30
+#     June = (30 / 2) + 31 + 28 + 31 + 30 + 31
+#     July = (31 / 2) + 31 + 28 + 31 + 30 + 31 + 30
+#     August = (31 / 2) + 31 + 28 + 31 + 30 + 31 + 30 + 31
+#     Sep = (30 / 2) + 31 + 28 + 31 + 30 + 31 + 30 + 31 + 31
+#     Oct = (31 / 2) + 31 + 28 + 31 + 30 + 31 + 30 + 31 + 31 + 30
+#     Nov = (30 / 2) + 31 + 28 + 31 + 30 + 31 + 30 + 31 + 31 + 30 + 30
+#     Dec = (31 / 2) + 31 + 28 + 31 + 30 + 31 + 30 + 31 + 31 + 30 + 30 + 30
+#     empty_array = []
+#     for i in range(0, len(x)):
+#         r = x[i]
+#         if y[i] == 1:
+#             r = x[i] + L[int(Jan)]
+#         elif y[i] == 2:
+#             r = x[i] + L[int(Feb)]
+#         elif y[i] == 3:
+#             r = x[i] + L[int(Mar)]
+#         elif y[i] == 4:
+#             r = x[i] + L[int(Apr)]
+#         elif y[i] == 5:
+#             r = x[i] + L[int(May)]
+#         elif y[i] == 6:
+#             r = x[i] + L[int(June)]
+#         elif y[i] == 7:
+#             r = x[i] + L[int(July)]
+#         elif y[i] == 8:
+#             r = x[i] + L[int(August)]
+#         elif y[i] == 9:
+#             r = x[i] + L[int(Sep)]
+#         elif y[i] == 10:
+#             r = x[i] + L[int(Oct)]
+#         elif y[i] == 11:
+#             r = x[i] + L[int(Nov)]
+#         elif y[i] == 12:
+#             r = x[i] + L[int(Dec)]
+#         empty_array.append(r)
+#
+#     return empty_array

@@ -2,8 +2,8 @@ import numpy as np
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import pandas as pd
-from my_functions import monte_carlo_randomization_trend
 from my_functions import monte_carlo_randomization_smooth
+from my_functions import monte_carlo_randomization_trend
 import seaborn as sns
 
 # Baring Head data excel file
@@ -11,22 +11,33 @@ baringhead = pd.read_excel(r'H:\The Science\Datasets'
                            r'\BHD_14CO2_datasets_20211013.xlsx')
 baringhead = baringhead.dropna(subset=['DELTA14C'])            # drop bad 14C values
 baringhead = baringhead.loc[(baringhead['DELTA14C_ERR'] > 0)]  # get rid of data where the error flag is -1000
-baringhead = baringhead.reset_index(drop=True)                 # index currently goes to 0 :)
 xtot_bhd = baringhead['DEC_DECAY_CORR']                        # extract entire dataset x-values
 ytot_bhd = baringhead['DELTA14C']                              # entire dataset y-values
 ztot_bhd = baringhead['DELTA14C_ERR']                          # entire dataset z-values
 fake_x_temp = np.linspace(min(xtot_bhd), max(xtot_bhd), 480)   # identify some fake X-values at which to plot data
+xs = pd.DataFrame(fake_x_temp)
+
+# print(fake_x_temp)
+
+
 
 # RUN THE FUNCTION
-new_df = monte_carlo_randomization_smooth(xtot_bhd, ytot_bhd, ztot_bhd, fake_x_temp, 667, 10)
-new_df2 = monte_carlo_randomization_trend(xtot_bhd, ytot_bhd, ztot_bhd, fake_x_temp, 667, 10)
+new_df = monte_carlo_randomization_smooth(xtot_bhd, fake_x_temp, ytot_bhd, ztot_bhd, 667, 10)
+new_df2 = monte_carlo_randomization_trend(xtot_bhd, fake_x_temp, ytot_bhd, ztot_bhd, 667, 10)
+print(new_df)
+#
+print(xtot_bhd)
+print(fake_x_temp)
+print(ytot_bhd)
+print(ztot_bhd)
+
 
 # EXTRACT THE RETURNED DATA FROM SMOOTH
 rands = new_df[0]  # extract the first thing the function returns, the randomized data.
 smooths = new_df[1]  # extract the second thing the function returns, the smoothed data. Each row = new iteration
 mean = new_df[2]  # extracts the summary DataFrame
 mean = mean['Means']    # extracts the means from the summary DataFrame
-
+#
 rand1 = rands.iloc[1]
 rand2 = rands.iloc[2]
 rand3 = rands.iloc[3]
@@ -97,8 +108,7 @@ ax2.plot(fake_x_temp, mean, color='black', label='Mean', alpha=1)
 ax2.set_xlim([1980, 1982])
 ax2.set_ylim([250, 290])
 
-plt.savefig('C:/Users/clewis/IdeaProjects/GNS/radiocarbon_intercomparison/interlab_comparison/plots/Monte_Carlo_Examination.png',
-            dpi=300, bbox_inches="tight")
+plt.show()
 plt.close()
 
 # ADJUST / BEAUTIFY PLOT LATER.

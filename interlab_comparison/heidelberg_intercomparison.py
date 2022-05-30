@@ -256,7 +256,7 @@ ESSENTIALLY WHAT WE ARE DOING:
 
 I'm going to run it once below as a proof of concept with this dataset, and run a plot to show its working. 
 """
-n = 10  # set the amount of times the code will iterate (set to 10,000 once everything is final)
+n = 10000  # set the amount of times the code will iterate (set to 10,000 once everything is final)
 cutoff = 667  # FFT filter cutoff
 
 bhd_1986_1991_results_smooth = monte_carlo_randomization_smooth(x1_bhd, my_x_1986_1991, y1_bhd, z1_bhd, cutoff, n)
@@ -859,7 +859,6 @@ THAT's THE END OF THE WORKING FILE. Everything else is old code :)
 
 """
 print('commit changes')
-
 
 
 

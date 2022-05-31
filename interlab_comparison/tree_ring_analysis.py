@@ -56,7 +56,6 @@ CH_41_S = df.loc[(df['Site'] == 'Bahia San Pedro, Chile')]
 CH_41_S_x = CH_41_S['DecimalDate']
 CH_41_S_y = CH_41_S['∆14C']
 
-
 CH_44_S = df.loc[(df['Site'] == 'Raul Marin Balmaceda')]
 CH_44_S_x = CH_44_S['DecimalDate']
 CH_44_S_y = CH_44_S['∆14C']
@@ -254,6 +253,7 @@ I'm going to just quickly list the types of elements that I'll need for each sit
 This can be found in my Data Science notebook. May 30, 2022, second page from this day. 
 """
 
+
 def tree_ring_count_verification(data, element):
     data = data.reset_index(drop=True)  # reset the index or you get type-setting errors
     empty_array = []  # create an empty array. We will dump our sorted data in here
@@ -274,7 +274,7 @@ CH_44_S_core2 = tree_ring_count_verification(CH_44_S, 'T4')
 CH_44_S_core3 = tree_ring_count_verification(CH_44_S, 'T3')
 
 CH_48_S_core1 = tree_ring_count_verification(CH_48_S, 'T4')
-CH_48_S_core2 = tree_ring_count_verification(CH_48_S_2, 'T6')
+CH_48_S_core2 = tree_ring_count_verification(CH_48_S_2,'T6')
 
 CH_53_S_core1 = tree_ring_count_verification(CH_53_S, 'T3')
 CH_53_S_core2 = tree_ring_count_verification(CH_53_S, 'T4')
@@ -303,20 +303,220 @@ NZ_44_S_core2 = tree_ring_count_verification(NZ_44_S, 'C2')
 NZ_46_S_core1 = tree_ring_count_verification(NZ_46_S, 'C1')
 NZ_46_S_core2 = tree_ring_count_verification(NZ_46_S, 'C2')
 
-NZ_47_S_core1 = tree_ring_count_verification(NZ_47_S, 'T2')  # ONLY ONE CORE HERE
+
+NZ_47_S_core1 = tree_ring_count_verification(NZ_47_S, 'T1')  # ONLY ONE CORE HERE
 
 NZ_53_S_core1 = tree_ring_count_verification(NZ_53_S, 'C2')
 NZ_53_S_core2 = tree_ring_count_verification(NZ_53_S, 'C3')
 
+"""
+After splicing up the data based on the multi-tree and core information, the next block of code will be the plots. 
+I'll use the plots to help visually decide which data the keep and which to remove. As a reminder: 
+1. If data matches the bomb peak, this is one good validation. 
+2. If data is too young for the bomb peak, there should be TWO records from the same tree and if they match, 
+we call it valid. 
+"""
 
-# TODO write a plotting function to churn through these what will be very similar plots
+size = 50
+plt.errorbar(CH_41_S_core1['DecimalDate'], CH_41_S_core1['∆14C'], label='Tree 1, Core 2', yerr=CH_41_S_core1['∆14Cerr'], fmt='o', color=colors2[1], ecolor=colors2[1], elinewidth=1, capsize=2)
+plt.errorbar(CH_41_S_core2['DecimalDate'], CH_41_S_core2['∆14C'], label='Tree 2, Core 1', yerr=CH_41_S_core2['∆14Cerr'], fmt='D', color=colors2[3], ecolor=colors2[3], elinewidth=1, capsize=2)
+plt.plot(harm_xs, harm_ys, label='Southern Hemisphere \u0394$^1$$^4$CO$_2$ (\u2030)', color='black', alpha=0.2)
+plt.legend()
+plt.title('41\u00b0S: Bahia San Pedro, Chile')
+plt.xlim(min(CH_41_S['DecimalDate'] - 5), max(CH_41_S['DecimalDate'] + 5))
+plt.ylim(min(CH_41_S['∆14C'] - 25), max(CH_41_S['∆14C'] + 25))
+plt.xlabel('Date', fontsize=14)
+plt.ylabel('\u0394$^1$$^4$CO$_2$ (\u2030)', fontsize=14)  # label the y axis
+plt.savefig(
+    'C:/Users/clewis/IdeaProjects/GNS/radiocarbon_intercomparison/interlab_comparison/plots/SOAR_tree_rings/BahiaSanPedro_validation.png',
+    dpi=300, bbox_inches="tight")
+plt.close()
+
+size = 50
+plt.errorbar(CH_44_S_core1['DecimalDate'], CH_44_S_core1['∆14C'], label='Tree 7, Core 1', yerr=CH_44_S_core1['∆14Cerr'], fmt='o', color=colors2[1], ecolor=colors2[1], elinewidth=1, capsize=2)
+plt.errorbar(CH_44_S_core2['DecimalDate'], CH_44_S_core2['∆14C'], label='Tree 4, Core 1', yerr=CH_44_S_core2['∆14Cerr'], fmt='D', color=colors2[3], ecolor=colors2[3], elinewidth=1, capsize=2)
+plt.errorbar(CH_44_S_core3['DecimalDate'], CH_44_S_core3['∆14C'], label='Tree 3, Core 2', yerr=CH_44_S_core3['∆14Cerr'], fmt='*', color=colors2[5], ecolor=colors2[5], elinewidth=1, capsize=2)
+plt.plot(harm_xs, harm_ys, label='Southern Hemisphere \u0394$^1$$^4$CO$_2$ (\u2030)', color='black', alpha=0.2)
+plt.legend()
+plt.title('44\u00b0S: Raul Marin Balmaceda, Chile')
+plt.xlim(min(CH_44_S['DecimalDate'] - 5), max(CH_44_S['DecimalDate'] + 5))
+plt.ylim(min(CH_44_S['∆14C'] - 25), max(CH_44_S['∆14C'] + 25))
+plt.xlabel('Date', fontsize=14)
+plt.ylabel('\u0394$^1$$^4$CO$_2$ (\u2030)', fontsize=14)  # label the y axis
+plt.savefig(
+    'C:/Users/clewis/IdeaProjects/GNS/radiocarbon_intercomparison/interlab_comparison/plots/SOAR_tree_rings/RaulMarin_validation.png',
+    dpi=300, bbox_inches="tight")
+plt.close()
+
+size = 50
+plt.errorbar(CH_48_S_core1['DecimalDate'], CH_48_S_core1['∆14C'], label='Tree 4, Core 1 (Tortel Island)', yerr=CH_48_S_core1['∆14Cerr'], fmt='o', color=colors2[1], ecolor=colors2[1], elinewidth=1, capsize=2)
+plt.errorbar(CH_48_S_core2['DecimalDate'], CH_48_S_core2['∆14C'], label='Tree 6, Core 1 (Tortel River)', yerr=CH_48_S_core2['∆14Cerr'], fmt='D', color=colors2[3], ecolor=colors2[3], elinewidth=1, capsize=2)
+plt.plot(harm_xs, harm_ys, label='Southern Hemisphere \u0394$^1$$^4$CO$_2$ (\u2030)', color='black', alpha=0.2)
+plt.legend()
+plt.title('48\u00b0S: Tortel Island and Tortel River, Chile')
+plt.xlim(min(CH_48_S['DecimalDate'] - 5), max(CH_48_S['DecimalDate'] + 5))
+plt.ylim(min(CH_48_S['∆14C'] - 25), max(CH_48_S['∆14C'] + 25))
+plt.xlabel('Date', fontsize=14)
+plt.ylabel('\u0394$^1$$^4$CO$_2$ (\u2030)', fontsize=14)  # label the y axis
+plt.savefig(
+    'C:/Users/clewis/IdeaProjects/GNS/radiocarbon_intercomparison/interlab_comparison/plots/SOAR_tree_rings/Tortel_validation.png',
+    dpi=300, bbox_inches="tight")
+plt.close()
+
+size = 50
+plt.errorbar(CH_53_S_core1['DecimalDate'], CH_53_S_core1['∆14C'], label='Tree 3, Core 1', yerr=CH_53_S_core1['∆14Cerr'], fmt='o', color=colors2[1], ecolor=colors2[1], elinewidth=1, capsize=2)
+plt.errorbar(CH_53_S_core2['DecimalDate'], CH_53_S_core2['∆14C'], label='Tree 4, Core 2', yerr=CH_53_S_core2['∆14Cerr'], fmt='D', color=colors2[3], ecolor=colors2[3], elinewidth=1, capsize=2)
+plt.plot(harm_xs, harm_ys, label='Southern Hemisphere \u0394$^1$$^4$CO$_2$ (\u2030)', color='black', alpha=0.2)
+plt.legend()
+plt.title('53\u00b0S: Seno Skyring, Chile')
+plt.xlim(min(CH_53_S['DecimalDate'] - 5), max(CH_53_S['DecimalDate'] + 5))
+plt.ylim(min(CH_53_S['∆14C'] - 25), max(CH_53_S['∆14C'] + 25))
+plt.xlabel('Date', fontsize=14)
+plt.ylabel('\u0394$^1$$^4$CO$_2$ (\u2030)', fontsize=14)  # label the y axis
+plt.savefig(
+    'C:/Users/clewis/IdeaProjects/GNS/radiocarbon_intercomparison/interlab_comparison/plots/SOAR_tree_rings/SenoSky_validation.png',
+    dpi=300, bbox_inches="tight")
+plt.close()
+
+size = 50
+plt.errorbar(CH_54_S_core1['DecimalDate'], CH_54_S_core1['∆14C'], label='Tree 6, Core 2', yerr=CH_54_S_core1['∆14Cerr'], fmt='o', color=colors2[1], ecolor=colors2[1], elinewidth=1, capsize=2)
+plt.errorbar(CH_54_S_core2['DecimalDate'], CH_54_S_core2['∆14C'], label='Tree 3, Core 1', yerr=CH_54_S_core2['∆14Cerr'], fmt='D', color=colors2[3], ecolor=colors2[3], elinewidth=1, capsize=2)
+plt.errorbar(CH_54_S_core3['DecimalDate'], CH_54_S_core3['∆14C'], label='Tree 5, Core 1', yerr=CH_54_S_core3['∆14Cerr'], fmt='*', color=colors2[5], ecolor=colors2[5], elinewidth=1, capsize=2)
+plt.plot(harm_xs, harm_ys, label='Southern Hemisphere \u0394$^1$$^4$CO$_2$ (\u2030)', color='black', alpha=0.2)
+plt.legend()
+plt.title('54\u00b0S: Monte Tarn, Chile')
+plt.xlim(min(CH_54_S['DecimalDate'] - 5), max(CH_54_S['DecimalDate'] + 5))
+plt.ylim(min(CH_54_S['∆14C'] - 25), max(CH_54_S['∆14C'] + 25))
+plt.xlabel('Date', fontsize=14)
+plt.ylabel('\u0394$^1$$^4$CO$_2$ (\u2030)', fontsize=14)  # label the y axis
+plt.savefig(
+    'C:/Users/clewis/IdeaProjects/GNS/radiocarbon_intercomparison/interlab_comparison/plots/SOAR_tree_rings/MonteTarn_validation.png',
+    dpi=300, bbox_inches="tight")
+plt.close()
+
+size = 50
+plt.errorbar(CH_55_S_core1['DecimalDate'], CH_55_S_core1['∆14C'], label='Tree 4, Core 1 (Baja Rosales)', yerr=CH_55_S_core1['∆14Cerr'], fmt='o', color=colors2[1], ecolor=colors2[1], elinewidth=1, capsize=2)
+plt.errorbar(CH_55_S_core2['DecimalDate'], CH_55_S_core2['∆14C'], label='Tree 1, Core 1 (Baja Rosales)', yerr=CH_55_S_core2['∆14Cerr'], fmt='D', color=colors2[3], ecolor=colors2[3], elinewidth=1, capsize=2)
+plt.errorbar(CH_55_S_core3['DecimalDate'], CH_55_S_core3['∆14C'], label='Tree 1, Core 1 (Puerto Navarino)', yerr=CH_55_S_core3['∆14Cerr'], fmt='*', color=colors2[5], ecolor=colors2[5], elinewidth=1, capsize=2)
+plt.plot(harm_xs, harm_ys, label='Southern Hemisphere \u0394$^1$$^4$CO$_2$ (\u2030)', color='black', alpha=0.2)
+plt.legend()
+plt.title('55\u00b0S: Baja Rosales and Puerto Navarino, Chile')
+plt.xlim(min(CH_55_S['DecimalDate'] - 5), max(CH_55_S['DecimalDate'] + 5))
+plt.ylim(min(CH_55_S['∆14C'] - 25), max(CH_55_S['∆14C'] + 25))
+plt.xlabel('Date', fontsize=14)
+plt.ylabel('\u0394$^1$$^4$CO$_2$ (\u2030)', fontsize=14)  # label the y axis
+plt.savefig(
+    'C:/Users/clewis/IdeaProjects/GNS/radiocarbon_intercomparison/interlab_comparison/plots/SOAR_tree_rings/Puerto Navarino_validation.png',
+    dpi=300, bbox_inches="tight")
+plt.close()
+
+size = 50
+plt.errorbar(NZ_37_S_core1['DecimalDate'], NZ_37_S_core1['∆14C'], label='Tree 2, Core 2', yerr=NZ_37_S_core1['∆14Cerr'], fmt='o', color=colors2[1], ecolor=colors2[1], elinewidth=1, capsize=2)
+plt.plot(harm_xs, harm_ys, label='Southern Hemisphere \u0394$^1$$^4$CO$_2$ (\u2030)', color='black', alpha=0.2)
+plt.legend()
+plt.title('37\u00b0S: Muriwai Beach, New Zealand')
+plt.xlim(min(NZ_37_S['DecimalDate'] - 5), max(NZ_37_S['DecimalDate'] + 5))
+plt.ylim(min(NZ_37_S['∆14C'] - 25), max(NZ_37_S['∆14C'] + 25))
+plt.xlabel('Date', fontsize=14)
+plt.ylabel('\u0394$^1$$^4$CO$_2$ (\u2030)', fontsize=14)  # label the y axis
+plt.savefig(
+    'C:/Users/clewis/IdeaProjects/GNS/radiocarbon_intercomparison/interlab_comparison/plots/SOAR_tree_rings/MuriwaiBeach_validation.png',
+    dpi=300, bbox_inches="tight")
+plt.close()
+
+size = 50
+plt.errorbar(NZ_39_S_core1['DecimalDate'], NZ_39_S_core1['∆14C'], label='Tree 1, Core 1', yerr=NZ_39_S_core1['∆14Cerr'], fmt='o', color=colors2[1], ecolor=colors2[1], elinewidth=1, capsize=2)
+plt.errorbar(NZ_39_S_core2['DecimalDate'], NZ_39_S_core2['∆14C'], label='Tree 1, Core 4', yerr=NZ_39_S_core2['∆14Cerr'], fmt='D', color=colors2[3], ecolor=colors2[3], elinewidth=1, capsize=2)
+plt.plot(harm_xs, harm_ys, label='Southern Hemisphere \u0394$^1$$^4$CO$_2$ (\u2030)', color='black', alpha=0.2)
+plt.legend()
+plt.title('39\u00b0S: Kapuni Beach, New Zealand')
+plt.xlim(min(NZ_39_S['DecimalDate'] - 5), max(NZ_39_S['DecimalDate'] + 5))
+plt.ylim(min(NZ_39_S['∆14C'] - 25), max(NZ_39_S['∆14C'] + 25))
+plt.xlabel('Date', fontsize=14)
+plt.ylabel('\u0394$^1$$^4$CO$_2$ (\u2030)', fontsize=14)  # label the y axis
+plt.savefig(
+    'C:/Users/clewis/IdeaProjects/GNS/radiocarbon_intercomparison/interlab_comparison/plots/SOAR_tree_rings/Kapuni_validation.png',
+    dpi=300, bbox_inches="tight")
+plt.close()
+
+size = 50
+plt.errorbar(NZ_41_S_core2['DecimalDate'], NZ_41_S_core2['∆14C'], label='Tree 1, Core 1, (Baring Head)', yerr=NZ_41_S_core2['∆14Cerr'], fmt='o', color=colors2[1], ecolor=colors2[1], elinewidth=1, capsize=2)
+plt.errorbar(NZ_41_S_core3['DecimalDate'], NZ_41_S_core3['∆14C'], label='Tree 1, Core 3 (Baring Head)', yerr=NZ_41_S_core3['∆14Cerr'], fmt='D', color=colors[2], ecolor=colors[2], elinewidth=1, capsize=2)
+plt.errorbar(NZ_41_S_core4['DecimalDate'], NZ_41_S_core4['∆14C'], label='Tree 1, Core 2 (Eastbourne 2)', yerr=NZ_41_S_core4['∆14Cerr'], fmt='*', color=colors2[3], ecolor=colors2[3], elinewidth=1, capsize=2)
+plt.errorbar(NZ_41_S_core1['DecimalDate'], NZ_41_S_core1['∆14C'], label='Tree 1, Core 2, (Eastbourne 1)', yerr=NZ_41_S_core1['∆14Cerr'], fmt='^', color=colors[4], ecolor=colors[4], elinewidth=1, capsize=2)
+plt.plot(harm_xs, harm_ys, label='Southern Hemisphere \u0394$^1$$^4$CO$_2$ (\u2030)', color='black', alpha=0.2)
+plt.legend()
+plt.title('41\u00b0S: Eastbourne and Baring Head, New Zealand')
+plt.xlim(min(NZ_41_S['DecimalDate'] - 5), max(NZ_41_S['DecimalDate'] + 5))
+plt.ylim(min(NZ_41_S['∆14C'] - 25), max(NZ_41_S['∆14C'] + 25))
+plt.xlabel('Date', fontsize=14)
+plt.ylabel('\u0394$^1$$^4$CO$_2$ (\u2030)', fontsize=14)  # label the y axis
+plt.savefig(
+    'C:/Users/clewis/IdeaProjects/GNS/radiocarbon_intercomparison/interlab_comparison/plots/SOAR_tree_rings/Eastborne_BHEAD_validation.png',
+    dpi=300, bbox_inches="tight")
+plt.close()
+
+size = 50
+plt.errorbar(NZ_44_S_core1['DecimalDate'], NZ_44_S_core1['∆14C'], label='Tree 1, Core 1', yerr=NZ_44_S_core1['∆14Cerr'], fmt='o', color=colors2[1], ecolor=colors2[1], elinewidth=1, capsize=2)
+plt.errorbar(NZ_44_S_core2['DecimalDate'], NZ_44_S_core2['∆14C'], label='Tree 1, Core 2', yerr=NZ_44_S_core2['∆14Cerr'], fmt='D', color=colors[2], ecolor=colors[2], elinewidth=1, capsize=2)
+plt.plot(harm_xs, harm_ys, label='Southern Hemisphere \u0394$^1$$^4$CO$_2$ (\u2030)', color='black', alpha=0.2)
+plt.legend()
+plt.title('44\u00b0S: Haast Beach, New Zealand')
+plt.xlim(min(NZ_44_S['DecimalDate'] - 5), max(NZ_44_S['DecimalDate'] + 5))
+plt.ylim(min(NZ_44_S['∆14C'] - 25), max(NZ_44_S['∆14C'] + 25))
+plt.xlabel('Date', fontsize=14)
+plt.ylabel('\u0394$^1$$^4$CO$_2$ (\u2030)', fontsize=14)  # label the y axis
+plt.savefig(
+    'C:/Users/clewis/IdeaProjects/GNS/radiocarbon_intercomparison/interlab_comparison/plots/SOAR_tree_rings/Haast_validation.png',
+    dpi=300, bbox_inches="tight")
+plt.close()
+
+size = 50
+plt.errorbar(NZ_46_S_core1['DecimalDate'], NZ_46_S_core1['∆14C'], label='Tree 2, Core 2', yerr=NZ_46_S_core1['∆14Cerr'], fmt='o', color=colors2[1], ecolor=colors2[1], elinewidth=1, capsize=2)
+plt.errorbar(NZ_46_S_core2['DecimalDate'], NZ_46_S_core2['∆14C'], label='Tree 2, Core 1', yerr=NZ_46_S_core2['∆14Cerr'], fmt='D', color=colors[2], ecolor=colors[2], elinewidth=1, capsize=2)
+plt.plot(harm_xs, harm_ys, label='Southern Hemisphere \u0394$^1$$^4$CO$_2$ (\u2030)', color='black', alpha=0.2)
+plt.legend()
+plt.title('46\u00b0S: Oreti Beach, New Zealand')
+plt.xlim(min(NZ_46_S['DecimalDate'] - 5), max(NZ_46_S['DecimalDate'] + 5))
+plt.ylim(min(NZ_46_S['∆14C'] - 25), max(NZ_46_S['∆14C'] + 25))
+plt.xlabel('Date', fontsize=14)
+plt.ylabel('\u0394$^1$$^4$CO$_2$ (\u2030)', fontsize=14)  # label the y axis
+plt.savefig(
+    'C:/Users/clewis/IdeaProjects/GNS/radiocarbon_intercomparison/interlab_comparison/plots/SOAR_tree_rings/Oreti_validation.png',
+    dpi=300, bbox_inches="tight")
+plt.close()
+
+size = 50
+plt.errorbar(NZ_47_S_core1['DecimalDate'], NZ_47_S_core1['∆14C'], label='Tree 1, Core 1', yerr=NZ_47_S_core1['∆14Cerr'], fmt='o', color=colors2[1], ecolor=colors2[1], elinewidth=1, capsize=2)
+plt.plot(harm_xs, harm_ys, label='Southern Hemisphere \u0394$^1$$^4$CO$_2$ (\u2030)', color='black', alpha=0.2)
+plt.legend()
+plt.title('47\u00b0S: Masons Bay, New Zealand')
+plt.xlim(min(NZ_47_S['DecimalDate'] - 5), max(NZ_47_S['DecimalDate'] + 5))
+plt.ylim(min(NZ_47_S['∆14C'] - 25), max(NZ_47_S['∆14C'] + 25))
+plt.xlabel('Date', fontsize=14)
+plt.ylabel('\u0394$^1$$^4$CO$_2$ (\u2030)', fontsize=14)  # label the y axis
+plt.savefig(
+    'C:/Users/clewis/IdeaProjects/GNS/radiocarbon_intercomparison/interlab_comparison/plots/SOAR_tree_rings/MasonBay_validation.png',
+    dpi=300, bbox_inches="tight")
+plt.close()
+
+size = 50
+plt.errorbar(NZ_53_S_core1['DecimalDate'], NZ_53_S_core1['∆14C'], label='Tree 2, Core 2', yerr=NZ_53_S_core1['∆14Cerr'], fmt='o', color=colors2[1], ecolor=colors2[1], elinewidth=1, capsize=2)
+plt.errorbar(NZ_53_S_core2['DecimalDate'], NZ_53_S_core2['∆14C'], label='Tree 3, Core 3', yerr=NZ_53_S_core2['∆14Cerr'], fmt='D', color=colors2[3], ecolor=colors2[3], elinewidth=1, capsize=2)
+plt.plot(harm_xs, harm_ys, label='Southern Hemisphere \u0394$^1$$^4$CO$_2$ (\u2030)', color='black', alpha=0.2)
+plt.legend()
+plt.title('53\u00b0S: Lonliest Tree, New Zealand')
+plt.xlim(min(NZ_53_S['DecimalDate'] - 5), max(NZ_53_S['DecimalDate'] + 5))
+plt.ylim(min(NZ_53_S['∆14C'] - 25), max(NZ_53_S['∆14C'] + 25))
+plt.xlabel('Date', fontsize=14)
+plt.ylabel('\u0394$^1$$^4$CO$_2$ (\u2030)', fontsize=14)  # label the y axis
+plt.savefig(
+    'C:/Users/clewis/IdeaProjects/GNS/radiocarbon_intercomparison/interlab_comparison/plots/SOAR_tree_rings/LonliestTree_validation.png',
+    dpi=300, bbox_inches="tight")
+plt.close()
 
 
 
-
-#
-#
-#
 #
 #
 #

@@ -559,9 +559,19 @@ Kapuni:           Throw out Tree 1, Core 4.
 Mason's Bay:      Only one record - cannot validate because too young. Remove.
 Muriwai Beach:    Only one record - cannot validate because too young. Remove.
 
+The next step is to remove the data that I have designated above. After I do this, I will re-set the dataframe as the 
+new one, and proceed as I was doing before with the offset calculations. 
+Next steps in order. 
+
+1. Flag the bad data with a unique flag and send updated excel file to Jocelyn. 
+2. Remove the bad data and re-concatenate into a DataFrame
+3. Calculate the smooth fit using CCGCRV for the updated dataset's x-values and run monte carlo to get error estimates. 
+4. Calculate offsets and offset errors from the remaining tree ring data and the background dataset
+5. Calculate initial rough latitudinal offset gradients 
+6. Re-assess plan before following long term goals (using Hysplit backtrajectories) 
 
 """
-# TODO Remove data above.
+#test
 
 
 

@@ -21,7 +21,7 @@ from my_functions import monte_carlo_randomization_trend
 from mpl_toolkits.basemap import Basemap
 import matplotlib.pyplot as plt
 from matplotlib.patches import Polygon
-
+pd.options.mode.chained_assignment = None  # default='warn'  # https://stackoverflow.com/questions/20625582/how-to-deal-with-settingwithcopywarning-in-pandas
 """
 These next few lines appear often at the top of my codes. 
 These next lines set some initial parameters that figures in the code will follow
@@ -452,7 +452,7 @@ plt.savefig(
     'C:/Users/clewis/IdeaProjects/GNS/radiocarbon_intercomparison/interlab_comparison/plots/SOAR_tree_rings/MuriwaiBeach_validation.png',
     dpi=300, bbox_inches="tight")
 plt.close()
-g
+
 size = 50
 plt.errorbar(NZ_39_S_core1['DecimalDate'], NZ_39_S_core1['∆14C'], label='Tree 1, Core 1', yerr=NZ_39_S_core1['∆14Cerr'], fmt='o', color=colors2[1], ecolor=colors2[1], elinewidth=1, capsize=2)
 plt.errorbar(NZ_39_S_core2['DecimalDate'], NZ_39_S_core2['∆14C'], label='Tree 1, Core 4', yerr=NZ_39_S_core2['∆14Cerr'], fmt='D', color=colors2[3], ecolor=colors2[3], elinewidth=1, capsize=2)
@@ -571,16 +571,27 @@ Next steps in order.
 6. Re-assess plan before following long term goals (using Hysplit backtrajectories) 
 
 """
-#test
 
-
-
-
-
-
-
-
-
+"""
+######################################################################################################################
+Detailed as Step 1 above: my the block of code below will add new flags to the bad data and I will create a file to 
+send back to our group. 
+######################################################################################################################
+"""
+# Editing / adding flags to the Bahia San Pedro Set.
+mt_array = []
+for i in range(0, len(CH_41_S)):
+    row = CH_41_S.iloc[i]
+    # row = row.reset_index(drop = True)
+    print(row['DecimalDate'])
+    if row['DecimalDate'] < 2005:
+        print('yes')
+        row['CBL_flag'] = 'Tree 1 and Tree 2 deviate before 2005. Therefore I am removing all data < 2005'
+    else:
+        row['CBL_flag'] = '...'
+    mt_array.append(row)
+toconcat_CH_41_S = pd.DataFrame(mt_array)
+toconcat_CH_41_S.to_excel('test.xlsx')
 
 
 

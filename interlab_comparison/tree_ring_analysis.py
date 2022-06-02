@@ -44,6 +44,13 @@ harm_xs = harmonized['Decimal_date']  # see dataset_harmonization.py
 harm_ys = harmonized['D14C']  # see dataset_harmonization.py
 harm_y_errs = harmonized['weightedstderr_D14C']
 
+# TODO edit harmonized dataset to use yearly averages from November to February. Plot this as an add on to the plots
+
+
+
+
+
+
 """
 Before I do anything else, as advised, let's check to see which if any tree ring subsets
 have bad counts. First, I'll just do this visually by overlaying the plots onto the
@@ -342,7 +349,7 @@ plt.plot(harm_xs, harm_ys, label='SH Atmosphere \u0394$^1$$^4$CO$_2$ (\u2030)', 
 plt.legend()
 plt.title('44\u00b0S: Raul Marin Balmaceda, Chile')
 plt.xlim(min(CH_44_S['DecimalDate'] - 5), max(CH_44_S['DecimalDate'] + 5))
-plt.ylim(min(CH_44_S['∆14C'] - 25), max(CH_44_S['∆14C'] + 25))
+plt.ylim(min(CH_44_S['∆14C'] - 25), 700)
 plt.xlabel('Date', fontsize=14)
 plt.ylabel('\u0394$^1$$^4$CO$_2$ (\u2030)', fontsize=14)  # label the y axis
 plt.savefig(
@@ -357,7 +364,7 @@ plt.plot(harm_xs, harm_ys, label='SH Atmosphere \u0394$^1$$^4$CO$_2$ (\u2030)', 
 plt.legend()
 plt.title('48\u00b0S: Tortel Island and Tortel River, Chile')
 plt.xlim(min(CH_48_S['DecimalDate'] - 5), max(CH_48_S['DecimalDate'] + 5))
-plt.ylim(min(CH_48_S['∆14C'] - 25), max(CH_48_S['∆14C'] + 25))
+plt.ylim(min(CH_48_S['∆14C'] - 25), 700)
 plt.xlabel('Date', fontsize=14)
 plt.ylabel('\u0394$^1$$^4$CO$_2$ (\u2030)', fontsize=14)  # label the y axis
 plt.savefig(
@@ -388,7 +395,7 @@ plt.plot(harm_xs, harm_ys, label='SH Atmosphere \u0394$^1$$^4$CO$_2$ (\u2030)', 
 plt.legend()
 plt.title('54\u00b0S: Monte Tarn, Chile')
 plt.xlim(min(CH_54_S['DecimalDate'] - 5), max(CH_54_S['DecimalDate'] + 5))
-plt.ylim(min(CH_54_S['∆14C'] - 25), max(CH_54_S['∆14C'] + 25))
+plt.ylim(min(CH_54_S['∆14C'] - 25), 700)
 plt.xlabel('Date', fontsize=14)
 plt.ylabel('\u0394$^1$$^4$CO$_2$ (\u2030)', fontsize=14)  # label the y axis
 plt.savefig(
@@ -432,7 +439,7 @@ plt.plot(harm_xs, harm_ys, label='SH Atmosphere \u0394$^1$$^4$CO$_2$ (\u2030)', 
 plt.legend()
 plt.title('55\u00b0S: Baja Rosales and Puerto Navarino, Chile')
 plt.xlim(min(CH_55_S['DecimalDate'] - 5), max(CH_55_S['DecimalDate'] + 5))
-plt.ylim(min(CH_55_S['∆14C'] - 25), max(CH_55_S['∆14C'] + 25))
+plt.ylim(min(CH_55_S['∆14C'] - 25), 700)
 plt.xlabel('Date', fontsize=14)
 plt.ylabel('\u0394$^1$$^4$CO$_2$ (\u2030)', fontsize=14)  # label the y axis
 plt.savefig(
@@ -461,7 +468,7 @@ plt.plot(harm_xs, harm_ys, label='SH Atmosphere \u0394$^1$$^4$CO$_2$ (\u2030)', 
 plt.legend()
 plt.title('39\u00b0S: Kapuni Beach, New Zealand')
 plt.xlim(min(NZ_39_S['DecimalDate'] - 5), max(NZ_39_S['DecimalDate'] + 5))
-plt.ylim(min(NZ_39_S['∆14C'] - 25), max(NZ_39_S['∆14C'] + 25))
+plt.ylim(min(NZ_39_S['∆14C'] - 25), 700)
 plt.xlabel('Date', fontsize=14)
 plt.ylabel('\u0394$^1$$^4$CO$_2$ (\u2030)', fontsize=14)  # label the y axis
 plt.savefig(
@@ -537,7 +544,7 @@ plt.plot(harm_xs, harm_ys, label='SH Atmosphere \u0394$^1$$^4$CO$_2$ (\u2030)', 
 plt.legend()
 plt.title('53\u00b0S: Lonliest Tree, New Zealand')
 plt.xlim(min(NZ_53_S['DecimalDate'] - 5), max(NZ_53_S['DecimalDate'] + 5))
-plt.ylim(min(NZ_53_S['∆14C'] - 25), max(NZ_53_S['∆14C'] + 25))
+plt.ylim(min(NZ_53_S['∆14C'] - 25), 700)
 plt.xlabel('Date', fontsize=14)
 plt.ylabel('\u0394$^1$$^4$CO$_2$ (\u2030)', fontsize=14)  # label the y axis
 plt.savefig(
@@ -698,21 +705,6 @@ Then, later, I can slice using the '...' to get a new cleaned dataframe which in
 to use from here on out. 
 
 """
-#
-# toconcat_CH_41_S = pd.DataFrame(mt_array)
-# toconcat_NZ_41_S_3 = pd.DataFrame(mt_array)
-# toconcat_NZ_39_S = pd.DataFrame(mt_array)
-# toconcat_CH_54_S = pd.DataFrame(mt_array)
-# NZ_37_S
-# NZ_47_S
-# toconcat_CH_44_S = pd.DataFrame(mt_array)
-# toconcat_CH_48_S_2 = pd.DataFrame(mt_array)
-#
-# data_frames = [toconcat_CH_41_S, toconcat_CH_44_S, CH_48_S, toconcat_CH_48_S_2,CH_53_S, toconcat_CH_54_S, CH_55_S, CH_55_S_2, NZ_37_S, toconcat_NZ_39_S, NZ_41_S, NZ_41_S_2, toconcat_NZ_41_S_3, NZ_44_S, NZ_46_S, NZ_47_S, NZ_53_S]  # create a list of all the dataframes that I want to merge
-# df_merged = reduce(data_frames)
-# combined = pd.merge(toconcat_CH_41_S, toconcat_CH_44_S, CH_48_S, toconcat_CH_48_S_2,CH_53_S, toconcat_CH_54_S, CH_55_S, CH_55_S_2, NZ_37_S, toconcat_NZ_39_S, NZ_41_S, NZ_41_S_2, toconcat_NZ_41_S_3, NZ_44_S, NZ_46_S, NZ_47_S, NZ_53_S, how='outer')  # Keeps ALL Data
-
-
 combine = pd.concat([toconcat_CH_41_S,
                      toconcat_CH_44_S,
                      CH_48_S,
@@ -731,11 +723,7 @@ combine = pd.concat([toconcat_CH_41_S,
                      NZ_47_S,
                      NZ_53_S])  # Keeps ALL Data
 combine = combine.reset_index(drop=True)
-# combine.to_excel('test.xlsx')
-# combine.fillnan(0)
-# combine.to_excel('test2.xlsx')
-# df = df.replace(['nan'],'new value')
-#
+
 # # where there is not already a CBL Flag, add '...'
 mt_array = []
 for i in range(0, len(combine)):
@@ -746,18 +734,28 @@ for i in range(0, len(combine)):
     if x == 'nan':                            # if there is no value there
         row['CBL_flag'] = '...'               # change it to '...'
     mt_array.append(row)
-combined2 = pd.DataFrame(mt_array)
-combined2.to_excel('test2.xlsx')
+combined = pd.DataFrame(mt_array)
 
+"""
+Of course, now I need to check that I haven't lost any data. What is the lenght of the original dataframe after I
+dropped the Nan's in the beginning, versus now? 
 
+They check out!
+"""
+# print(len(df)) == 648
+# print(len(combined2)) == 648
+combined.to_excel('SOARTreeRingData_CBL_flags.xlsx')
 
+"""
+Finally, I want to remove all the flagged data so I'm only left with things I HAVEN'T Flagged. 
+"""
+df_cleaned = combined.loc[(combined['CBL_flag']) == '...']
+print(len(df_cleaned))
+df_cleaned.to_excel('SOARTreeRingData_CBL_cleaned.xlsx')
 
-
-
-
-
-
-
+"""
+Do my cleaned data / plots / conclusions match rachel's? 
+"""
 
 
 

@@ -20,6 +20,7 @@ from miller_curve_algorithm import ccgFilter
 from my_functions import monte_carlo_randomization_trend
 from mpl_toolkits.basemap import Basemap
 import matplotlib.pyplot as plt
+from functools import reduce
 from matplotlib.patches import Polygon
 pd.options.mode.chained_assignment = None  # default='warn'  # https://stackoverflow.com/questions/20625582/how-to-deal-with-settingwithcopywarning-in-pandas
 """
@@ -583,15 +584,13 @@ mt_array = []
 for i in range(0, len(CH_41_S)):
     row = CH_41_S.iloc[i]
     # row = row.reset_index(drop = True)
-    print(row['DecimalDate'])
     if row['DecimalDate'] < 2005:
-        print('yes')
         row['CBL_flag'] = 'REMOVED FROM ANALYSIS: Tree 1 and Tree 2 deviate before 2005. Therefore I am removing all data < 2005'
     else:
         row['CBL_flag'] = '...'
     mt_array.append(row)
 toconcat_CH_41_S = pd.DataFrame(mt_array)
-# toconcat_CH_41_S.to_excel('test.xlsx')
+
 
 
 # LABEL the outlying measurements from 23 Nikau St. Eastbourne NZ.
@@ -607,7 +606,7 @@ for i in range(0, len(NZ_41_S_3)):  # initialize for loop to the length of the 2
         row['CBL_flag'] = '...'
     mt_array.append(row)
 toconcat_NZ_41_S_3 = pd.DataFrame(mt_array)
-# toconcat_NZ_41_S_3.to_excel('test.xlsx')
+
 
 
 # LABEL Tree 1 Core 4 from Kapuni as BAD
@@ -617,33 +616,138 @@ for i in range(0, len(NZ_39_S)):  # initialize a for-loop the length of the site
     cell = row['Ring code']  # grab the column of data from that row
     if 'C4' in cell:  # if what we're looking for is in there, append it to the array
         row['CBL_flag'] = 'REMOVED FROM ANALYSIS: Tree 1 Core 4 does not match bomb spike.'
+    else:
+        row['CBL_flag'] = '...'
     mt_array.append(row)
 toconcat_NZ_39_S = pd.DataFrame(mt_array)
-toconcat_NZ_39_S.to_excel('test.xlsx')
+
+# LABEL Mason's Bay: Only 1 record - remove from Further analysis.
+NZ_47_S['CBL_flag'] = 'REMOVED FROM ANALYSIS: Only one record exists, and is post-bomb spike - therefore cannot be validated.'
+NZ_47_S.to_excel('test.xlsx')
+
+# LABEL Monte Tarn Tree 5 Core 1 as BAD
+mt_array = []  # create an empty array. We will dump our sorted data in here
+for i in range(0, len(CH_54_S)):  # initialize a for-loop the length of the site's dataset
+    row = CH_54_S.iloc[i]  # grab the i'th row
+    cell = row['Ring code']  # grab the column of data from that row
+    if 'T5' in cell:  # if what we're looking for is in there, append it to the array
+        row['CBL_flag'] = 'REMOVED FROM ANALYSIS: Tree 5 Core 1 does not match bomb spike.'
+    else:
+        row['CBL_flag'] = '...'
+    mt_array.append(row)
+toconcat_CH_54_S = pd.DataFrame(mt_array)
+
+# LABEL Muriwai Beach: Only 1 record - remove from Further analysis.
+NZ_37_S['CBL_flag'] = 'REMOVED FROM ANALYSIS: Only one record exists, and is post-bomb spike - therefore cannot be validated.'
+NZ_37_S.to_excel('test.xlsx')
+
+# LABEL Balmaceda Tree 5 Core 1 as BAD
+mt_array = []  # create an empty array. We will dump our sorted data in here
+for i in range(0, len(CH_44_S)):  # initialize a for-loop the length of the site's dataset
+    row = CH_44_S.iloc[i]  # grab the i'th row
+    cell = row['Ring code']  # grab the column of data from that row
+    if 'T7' not in cell:  # if what we're looking for is in there, append it to the array
+        row['CBL_flag'] = 'REMOVED FROM ANALYSIS: This tree core does not match bomb spike. Only keeping Tree 7 from this site.'
+    else:
+        row['CBL_flag'] = '...'
+    mt_array.append(row)
+toconcat_CH_44_S = pd.DataFrame(mt_array)
+# toconcat_CH_44_S.to_excel('test.xlsx')
 
 
+# LABEL the outlying measurements from Tortel Island
+# This outlier will re-appear in the plots if you uncomment line 39 which excludes all original flags ("A..")
+mt_array = []
+for i in range(0, len(CH_48_S_2)):  # initialize for loop to the length of the 23 Nikau Eastbourne Dataset
+    row = CH_48_S_2.iloc[i]
+    if row['C14Flag'] == 'A..':
+        row['CBL_flag'] = 'REMOVED FROM ANALYSIS: Outlying low measurement. Also indicated by "A.." in C14 Flag column.'
+    else:
+        row['CBL_flag'] = '...'
+    mt_array.append(row)
+toconcat_CH_48_S_2 = pd.DataFrame(mt_array)
+toconcat_CH_48_S_2.to_excel('test.xlsx')
+
+"""
+To complete Step 1 outlined on line 566, I'll concatonate all of the newly labeled data to later send to Jocelyn and 
+will be useful for future readers of the study. 
+It's getting a little bit complicated to keep straight with all of the indexing so I'm going to quickly summarize
+the progress here before I re-concatenate the newly labeled data.
+ 
+toconcat_CH_41_S -> newly labeled data from Bahia San Pedro, we labeled all data pre-2005
+toconcat_CH_44_S -> newly labeled data from Raul Marin Balmaceda, we keep Tree 7, remove the rest
+CH_48_S          -> UNALTERED data from Tortel Island
+toconcat_CH_48_S_2 -> newly labeled data from Tortel River, labeled one outlier
+CH_53_S          -> UNALTERED
+toconcat_CH_54_S -> label that we're removing T5 C1 from Monte Tarn
+CH_55_S          -> UNALTERED
+CH_55_S_2        -> UNALTERED
+NZ_37_S          -> Labeled to note that we cannot validate it so the whole dataset will not be used further
+toconcat_NZ_39_S -> Labeling that we'll remove Tree 1 Core 4. 
+NZ_41_S          -> UNALTERED
+NZ_41_S_2        -> UNALTERED
+toconcat_NZ_41_S_3 -> Labeled one outlier from 23 Nikau St, Eastbourne
+NZ_44_S          -> UNALTERED
+NZ_46_S          -> UNALTERED
+NZ_47_S          -> Labeled to note that we cannot validate it so the whole dataset will not be used further
+NZ_53_S          -> UNALTERED
+
+The first thing I'm going to do next is concatonate all of these into a new dataframe. 
+Then I am going to add '...' in ['CBL_flag'] to all data where it doesn't exist already. 
+Then, later, I can slice using the '...' to get a new cleaned dataframe which includes ONLY data that we are going 
+to use from here on out. 
+
+"""
+#
+# toconcat_CH_41_S = pd.DataFrame(mt_array)
+# toconcat_NZ_41_S_3 = pd.DataFrame(mt_array)
+# toconcat_NZ_39_S = pd.DataFrame(mt_array)
+# toconcat_CH_54_S = pd.DataFrame(mt_array)
+# NZ_37_S
+# NZ_47_S
+# toconcat_CH_44_S = pd.DataFrame(mt_array)
+# toconcat_CH_48_S_2 = pd.DataFrame(mt_array)
+#
+# data_frames = [toconcat_CH_41_S, toconcat_CH_44_S, CH_48_S, toconcat_CH_48_S_2,CH_53_S, toconcat_CH_54_S, CH_55_S, CH_55_S_2, NZ_37_S, toconcat_NZ_39_S, NZ_41_S, NZ_41_S_2, toconcat_NZ_41_S_3, NZ_44_S, NZ_46_S, NZ_47_S, NZ_53_S]  # create a list of all the dataframes that I want to merge
+# df_merged = reduce(data_frames)
+# combined = pd.merge(toconcat_CH_41_S, toconcat_CH_44_S, CH_48_S, toconcat_CH_48_S_2,CH_53_S, toconcat_CH_54_S, CH_55_S, CH_55_S_2, NZ_37_S, toconcat_NZ_39_S, NZ_41_S, NZ_41_S_2, toconcat_NZ_41_S_3, NZ_44_S, NZ_46_S, NZ_47_S, NZ_53_S, how='outer')  # Keeps ALL Data
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+combine = pd.concat([toconcat_CH_41_S,
+                     toconcat_CH_44_S,
+                     CH_48_S,
+                     toconcat_CH_48_S_2,
+                     CH_53_S,
+                     toconcat_CH_54_S,
+                     CH_55_S,
+                     CH_55_S_2,
+                     NZ_37_S,
+                     toconcat_NZ_39_S,
+                     NZ_41_S,
+                     NZ_41_S_2,
+                     toconcat_NZ_41_S_3,
+                     NZ_44_S,
+                     NZ_46_S,
+                     NZ_47_S,
+                     NZ_53_S])  # Keeps ALL Data
+combine = combine.reset_index(drop=True)
+# combine.to_excel('test.xlsx')
+# combine.fillnan(0)
+# combine.to_excel('test2.xlsx')
+# df = df.replace(['nan'],'new value')
+#
+# # where there is not already a CBL Flag, add '...'
+mt_array = []
+for i in range(0, len(combine)):
+    combine = combine.reset_index(drop=True)
+    row = combine.iloc[i]                     # grab the i'th row
+    x = row['CBL_flag']                       # grab the CBL_flag column
+    x = str(x)                                # change the value to a string
+    if x == 'nan':                            # if there is no value there
+        row['CBL_flag'] = '...'               # change it to '...'
+    mt_array.append(row)
+combined2 = pd.DataFrame(mt_array)
+combined2.to_excel('test2.xlsx')
 
 
 

@@ -36,7 +36,7 @@ mpl.rcParams['font.size'] = 10
 df = pd.read_excel(r'H:\The Science\Datasets'
                    r'\SOARTreeRingData2022-02-01.xlsx')  # read in the Tree Ring data.
 df = df.dropna(subset='∆14C').reset_index(drop=True)  # drop any data rows that doesn't have 14C data.
-df = df.loc[(df['C14Flag']) != 'A..']
+# df = df.loc[(df['C14Flag']) != 'A..']
 
 # importing harmonized southern hemisphere dataset from the previous python file.
 harm_xs = harmonized['Decimal_date']  # see dataset_harmonization.py
@@ -477,7 +477,7 @@ plt.plot(harm_xs, harm_ys, label='SH Atmosphere \u0394$^1$$^4$CO$_2$ (\u2030)', 
 plt.legend()
 plt.title('41\u00b0S: Eastbourne and Baring Head, New Zealand')
 plt.xlim(min(NZ_41_S['DecimalDate'] - 5), max(NZ_41_S['DecimalDate'] + 5))
-plt.ylim(min(NZ_41_S['∆14C'] - 25), max(NZ_41_S['∆14C'] + 25))
+plt.ylim(min(NZ_41_S['∆14C'] - 25), 700)
 plt.xlabel('Date', fontsize=14)
 plt.ylabel('\u0394$^1$$^4$CO$_2$ (\u2030)', fontsize=14)  # label the y axis
 plt.savefig(
@@ -578,7 +578,7 @@ Detailed as Step 1 above: my the block of code below will add new flags to the b
 send back to our group. 
 ######################################################################################################################
 """
-# Editing / adding flags to the Bahia San Pedro Set.
+# LABEL flags to the Bahia San Pedro Set.
 mt_array = []
 for i in range(0, len(CH_41_S)):
     row = CH_41_S.iloc[i]
@@ -586,21 +586,40 @@ for i in range(0, len(CH_41_S)):
     print(row['DecimalDate'])
     if row['DecimalDate'] < 2005:
         print('yes')
-        row['CBL_flag'] = 'Tree 1 and Tree 2 deviate before 2005. Therefore I am removing all data < 2005'
+        row['CBL_flag'] = 'REMOVED FROM ANALYSIS: Tree 1 and Tree 2 deviate before 2005. Therefore I am removing all data < 2005'
     else:
         row['CBL_flag'] = '...'
     mt_array.append(row)
 toconcat_CH_41_S = pd.DataFrame(mt_array)
-toconcat_CH_41_S.to_excel('test.xlsx')
+# toconcat_CH_41_S.to_excel('test.xlsx')
 
 
+# LABEL the outlying measurements from 23 Nikau St. Eastbourne NZ.
+# This outlier will re-appear in the plots if you uncomment line 39 which excludes all original flags ("A..")
+mt_array = []
+for i in range(0, len(NZ_41_S_3)):  # initialize for loop to the length of the 23 Nikau Eastbourne Dataset
+    row = NZ_41_S_3.iloc[i]
+    if row['C14Flag'] == 'A..' and row['DecimalDate'] == 1995.00274:
+        row['CBL_flag'] = 'REMOVED FROM ANALYSIS: Outlying low measurement. Also indicated by "A.." in C14 Flag column.'
+    elif row['C14Flag'] == 'A..':
+        row['CBL_flag'] = 'Removed due to original C14 Flag "A.."'
+    else:
+        row['CBL_flag'] = '...'
+    mt_array.append(row)
+toconcat_NZ_41_S_3 = pd.DataFrame(mt_array)
+# toconcat_NZ_41_S_3.to_excel('test.xlsx')
 
 
-
-
-
-
-
+# LABEL Tree 1 Core 4 from Kapuni as BAD
+mt_array = []  # create an empty array. We will dump our sorted data in here
+for i in range(0, len(NZ_39_S)):  # initialize a for-loop the length of the site's dataset
+    row = NZ_39_S.iloc[i]  # grab the i'th row
+    cell = row['Ring code']  # grab the column of data from that row
+    if 'C4' in cell:  # if what we're looking for is in there, append it to the array
+        row['CBL_flag'] = 'REMOVED FROM ANALYSIS: Tree 1 Core 4 does not match bomb spike.'
+    mt_array.append(row)
+toconcat_NZ_39_S = pd.DataFrame(mt_array)
+toconcat_NZ_39_S.to_excel('test.xlsx')
 
 
 

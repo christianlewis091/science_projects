@@ -222,5 +222,51 @@ plt.savefig('C:/Users/clewis/IdeaProjects/GNS/radiocarbon_intercomparison/interl
             dpi=300, bbox_inches="tight")
 plt.close()
 
+"""
+In Rachel's thesis, she talks about comparing the tree-ring values to the BHD data, but only using the data from the
+growing season, which is November to February. The following code slices the harmonized data to ONLY INCLUDE data from 
+during the growing season. While this code took ~ 1 hour to write, I don't know how to get from here to a yearly 
+average because the SH summer crosses the year-line (January). Can come back to this later. 
 
+The following code retains only the summer months. 
+"""
+
+L = np.linspace(0, 1, 365)
+# add the number that is 1/2 of the previous month plus the current month
+Jan = 31 / 365
+Feb = ((28 / 2) + 31) / 365
+Mar = ((31 / 2) + 31 + 28) / 365
+Apr = ((30 / 2) + 31 + 28 + 31)/ 365
+May = ((31 / 2) + 31 + 28 + 31 + 30)/ 365
+June = ((30 / 2) + 31 + 28 + 31 + 30 + 31)/ 365
+July = ((31 / 2) + 31 + 28 + 31 + 30 + 31 + 30)/ 365
+August = ((31 / 2) + 31 + 28 + 31 + 30 + 31 + 30 + 31)/ 365
+Sep = ((30 / 2) + 31 + 28 + 31 + 30 + 31 + 30 + 31 + 31)/ 365
+Oct = ((31 / 2) + 31 + 28 + 31 + 30 + 31 + 30 + 31 + 31 + 30)/ 365
+Nov = ((30 / 2) + 31 + 28 + 31 + 30 + 31 + 30 + 31 + 31 + 30 + 30)/ 365
+Dec = ((31 / 2) + 31 + 28 + 31 + 30 + 31 + 30 + 31 + 31 + 30 + 30 + 30)/ 365
+# print(Nov)
+# print(Dec)
+# print(Jan)
+# print(Feb)
+harmonized['test'] = harmonized['Decimal_date']  # makes a copy of the DecimalDate column
+mt_array = []                                    # initialize an empty array to dump sliced date-data
+harmonized = harmonized.reset_index(drop=True)   # re-index the harmonized dataset to avoid confusion
+for i in range(0, len(harmonized)):
+    row = harmonized.iloc[i]                     # grab i'th row
+    element = row['Decimal_date']                # extract the date
+    element = str(element)                       # convert to a string so it is indexable
+    element = element[4:9:1]                     # index the decimal portion
+    element = np.float_(element)                 # convert back to float for indexing a few lines later
+    mt_array.append(element)                     # append to the new array
+indexed = pd.DataFrame(mt_array)                 # put the array into a DataFrame format
+
+harmonized_summer = pd.concat([harmonized, indexed], axis=1)   # add the new column onto the harmonized dataset via concat
+harmonized_summer = harmonized_summer.loc[((harmonized_summer[0]) < .124) | ((harmonized_summer[0]) > .870)]   # grab data only in the months that I want
+harmonized_summer.to_excel('test.xlsx')
+
+# test the dates fall into the bounds that I want using a histogram
+# x = harmonized_summer[0]
+# plt.hist(x, bins=12)
+# plt.show()
 

@@ -16,6 +16,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
 from dataset_harmonization import harmonized
+from dataset_harmonization import harmonized_summer
 from miller_curve_algorithm import ccgFilter
 from my_functions import monte_carlo_randomization_trend
 from mpl_toolkits.basemap import Basemap
@@ -44,12 +45,9 @@ harm_xs = harmonized['Decimal_date']  # see dataset_harmonization.py
 harm_ys = harmonized['D14C']  # see dataset_harmonization.py
 harm_y_errs = harmonized['weightedstderr_D14C']
 
-# TODO edit harmonized dataset to use yearly averages from November to February. Plot this as an add on to the plots
-
-
-
-
-
+harm_sum_xs = harmonized_summer['Decimal_date']  # see dataset_harmonization.py
+harm_sum_ys = harmonized_summer['D14C']  # see dataset_harmonization.py
+harm_sum_y_errs = harmonized_summer['weightedstderr_D14C']
 
 """
 Before I do anything else, as advised, let's check to see which if any tree ring subsets
@@ -329,8 +327,9 @@ we call it valid.
 size = 50
 plt.errorbar(CH_41_S_core1['DecimalDate'], CH_41_S_core1['∆14C'], label='Tree 1, Core 2', yerr=CH_41_S_core1['∆14Cerr'], fmt='o', color=colors2[1], ecolor=colors2[1], elinewidth=1, capsize=2)
 plt.errorbar(CH_41_S_core2['DecimalDate'], CH_41_S_core2['∆14C'], label='Tree 2, Core 1', yerr=CH_41_S_core2['∆14Cerr'], fmt='D', color=colors2[3], ecolor=colors2[3], elinewidth=1, capsize=2)
-plt.plot(harm_xs, harm_ys, label='SH Atmosphere \u0394$^1$$^4$CO$_2$ (\u2030)', color='black', alpha=0.2)
-plt.legend()
+# plt.plot(harm_xs, harm_ys, label='SH Atmosphere \u0394$^1$$^4$CO$_2$ (\u2030)', color='black', alpha=0.2)
+plt.plot(harm_sum_xs, harm_sum_ys, label='SH Atmosphere \u0394$^1$$^4$CO$_2$ (\u2030), (Growing Season) ', color='black', alpha=0.3)
+plt.legend(fontsize=7.5)
 plt.title('41\u00b0S: Bahia San Pedro, Chile')
 plt.xlim(min(CH_41_S['DecimalDate'] - 5), max(CH_41_S['DecimalDate'] + 5))
 plt.ylim(min(CH_41_S['∆14C'] - 25), max(CH_41_S['∆14C'] + 25))
@@ -345,8 +344,9 @@ size = 50
 plt.errorbar(CH_44_S_core1['DecimalDate'], CH_44_S_core1['∆14C'], label='Tree 7, Core 1', yerr=CH_44_S_core1['∆14Cerr'], fmt='o', color=colors2[1], ecolor=colors2[1], elinewidth=1, capsize=2)
 plt.errorbar(CH_44_S_core2['DecimalDate'], CH_44_S_core2['∆14C'], label='Tree 4, Core 1', yerr=CH_44_S_core2['∆14Cerr'], fmt='D', color=colors2[3], ecolor=colors2[3], elinewidth=1, capsize=2)
 plt.errorbar(CH_44_S_core3['DecimalDate'], CH_44_S_core3['∆14C'], label='Tree 3, Core 2', yerr=CH_44_S_core3['∆14Cerr'], fmt='*', color=colors2[5], ecolor=colors2[5], elinewidth=1, capsize=2)
-plt.plot(harm_xs, harm_ys, label='SH Atmosphere \u0394$^1$$^4$CO$_2$ (\u2030)', color='black', alpha=0.2)
-plt.legend()
+# plt.plot(harm_xs, harm_ys, label='SH Atmosphere \u0394$^1$$^4$CO$_2$ (\u2030)', color='black', alpha=0.2)
+plt.plot(harm_sum_xs, harm_sum_ys, label='SH Atmosphere \u0394$^1$$^4$CO$_2$ (\u2030), (Growing Season) ', color='black', alpha=0.3)
+plt.legend(fontsize=7.5)
 plt.title('44\u00b0S: Raul Marin Balmaceda, Chile')
 plt.xlim(min(CH_44_S['DecimalDate'] - 5), max(CH_44_S['DecimalDate'] + 5))
 plt.ylim(min(CH_44_S['∆14C'] - 25), 700)
@@ -360,8 +360,9 @@ plt.close()
 size = 50
 plt.errorbar(CH_48_S_core1['DecimalDate'], CH_48_S_core1['∆14C'], label='Tree 4, Core 1 (Tortel Island)', yerr=CH_48_S_core1['∆14Cerr'], fmt='o', color=colors2[1], ecolor=colors2[1], elinewidth=1, capsize=2)
 plt.errorbar(CH_48_S_core2['DecimalDate'], CH_48_S_core2['∆14C'], label='Tree 6, Core 1 (Tortel River)', yerr=CH_48_S_core2['∆14Cerr'], fmt='D', color=colors2[3], ecolor=colors2[3], elinewidth=1, capsize=2)
-plt.plot(harm_xs, harm_ys, label='SH Atmosphere \u0394$^1$$^4$CO$_2$ (\u2030)', color='black', alpha=0.2)
-plt.legend()
+# plt.plot(harm_xs, harm_ys, label='SH Atmosphere \u0394$^1$$^4$CO$_2$ (\u2030)', color='black', alpha=0.2)
+plt.plot(harm_sum_xs, harm_sum_ys, label='SH Atmosphere \u0394$^1$$^4$CO$_2$ (\u2030), (Growing Season) ', color='black', alpha=0.3)
+plt.legend(fontsize=7.5)
 plt.title('48\u00b0S: Tortel Island and Tortel River, Chile')
 plt.xlim(min(CH_48_S['DecimalDate'] - 5), max(CH_48_S['DecimalDate'] + 5))
 plt.ylim(min(CH_48_S['∆14C'] - 25), 700)
@@ -375,8 +376,9 @@ plt.close()
 size = 50
 plt.errorbar(CH_53_S_core1['DecimalDate'], CH_53_S_core1['∆14C'], label='Tree 3, Core 1', yerr=CH_53_S_core1['∆14Cerr'], fmt='o', color=colors2[1], ecolor=colors2[1], elinewidth=1, capsize=2)
 plt.errorbar(CH_53_S_core2['DecimalDate'], CH_53_S_core2['∆14C'], label='Tree 4, Core 2', yerr=CH_53_S_core2['∆14Cerr'], fmt='D', color=colors2[3], ecolor=colors2[3], elinewidth=1, capsize=2)
-plt.plot(harm_xs, harm_ys, label='SH Atmosphere \u0394$^1$$^4$CO$_2$ (\u2030)', color='black', alpha=0.2)
-plt.legend()
+# plt.plot(harm_xs, harm_ys, label='SH Atmosphere \u0394$^1$$^4$CO$_2$ (\u2030)', color='black', alpha=0.2)
+plt.plot(harm_sum_xs, harm_sum_ys, label='SH Atmosphere \u0394$^1$$^4$CO$_2$ (\u2030), (Growing Season) ', color='black', alpha=0.3)
+plt.legend(fontsize=7.5)
 plt.title('53\u00b0S: Seno Skyring, Chile')
 plt.xlim(min(CH_53_S['DecimalDate'] - 5), max(CH_53_S['DecimalDate'] + 5))
 plt.ylim(min(CH_53_S['∆14C'] - 25), max(CH_53_S['∆14C'] + 25))
@@ -391,8 +393,9 @@ size = 50
 plt.errorbar(CH_54_S_core1['DecimalDate'], CH_54_S_core1['∆14C'], label='Tree 6, Core 2', yerr=CH_54_S_core1['∆14Cerr'], fmt='o', color=colors2[1], ecolor=colors2[1], elinewidth=1, capsize=2)
 plt.errorbar(CH_54_S_core2['DecimalDate'], CH_54_S_core2['∆14C'], label='Tree 3, Core 1', yerr=CH_54_S_core2['∆14Cerr'], fmt='D', color=colors2[3], ecolor=colors2[3], elinewidth=1, capsize=2)
 plt.errorbar(CH_54_S_core3['DecimalDate'], CH_54_S_core3['∆14C'], label='Tree 5, Core 1', yerr=CH_54_S_core3['∆14Cerr'], fmt='*', color=colors2[5], ecolor=colors2[5], elinewidth=1, capsize=2)
-plt.plot(harm_xs, harm_ys, label='SH Atmosphere \u0394$^1$$^4$CO$_2$ (\u2030)', color='black', alpha=0.2)
-plt.legend()
+# plt.plot(harm_xs, harm_ys, label='SH Atmosphere \u0394$^1$$^4$CO$_2$ (\u2030)', color='black', alpha=0.2)
+plt.plot(harm_sum_xs, harm_sum_ys, label='SH Atmosphere \u0394$^1$$^4$CO$_2$ (\u2030), (Growing Season) ', color='black', alpha=0.3)
+plt.legend(fontsize=7.5)
 plt.title('54\u00b0S: Monte Tarn, Chile')
 plt.xlim(min(CH_54_S['DecimalDate'] - 5), max(CH_54_S['DecimalDate'] + 5))
 plt.ylim(min(CH_54_S['∆14C'] - 25), 700)
@@ -419,8 +422,9 @@ plt.errorbar(df2_1['Year of Growth'], df2_1['D14C'], label='De Pol Holz: Polylep
 plt.errorbar(df2_2['Year of Growth'], df2_2['D14C'], label='De Pol Holz: Asutrocedrus chilensis', yerr=df2_2['D14Cerr'], fmt='D', color=colors[2], ecolor=colors[2], elinewidth=1, capsize=2)
 plt.errorbar(df2_3['Year of Growth'], df2_3['D14C'], label='De Pol Holz: Fitzroya cupressoides', yerr=df2_3['D14Cerr'], fmt='*', color=colors[3], ecolor=colors[3], elinewidth=1, capsize=2)
 plt.errorbar(df2_4['Year of Growth'], df2_4['D14C'], label='De Pol Holz: Pilgerodendron uviferum', yerr=df2_4['D14Cerr'], fmt='^', color=colors[4], ecolor=colors[4], elinewidth=1, capsize=2)
-plt.plot(harm_xs, harm_ys, label='SH Atmosphere \u0394$^1$$^4$CO$_2$ (\u2030)', color='black', alpha=0.2)
-plt.legend()
+#plt.plot(harm_xs, harm_ys, label='SH Atmosphere \u0394$^1$$^4$CO$_2$ (\u2030)', color='black', alpha=0.2)
+plt.plot(harm_sum_xs, harm_sum_ys, label='SH Atmosphere \u0394$^1$$^4$CO$_2$ (\u2030), (Growing Season) ', color='black', alpha=0.3)
+plt.legend(fontsize=7.5)
 plt.title('54\u00b0S: Monte Tarn, Chile, de Pol Holz Dataset')
 plt.xlim(min(df2['Year of Growth'] - 5), max(df2['Year of Growth'] + 5))
 plt.ylim(min(df2['D14C'] - 25), max(df2['D14C'] + 25))
@@ -435,8 +439,9 @@ size = 50
 plt.errorbar(CH_55_S_core1['DecimalDate'], CH_55_S_core1['∆14C'], label='Tree 4, Core 1 (Baja Rosales)', yerr=CH_55_S_core1['∆14Cerr'], fmt='o', color=colors2[1], ecolor=colors2[1], elinewidth=1, capsize=2)
 plt.errorbar(CH_55_S_core2['DecimalDate'], CH_55_S_core2['∆14C'], label='Tree 1, Core 1 (Baja Rosales)', yerr=CH_55_S_core2['∆14Cerr'], fmt='D', color=colors2[3], ecolor=colors2[3], elinewidth=1, capsize=2)
 plt.errorbar(CH_55_S_core3['DecimalDate'], CH_55_S_core3['∆14C'], label='Tree 1, Core 1 (Puerto Navarino)', yerr=CH_55_S_core3['∆14Cerr'], fmt='*', color=colors2[5], ecolor=colors2[5], elinewidth=1, capsize=2)
-plt.plot(harm_xs, harm_ys, label='SH Atmosphere \u0394$^1$$^4$CO$_2$ (\u2030)', color='black', alpha=0.2)
-plt.legend()
+#plt.plot(harm_xs, harm_ys, label='SH Atmosphere \u0394$^1$$^4$CO$_2$ (\u2030)', color='black', alpha=0.2)
+plt.plot(harm_sum_xs, harm_sum_ys, label='SH Atmosphere \u0394$^1$$^4$CO$_2$ (\u2030), (Growing Season) ', color='black', alpha=0.3)
+plt.legend(fontsize=7.5)
 plt.title('55\u00b0S: Baja Rosales and Puerto Navarino, Chile')
 plt.xlim(min(CH_55_S['DecimalDate'] - 5), max(CH_55_S['DecimalDate'] + 5))
 plt.ylim(min(CH_55_S['∆14C'] - 25), 700)
@@ -449,8 +454,9 @@ plt.close()
 
 size = 50
 plt.errorbar(NZ_37_S_core1['DecimalDate'], NZ_37_S_core1['∆14C'], label='Tree 2, Core 2', yerr=NZ_37_S_core1['∆14Cerr'], fmt='o', color=colors2[1], ecolor=colors2[1], elinewidth=1, capsize=2)
-plt.plot(harm_xs, harm_ys, label='SH Atmosphere \u0394$^1$$^4$CO$_2$ (\u2030)', color='black', alpha=0.2)
-plt.legend()
+#plt.plot(harm_xs, harm_ys, label='SH Atmosphere \u0394$^1$$^4$CO$_2$ (\u2030)', color='black', alpha=0.2)
+plt.plot(harm_sum_xs, harm_sum_ys, label='SH Atmosphere \u0394$^1$$^4$CO$_2$ (\u2030), (Growing Season) ', color='black', alpha=0.3)
+plt.legend(fontsize=7.5)
 plt.title('37\u00b0S: Muriwai Beach, New Zealand')
 plt.xlim(min(NZ_37_S['DecimalDate'] - 5), max(NZ_37_S['DecimalDate'] + 5))
 plt.ylim(min(NZ_37_S['∆14C'] - 25), max(NZ_37_S['∆14C'] + 25))
@@ -464,8 +470,9 @@ plt.close()
 size = 50
 plt.errorbar(NZ_39_S_core1['DecimalDate'], NZ_39_S_core1['∆14C'], label='Tree 1, Core 1', yerr=NZ_39_S_core1['∆14Cerr'], fmt='o', color=colors2[1], ecolor=colors2[1], elinewidth=1, capsize=2)
 plt.errorbar(NZ_39_S_core2['DecimalDate'], NZ_39_S_core2['∆14C'], label='Tree 1, Core 4', yerr=NZ_39_S_core2['∆14Cerr'], fmt='D', color=colors2[3], ecolor=colors2[3], elinewidth=1, capsize=2)
-plt.plot(harm_xs, harm_ys, label='SH Atmosphere \u0394$^1$$^4$CO$_2$ (\u2030)', color='black', alpha=0.2)
-plt.legend()
+#plt.plot(harm_xs, harm_ys, label='SH Atmosphere \u0394$^1$$^4$CO$_2$ (\u2030)', color='black', alpha=0.2)
+plt.plot(harm_sum_xs, harm_sum_ys, label='SH Atmosphere \u0394$^1$$^4$CO$_2$ (\u2030), (Growing Season) ', color='black', alpha=0.3)
+plt.legend(fontsize=7.5)
 plt.title('39\u00b0S: Kapuni Beach, New Zealand')
 plt.xlim(min(NZ_39_S['DecimalDate'] - 5), max(NZ_39_S['DecimalDate'] + 5))
 plt.ylim(min(NZ_39_S['∆14C'] - 25), 700)
@@ -478,11 +485,12 @@ plt.close()
 
 size = 50
 plt.errorbar(NZ_41_S_core2['DecimalDate'], NZ_41_S_core2['∆14C'], label='Tree 1, Core 1, (Baring Head)', yerr=NZ_41_S_core2['∆14Cerr'], fmt='o', color=colors2[1], ecolor=colors2[1], elinewidth=1, capsize=2)
-plt.errorbar(NZ_41_S_core3['DecimalDate'], NZ_41_S_core3['∆14C'], label='Tree 1, Core 3 (Baring Head)', yerr=NZ_41_S_core3['∆14Cerr'], fmt='D', color=colors[2], ecolor=colors[2], elinewidth=1, capsize=2)
+plt.errorbar(NZ_41_S_core3['DecimalDate'], NZ_41_S_core3['∆14C'], label='Tree 1, Core 3 (Baring Head)', yerr=NZ_41_S_core3['∆14Cerr'], fmt='D', color=colors2[2], ecolor=colors2[2], elinewidth=1, capsize=2)
 plt.errorbar(NZ_41_S_core4['DecimalDate'], NZ_41_S_core4['∆14C'], label='Tree 1, Core 2 (Eastbourne 2)', yerr=NZ_41_S_core4['∆14Cerr'], fmt='*', color=colors2[3], ecolor=colors2[3], elinewidth=1, capsize=2)
-plt.errorbar(NZ_41_S_core1['DecimalDate'], NZ_41_S_core1['∆14C'], label='Tree 1, Core 2, (Eastbourne 1)', yerr=NZ_41_S_core1['∆14Cerr'], fmt='^', color=colors[4], ecolor=colors[4], elinewidth=1, capsize=2)
-plt.plot(harm_xs, harm_ys, label='SH Atmosphere \u0394$^1$$^4$CO$_2$ (\u2030)', color='black', alpha=0.2)
-plt.legend()
+plt.errorbar(NZ_41_S_core1['DecimalDate'], NZ_41_S_core1['∆14C'], label='Tree 1, Core 2, (Eastbourne 1)', yerr=NZ_41_S_core1['∆14Cerr'], fmt='^', color=colors2[4], ecolor=colors2[4], elinewidth=1, capsize=2)
+#plt.plot(harm_xs, harm_ys, label='SH Atmosphere \u0394$^1$$^4$CO$_2$ (\u2030)', color='black', alpha=0.2)
+plt.plot(harm_sum_xs, harm_sum_ys, label='SH Atmosphere \u0394$^1$$^4$CO$_2$ (\u2030), (Growing Season) ', color='black', alpha=0.3)
+plt.legend(fontsize=7.5)
 plt.title('41\u00b0S: Eastbourne and Baring Head, New Zealand')
 plt.xlim(min(NZ_41_S['DecimalDate'] - 5), max(NZ_41_S['DecimalDate'] + 5))
 plt.ylim(min(NZ_41_S['∆14C'] - 25), 700)
@@ -496,8 +504,9 @@ plt.close()
 size = 50
 plt.errorbar(NZ_44_S_core1['DecimalDate'], NZ_44_S_core1['∆14C'], label='Tree 1, Core 1', yerr=NZ_44_S_core1['∆14Cerr'], fmt='o', color=colors2[3], ecolor=colors2[3], elinewidth=1, capsize=2)
 plt.errorbar(NZ_44_S_core2['DecimalDate'], NZ_44_S_core2['∆14C'], label='Tree 1, Core 2', yerr=NZ_44_S_core2['∆14Cerr'], fmt='D', color=colors2[1], ecolor=colors2[1], elinewidth=1, capsize=2)
-plt.plot(harm_xs, harm_ys, label='SH Atmosphere \u0394$^1$$^4$CO$_2$ (\u2030)', color='black', alpha=0.2)
-plt.legend()
+#plt.plot(harm_xs, harm_ys, label='SH Atmosphere \u0394$^1$$^4$CO$_2$ (\u2030)', color='black', alpha=0.2)
+plt.plot(harm_sum_xs, harm_sum_ys, label='SH Atmosphere \u0394$^1$$^4$CO$_2$ (\u2030), (Growing Season) ', color='black', alpha=0.3)
+plt.legend(fontsize=7.5)
 plt.title('44\u00b0S: Haast Beach, New Zealand')
 plt.xlim(min(NZ_44_S['DecimalDate'] - 5), max(NZ_44_S['DecimalDate'] + 5))
 plt.ylim(min(NZ_44_S['∆14C'] - 25), max(NZ_44_S['∆14C'] + 25))
@@ -510,9 +519,10 @@ plt.close()
 
 size = 50
 plt.errorbar(NZ_46_S_core1['DecimalDate'], NZ_46_S_core1['∆14C'], label='Tree 2, Core 2', yerr=NZ_46_S_core1['∆14Cerr'], fmt='o', color=colors2[1], ecolor=colors2[1], elinewidth=1, capsize=2)
-plt.errorbar(NZ_46_S_core2['DecimalDate'], NZ_46_S_core2['∆14C'], label='Tree 2, Core 1', yerr=NZ_46_S_core2['∆14Cerr'], fmt='D', color=colors[2], ecolor=colors[2], elinewidth=1, capsize=2)
-plt.plot(harm_xs, harm_ys, label='SH Atmosphere \u0394$^1$$^4$CO$_2$ (\u2030)', color='black', alpha=0.2)
-plt.legend()
+plt.errorbar(NZ_46_S_core2['DecimalDate'], NZ_46_S_core2['∆14C'], label='Tree 2, Core 1', yerr=NZ_46_S_core2['∆14Cerr'], fmt='D', color=colors2[3], ecolor=colors2[3], elinewidth=1, capsize=2)
+#plt.plot(harm_xs, harm_ys, label='SH Atmosphere \u0394$^1$$^4$CO$_2$ (\u2030)', color='black', alpha=0.2)
+plt.plot(harm_sum_xs, harm_sum_ys, label='SH Atmosphere \u0394$^1$$^4$CO$_2$ (\u2030), (Growing Season) ', color='black', alpha=0.3)
+plt.legend(fontsize=7.5)
 plt.title('46\u00b0S: Oreti Beach, New Zealand')
 plt.xlim(min(NZ_46_S['DecimalDate'] - 5), max(NZ_46_S['DecimalDate'] + 5))
 plt.ylim(min(NZ_46_S['∆14C'] - 25), max(NZ_46_S['∆14C'] + 25))
@@ -525,8 +535,9 @@ plt.close()
 
 size = 50
 plt.errorbar(NZ_47_S_core1['DecimalDate'], NZ_47_S_core1['∆14C'], label='Tree 1, Core 1', yerr=NZ_47_S_core1['∆14Cerr'], fmt='o', color=colors2[1], ecolor=colors2[1], elinewidth=1, capsize=2)
-plt.plot(harm_xs, harm_ys, label='SH Atmosphere \u0394$^1$$^4$CO$_2$ (\u2030)', color='black', alpha=0.2)
-plt.legend()
+#plt.plot(harm_xs, harm_ys, label='SH Atmosphere \u0394$^1$$^4$CO$_2$ (\u2030)', color='black', alpha=0.2)
+plt.plot(harm_sum_xs, harm_sum_ys, label='SH Atmosphere \u0394$^1$$^4$CO$_2$ (\u2030), (Growing Season) ', color='black', alpha=0.3)
+plt.legend(fontsize=7.5)
 plt.title('47\u00b0S: Masons Bay, New Zealand')
 plt.xlim(min(NZ_47_S['DecimalDate'] - 5), max(NZ_47_S['DecimalDate'] + 5))
 plt.ylim(min(NZ_47_S['∆14C'] - 25), max(NZ_47_S['∆14C'] + 25))
@@ -540,8 +551,9 @@ plt.close()
 size = 50
 plt.errorbar(NZ_53_S_core1['DecimalDate'], NZ_53_S_core1['∆14C'], label='Tree 2, Core 2', yerr=NZ_53_S_core1['∆14Cerr'], fmt='o', color=colors2[1], ecolor=colors2[1], elinewidth=1, capsize=2)
 plt.errorbar(NZ_53_S_core2['DecimalDate'], NZ_53_S_core2['∆14C'], label='Tree 3, Core 3', yerr=NZ_53_S_core2['∆14Cerr'], fmt='D', color=colors2[3], ecolor=colors2[3], elinewidth=1, capsize=2)
-plt.plot(harm_xs, harm_ys, label='SH Atmosphere \u0394$^1$$^4$CO$_2$ (\u2030)', color='black', alpha=0.2)
-plt.legend()
+#plt.plot(harm_xs, harm_ys, label='SH Atmosphere \u0394$^1$$^4$CO$_2$ (\u2030)', color='black', alpha=0.2)
+plt.plot(harm_sum_xs, harm_sum_ys, label='SH Atmosphere \u0394$^1$$^4$CO$_2$ (\u2030), (Growing Season) ', color='black', alpha=0.3)
+plt.legend(fontsize=7.5)
 plt.title('53\u00b0S: Lonliest Tree, New Zealand')
 plt.xlim(min(NZ_53_S['DecimalDate'] - 5), max(NZ_53_S['DecimalDate'] + 5))
 plt.ylim(min(NZ_53_S['∆14C'] - 25), 700)
@@ -750,7 +762,7 @@ combined.to_excel('SOARTreeRingData_CBL_flags.xlsx')
 Finally, I want to remove all the flagged data so I'm only left with things I HAVEN'T Flagged. 
 """
 df_cleaned = combined.loc[(combined['CBL_flag']) == '...']
-print(len(df_cleaned))
+# print(len(df_cleaned))
 df_cleaned.to_excel('SOARTreeRingData_CBL_cleaned.xlsx')
 
 """

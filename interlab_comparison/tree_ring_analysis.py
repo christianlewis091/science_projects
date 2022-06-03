@@ -6,8 +6,12 @@ to understand Southern ocean upwelling.
 
 Outcome:
 Currently in DEV mode.
-
+My analysis is currently in Delta14C in part because the Heidelberg intercomparison which
+led to the harmonized dataset does not include FM in the Heidelberg data. I could back-calculate FM,
+ ask them for it, or just push ahead in D14C…
 """
+
+
 # TODO Index based on the flags in the dataset!
 # Import all the basic libraries that I'll be using
 import numpy as np
@@ -768,7 +772,7 @@ df_cleaned.to_excel('SOARTreeRingData_CBL_cleaned.xlsx')
 """
 Do my cleaned data / plots / conclusions match rachel's? 
 """
-##
+
 
 
 

@@ -9,6 +9,8 @@ Currently in DEV mode.
 My analysis is currently in Delta14C in part because the Heidelberg intercomparison which
 led to the harmonized dataset does not include FM in the Heidelberg data. I could back-calculate FM,
  ask them for it, or just push ahead in D14C…
+
+ PLAN OF ACTION: GO BACK AND EDIT DATA HARMONIZATION AND TREE RING TO INCLUDE FM
 """
 
 

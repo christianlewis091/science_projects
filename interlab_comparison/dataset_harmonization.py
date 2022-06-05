@@ -75,6 +75,7 @@ EXECUTE THE ABOVE STEPS
 """ STEP 1: LOAD UP AND TIDY THE DATA"""
 heidelberg = pd.read_excel(r'H:\The Science\Datasets'
                            r'\heidelberg_cape_grim.xlsx', skiprows=40)
+
 # Baring Head data excel file
 baringhead = pd.read_excel(r'H:\The Science\Datasets'
                            r'\BHD_14CO2_datasets_20211013.xlsx')
@@ -108,11 +109,25 @@ heidelberg = heidelberg.drop(columns=['#location', 'sampler_id', 'samplingheight
                                       'samplingpattern',
                                       'wheightedanalyticalstdev_D14C', 'nbanalysis_D14C', 'd13C', 'flag_D14C',
                                       ], axis=1)
-
 baringhead = baringhead.drop(columns=['SITE', 'NZPREFIX', 'NZ', 'DATE_ST', 'DATE_END', 'DAYS_EXP',
                                       'DATE_COLL', 'date_as_number', 'DELTA13C_IRMS',
-                                      'F14C', 'F14C_ERR', 'FLAG', 'METH_VESSEL',
+                                      'FLAG', 'METH_VESSEL',
                                       'METH_COLL'])
+
+# I realized that I was missing FM from the Heidelberg dataset, so I'm going to add that here...
+# age_corr = exp((1950 - sample year)/8267)
+# D14C = 1000*(FM-1)
+# Del14C = 1000*(FM*age_corr-1)
+x = heidelberg['Decimal_date']
+y = heidelberg['D14C']
+age_corr = np.exp((1950 - y) / 8267)
+fm = ((y / 1000) + 1) / age_corr
+fm_err = heidelberg['weightedstderr_D14C'] / 1000
+x = np.float_(x)                                         # in order to create dictionary, first change briefly to array
+fm = np.float_(fm)
+new_frame = pd.DataFrame({"Decimal_date": x, "F14C": fm, "F14C_ERR": fm_err})  # create dictionary with common column to merge on.
+
+heidelberg = pd.merge(heidelberg, new_frame, how = 'outer')  # merge the dataframes.
 
 """ STEP 2: INDEX THE DATA ACCORDING TO TIMES LISTED ABOVE"""
 # Baring head data does not need indexing because we will not apply corrections to it
@@ -249,7 +264,7 @@ Dec = ((31 / 2) + 31 + 28 + 31 + 30 + 31 + 30 + 31 + 31 + 30 + 30 + 30)/ 365
 # print(Dec)
 # print(Jan)
 # print(Feb)
-harmonized['test'] = harmonized['Decimal_date']  # makes a copy of the DecimalDate column
+# harmonized['Summer_index'] = harmonized['Decimal_date']  # makes a copy of the DecimalDate column
 mt_array = []                                    # initialize an empty array to dump sliced date-data
 harmonized = harmonized.reset_index(drop=True)   # re-index the harmonized dataset to avoid confusion
 for i in range(0, len(harmonized)):
@@ -259,14 +274,16 @@ for i in range(0, len(harmonized)):
     element = element[4:9:1]                     # index the decimal portion
     element = np.float_(element)                 # convert back to float for indexing a few lines later
     mt_array.append(element)                     # append to the new array
-indexed = pd.DataFrame(mt_array)                 # put the array into a DataFrame format
+indexed = pd.DataFrame({"decimals": mt_array, "Decimal_date": harmonized['Decimal_date']})                 # put the array into a DataFrame format
 
-harmonized_summer = pd.concat([harmonized, indexed], axis=1)   # add the new column onto the harmonized dataset via concat
-harmonized_summer = harmonized_summer.loc[((harmonized_summer[0]) < .124) | ((harmonized_summer[0]) > .870)]   # grab data only in the months that I want
-harmonized_summer.to_excel('test.xlsx')
+harmonized_summer = pd.merge(harmonized, indexed)   # merge the datasets
+
+print(harmonized_summer)
+harmonized_summer = harmonized_summer.loc[((harmonized_summer['decimals']) < .124) | ((harmonized_summer['decimals']) > .870)]   # grab data only in the months that I want
+# harmonized_summer.to_excel('test.xlsx')
 
 # test the dates fall into the bounds that I want using a histogram
-# x = harmonized_summer[0]
-# plt.hist(x, bins=12)
-# plt.show()
-##
+x = harmonized_summer['decimals']
+plt.hist(x, bins=12)
+plt.show()
+#

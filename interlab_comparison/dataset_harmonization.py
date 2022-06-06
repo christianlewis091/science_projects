@@ -16,15 +16,10 @@ SOAR tree ring analyses.
 """
 #
 import numpy as np
-import random
 import matplotlib as mpl
 import matplotlib.pyplot as plt
-import matplotlib.gridspec as gridspec
 import pandas as pd
 import seaborn as sns
-from miller_curve_algorithm import ccgFilter
-from PyAstronomy import pyasl
-from datetime import datetime
 from my_functions import long_date_to_decimal_date
 
 """
@@ -120,7 +115,7 @@ baringhead = baringhead.drop(columns=['SITE', 'NZPREFIX', 'NZ', 'DATE_ST', 'DATE
 # Del14C = 1000*(FM*age_corr-1)
 x = heidelberg['Decimal_date']
 y = heidelberg['D14C']
-age_corr = np.exp((1950 - y) / 8267)
+age_corr = np.exp((1950 - x) / 8267)
 fm = ((y / 1000) + 1) / age_corr
 fm_err = heidelberg['weightedstderr_D14C'] / 1000
 x = np.float_(x)                                         # in order to create dictionary, first change briefly to array
@@ -209,7 +204,7 @@ harmonized = harmonized.dropna()
 
 
 harmonized.sort_values(by=['Decimal_date'], inplace=True)
-harmonized.to_excel('harmonized_dataset.xlsx')
+# harmonized.to_excel('harmonized_dataset.xlsx')
 harm1 = harmonized.loc[(harmonized['key'] == 0)]
 harm2 = harmonized.loc[(harmonized['key'] == 1)]
 x_bars = harm1['Decimal_date']
@@ -278,12 +273,17 @@ indexed = pd.DataFrame({"decimals": mt_array, "Decimal_date": harmonized['Decima
 
 harmonized_summer = pd.merge(harmonized, indexed)   # merge the datasets
 
-print(harmonized_summer)
+# print(harmonized_summer)
 harmonized_summer = harmonized_summer.loc[((harmonized_summer['decimals']) < .124) | ((harmonized_summer['decimals']) > .870)]   # grab data only in the months that I want
 # harmonized_summer.to_excel('test.xlsx')
-
+# print(harmonized.columns)
+# print(harmonized_summer.columns)
 # test the dates fall into the bounds that I want using a histogram
 x = harmonized_summer['decimals']
 plt.hist(x, bins=12)
-plt.show()
+# plt.show()
 #
+plt.close()
+# plt.scatter(harmonized['Decimal_date'], harmonized['F14C'])
+# plt.show()
+

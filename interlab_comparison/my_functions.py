@@ -2,6 +2,7 @@ import numpy as np
 from miller_curve_algorithm import ccgFilter
 import pandas as pd
 from PyAstronomy import pyasl
+from tabulate import tabulate
 
 """
 "long_date_to_decimal_date" function takes dates in the form of dd/mm/yyyy and converts them to a decimal. 
@@ -241,6 +242,27 @@ RETIRED FUNCTIONS NO LONGER IN USE
 ######################################################################################################################
 ######################################################################################################################
 """
+
+def basic_analysis(x, y, name1, name2):
+    # compute data for individual datasets
+
+    x_mean = np.average(x)
+    y_mean = np.average(y)
+    x_stddev = np.std(x)
+    y_stddev = np.std(y)
+    x_std_err = x_stddev / np.sqrt(len(x))
+    y_std_err = y_stddev / np.sqrt(len(y))
+
+    # compute data for datasets together
+    average = (x_mean + y_mean) / 2
+    error_prop = (np.sqrt(x_stddev ** 2 + y_stddev ** 2)) / 2
+
+    data = [[name1, x_mean, x_std_err, len(x)],
+            [name2, y_mean, y_std_err, len(y)],
+            ['Both Series', average, error_prop]]
+    table2 = (tabulate(data, headers=["Label", "Average", "Std Error / Prop Error"]))
+    df = pd.DataFrame(data=data)
+    return df
 
 # """
 # This function does a paired two-tail t-test. The t-value range comes from the stdev_array in the

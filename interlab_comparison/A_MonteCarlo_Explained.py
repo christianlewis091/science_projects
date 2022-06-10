@@ -2,8 +2,8 @@ import numpy as np
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import pandas as pd
-from my_functions import monte_carlo_randomization_smooth
-from my_functions import monte_carlo_randomization_trend
+from X_my_functions import monte_carlo_randomization_smooth
+from X_my_functions import monte_carlo_randomization_trend
 import seaborn as sns
 
 # Baring Head data excel file

@@ -3,14 +3,16 @@ Purpose:
 
 Use the harmonized Southern Hemisphere dataset to see if we can find shifts in SOAR tree rings
 to understand Southern ocean upwelling.
+This dataset just cleans up the data by finding bad ring counts.
+
 
 Outcome:
 Currently in DEV mode.
 My analysis is currently in Delta14C in part because the Heidelberg intercomparison which
 led to the harmonized dataset does not include FM in the Heidelberg data. I could back-calculate FM,
- ask them for it, or just push ahead in D14C…
+ask them for it, or just push ahead in D14C…
 
- PLAN OF ACTION: GO BACK AND EDIT DATA HARMONIZATION AND TREE RING TO INCLUDE FM
+
 """
 
 # TODO Index based on the flags in the dataset!
@@ -19,8 +21,8 @@ import matplotlib as mpl
 import numpy as np
 import pandas as pd
 import seaborn as sns
-from r\1_CGO_BHD_harmonization import harmonized
-from r\1_CGO_BHD_harmonization import harmonized_summer
+from B_CGO_BHD_harmonization import harmonized
+from B_CGO_BHD_harmonization import harmonized_summer
 import matplotlib.pyplot as plt
 
 pd.options.mode.chained_assignment = None  # default='warn'  # https://stackoverflow.com/questions/20625582/how-to-deal-with-settingwithcopywarning-in-pandas

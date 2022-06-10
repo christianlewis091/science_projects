@@ -1,5 +1,5 @@
 import numpy as np
-from miller_curve_algorithm import ccgFilter
+from X_miller_curve_algorithm import ccgFilter
 import pandas as pd
 from PyAstronomy import pyasl
 from tabulate import tabulate

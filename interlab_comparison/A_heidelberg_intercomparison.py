@@ -21,20 +21,15 @@ The file outputs a text file with the t-test results. However, it will keep addi
 one, delete the remaining text file from the directory.
 """
 
-# from __future__ import print_function, division
 import numpy as np
-import random
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
 import pandas as pd
 import seaborn as sns
-from miller_curve_algorithm import ccgFilter
-from PyAstronomy import pyasl
-from datetime import datetime
-from my_functions import long_date_to_decimal_date
-from my_functions import monte_carlo_randomization_smooth
-from my_functions import monte_carlo_randomization_trend
+from X_my_functions import long_date_to_decimal_date
+from X_my_functions import monte_carlo_randomization_smooth
+from X_my_functions import monte_carlo_randomization_trend
 from scipy import stats
 
 # general plot parameters
@@ -255,7 +250,7 @@ ESSENTIALLY WHAT WE ARE DOING:
 
 I'm going to run it once below as a proof of concept with this dataset, and run a plot to show its working. 
 """
-n = 1000  # set the amount of times the code will iterate (set to 10,000 once everything is final)
+n = 10  # set the amount of times the code will iterate (set to 10,000 once everything is final)
 cutoff = 667  # FFT filter cutoff
 
 bhd_1986_1991_results_smooth = monte_carlo_randomization_smooth(x1_bhd, my_x_1986_1991, y1_bhd, z1_bhd, cutoff, n)
@@ -555,15 +550,35 @@ print('Paired t-test result and difference in means for 2012 - 2016')
 print(period10)
 print(period10_d_means)
 
+"""
+The following block of code is VERY Important...
+I've listed below a series of offsets. There are the offsets that are found for Heidelberg data during different time intervals. 
+For publication, it will be very important how we use these data that come out of this program. One way to use them is to have a
+blanket offset during each interval - but there are gaps. So we could then do a pre and Post AMS offset. But couldn't we smooth it? 
+We could smooth it, but with very limited data to feed the curve fitting algorithm, there is very little actual smoothing done. 
+See the block below, and later, I will use this block of code to see how different types of offset calculations impacts our final analyis 
+
+When you eventually use the smoothed offset for another data, you'll have to copy and paste the lines of code into that file because
+you'll also need to create a desired group of x-values to output
+"""
+
+
 # Here I will deposit the calculated offsets, and draw from these to other files in the future
 # By keeping them all in one place, I can just change them here if need be, and re-run all the other files
 
-offset1 = 1.80  # 86 - 91
-offset2 = 1.88  # 91 - 94
-offset3 = 0     # 94 - 05, region where we don't have data to directly compare
-offset4 = 0.49  # 06 - 09
-offset5 = 0     # 09 - 12, region where we don't have data to directly compare
-offset6 = -.52  # 12 - 16
+
+
+
+
+
+# PRE-AMS AT RRL
+offset1 = 1.80  # 1986 - 91
+offset2 = 1.88  # 1991 - 94
+offset3 = 1.88  # 1994 - 05, region where we don't have data to directly compare, set == to neighboring interval
+# POST-AMS at RRL
+offset4 = 0.49  # 2006 - 09
+offset5 = 0     # 2009 - 12, region where we don't have data to directly compare, and since the sign switches, it makes sense to set this to zero.
+offset6 = -.52  # 2012 - 16
 error1 = .18
 error2 = .16
 error3 = 0
@@ -571,33 +586,28 @@ error4 = 0.07
 error5 = 0
 error6 = 0.06
 
+# TODO test how the later simulations vary when I edit the offsets to include the following:
+# TODO 1. A PRE and POST AMS Offset: For this, simply use the above values
+# TODO 2. A Smooth fit of the offset changing over time between RRL and Heidelberg.
+y = [offset1, offset3, offset4, offset6]
+y_err = [error1, error3, error4, error6]
+x =[(1986 + 1991)/2, (1994 + 2005)/2, (2006 + 2009)/2, (2012 + 2016)/2]
+print(x)
+desired_output = np.linspace(min(x_init_heid), max(x_init_heid), 480)  # create arbitrary set of x-values to control output
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+dff = pd.DataFrame({"offset_xs": x, "offset_ys": y, "offset_errs": y_err})
+print(dff)
+offset_trend = monte_carlo_randomization_trend(dff['offset_xs'], desired_output, dff['offset_ys'], dff['offset_errs'], cutoff, n)
+offset_trend_summary = offset_trend[2]
+offset_trend_mean = offset_trend_summary['Means']
+plt.scatter(fake_x_temp, offset_trend_mean)
+# plt.show()
+plt.close()
 
 
 
 """
-Now beacuse it's python I can quickly create publication quality figures in an instant :) 
+Now because it's python I can quickly create publication quality figures in an instant :) 
 """
 # """ FIGURE 1: OVERVIEW OF DATA WE'RE INTERESTED IN """
 # general plot parameters
@@ -799,6 +809,7 @@ plt.plot(np.array(my_x_2012_2016_trimmed), bhd_2012_2016_mean_trend, color=color
 plt.plot(np.array(my_x_2012_2016_trimmed), heidelberg_2012_2016_mean_trend, color=colors2[3])
 plt.xlim([min(np.array(my_x_2012_2016_trimmed)), max(np.array(my_x_2012_2016_trimmed))])
 plt.ylim([min(bhd_2012_2016_mean_smooth), max(bhd_2012_2016_mean_smooth)])
+plt.legend()
 plt.savefig('C:/Users/clewis/IdeaProjects/GNS/radiocarbon_intercomparison/interlab_comparison/plots/DEV_FirstDraft_figure3b.png',
             dpi=300, bbox_inches="tight")
 # plt.show()

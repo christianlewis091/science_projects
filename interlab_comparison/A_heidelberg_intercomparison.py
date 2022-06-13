@@ -506,52 +506,55 @@ period8_d_means = difference_in_means(bhd_2006_2016_mean_trend, heidelberg_2006_
 period9_d_means = difference_in_means(bhd_2006_2009_mean_trend, heidelberg_2006_2009_mean_trend)
 period10_d_means = difference_in_means(bhd_2012_2016_mean_trend, heidelberg_2012_2016_mean_trend)
 
-print('The following results were computed using CCGCRV Smooth, with an n of {}'.format(n))
-print('Paired t-test result and difference in means for 1986 - 1991')
-print(period1)
-print(period1_d_means)
-
-print('Paired t-test result and difference in means for 1991 - 1994')
-print(period2)
-print(period2_d_means)
-
-print('Paired t-test result and difference in means for 2006 - 2016')
-print(period3)
-print(period3_d_means)
-
-print('Paired t-test result and difference in means for 2006 - 2009')
-print(period4)
-print(period4_d_means)
-
-print('Paired t-test result and difference in means for 2012 - 2016')
-print(period5)
-print(period5_d_means)
-
-print()
-print()
-print('The following results were computed using CCGCRV Trend, with an n of {}'.format(n))
-print('Paired t-test result and difference in means for 1986 - 1991')
-print(period6)
-print(period6_d_means)
-
-print('Paired t-test result and difference in means for 1991 - 1994')
-print(period7)
-print(period7_d_means)
-
-print('Paired t-test result and difference in means for 2006 - 2016')
-print(period8)
-print(period8_d_means)
-
-print('Paired t-test result and difference in means for 2006 - 2009')
-print(period9)
-print(period9_d_means)
-
-print('Paired t-test result and difference in means for 2012 - 2016')
-print(period10)
-print(period10_d_means)
+"""
+UNCOMMENT FOLLOWING BLOCK TO PRINT RESULTS
+"""
+# print('The following results were computed using CCGCRV Smooth, with an n of {}'.format(n))
+# print('Paired t-test result and difference in means for 1986 - 1991')
+# print(period1)
+# print(period1_d_means)
+#
+# print('Paired t-test result and difference in means for 1991 - 1994')
+# print(period2)
+# print(period2_d_means)
+#
+# print('Paired t-test result and difference in means for 2006 - 2016')
+# print(period3)
+# print(period3_d_means)
+#
+# print('Paired t-test result and difference in means for 2006 - 2009')
+# print(period4)
+# print(period4_d_means)
+#
+# print('Paired t-test result and difference in means for 2012 - 2016')
+# print(period5)
+# print(period5_d_means)
+#
+# print()
+# print()
+# print('The following results were computed using CCGCRV Trend, with an n of {}'.format(n))
+# print('Paired t-test result and difference in means for 1986 - 1991')
+# print(period6)
+# print(period6_d_means)
+#
+# print('Paired t-test result and difference in means for 1991 - 1994')
+# print(period7)
+# print(period7_d_means)
+#
+# print('Paired t-test result and difference in means for 2006 - 2016')
+# print(period8)
+# print(period8_d_means)
+#
+# print('Paired t-test result and difference in means for 2006 - 2009')
+# print(period9)
+# print(period9_d_means)
+#
+# print('Paired t-test result and difference in means for 2012 - 2016')
+# print(period10)
+# print(period10_d_means)
 
 """
-The following block of code is VERY Important...
+The following block of code is VERY Important (aren't they all???)...
 I've listed below a series of offsets. There are the offsets that are found for Heidelberg data during different time intervals. 
 For publication, it will be very important how we use these data that come out of this program. One way to use them is to have a
 blanket offset during each interval - but there are gaps. So we could then do a pre and Post AMS offset. But couldn't we smooth it? 
@@ -561,42 +564,38 @@ See the block below, and later, I will use this block of code to see how differe
 When you eventually use the smoothed offset for another data, you'll have to copy and paste the lines of code into that file because
 you'll also need to create a desired group of x-values to output
 """
-
-
-# Here I will deposit the calculated offsets, and draw from these to other files in the future
-# By keeping them all in one place, I can just change them here if need be, and re-run all the other files
-
-
-
-
-
-
+"""
+PRE v POST AMS OFFSET SETTINGS
+"""
 # PRE-AMS AT RRL
-offset1 = 1.80  # 1986 - 91
-offset2 = 1.88  # 1991 - 94
-offset3 = 1.88  # 1994 - 05, region where we don't have data to directly compare, set == to neighboring interval
-# POST-AMS at RRL
-offset4 = 0.49  # 2006 - 09
-offset5 = 0     # 2009 - 12, region where we don't have data to directly compare, and since the sign switches, it makes sense to set this to zero.
-offset6 = -.52  # 2012 - 16
+offset1 = 1.80  # 1986 - 1991
+offset2 = 1.88  # 1991 - 1994
+offset3 = (offset2 + offset1) / 2  # 1994-2006. In this time period, we have removed data where RRL AMS
+# measurements were high. But, it's likely reasonable to say that we can prescribe the PRE-AMS offset to this data,
+# otherwise if we do not apply anything, there will be a "step" in the harmonized dataset.
+offset4 = 0.49  # 2006 - 2016
+offset5 = 0   # 2006 - 2009
+offset6 = -.52  # 2012 - 2016.
+# One can see that if we seperate the data in from 06 - 09 and 12 - 16, the sign in the difference changes.
+# Initially, I would think to apply a broad "post-AMS" offset to both two time periods (06-09, 12-16); however,
+# since we know there is a sign change, it may be better to leave the intermedite time period at 0.
 error1 = .18
 error2 = .16
-error3 = 0
+error3 = np.sqrt(error2**2 + error1) / 2  # propagating the error from the average of offset1 and offset2 above.
 error4 = 0.07
 error5 = 0
 error6 = 0.06
 
-# TODO test how the later simulations vary when I edit the offsets to include the following:
-# TODO 1. A PRE and POST AMS Offset: For this, simply use the above values
-# TODO 2. A Smooth fit of the offset changing over time between RRL and Heidelberg.
-y = [offset1, offset3, offset4, offset6]
+"""
+SMOOTHED OFFSET SETTINGS
+"""
+y = [offset1, offset3, offset4, offset6]  # I'm leaving out 3 beacuse it only comes from offsets 1 and 2.
 y_err = [error1, error3, error4, error6]
-x =[(1986 + 1991)/2, (1994 + 2005)/2, (2006 + 2009)/2, (2012 + 2016)/2]
-print(x)
-desired_output = np.linspace(min(x_init_heid), max(x_init_heid), 480)  # create arbitrary set of x-values to control output
-
+x =[(1986 + 1991)/2, (1994 + 2005)/2, (2006 + 2009)/2, (2012 + 2016)/2]  # find the middle of each time- chunk.
+# create arbitrary set of x-values to control output
+# WHEN APPLYING THIS OFFSET TO A NEW DATASET, REPLACE "desired_output" WITH THAT DATASET'S X values!
+desired_output = np.linspace(min(x_init_heid), max(x_init_heid), 480)
 dff = pd.DataFrame({"offset_xs": x, "offset_ys": y, "offset_errs": y_err})
-print(dff)
 offset_trend = monte_carlo_randomization_trend(dff['offset_xs'], desired_output, dff['offset_ys'], dff['offset_errs'], cutoff, n)
 offset_trend_summary = offset_trend[2]
 offset_trend_mean = offset_trend_summary['Means']
@@ -605,9 +604,8 @@ plt.scatter(fake_x_temp, offset_trend_mean)
 plt.close()
 
 
-
 """
-Now because it's python I can quickly create publication quality figures in an instant :) 
+Now because it's python I can quickly create publication quality figures for all the work done in this code in an instant :) 
 """
 # """ FIGURE 1: OVERVIEW OF DATA WE'RE INTERESTED IN """
 # general plot parameters

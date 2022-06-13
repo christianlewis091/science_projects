@@ -14,13 +14,19 @@ This file creates a new DataFrame that can be referenced in future analyses, suc
 SOAR tree ring analyses.
 
 """
-#
+
 import numpy as np
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
 from X_my_functions import long_date_to_decimal_date
+from A_heidelberg_intercomparison import offset1, offset2, offset3, offset4, offset5, offset6
+from A_heidelberg_intercomparison import error1, error2, error3, error4, error5, error6
+from A_heidelberg_intercomparison import dff  # import the dataframe to produce the smoothed offset calcs
+from A_heidelberg_intercomparison import cutoff
+from X_miller_curve_algorithm import ccgFilter
+from X_my_functions import monte_carlo_randomization_trend
 
 """
 Because I’ll need a harmonized dataset as a reference to understand the
@@ -31,12 +37,7 @@ run it later and get the answer.
 """
 
 # What are the current offsets (these are subject to change!)
-# 1986 - 1991: Add 1.80 +- 0.18 to Heidelberg Data
-# 1991 - 1994: Add 1.88 +- 0.16 to Heidelberg Data
-# 1994 - 2006: No offset applied
-# 2006 - 2009: Add 0.49 +- 0.07 to Heidelberg
-# 2009 - 2012: Apply NO offset
-# 2012 - 2016: Subtract 0.52 +- 0.06 to Heidelberg.
+# See End of Heidelberg_intercomparison.py
 #
 # # steps to harmonize the dataset
 # # 1. Check what Rachel did. (see her page 203. It seems she just applied
@@ -124,57 +125,63 @@ new_frame = pd.DataFrame({"Decimal_date": x, "F14C": fm, "F14C_ERR": fm_err})  #
 
 heidelberg = pd.merge(heidelberg, new_frame, how = 'outer')  # merge the dataframes.
 
-""" STEP 2: INDEX THE DATA ACCORDING TO TIMES LISTED ABOVE"""
-# Baring head data does not need indexing because we will not apply corrections to it
-# What are the current offsets (these are subject to change!)
-
-# PRE-AMS Correction (1994 - 2006 is region of removed data but we assume offset is similar to other Pre-AMS times).
-# OFFSET 1: 1986 - 1991: Add 1.80 +- 0.18 to Heidelberg Data
-# OFFSET 2: 1991 - 1994: Add 1.88 +- 0.16 to Heidelberg Data
-# OFFSET 3: 1994 - 2006: Apply average offset of two above - END OF PRE-AMS SET
-
-# POST AMS
-# OFFSET 4: 2006 - 2009: Add 0.49 +- 0.07 to Heidelberg
-# OFFSET 5: 2009 - 2012: Apply NO offset
-# OFFSET 6: 2012 - 2016: Subtract 0.52 +- 0.06 to Heidelberg.
-
+""" 
+STEP 2: INDEX THE DATA ACCORDING TO TIMES LISTED ABOVE
+index 1 = "h1" for heidelberg-1, and so on. 
+h1 = 1986 - 1991
+h2 = 1991 - 1994
+h3 = 1994 - 2006
+h4 = 2006 - 2009
+h5 = 2009 - 2012
+h6 = 2012 - 2016
+"""
 h1 = heidelberg.loc[(heidelberg['Decimal_date'] < 1991)].reset_index()
 h2 = heidelberg.loc[(heidelberg['Decimal_date'] > 1991) & (heidelberg['Decimal_date'] < 1994)].reset_index()
 h3 = heidelberg.loc[(heidelberg['Decimal_date'] > 1994) & (heidelberg['Decimal_date'] < 2006)].reset_index()
 h4 = heidelberg.loc[(heidelberg['Decimal_date'] > 2006) & (heidelberg['Decimal_date'] < 2009)].reset_index()
 h5 = heidelberg.loc[(heidelberg['Decimal_date'] > 2009) & (heidelberg['Decimal_date'] < 2012)].reset_index()
 h6 = heidelberg.loc[(heidelberg['Decimal_date'] > 2012) & (heidelberg['Decimal_date'] < 2016)].reset_index()
+
 """
 In order to apply the offsets, I'm going to add a new column with the new value, rather than try
 to change to original value
 """
-offset1 = 1.80
-offset2 = 1.88
-offset3 = (offset2 + offset1) / 2
-offset4 = 0.49
-offset5 = 0
-offset6 = -.52
-error1 = .18
-error2 = .16
-error3 = np.sqrt(error2**2 + error1) / 2
-error4 = 0.07
-error5 = 0
-error6 = 0.06
-h1['D14C'] = h1['D14C'] + offset1  # reset column name with new fixed value
-h2['D14C'] = h2['D14C'] + offset2
-h3['D14C'] = h3['D14C'] + offset3
-h4['D14C'] = h4['D14C'] + offset4
-h5['D14C'] = h5['D14C'] + offset5
-h6['D14C'] = h6['D14C'] + offset6
-h1['weightedstderr_D14C'] = np.sqrt(h1['weightedstderr_D14C']**2 + error1**2) # propogate the error and REPLACE original
-h2['weightedstderr_D14C'] = np.sqrt(h2['weightedstderr_D14C']**2 + error2**2)
-h3['weightedstderr_D14C'] = np.sqrt(h3['weightedstderr_D14C']**2 + error3**2)
-h4['weightedstderr_D14C'] = np.sqrt(h4['weightedstderr_D14C']**2 + error4**2)
-h5['weightedstderr_D14C'] = np.sqrt(h5['weightedstderr_D14C']**2 + error5**2)
-h6['weightedstderr_D14C'] = np.sqrt(h6['weightedstderr_D14C']**2 + error6**2)
+# apply offsets using Pre and POst AMS OFFset
+h1['D14C_1'] = h1['D14C'] + offset1  # store offset values in new column
+h2['D14C_1'] = h2['D14C'] + offset2
+h3['D14C_1'] = h3['D14C'] + offset3
+h4['D14C_1'] = h4['D14C'] + offset4
+h5['D14C_1'] = h5['D14C'] + offset5
+h6['D14C_1'] = h6['D14C'] + offset6
+h1['weightedstderr_D14C_1'] = np.sqrt(h1['weightedstderr_D14C']**2 + error1**2)  # propogate the error and REPLACE original
+h2['weightedstderr_D14C_1'] = np.sqrt(h2['weightedstderr_D14C']**2 + error2**2)
+h3['weightedstderr_D14C_1'] = np.sqrt(h3['weightedstderr_D14C']**2 + error3**2)
+h4['weightedstderr_D14C_1'] = np.sqrt(h4['weightedstderr_D14C']**2 + error4**2)
+h5['weightedstderr_D14C_1'] = np.sqrt(h5['weightedstderr_D14C']**2 + error5**2)
+h6['weightedstderr_D14C_1'] = np.sqrt(h6['weightedstderr_D14C']**2 + error6**2)
 
-""" STEP 4: MERGE ALL THE DATA! """
-# for simplicity (and beacuse I'm indexing the Heidelberg dataset much
+# merge heidelberg file back onto itself, after adding the first TYPE of offset...
+heidelberg = pd.merge(h1, h2, how='outer')
+heidelberg = pd.merge(heidelberg, h3, how='outer')
+heidelberg = pd.merge(heidelberg, h4, how='outer')
+heidelberg = pd.merge(heidelberg, h5, how='outer')
+heidelberg = pd.merge(heidelberg, h6, how='outer')
+
+# APPLY OFFSET USING SMOOTHED OFFSET
+# template_array = ccgFilter(x_init, new_array[0], cutoff).getSmoothValue(fake_x)
+offset_smoothed = monte_carlo_randomization_trend(dff['offset_xs'], heidelberg['Decimal_date'], dff['offset_ys'], dff['offset_errs'], cutoff, 100)
+offset_smoothed_summary = offset_smoothed[2]
+offset_smoothed_mean = offset_smoothed_summary['Means']
+offset_smoothed_stdevs = offset_smoothed_summary['stdevs']
+heidelberg['D14C_2'] = heidelberg['D14C'] + offset_smoothed_mean
+heidelberg['weightedstderr_D14C_2'] = np.sqrt(heidelberg['weightedstderr_D14C']**2 + offset_smoothed_summary['stdevs']**2)
+heidelberg.to_excel('CapeGrim_offset.xlsx')
+
+
+
+
+""" STEP 4: MERGE OFFSET CORRECTED CAPE GRIM DATA WITH BARING HEAD RECORD TO MAKE HARMONIZED BACKGROUND """
+# for simplicity (and because I'm indexing the Heidelberg dataset much
 # more than the Baring Head dataset right now, I'm going to change the
 # baringhead column names to match those of the Heidelberg dataset
 # print(baringhead.columns)
@@ -191,6 +198,9 @@ harmonized = pd.merge(harmonized, h4, how='outer')
 harmonized = pd.merge(harmonized, h5, how='outer')
 harmonized = pd.merge(harmonized, h6, how='outer')
 
+
+
+
 """
 A few of the data have errors of -1000 and this is throwing everything off
 in later calculations...
@@ -199,8 +209,6 @@ I need to get rid of these...
 harmonized = harmonized.loc[(harmonized['weightedstderr_D14C'] > 0)]
 harmonized = harmonized.drop(columns=['index'], axis=1)
 harmonized = harmonized.dropna()
-
-
 harmonized.sort_values(by=['Decimal_date'], inplace=True)
 # harmonized.to_excel('harmonized_dataset.xlsx')
 harm1 = harmonized.loc[(harmonized['key'] == 0)]

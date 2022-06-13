@@ -128,12 +128,15 @@ heidelberg = pd.merge(heidelberg, new_frame, how = 'outer')  # merge the datafra
 # Baring head data does not need indexing because we will not apply corrections to it
 # What are the current offsets (these are subject to change!)
 
-# 1986 - 1991: Add 1.80 +- 0.18 to Heidelberg Data
-# 1991 - 1994: Add 1.88 +- 0.16 to Heidelberg Data
-# 1994 - 2006: No offset applied
-# 2006 - 2009: Add 0.49 +- 0.07 to Heidelberg
-# 2009 - 2012: Apply NO offset
-# 2012 - 2016: Subtract 0.52 +- 0.06 to Heidelberg.
+# PRE-AMS Correction (1994 - 2006 is region of removed data but we assume offset is similar to other Pre-AMS times).
+# OFFSET 1: 1986 - 1991: Add 1.80 +- 0.18 to Heidelberg Data
+# OFFSET 2: 1991 - 1994: Add 1.88 +- 0.16 to Heidelberg Data
+# OFFSET 3: 1994 - 2006: Apply average offset of two above - END OF PRE-AMS SET
+
+# POST AMS
+# OFFSET 4: 2006 - 2009: Add 0.49 +- 0.07 to Heidelberg
+# OFFSET 5: 2009 - 2012: Apply NO offset
+# OFFSET 6: 2012 - 2016: Subtract 0.52 +- 0.06 to Heidelberg.
 
 h1 = heidelberg.loc[(heidelberg['Decimal_date'] < 1991)].reset_index()
 h2 = heidelberg.loc[(heidelberg['Decimal_date'] > 1991) & (heidelberg['Decimal_date'] < 1994)].reset_index()
@@ -147,18 +150,17 @@ to change to original value
 """
 offset1 = 1.80
 offset2 = 1.88
-offset3 = 0
+offset3 = (offset2 + offset1) / 2
 offset4 = 0.49
 offset5 = 0
 offset6 = -.52
 error1 = .18
 error2 = .16
-error3 = 0
+error3 = np.sqrt(error2**2 + error1) / 2
 error4 = 0.07
 error5 = 0
 error6 = 0.06
-
-h1['D14C'] = h1['D14C'] + offset1
+h1['D14C'] = h1['D14C'] + offset1  # reset column name with new fixed value
 h2['D14C'] = h2['D14C'] + offset2
 h3['D14C'] = h3['D14C'] + offset3
 h4['D14C'] = h4['D14C'] + offset4
@@ -172,8 +174,6 @@ h5['weightedstderr_D14C'] = np.sqrt(h5['weightedstderr_D14C']**2 + error5**2)
 h6['weightedstderr_D14C'] = np.sqrt(h6['weightedstderr_D14C']**2 + error6**2)
 
 """ STEP 4: MERGE ALL THE DATA! """
-
-# TODO: need to change all the column names to be the same!
 # for simplicity (and beacuse I'm indexing the Heidelberg dataset much
 # more than the Baring Head dataset right now, I'm going to change the
 # baringhead column names to match those of the Heidelberg dataset
@@ -184,7 +184,7 @@ baringhead = baringhead.rename(columns={"DEC_DECAY_CORR": "Decimal_date"})
 baringhead = baringhead.rename(columns={"DELTA14C": "D14C"})
 baringhead = baringhead.rename(columns={"DELTA14C_ERR": "weightedstderr_D14C"})
 
-harmonized = pd.merge(baringhead, h1, how='outer')
+harmonized = pd.merge(baringhead, h1, how='outer')  # have to merge in stages but it's all good.
 harmonized = pd.merge(harmonized, h2, how='outer')
 harmonized = pd.merge(harmonized, h3, how='outer')
 harmonized = pd.merge(harmonized, h4, how='outer')
@@ -196,10 +196,8 @@ A few of the data have errors of -1000 and this is throwing everything off
 in later calculations...
 I need to get rid of these...
 """
-
 harmonized = harmonized.loc[(harmonized['weightedstderr_D14C'] > 0)]
 harmonized = harmonized.drop(columns=['index'], axis=1)
-
 harmonized = harmonized.dropna()
 
 
@@ -237,7 +235,6 @@ In Rachel's thesis, she talks about comparing the tree-ring values to the BHD da
 growing season, which is November to February. The following code slices the harmonized data to ONLY INCLUDE data from 
 during the growing season. While this code took ~ 1 hour to write, I don't know how to get from here to a yearly 
 average because the SH summer crosses the year-line (January). Can come back to this later. 
-
 The following code retains only the summer months. 
 """
 

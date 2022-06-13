@@ -27,7 +27,10 @@ x_init = long_date_to_decimal_date(x_init)  # convert the x-values to a decimal 
 neumayer['Decimal_date'] = x_init  # add these decimal dates onto the dataframe
 
 """
-Offset the data using the PRE and POST OFFSET 
+Break up the Neumayer dataset into the same time-periods that I used for the Heidelberg Intercomparison and offset
+calculation: 
+Any data prior to 1986 (the minimum X value in the Heidelberg dataset) gets 0 offset correction. 
+
 """
 
 h0 = neumayer.loc[(neumayer['Decimal_date'] < 1986)].reset_index() # there is some data before the CGO dataset begins, I cannot correct for these because it is outside the bounds of my intercomparison (1986 - 1991 is first interval)

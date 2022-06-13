@@ -589,12 +589,14 @@ error6 = 0.06
 """
 SMOOTHED OFFSET SETTINGS
 """
-y = [offset1, offset3, offset4, offset6]  # I'm leaving out 3 beacuse it only comes from offsets 1 and 2.
-y_err = [error1, error3, error4, error6]
-x =[(1986 + 1991)/2, (1994 + 2005)/2, (2006 + 2009)/2, (2012 + 2016)/2]  # find the middle of each time- chunk.
+y = [offset1, offset1, offset1, offset3, offset3, offset3, offset4, offset4, offset4, offset6, offset6, offset6]  # I'm leaving out 3 beacuse it only comes from offsets 1 and 2.
+y_err = [error1, error1, error1, error3, error3, error3, error4, error4, error4, error6, error6, error6]
+x =[1986, (1986 + 1991)/2, 1992, 1994, (1994 + 2005)/2, 2005, 2006, (2006 + 2009)/2, 2009, 2012, (2012 + 2016)/2, 2016]  # find the middle of each time- chunk.
 # create arbitrary set of x-values to control output
 # WHEN APPLYING THIS OFFSET TO A NEW DATASET, REPLACE "desired_output" WITH THAT DATASET'S X values!
 desired_output = np.linspace(min(x_init_heid), max(x_init_heid), 480)
+
+
 dff = pd.DataFrame({"offset_xs": x, "offset_ys": y, "offset_errs": y_err})
 offset_trend = monte_carlo_randomization_trend(dff['offset_xs'], desired_output, dff['offset_ys'], dff['offset_errs'], cutoff, n)
 offset_trend_summary = offset_trend[2]
@@ -905,8 +907,8 @@ plt.close()
 THAT's THE END OF THE WORKING FILE. Everything else is old code :) 
 
 """
-print('commit changes')
-
+# print('commit changes')
+#
 
 
 

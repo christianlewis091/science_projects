@@ -27,7 +27,14 @@ from A_heidelberg_intercomparison import dff  # import the dataframe to produce 
 from A_heidelberg_intercomparison import cutoff
 from X_miller_curve_algorithm import ccgFilter
 from X_my_functions import monte_carlo_randomization_trend
+from scipy import stats
+from A_heidelberg_intercomparison import n
 
+colors = sns.color_palette("rocket", 6)
+colors2 = sns.color_palette("mako", 6)
+mpl.rcParams['pdf.fonttype'] = 42
+mpl.rcParams['font.size'] = 10
+size1 = 5
 """
 Because I’ll need a harmonized dataset as a reference to understand the
 tree-rings, I’m going to create a python file to do dataset harmonization.
@@ -147,12 +154,27 @@ In order to apply the offsets, I'm going to add a new column with the new value,
 to change to original value
 """
 # apply offsets using Pre and POst AMS OFFset
+h1['pre-postAMS_offset'] = h1['key'] * offset1  # first, deposit the offset into the excel sheet for future reference.
+h2['pre-postAMS_offset'] = h2['key'] * offset2  # the way i'm doing this is a bit of a hack, by multiplying it by the "key"
+h3['pre-postAMS_offset'] = h3['key'] * offset3  # which is set to 1 for data from heidelberg (0's  are for baring head)
+h4['pre-postAMS_offset'] = h4['key'] * offset4
+h5['pre-postAMS_offset'] = h5['key'] * offset5
+h6['pre-postAMS_offset'] = h6['key'] * offset6
+h1['pre-postAMS_offset_err'] = h1['key'] * error1  # first, deposit the offset into the excel sheet for future reference.
+h2['pre-postAMS_offset_err'] = h2['key'] * error2  # the way i'm doing this is a bit of a hack, by multiplying it by the "key"
+h3['pre-postAMS_offset_err'] = h3['key'] * error3  # which is set to 1 for data from heidelberg (0's  are for baring head)
+h4['pre-postAMS_offset_err'] = h4['key'] * error4
+h5['pre-postAMS_offset_err'] = h5['key'] * error5
+h6['pre-postAMS_offset_err'] = h6['key'] * error6
+
+
 h1['D14C_1'] = h1['D14C'] + offset1  # store offset values in new column
 h2['D14C_1'] = h2['D14C'] + offset2
 h3['D14C_1'] = h3['D14C'] + offset3
 h4['D14C_1'] = h4['D14C'] + offset4
 h5['D14C_1'] = h5['D14C'] + offset5
 h6['D14C_1'] = h6['D14C'] + offset6
+
 h1['weightedstderr_D14C_1'] = np.sqrt(h1['weightedstderr_D14C']**2 + error1**2)  # propogate the error and REPLACE original
 h2['weightedstderr_D14C_1'] = np.sqrt(h2['weightedstderr_D14C']**2 + error2**2)
 h3['weightedstderr_D14C_1'] = np.sqrt(h3['weightedstderr_D14C']**2 + error3**2)
@@ -169,14 +191,37 @@ heidelberg = pd.merge(heidelberg, h6, how='outer')
 
 # APPLY OFFSET USING SMOOTHED OFFSET
 # template_array = ccgFilter(x_init, new_array[0], cutoff).getSmoothValue(fake_x)
-offset_smoothed = monte_carlo_randomization_trend(dff['offset_xs'], heidelberg['Decimal_date'], dff['offset_ys'], dff['offset_errs'], cutoff, 100)
-offset_smoothed_summary = offset_smoothed[2]
-offset_smoothed_mean = offset_smoothed_summary['Means']
-offset_smoothed_stdevs = offset_smoothed_summary['stdevs']
-heidelberg['D14C_2'] = heidelberg['D14C'] + offset_smoothed_mean
-heidelberg['weightedstderr_D14C_2'] = np.sqrt(heidelberg['weightedstderr_D14C']**2 + offset_smoothed_summary['stdevs']**2)
-heidelberg.to_excel('CapeGrim_offset.xlsx')
+offset_smoothed = monte_carlo_randomization_trend(dff['offset_xs'], heidelberg['Decimal_date'], dff['offset_ys'], dff['offset_errs'], cutoff, n)  # use the offset values to create an offset smoothing curve
+offset_smoothed_summary = offset_smoothed[2]  # extract summary file
+offset_smoothed_mean = offset_smoothed_summary['Means']  # grab means
+offset_smoothed_stdevs = offset_smoothed_summary['stdevs']  # grab stdevs
+heidelberg['smoothed_offset'] = offset_smoothed_mean # deposit the number for the smoothed offset in the excel sheet
+heidelberg['D14C_2'] = heidelberg['D14C'] + heidelberg['smoothed_offset']  # add it to the original data (correct the offset)
+heidelberg['smoothed_offset_error'] = offset_smoothed_stdevs
+heidelberg['weightedstderr_D14C_2'] = np.sqrt(heidelberg['weightedstderr_D14C']**2 + offset_smoothed_stdevs**2)
+# is there a meaningful difference between the smoothed offset and the Pre and Post offset?
+pairedtest = stats.ttest_rel(heidelberg['D14C_1'], heidelberg['D14C_2'])  # paired t test between the two offset-type calculations
+print(pairedtest)
 
+# heidelberg.to_excel('CapeGrim_offset.xlsx')
+
+"""
+What is the difference between these two offset types? 
+"""
+heidelberg_ds = heidelberg.iloc[::10, :]  # downsample every 10th point
+# plt.errorbar(heidelberg_ds['Decimal_date'], heidelberg_ds['smoothed_offset'], label='Trended Offset, mean of "n" error simulations', yerr=heidelberg_ds['smoothed_offset_error'], fmt='o', color=colors[3], ecolor=colors[3], elinewidth=1, capsize=2)
+# plt.errorbar(heidelberg_ds['Decimal_date'], heidelberg_ds['pre-postAMS_offset'], label='Fixed Pre and Post XCAMS Offset', yerr=heidelberg_ds['pre-postAMS_offset_err'], fmt='o', color=colors2[3], ecolor=colors2[3], elinewidth=1, capsize=2)
+plt.scatter(heidelberg['Decimal_date'], heidelberg['smoothed_offset'], marker='o', label='Trended Offset, mean of "n" error simulations', color=colors[3], s=size1, alpha = 0.5)
+plt.scatter(heidelberg['Decimal_date'], heidelberg['pre-postAMS_offset'], marker='o', label='Fixed Pre and Post XCAMS Offset', color=colors2[3], s=size1, alpha = 0.5)
+plt.legend()
+# plt.title('All available data after 1980')
+# plt.xlim([1980, 2020])
+plt.ylim([-1, 2.5])
+plt.xlabel('Date', fontsize=14)
+plt.ylabel('Applied offset to Uni Heidelberg Data (\u2030)', fontsize=14)  # label the y axis
+plt.savefig('C:/Users/clewis/IdeaProjects/GNS/radiocarbon_intercomparison/interlab_comparison/plots/Two_offset_types2.png',
+            dpi=300, bbox_inches="tight")
+plt.close()
 
 
 
@@ -222,6 +267,7 @@ colors2 = sns.color_palette("mako", 6)
 mpl.rcParams['pdf.fonttype'] = 42
 mpl.rcParams['font.size'] = 10
 size1 = 5
+
 """
 Figure 1. All the data together
 """

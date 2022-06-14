@@ -223,7 +223,14 @@ plt.savefig('C:/Users/clewis/IdeaProjects/GNS/radiocarbon_intercomparison/interl
             dpi=300, bbox_inches="tight")
 plt.close()
 
-
+plt.errorbar(heidelberg['Decimal_date'], heidelberg['D14C_2'], label='Trended Offset, mean of "n" error simulations', yerr=heidelberg['weightedstderr_D14C_2'], fmt='o', color=colors[3], ecolor=colors[3], elinewidth=1, capsize=2, alpha = 0.3)
+plt.errorbar(heidelberg['Decimal_date'], heidelberg['D14C_1'], label='Fixed Pre and Post XCAMS Offset', yerr=heidelberg['weightedstderr_D14C_1'], fmt='D', color=colors2[3], ecolor=colors2[3], elinewidth=1, capsize=2, alpha=0.3)
+plt.legend()
+plt.xlabel('Date', fontsize=14)
+plt.ylabel('\u0394$^1$$^4$CO$_2$ (\u2030)', fontsize=14)  # label the y axis
+plt.savefig('C:/Users/clewis/IdeaProjects/GNS/radiocarbon_intercomparison/interlab_comparison/plots/Two_offset_types3.png',
+            dpi=300, bbox_inches="tight")
+plt.close()
 
 """ STEP 4: MERGE OFFSET CORRECTED CAPE GRIM DATA WITH BARING HEAD RECORD TO MAKE HARMONIZED BACKGROUND """
 # for simplicity (and because I'm indexing the Heidelberg dataset much
@@ -236,15 +243,7 @@ baringhead = baringhead.rename(columns={"DEC_DECAY_CORR": "Decimal_date"})
 baringhead = baringhead.rename(columns={"DELTA14C": "D14C"})
 baringhead = baringhead.rename(columns={"DELTA14C_ERR": "weightedstderr_D14C"})
 
-harmonized = pd.merge(baringhead, h1, how='outer')  # have to merge in stages but it's all good.
-harmonized = pd.merge(harmonized, h2, how='outer')
-harmonized = pd.merge(harmonized, h3, how='outer')
-harmonized = pd.merge(harmonized, h4, how='outer')
-harmonized = pd.merge(harmonized, h5, how='outer')
-harmonized = pd.merge(harmonized, h6, how='outer')
-
-
-
+harmonized = pd.merge(baringhead, heidelberg, how='outer')  # have to merge in stages but it's all good.
 
 """
 A few of the data have errors of -1000 and this is throwing everything off

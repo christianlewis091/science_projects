@@ -1,3 +1,9 @@
+"""
+In a previous python file, I find the interlaboratory offsets between Uni Heidelberg and RRL through time.
+I am now going to apply these calculated offsets to the remaining Southern Hemisphere data from Uni Heidelberg,
+which is the Neumayer dataset.
+
+"""
 import matplotlib as mpl
 import numpy as np
 import pandas as pd
@@ -17,7 +23,11 @@ mpl.rcParams['font.size'] = 10
 size1 = 5
 
 df = pd.read_excel(r'H:\The Science\Datasets\heidelberg_MQA.xlsx', skiprows=0)
-print(df.columns)
+df = df.dropna(subset=['D14C']).reset_index(drop=True)
+
+# This file contains data from 1983 to 2021.
+
+df = pd.read_excel(r'H:\The Science\Datasets\heidelberg_MQA.xlsx', skiprows=0)
 x = df['Average of Dates']  # extract x-values from heidelberg dataset
 x = long_date_to_decimal_date(x)  # convert the x-values to a decimal date
 df['Decimal_date'] = x  # add these decimal dates onto the dataframe
@@ -41,7 +51,7 @@ h3['weightedstderr_D14C_1'] = np.sqrt(h3['1sigma_error']**2 + error3**2)
 h4['weightedstderr_D14C_1'] = np.sqrt(h4['1sigma_error']**2 + error4**2)
 h5['weightedstderr_D14C_1'] = np.sqrt(h5['1sigma_error']**2 + error5**2)
 h6['weightedstderr_D14C_1'] = np.sqrt(h6['1sigma_error']**2 + error6**2)
-
+#
 df = pd.merge(h2, h3, how='outer')
 df = pd.merge(df, h4, how='outer')
 df = pd.merge(df, h5, how='outer')
@@ -50,6 +60,7 @@ df = pd.merge(df, h6, how='outer')
 y = [offset1, offset1, offset1, offset3, offset3, offset3, offset4, offset4, offset4, offset6, offset6, offset6]  # pulled from A_heidelberg Intercomparison.
 y_err = [error1, error1, error1, error3, error3, error3, error4, error4, error4, error6, error6, error6]
 x =[min(df['Decimal_date']), (1986 + 1991)/2, 1992, 1994, (1994 + 2005)/2, 2005, 2006, (2006 + 2009)/2, 2009, 2012, (2012 + 2016)/2, max(df['Decimal_date'])]  # find the middle of each time- chunk.
+
 dff = pd.DataFrame({"offset_xs": x, "offset_ys": y, "offset_errs": y_err})  # my function works best when data are pulled from pandas DF
 
 offset_smoothed = monte_carlo_randomization_trend(dff['offset_xs'], df['Decimal_date'], dff['offset_ys'], dff['offset_errs'], cutoff, n)  # use the offset values to create an offset smoothing curve
@@ -62,8 +73,31 @@ df['smoothed_offset_error'] = offset_smoothed_stdevs
 df['weightedstderr_D14C_2'] = np.sqrt(df['1sigma_error']**2 + offset_smoothed_stdevs**2)
 # is there a meaningful difference between the smoothed offset and the Pre and Post offset?
 
-pairedtest = stats.ttest_rel(df['D14C_1'], df['D14C_1'])  # paired t test between the two offset-type calculations
+df = df.rename(columns={"1sigma_error": "D14C_err"})
+df = df.rename(columns={"smoothed_offset": "offset2"})
+df = df.rename(columns={"smoothed_offset_error": "offset2_err"})
+df = df.rename(columns={"weightedstderr_D14C_2": "D14C_2_err"})
+df = df.rename(columns={"weightedstderr_D14C_1": "D14C_1_err"})
 
-print(pairedtest)
 
+# Reorder the columns in an order that makes more sense
+df = df[['#location', 'Decimal_date', 'D14C', 'D14C_err', 'D14C_1', 'D14C_1_err', 'offset2', 'offset2_err', 'D14C_2', 'D14C_2_err']]
 df.to_excel('MCQ_offset.xlsx')
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

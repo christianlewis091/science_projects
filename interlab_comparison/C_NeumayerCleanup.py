@@ -13,7 +13,6 @@ from A_heidelberg_intercomparison import offset1, offset2, offset3, offset4, off
 from A_heidelberg_intercomparison import error1, error2, error3, error4, error5, error6
 from X_my_functions import monte_carlo_randomization_trend
 from A_heidelberg_intercomparison import cutoff, n
-from scipy import stats
 
 # general plot parameters
 colors = sns.color_palette("rocket", 6)
@@ -24,13 +23,8 @@ size1 = 5
 
 neumayer = pd.read_excel(r'H:\The Science\Datasets\heidelberg_neumayer.xlsx', skiprows=40)  # import heidelberg data
 neumayer = neumayer.dropna(subset=['D14C']).reset_index(drop=True)
-print(neumayer)
-print(neumayer.columns)
-print(len(neumayer))
 
 # This file contains data from 1983 to 2021.
-
-
 x_init = neumayer['Average']  # extract x-values from heidelberg dataset
 x_init = long_date_to_decimal_date(x_init)  # convert the x-values to a decimal date
 neumayer['Decimal_date'] = x_init  # add these decimal dates onto the dataframe
@@ -90,9 +84,16 @@ neu['D14C_2'] = neu['D14C'] + neu['smoothed_offset']  # add it to the original d
 neu['smoothed_offset_error'] = offset_smoothed_stdevs
 neu['weightedstderr_D14C_2'] = np.sqrt(neu['weightedstderr_D14C']**2 + offset_smoothed_stdevs**2)
 # is there a meaningful difference between the smoothed offset and the Pre and Post offset?
-pairedtest = stats.ttest_rel(neu['D14C_1'], neu['D14C_2'])  # paired t test between the two offset-type calculations
-print(pairedtest)
 
+neu = neu.rename(columns={"weightedstderr_D14C": "D14C_err"})
+neu = neu.rename(columns={"F14C_ERR": "F14C_err"})
+neu = neu.rename(columns={"smoothed_offset": "offset2"})
+neu = neu.rename(columns={"smoothed_offset_error": "offset2_err"})
+neu = neu.rename(columns={"weightedstderr_D14C_2": "D14C_2_err"})
+neu = neu.rename(columns={"weightedstderr_D14C_1": "D14C_1_err"})
+print(neu.columns)
+
+# Reorder the columns in an order that makes more sense
+neu = neu[['#location', 'Decimal_date', 'D14C', 'D14C_err', 'D14C_1', 'D14C_1_err', 'offset2', 'offset2_err', 'D14C_2', 'D14C_2_err']]
 neu.to_excel('Neumayer_offset.xlsx')
-
 

@@ -84,10 +84,18 @@ df = df.rename(columns={"weightedstderr_D14C_1": "D14C_1_err"})
 df = df[['#location', 'Decimal_date', 'D14C', 'D14C_err', 'D14C_1', 'D14C_1_err', 'offset2', 'offset2_err', 'D14C_2', 'D14C_2_err']]
 df.to_excel('MCQ_offset.xlsx')
 
+"""
+This is the third of three Heidelberg inter-comparison files that I am correcting for these offsets. Now I'm going 
+to combine them all into one for clarity
+"""
+cgo = pd.read_excel(r'C:\Users\clewis\IdeaProjects\GNS\radiocarbon_intercomparison\Interlab_comparison\CapeGrim_offset.xlsx')
+neu = pd.read_excel(r'C:\Users\clewis\IdeaProjects\GNS\radiocarbon_intercomparison\Interlab_comparison\Neumayer_offset.xlsx')
 
+all_offset_corrected_heid = pd.merge(cgo, df, how='outer')  # combine cape grim and MCQ first
+all_offset_corrected_heid = pd.merge(all_offset_corrected_heid, neu, how='outer')   # tack on neumayer
 
-
-
+all_offset_corrected_heid = all_offset_corrected_heid[['#location', 'Decimal_date','D14C','D14C_err','D14C_1','D14C_1_err','D14C_2','D14C_2_err']]
+all_offset_corrected_heid.to_excel('Heidelberg_OffsetCorrections.xlsx')
 
 
 

@@ -121,7 +121,7 @@ harmonized_summer = pd.merge(harmonized, indexed)   # merge the datasets
 
 # print(harmonized_summer)
 harmonized_summer = harmonized_summer.loc[((harmonized_summer['decimals']) < .124) | ((harmonized_summer['decimals']) > .870)]   # grab data only in the months that I want
-harmonized_summer.to_excel('test.xlsx')
+harmonized_summer.to_excel('harmonized_summer.xlsx')
 # print(harmonized.columns)
 # print(harmonized_summer.columns)
 # test the dates fall into the bounds that I want using a histogram

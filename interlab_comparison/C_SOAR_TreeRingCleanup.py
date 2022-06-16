@@ -44,16 +44,16 @@ df = df.dropna(subset='∆14C').reset_index(drop=True)  # drop any data rows tha
 print(df.columns)
 # importing harmonized southern hemisphere dataset from the previous python file.
 harm_xs = harmonized['Decimal_date']  # see dataset_harmonization.py
-harm_ys = harmonized['D14C']  # see dataset_harmonization.py
+harm_ys = harmonized['D14C_offsetcorrected']  # see dataset_harmonization.py
 harm_fm = harmonized['F14C']
-harm_y_errs = harmonized['weightedstderr_D14C']
-harm_fm_errs = harmonized['F14C_ERR']
+harm_y_errs = harmonized['D14C_offsetcorrected_err']
+harm_fm_errs = harmonized['F14C_err']
 
 harm_sum_xs = harmonized_summer['Decimal_date']  # see dataset_harmonization.py
-harm_sum_ys = harmonized_summer['D14C']  # see dataset_harmonization.py
-harm_sum_y_errs = harmonized_summer['weightedstderr_D14C']
+harm_sum_ys = harmonized_summer['D14C_offsetcorrected']  # see dataset_harmonization.py
+harm_sum_y_errs = harmonized_summer['D14C_offsetcorrected_err']
 harm_sum_fm = harmonized_summer['F14C']
-harm_sum_fm_errs = harmonized_summer['F14C_ERR']
+harm_sum_fm_errs = harmonized_summer['F14C_err']
 
 """
 Before I do anything else, as advised, let's check to see which if any tree ring subsets
@@ -877,140 +877,10 @@ df_cleaned.to_excel('SOARTreeRingData_CBL_cleaned.xlsx')
 Do my cleaned data / plots / conclusions match rachel's?
 """
 
+"""
+Smooth the harmonized data using CCGCRV and have the output at the same time as tree ring x's: See Below
+"""
 #
-#
-#
-#
-#
-#
-# CH_41_S = CH_41_S.reset_index(drop=True)  # reset the index or you get type-setting errors
-# empty_array = []  # create an empty array. We will dump our sorted data in here
-# for i in range(0, len(CH_41_S)):  # initialize a for-loop the length of the site's dataset
-#     row = CH_41_S.iloc[i]  # grab the i'th row
-#     cell = row['Ring code']  # grab the column of data from that row
-#     element = 'T1'  # what is the element that we're looking for?
-#     if element in cell:  # if what we're looking for is in there, append it to the array
-#         empty_array.append(row)
-# CH_41_S_core1 = pd.DataFrame(empty_array)  # take the array and put into a Pandas Dataframe.
-#
-# empty_array = []  # create an empty array. We will dump our sorted data in here
-# for i in range(0, len(CH_41_S)):  # initialize a for-loop the length of the site's dataset
-#     row = CH_41_S.iloc[i]  # grab the i'th row
-#     cell = row['Ring code']  # grab the column of data from that row
-#     element = 'T2'  # what is the element that we're looking for?
-#     if element in cell:  # if what we're looking for is in there, append it to the array
-#         empty_array.append(row)
-# CH_41_S_core2 = pd.DataFrame(empty_array)  # take the array and put into a Pandas Dataframe.
-# #
-# x = CH_41_S_core1['DecimalDate']
-# y = CH_41_S_core1['∆14C']
-# z = CH_41_S_core1['∆14Cerr']
-# x2 = CH_41_S_core2['DecimalDate']
-# y2 = CH_41_S_core2['∆14C']
-# z2 = CH_41_S_core2['∆14Cerr']
-
-# size = 50
-# plt.errorbar(x, y, label='Tree 1', yerr=z, fmt='o', color=colors2[3], ecolor=colors2[3], elinewidth=1, capsize=2)
-# plt.errorbar(x2, y2, label='Tree 2', yerr=z2, fmt='o', color=colors[3], ecolor=colors[3], elinewidth=1, capsize=2)
-# plt.plot(harm_xs, harm_ys, label='Southern Hemisphere \u0394$^1$$^4$CO$_2$ (\u2030)', color='black', alpha=0.2)
-# plt.legend()
-# plt.title('Bahia San Pedro, Chile')
-# plt.xlim(min(CH_41_S['DecimalDate'] - 5), max(CH_41_S['DecimalDate'] + 5))
-# plt.ylim(min(CH_41_S['∆14C'] - 25), max(CH_41_S['∆14C'] + 25))
-# plt.xlabel('Date', fontsize=14)
-# plt.ylabel('\u0394$^1$$^4$CO$_2$ (\u2030)', fontsize=14)  # label the y axis
-# plt.savefig(
-#     'C:/Users/clewis/IdeaProjects/GNS/radiocarbon_intercomparison/interlab_comparison/plots/SOAR_tree_rings/BahiaSanPedro_validation.png',
-#     dpi=300, bbox_inches="tight")
-
-# """
-# Second one
-# 'Raul Marin Balmaceda'
-# T3 - Core 3, Core 2
-# T4 - Core 1
-# T7 - Core 1
-#
-# Elements will be:
-# T3-C2
-# T4-C1
-# T7-C1
-#
-# """
-#
-#
-# # CH_44_S.to_excel('test1.xlsx')
-# # TODO.. i should be able to break up the following into a function for less copy pasting...
-#
-# def tree_ring_validation(df, element):
-#     df = df.reset_index(drop=True)  # reset the index or you get type-setting errors
-#     empty_array = []  # create an empty array. We will dump our sorted data in here
-#     for i in range(0, len(df)):  # initialize a for-loop the length of the site's dataset
-#         row = df.iloc[i]  # grab the i'th row
-#         cell = row['Ring code']  # grab the column of data from that row
-#         if element in cell:  # if what we're looking for is in there, append it to the array
-#             empty_array.append(row)
-#     df_new = pd.DataFrame(empty_array)  # take the array and put into a Pandas Dataframe.
-#
-#
-# CH_44_S = CH_44_S.reset_index(drop=True)  # reset the index or you get type-setting errors
-# empty_array = []  # create an empty array. We will dump our sorted data in here
-# for i in range(0, len(CH_44_S)):  # initialize a for-loop the length of the site's dataset
-#     row = CH_44_S.iloc[i]  # grab the i'th row
-#     cell = row['Ring code']  # grab the column of data from that row
-#     element = 'T1'  # what is the element that we're looking for?
-#     if element in cell:  # if what we're looking for is in there, append it to the array
-#         empty_array.append(row)
-# CH_41_S_core1 = pd.DataFrame(empty_array)  # take the array and put into a Pandas Dataframe.
-#
-# empty_array = []  # create an empty array. We will dump our sorted data in here
-# for i in range(0, len(CH_41_S)):  # initialize a for-loop the length of the site's dataset
-#     row = CH_41_S.iloc[i]  # grab the i'th row
-#     cell = row['Ring code']  # grab the column of data from that row
-#     element = 'T2'  # what is the element that we're looking for?
-#     if element in cell:  # if what we're looking for is in there, append it to the array
-#         empty_array.append(row)
-# CH_41_S_core2 = pd.DataFrame(empty_array)  # take the array and put into a Pandas Dataframe.
-#
-# x = CH_41_S_core1['DecimalDate']
-# y = CH_41_S_core1['∆14C']
-# z = CH_41_S_core1['∆14Cerr']
-# x2 = CH_41_S_core2['DecimalDate']
-# y2 = CH_41_S_core2['∆14C']
-# z2 = CH_41_S_core2['∆14Cerr']
-#
-# size = 50
-# plt.errorbar(x, y, label='Tree 1', yerr=z, fmt='o', color=colors2[3], ecolor=colors2[3], elinewidth=1, capsize=2)
-# plt.errorbar(x2, y2, label='Tree 2', yerr=z2, fmt='o', color=colors[3], ecolor=colors[3], elinewidth=1, capsize=2)
-# plt.plot(harm_xs, harm_ys, label='Southern Hemisphere \u0394$^1$$^4$CO$_2$ (\u2030)', color='black', alpha=0.2)
-# plt.legend()
-# plt.title('Bahia San Pedro, Chile')
-# plt.xlim(min(CH_41_S['DecimalDate'] - 5), max(CH_41_S['DecimalDate'] + 5))
-# plt.ylim(min(CH_41_S['∆14C'] - 25), max(CH_41_S['∆14C'] + 25))
-# plt.xlabel('Date', fontsize=14)
-# plt.ylabel('\u0394$^1$$^4$CO$_2$ (\u2030)', fontsize=14)  # label the y axis
-# plt.savefig(
-#     'C:/Users/clewis/IdeaProjects/GNS/radiocarbon_intercomparison/interlab_comparison/plots/SOAR_tree_rings/BahiaSanPedro_validation.png',
-#     dpi=300, bbox_inches="tight")
-#
-# #
-# #
-# #
-
-
-# CH_41_S = CH_41_S.reset_index(drop=True)  # reset the index or you get type-setting errors
-# x = CH_41_S['Ring code']
-# print(x)
-# print(type(x[1]))
-
-#
-# # importing the tree-ring x-values from the file I've read in.
-# sample_xs = (df['DecimalDate'])
-# # I want the harmonized dataset to be smoothed using CCGCRV, and
-# # I want it to OUTPUT the values at the specific x values that I have for tree-ring data.
-# # the following lines of code slightly change the data format of the x-data to appease the Monte Carlo code.
-# sample_xs2 = pd.DataFrame({'x': sample_xs})
-#
-# # Smooth the harmonized data using CCGCRV and have the output at the same time as tree ring x's
 # # input is: 1) x data, 2) y data that you want smoothed, then, 3) x-values at which you want y's output
 # cutoff = 667
 # harmonized_trend = ccgFilter(harm_xs, harm_ys, cutoff).getTrendValue(sample_xs2)

@@ -63,7 +63,7 @@ baringhead['D14C_offsetcorrected'] = baringhead['D14C']
 baringhead['D14C_offsetcorrected_err'] = baringhead['D14C_err']
 
 x = capegrim['Decimal_date']
-y = capegrim['D14C']
+y = capegrim['D14C_offsetcorrected_err']                  # make sure to use the correct / offset corrected data for this!
 age_corr = np.exp((1950 - x) / 8267)
 fm = ((y / 1000) + 1) / age_corr
 fm_err = capegrim['D14C_1_err'] / 1000

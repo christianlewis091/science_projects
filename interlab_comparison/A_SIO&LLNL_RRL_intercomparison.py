@@ -25,7 +25,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns
-from my_functions import basic_analysis
+from X_my_functions import basic_analysis
 
 plt.rcParams['font.size'] = 14
 
@@ -42,8 +42,8 @@ rrl = rrl.iloc[0:202]
 
 # locate the data I'm after
 rrl = rrl.rename(columns={'Samples::Sample ID': 'standard_type'})
-nwt3_rrl = rrl.loc[rrl['standard_type'] == "NWT3"]  # new dataset with only NWT3 values from rrl
-nwt4_rrl = rrl.loc[rrl['standard_type'] == "NWT4"]  # new dataset with only NWT4 values from rrl
+nwt3_rrl = rrl.loc[(rrl['standard_type'] == "NWT3")]   # new dataset with only NWT3 values from rrl
+nwt4_rrl = rrl.loc[(rrl['standard_type'] == "NWT4")]  # new dataset with only NWT4 values from rrl
 nwt3_llnl = llnl.loc[(llnl['Comment'] == "NWT3")]
 nwt4_llnl = llnl.loc[(llnl['Comment'] == "NWT4")]
 
@@ -60,7 +60,7 @@ date = nwt3_llnl['Wheel']
 date2 = nwt4_llnl['Wheel']
 date3 = nwt3_rrl['AMS Submission Results Complete::Date Run']
 date4 = nwt4_rrl['AMS Submission Results Complete::Date Run']
-#
+
 nwt3= basic_analysis(y1, y3, 'LLNL', 'RRL')
 print(nwt3)
 nwt4 = basic_analysis(y2, y4, 'LLNL', 'RRL')

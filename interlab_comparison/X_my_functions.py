@@ -5,6 +5,17 @@ from PyAstronomy import pyasl
 from tabulate import tabulate
 
 """
+This function will convert FM to D14C. 
+"""
+def fm_to_d14c(fm, fm_err, date):
+    # D14C = 1000*(fm - 1)   # first, find D14C (without the age correction)
+    age_corr = np.exp((1950 - date) / 8267)
+    Del14C = 1000 * ((fm*age_corr) - 1)
+    Del14C_err = 1000* fm_err
+    return Del14C, Del14C_err
+
+
+"""
 "long_date_to_decimal_date" function takes dates in the form of dd/mm/yyyy and converts them to a decimal. 
 This was required for the heidelberg cape grim dataset, and is quite useful overall while date formatting can be in 
 so many different forms. 
@@ -264,123 +275,121 @@ def basic_analysis(x, y, name1, name2):
     df = pd.DataFrame(data=data)
     return df
 
-# """
-# This function does a paired two-tail t-test. The t-value range comes from the stdev_array in the
-# Monte Carlo function above, and errors are propagated through the t-test mathematics.
+"""
+This function does a paired two-tail t-test. The t-value range comes from the stdev_array in the
+Monte Carlo function above, and errors are propagated through the t-test mathematics.
 
-# This has been replaced by
-# https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.ttest_rel.html
-# """
-
-#
-# def two_tail_paired_t_test(y1, y1err, y2, y2err):
-#     """ Subtract the data from each other (first step in paired t-test)"""
-#     difference = np.subtract(y1, y2)  # subtract the data from each other
-#     """ What is the mean of the subtraction array? """
-#     mean1 = np.average(difference)
-#     """ What is the standard error of the subtraction array"""
-#     se = np.std(difference) / np.sqrt(len(y1))
-#     """ Compute the t-stat"""
-#     t_stat = mean1 / se
-#     t_stat = np.abs(t_stat)
-#
-#     """ ERROR PROPAGATION """
-#     """ propagate the error from the first differencing """
-#     y1err_sq = y1err * y1err  # square of errors from first dataset
-#     y2err_sq = y2err * y2err  # square of errors from second dataset
-#     sum_errs = y1err_sq + y2err_sq  # sum of the squared errors
-#     err_differencing = np.sqrt(sum_errs)  # square root of the sums of errors
-#
-#     """ propagate the error from the mean1 """
-#     squares = err_differencing * err_differencing  # square the propagated errors from differencing
-#     sum_errs2 = 0  # initialize sums to zero
-#     for i in range(0, len(squares)):
-#         sum_errs2 = sum_errs2 + squares[i]  # add them all together
-#         # sum_errs2 += squares[i]
-#     sum_errs3 = np.sqrt(sum_errs2)  # take the square root
-#     err_mean = sum_errs3 / len(squares)  # divide by number of measurements
-#     ### The ERR_MEAN IS PROPOGATED ERROR, NOT STANDARD ERROR!!!
-#
-#     """
-#     Propogate error for the denominator of t-stat calc, STANDARD ERROR
-#     For this I need to propogate the error through the standard deviation calculation,
-#     and then divide by sqrt(N)
-#     """
-#     """STEP 1: Propogate the error of (xi - u)"""
-#     xi_u = err_mean ** 2 + err_differencing ** 2
-#     xi_u = np.sqrt(xi_u)
-#     """STEP 2: Propogate the error of (xi - u)^2 """
-#     xi_u2_a = (difference - mean1) ** 2
-#     xi_u2_b = xi_u / (difference - mean1)
-#     xi_u2_c = xi_u2_b ** 2
-#     xi_u2_d = xi_u2_c * 2
-#     xi_u2_e = np.sqrt(xi_u2_d)
-#     xi_u2_f = xi_u2_e * xi_u2_a
-#
-#     """STEP 3: Propagate the error of SIGMA(xi - u)^2 """
-#     init_num = 0  # initialize a number to add errors onto
-#     for i in range(0, len(xi_u2_f)):
-#         xi_u2_g = xi_u2_f[i] ** 2
-#         init_num = xi_u2_g + init_num
-#     sigma_xi_u2 = np.sqrt(init_num)
-#
-#     """STEP 4: Propagate the error of SIGMA(xi - u)^2 / N """
-#     sigma_xi_2_byN = sigma_xi_u2 / len(y1)
-#
-#     """STEP 5: Propagate the error of SQRT of SIGMA(xi - u)^2 / N """
-#     sqrt_sigmaxi_2_byn = np.sqrt(sigma_xi_2_byN)
-#
-#     """STEP 6: Find standard error by dividing SQRT by sqrt of N """
-#     se_err = sqrt_sigmaxi_2_byn / np.sqrt(len(y1))
-#
-#     """ final t-test error: error of mean and error of SE"""
-#     t_stat_e1 = t_stat
-#     t_stat_e2 = (se_err / se) ** 2
-#     t_stat_e3 = (err_mean / mean1) ** 2
-#     t_stat_e4 = t_stat_e2 + t_stat_e3
-#     t_stat_e5 = np.sqrt(t_stat_e4)
-#     t_stat_e6 = t_stat_e1 * t_stat_e5
-#
-#     d_of_f = len(y1) + len(y2) - 2
-#     # find the degrees of freedom, and the closest number in the table to my degrees of freedom
-#     dfx = pd.read_excel(
-#         r'H:\The Science\Datasets\tables.xlsx',
-#         sheet_name='ttable_adjusted')
-#     # print(dfx)
-#     # locate where the degrees of freedom is equal to my degrees of freedom:
-#     value_crits = dfx['value']
-#     value_crits = np.array(value_crits)
-#     if d_of_f > 100:
-#         value_crit = 1.98
-#     else:
-#         value_crit = value_crits[d_of_f - 1]
-#
-#     if t_stat - t_stat_e6 <= value_crit:
-#
-#         data = [t_stat, t_stat_e6, value_crit, mean1, err_mean]
-#         headers = ['t-statistic', 't-statistic error', 'critical value', 'mean of differences', 'error of mean']
-#         data = pd.DataFrame(data, headers)
-#         print(data)
-#         print('There is NO observed difference at 95% confidence interval')
-#         print('')
-#         print('')
-#         result = 1
-#
-#     else:
-#         data = [t_stat, t_stat_e6, value_crit, mean1, err_mean]
-#         headers = ['t-statistic', 't-statistic error', 'critical value', 'mean of differences', 'error of mean']
-#         data = pd.DataFrame(data, headers)
-#         print(data)
-#         print('There IS AN observed difference at 95% confidence interval')
-#         print('')
-#         print('')
-#
-#         result = 0
-#
-#     return result
+This has been replaced by
+https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.ttest_rel.html
+"""
 
 
-# where is this one used?
+def two_tail_paired_t_test(y1, y1err, y2, y2err):
+    """ Subtract the data from each other (first step in paired t-test)"""
+    difference = np.subtract(y1, y2)  # subtract the data from each other
+    """ What is the mean of the subtraction array? """
+    mean1 = np.average(difference)
+    """ What is the standard error of the subtraction array"""
+    se = np.std(difference) / np.sqrt(len(y1))
+    """ Compute the t-stat"""
+    t_stat = mean1 / se
+    t_stat = np.abs(t_stat)
+
+    """ ERROR PROPAGATION """
+    """ propagate the error from the first differencing """
+    y1err_sq = y1err * y1err  # square of errors from first dataset
+    y2err_sq = y2err * y2err  # square of errors from second dataset
+    sum_errs = y1err_sq + y2err_sq  # sum of the squared errors
+    err_differencing = np.sqrt(sum_errs)  # square root of the sums of errors
+
+    """ propagate the error from the mean1 """
+    squares = err_differencing * err_differencing  # square the propagated errors from differencing
+    sum_errs2 = 0  # initialize sums to zero
+    for i in range(0, len(squares)):
+        sum_errs2 = sum_errs2 + squares[i]  # add them all together
+        # sum_errs2 += squares[i]
+    sum_errs3 = np.sqrt(sum_errs2)  # take the square root
+    err_mean = sum_errs3 / len(squares)  # divide by number of measurements
+    ### The ERR_MEAN IS PROPOGATED ERROR, NOT STANDARD ERROR!!!
+
+    """
+    Propogate error for the denominator of t-stat calc, STANDARD ERROR
+    For this I need to propogate the error through the standard deviation calculation,
+    and then divide by sqrt(N)
+    """
+    """STEP 1: Propogate the error of (xi - u)"""
+    xi_u = err_mean ** 2 + err_differencing ** 2
+    xi_u = np.sqrt(xi_u)
+    """STEP 2: Propogate the error of (xi - u)^2 """
+    xi_u2_a = (difference - mean1) ** 2
+    xi_u2_b = xi_u / (difference - mean1)
+    xi_u2_c = xi_u2_b ** 2
+    xi_u2_d = xi_u2_c * 2
+    xi_u2_e = np.sqrt(xi_u2_d)
+    xi_u2_f = xi_u2_e * xi_u2_a
+
+    """STEP 3: Propagate the error of SIGMA(xi - u)^2 """
+    init_num = 0  # initialize a number to add errors onto
+    for i in range(0, len(xi_u2_f)):
+        xi_u2_g = xi_u2_f[i] ** 2
+        init_num = xi_u2_g + init_num
+    sigma_xi_u2 = np.sqrt(init_num)
+
+    """STEP 4: Propagate the error of SIGMA(xi - u)^2 / N """
+    sigma_xi_2_byN = sigma_xi_u2 / len(y1)
+
+    """STEP 5: Propagate the error of SQRT of SIGMA(xi - u)^2 / N """
+    sqrt_sigmaxi_2_byn = np.sqrt(sigma_xi_2_byN)
+
+    """STEP 6: Find standard error by dividing SQRT by sqrt of N """
+    se_err = sqrt_sigmaxi_2_byn / np.sqrt(len(y1))
+
+    """ final t-test error: error of mean and error of SE"""
+    t_stat_e1 = t_stat
+    t_stat_e2 = (se_err / se) ** 2
+    t_stat_e3 = (err_mean / mean1) ** 2
+    t_stat_e4 = t_stat_e2 + t_stat_e3
+    t_stat_e5 = np.sqrt(t_stat_e4)
+    t_stat_e6 = t_stat_e1 * t_stat_e5
+
+    d_of_f = len(y1) + len(y2) - 2
+    # find the degrees of freedom, and the closest number in the table to my degrees of freedom
+    dfx = pd.read_excel(
+        r'H:\The Science\Datasets\tables.xlsx',
+        sheet_name='ttable_adjusted')
+    # print(dfx)
+    # locate where the degrees of freedom is equal to my degrees of freedom:
+    value_crits = dfx['value']
+    value_crits = np.array(value_crits)
+    if d_of_f > 100:
+        value_crit = 1.98
+    else:
+        value_crit = value_crits[d_of_f - 1]
+
+    if t_stat - t_stat_e6 <= value_crit:
+
+        data = [t_stat, t_stat_e6, value_crit, mean1, err_mean]
+        headers = ['t-statistic', 't-statistic error', 'critical value', 'mean of differences', 'error of mean']
+        data = pd.DataFrame(data, headers)
+        print(data)
+        print('There is NO observed difference at 95% confidence interval')
+        print('')
+        print('')
+        result = 1
+
+    else:
+        data = [t_stat, t_stat_e6, value_crit, mean1, err_mean]
+        headers = ['t-statistic', 't-statistic error', 'critical value', 'mean of differences', 'error of mean']
+        data = pd.DataFrame(data, headers)
+        print(data)
+        print('There IS AN observed difference at 95% confidence interval')
+        print('')
+        print('')
+
+        result = 0
+
+    return result
+
 
 
 # def year_month_todecimaldate(x, y):

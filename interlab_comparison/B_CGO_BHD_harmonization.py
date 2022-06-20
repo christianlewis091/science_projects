@@ -134,73 +134,23 @@ plt.close()
 # plt.show()
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 """
 What is the difference between these two offset types? 
 """
-# heidelberg_ds = heidelberg.iloc[::10, :]  # downsample every 10th point
-# # plt.errorbar(heidelberg_ds['Decimal_date'], heidelberg_ds['smoothed_offset'], label='Trended Offset, mean of "n" error simulations', yerr=heidelberg_ds['smoothed_offset_error'], fmt='o', color=colors[3], ecolor=colors[3], elinewidth=1, capsize=2)
-# # plt.errorbar(heidelberg_ds['Decimal_date'], heidelberg_ds['pre-postAMS_offset'], label='Fixed Pre and Post XCAMS Offset', yerr=heidelberg_ds['pre-postAMS_offset_err'], fmt='o', color=colors2[3], ecolor=colors2[3], elinewidth=1, capsize=2)
-# plt.scatter(heidelberg['Decimal_date'], heidelberg['smoothed_offset'], marker='o', label='Trended Offset, mean of "n" error simulations', color=colors[3], s=size1, alpha = 0.5)
-# plt.scatter(heidelberg['Decimal_date'], heidelberg['pre-postAMS_offset'], marker='o', label='Fixed Pre and Post XCAMS Offset', color=colors2[3], s=size1, alpha = 0.5)
-# plt.legend()
-# # plt.title('All available data after 1980')
-# # plt.xlim([1980, 2020])
-# plt.ylim([-1, 2.5])
-# plt.xlabel('Date', fontsize=14)
-# plt.ylabel('Applied offset to Uni Heidelberg Data (\u2030)', fontsize=14)  # label the y axis
-# plt.savefig('C:/Users/clewis/IdeaProjects/GNS/radiocarbon_intercomparison/interlab_comparison/plots/Two_offset_types2.png',
-#             dpi=300, bbox_inches="tight")
-# plt.close()
+heidelberg_ds = capegrim.iloc[::10, :]  # downsample every 10th point
+# plt.errorbar(heidelberg_ds['Decimal_date'], heidelberg_ds['smoothed_offset'], label='Trended Offset, mean of "n" error simulations', yerr=heidelberg_ds['smoothed_offset_error'], fmt='o', color=colors[3], ecolor=colors[3], elinewidth=1, capsize=2)
+# plt.errorbar(heidelberg_ds['Decimal_date'], heidelberg_ds['pre-postAMS_offset'], label='Fixed Pre and Post XCAMS Offset', yerr=heidelberg_ds['pre-postAMS_offset_err'], fmt='o', color=colors2[3], ecolor=colors2[3], elinewidth=1, capsize=2)
+plt.scatter(capegrim['Decimal_date'], capegrim['offset2'], marker='o', label='Trended Offset, mean of "n" error simulations', color=colors[3], s=size1, alpha = 0.5)
+plt.scatter(capegrim['Decimal_date'], capegrim['offset1'], marker='o', label='Fixed Pre and Post XCAMS Offset', color=colors2[3], s=size1, alpha = 0.5)
+plt.legend()
+# plt.title('All available data after 1980')
+# plt.xlim([1980, 2020])
+plt.ylim([-1, 2.5])
+plt.xlabel('Date', fontsize=14)
+plt.ylabel('Applied offset to Uni Heidelberg Data (\u2030)', fontsize=14)  # label the y axis
+plt.savefig('C:/Users/clewis/IdeaProjects/GNS/radiocarbon_intercomparison/interlab_comparison/plots/Two_offset_types2.png',
+            dpi=300, bbox_inches="tight")
+plt.close()
 #
 # plt.errorbar(heidelberg['Decimal_date'], heidelberg['D14C_2'], label='Trended Offset, mean of "n" error simulations', yerr=heidelberg['weightedstderr_D14C_2'], fmt='o', color=colors[3], ecolor=colors[3], elinewidth=1, capsize=2, alpha = 0.3)
 # plt.errorbar(heidelberg['Decimal_date'], heidelberg['D14C_1'], label='Fixed Pre and Post XCAMS Offset', yerr=heidelberg['weightedstderr_D14C_1'], fmt='D', color=colors2[3], ecolor=colors2[3], elinewidth=1, capsize=2, alpha=0.3)

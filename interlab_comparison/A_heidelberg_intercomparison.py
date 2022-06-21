@@ -65,6 +65,8 @@ In this first time-indexing, we only care about values after 1980 because the ea
 group is 1987. For this comparison, we only care about the relevant, overlapping time periods. So we can ignore the
 early periods, and early part of the bomb-spike. 
  """
+bforplot_x = baringhead['DEC_DECAY_CORR']
+bforplot_y = baringhead['DELTA14C']
 baringhead = baringhead.loc[(baringhead['DEC_DECAY_CORR'] > 1980)]  # index the data. Only take post-1980 data
 baringhead = baringhead.loc[(baringhead['DELTA14C_ERR'] > 0)]  # get rid of data where the error flag is -1000
 baringhead = baringhead.reset_index(drop=True)  # re-index to avoid gnarly errors
@@ -509,49 +511,49 @@ period10_d_means = difference_in_means(bhd_2012_2016_mean_trend, heidelberg_2012
 """
 UNCOMMENT FOLLOWING BLOCK TO PRINT RESULTS
 """
-# print('The following results were computed using CCGCRV Smooth, with an n of {}'.format(n))
-# print('Paired t-test result and difference in means for 1986 - 1991')
-# print(period1)
-# print(period1_d_means)
-#
-# print('Paired t-test result and difference in means for 1991 - 1994')
-# print(period2)
-# print(period2_d_means)
-#
-# print('Paired t-test result and difference in means for 2006 - 2016')
-# print(period3)
-# print(period3_d_means)
-#
-# print('Paired t-test result and difference in means for 2006 - 2009')
-# print(period4)
-# print(period4_d_means)
-#
-# print('Paired t-test result and difference in means for 2012 - 2016')
-# print(period5)
-# print(period5_d_means)
-#
-# print()
-# print()
-# print('The following results were computed using CCGCRV Trend, with an n of {}'.format(n))
-# print('Paired t-test result and difference in means for 1986 - 1991')
-# print(period6)
-# print(period6_d_means)
-#
-# print('Paired t-test result and difference in means for 1991 - 1994')
-# print(period7)
-# print(period7_d_means)
-#
-# print('Paired t-test result and difference in means for 2006 - 2016')
-# print(period8)
-# print(period8_d_means)
-#
-# print('Paired t-test result and difference in means for 2006 - 2009')
-# print(period9)
-# print(period9_d_means)
-#
-# print('Paired t-test result and difference in means for 2012 - 2016')
-# print(period10)
-# print(period10_d_means)
+print('The following results were computed using CCGCRV Smooth, with an n of {}'.format(n))
+print('Paired t-test result and difference in means for 1986 - 1991')
+print(period1)
+print(period1_d_means)
+
+print('Paired t-test result and difference in means for 1991 - 1994')
+print(period2)
+print(period2_d_means)
+
+print('Paired t-test result and difference in means for 2006 - 2016')
+print(period3)
+print(period3_d_means)
+
+print('Paired t-test result and difference in means for 2006 - 2009')
+print(period4)
+print(period4_d_means)
+
+print('Paired t-test result and difference in means for 2012 - 2016')
+print(period5)
+print(period5_d_means)
+
+print()
+print()
+print('The following results were computed using CCGCRV Trend, with an n of {}'.format(n))
+print('Paired t-test result and difference in means for 1986 - 1991')
+print(period6)
+print(period6_d_means)
+
+print('Paired t-test result and difference in means for 1991 - 1994')
+print(period7)
+print(period7_d_means)
+
+print('Paired t-test result and difference in means for 2006 - 2016')
+print(period8)
+print(period8_d_means)
+
+print('Paired t-test result and difference in means for 2006 - 2009')
+print(period9)
+print(period9_d_means)
+
+print('Paired t-test result and difference in means for 2012 - 2016')
+print(period10)
+print(period10_d_means)
 
 """
 The following block of code is VERY Important (aren't they all???)...
@@ -662,24 +664,24 @@ Figure 3. A breakdown of the 4 periods of time that we test for the intercompari
 and how the smooth and trend data compare for each.
 """
 size2 = 15
-plt.scatter(xtot_bhd, ytot_bhd, marker='o', label='Rafter Baring Head Record (BHD)', color=colors[3], s=size2, alpha = 0.1)
-plt.scatter(xtot_heid, ytot_heid, marker='x', label='Heidelberg Cape Grim Record (CGO)', color=colors2[3], s=size2, alpha = 0.1)
-plt.plot(np.array(my_x_1986_1991), bhd_1986_1991_mean_smooth, color=colors[3], label = 'BHD CCGCRV Smooth Fit')
-plt.plot(np.array(my_x_1986_1991), bhd_1986_1991_mean_trend, color=colors[3], label = 'BHD CCGCRV Trend Fit', linestyle = 'dashed')
+# plt.scatter(xtot_bhd, ytot_bhd, marker='o', label='Rafter Baring Head Record (BHD)', color=colors[3], s=size2, alpha = 0.5)
+plt.scatter(xtot_heid, ytot_heid, marker='x', label='Heidelberg Cape Grim Record (CGO)', color=colors2[3], s=size2, alpha = 0.5)
+# plt.plot(np.array(my_x_1986_1991), bhd_1986_1991_mean_smooth, color=colors[3], label = 'BHD CCGCRV Smooth Fit')
+# plt.plot(np.array(my_x_1986_1991), bhd_1986_1991_mean_trend, color=colors[3], label = 'BHD CCGCRV Trend Fit', linestyle = 'dashed')
 plt.plot(np.array(my_x_1986_1991), heidelberg_1986_1991_mean_smooth, color=colors2[3], label = 'CGO CCGCRV Smooth Fit')
 plt.plot(np.array(my_x_1986_1991), heidelberg_1986_1991_mean_trend, color=colors2[3], label = 'CGO CCGCRV Trend Fit', linestyle = 'dashed')
-plt.plot(np.array(my_x_1991_1994), bhd_1991_1994_mean_smooth, color=colors[3])
-plt.plot(np.array(my_x_1991_1994), bhd_1991_1994_mean_trend, color=colors[3], linestyle = 'dashed')
-plt.plot(np.array(my_x_1991_1994), heidelberg_1991_1994_mean_smooth, color=colors2[3])
-plt.plot(np.array(my_x_1991_1994), heidelberg_1991_1994_mean_trend, color=colors2[3], linestyle = 'dashed')
-plt.plot(np.array(my_x_2006_2009_trimmed), bhd_2006_2009_mean_smooth, color=colors[3])
-plt.plot(np.array(my_x_2006_2009_trimmed), bhd_2006_2009_mean_trend, color=colors[3], linestyle = 'dashed')
-plt.plot(np.array(my_x_2006_2009_trimmed), heidelberg_2006_2009_mean_smooth, color=colors2[3])
-plt.plot(np.array(my_x_2006_2009_trimmed), heidelberg_2006_2009_mean_trend, color=colors2[3], linestyle = 'dashed')
-plt.plot(np.array(my_x_2012_2016_trimmed), bhd_2012_2016_mean_smooth, color=colors[3])
-plt.plot(np.array(my_x_2012_2016_trimmed), bhd_2012_2016_mean_trend, color=colors[3], linestyle = 'dashed')
-plt.plot(np.array(my_x_2012_2016_trimmed), heidelberg_2012_2016_mean_smooth, color=colors2[3])
-plt.plot(np.array(my_x_2012_2016_trimmed), heidelberg_2012_2016_mean_trend, color=colors2[3], linestyle = 'dashed')
+# plt.plot(np.array(my_x_1991_1994), bhd_1991_1994_mean_smooth, color=colors[3])
+# plt.plot(np.array(my_x_1991_1994), bhd_1991_1994_mean_trend, color=colors[3], linestyle = 'dashed')
+# plt.plot(np.array(my_x_1991_1994), heidelberg_1991_1994_mean_smooth, color=colors2[3])
+# plt.plot(np.array(my_x_1991_1994), heidelberg_1991_1994_mean_trend, color=colors2[3], linestyle = 'dashed')
+# plt.plot(np.array(my_x_2006_2009_trimmed), bhd_2006_2009_mean_smooth, color=colors[3])
+# plt.plot(np.array(my_x_2006_2009_trimmed), bhd_2006_2009_mean_trend, color=colors[3], linestyle = 'dashed')
+# plt.plot(np.array(my_x_2006_2009_trimmed), heidelberg_2006_2009_mean_smooth, color=colors2[3])
+# plt.plot(np.array(my_x_2006_2009_trimmed), heidelberg_2006_2009_mean_trend, color=colors2[3], linestyle = 'dashed')
+# plt.plot(np.array(my_x_2012_2016_trimmed), bhd_2012_2016_mean_smooth, color=colors[3])
+# plt.plot(np.array(my_x_2012_2016_trimmed), bhd_2012_2016_mean_trend, color=colors[3], linestyle = 'dashed')
+# plt.plot(np.array(my_x_2012_2016_trimmed), heidelberg_2012_2016_mean_smooth, color=colors2[3])
+# plt.plot(np.array(my_x_2012_2016_trimmed), heidelberg_2012_2016_mean_trend, color=colors2[3], linestyle = 'dashed')
 plt.axvline(x = 1987, color = 'black', alpha = 0.2, linestyle = 'solid')
 plt.axvline(x = 1991, color = 'black', alpha = 0.2, linestyle = 'solid')
 plt.axvline(x = 1994, color = 'black', alpha = 0.2, linestyle = 'solid')
@@ -690,10 +692,13 @@ plt.axvline(x = 2016, color = 'black', alpha = 0.2, linestyle = 'solid')
 plt.ylabel('\u0394$^1$$^4$CO$_2$ (\u2030)', fontsize=14)  # label the y axis
 # plt.arrow(1994, 50, -6, 0,  fc="k", ec="k",head_width=0.05, head_length=0.1 )
 plt.xlabel('Date', fontsize=14)  # label the y axis
-plt.ylim([0, 200])
-plt.xlim([1986, 2020])
-plt.legend()
-plt.savefig('C:/Users/clewis/IdeaProjects/GNS/radiocarbon_intercomparison/interlab_comparison/plots/DEV_FirstDraft_Figuretest.png',
+# plt.ylim([0, 200])
+# plt.xlim([1986, 2020])
+# for presentation figure
+plt.ylim([150, 175])
+plt.xlim([1988, 1991])
+# plt.legend()
+plt.savefig('C:/Users/clewis/IdeaProjects/GNS/radiocarbon_intercomparison/interlab_comparison/plots/DEV_FirstDraft_Figuretest2.png',
             dpi=300, bbox_inches="tight")
 plt.close()
 
@@ -809,7 +814,7 @@ plt.plot(np.array(my_x_2012_2016_trimmed), bhd_2012_2016_mean_trend, color=color
 plt.plot(np.array(my_x_2012_2016_trimmed), heidelberg_2012_2016_mean_trend, color=colors2[3])
 plt.xlim([min(np.array(my_x_2012_2016_trimmed)), max(np.array(my_x_2012_2016_trimmed))])
 plt.ylim([min(bhd_2012_2016_mean_smooth), max(bhd_2012_2016_mean_smooth)])
-plt.legend()
+# plt.legend()
 plt.savefig('C:/Users/clewis/IdeaProjects/GNS/radiocarbon_intercomparison/interlab_comparison/plots/DEV_FirstDraft_figure3b.png',
             dpi=300, bbox_inches="tight")
 # plt.show()
@@ -909,7 +914,21 @@ THAT's THE END OF THE WORKING FILE. Everything else is old code :)
 """
 # print('commit changes')
 #
-
+"""
+Figure extra. All the data together
+"""
+fig = plt.figure(1)
+plt.scatter(bforplot_x, bforplot_y, marker='o', label='Rafter Baring Head Record (BHD)', color=colors[3], s=size1)
+plt.scatter(xtot_heid, ytot_heid, marker='x', label='Heidelberg Cape Grim Record (CGO)', color=colors2[3], s=size1)
+plt.legend()
+plt.title('All Baring Head and Cape Grim Data')
+# plt.xlim([1980, 2020])
+# plt.ylim([0, 300])
+plt.xlabel('Date', fontsize=14)
+plt.ylabel('\u0394$^1$$^4$CO$_2$ (\u2030)', fontsize=14)  # label the y axis
+plt.savefig('C:/Users/clewis/IdeaProjects/GNS/radiocarbon_intercomparison/interlab_comparison/plots/DEV_FirstDraft_figure1_b.png',
+            dpi=300, bbox_inches="tight")
+plt.close()
 
 
 

@@ -11,7 +11,7 @@ def fm_to_d14c(fm, fm_err, date):
     # D14C = 1000*(fm - 1)   # first, find D14C (without the age correction)
     age_corr = np.exp((1950 - date) / 8267)
     Del14C = 1000 * ((fm*age_corr) - 1)
-    Del14C_err = 1000* fm_err
+    Del14C_err = 1000 * fm_err
     return Del14C, Del14C_err
 
 

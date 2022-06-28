@@ -27,7 +27,7 @@ SIO/LLNL: This result can be found by running A_SIO&LLNL_RRL_intercomparison.py:
 INSTAAR: This offset is going to be set to the value found in Turnbull et al., 2015
          INSTAAR is 1.4 pm 0.2 per mil LOWER than RRL.
 
-ANSTO: ANSTO offset is zero as can be seen via the A_ANSTO_intercomparison.py
+ANSTO: ANSTO offset is zero as can be seen via the Pre_Processing_ANSTO.py
 
 The goal of this files is to make a nice plot that can be used for the future paper.
 

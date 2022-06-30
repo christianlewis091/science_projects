@@ -15,7 +15,7 @@ Heidelberg University: variable with time. We have a fixed pre and post AMS offs
                        individual record's x-values to output results related to those x-values. To find a list of
                        the smoothed offsets through time, we are going to find the one written to the Cape Grim offset
                        excel sheet (CapeGrim_offset.xlsx).
-SIO/LLNL: This result can be found by running A_SIO&LLNL_RRL_intercomparison.py:
+SIO/LLNL: This result can be found by running Pre_Processing_SIO_LLNL.py:
           The OFFSET FOR LLNL is -2.5789633251115838 ± 1.258654216869433. (LLNL LOWER than RRL).
           This is fixed through time, and can be
           troublesome beacuse RRL's NWT3/4 data, LLNL/SIO's NWT3/4 data, and the samples it is used to correct all vary
@@ -36,8 +36,10 @@ The goal of this files is to make a nice plot that can be used for the future pa
 import numpy as np
 import matplotlib as mpl
 import matplotlib.pyplot as plt
+from matplotlib.patches import Rectangle
 import pandas as pd
 import seaborn as sns
+from matplotlib.patches import Rectangle
 
 colors = sns.color_palette("rocket", 6)
 colors2 = sns.color_palette("mako", 6)
@@ -74,6 +76,10 @@ ansto_err = 0
 xmin = 1987
 xmax = 2015
 plt.title('Offset Analyses Summary')
+
+
+
+
 plt.axhspan(-.5, .5, color=colors2[4], alpha=0.2)                     # GGMT recommended intercomparability
 
 plt.errorbar(cgo_x, cgo_offset1, label='Heidelberg University',      # Heidelberg University
@@ -98,11 +104,10 @@ plt.ylim([-4,4])
 plt.legend()
 plt.xlabel('Date', fontsize=14)
 plt.ylabel('Offset (\u2030)', fontsize=14)  # label the y axis
-plt.savefig('C:/Users/clewis/IdeaProjects/GNS/radiocarbon_intercomparison/interlab_comparison/plots/Offset_summaries.png',
+plt.savefig('C:/Users/clewis/IdeaProjects/GNS/radiocarbon_intercomparison/interlab_comparison/plots/quickplot3.png',
             dpi=300, bbox_inches="tight")
 
 plt.close()
-
 
 
 

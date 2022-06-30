@@ -20,7 +20,7 @@ rrl = df.loc[(df['Site'] == 'RRL')]                                             
 rrl = rrl.rename(columns={"Year of Growth": "Decimal_date", "error": "FM_err"})      # ensure the column is named correctly for later
 rrl = rrl[['Site', 'NZA','R','Job', 'Decimal_date', 'D14C', 'D14C_err','FM','FM_err']]
 
-combine = pd.merge(rrl, ansto, how='outer')
+combine_ANSTO = pd.merge(rrl, ansto, how='outer')
 
 
 

@@ -33,7 +33,7 @@ combine['Decimal_date'] = x  # add these decimal dates onto the dataframe
 
 
 """
-Here is the output from A_SIO&LLNL_RRL_intercomparison.py:
+Here is the output from Pre_Processing_SIO_LLNL.py:
 
              0          1         2     3
 0         LLNL  41.588889  1.104842   9.0

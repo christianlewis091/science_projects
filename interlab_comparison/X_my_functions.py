@@ -7,6 +7,28 @@ from tabulate import tabulate
 """
 This function will convert FM to D14C. 
 """
+def d14C_to_fm(D14C, D14C_err, date):
+    # D14C = 1000*(fm - 1)   # first, find D14C (without the age correction)
+    age_corr = np.exp((1950 - date) / 8267)
+    FM = ((D14C / 1000) + 1) / age_corr
+    FM_err = D14C_err / 1000
+    return FM, FM_err
+
+# TO TEST, RUN THE CODE BELOW.
+# df = pd.read_excel(r'H:\The Science\Datasets\function_testing.xlsx')  # import Baring Head data
+# x = d14C_to_fm(df['D14C'], df['D14C_err'], 2020)
+#
+# FM_out = x[0]
+# FM_err_out = x[1]
+#
+# df['FM_out'] = FM_out
+# df['FM_out_err'] = FM_err_out
+# df.to_excel('function_testing_check.xlsx')
+
+
+"""
+This function will convert FM to D14C. 
+"""
 def fm_to_d14c(fm, fm_err, date):
     # D14C = 1000*(fm - 1)   # first, find D14C (without the age correction)
     age_corr = np.exp((1950 - date) / 8267)

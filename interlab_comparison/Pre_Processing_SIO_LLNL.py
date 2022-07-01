@@ -56,4 +56,3 @@ combine_SIO = combine_SIO.loc[(combine_SIO['standard_type'] == 'NWT3') | (combin
 
 # DONE!
 
-# combine_SIO.to_excel('test.xlsx')

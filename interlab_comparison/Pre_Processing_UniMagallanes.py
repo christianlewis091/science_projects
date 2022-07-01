@@ -51,6 +51,6 @@ df2['Decimal_date'] = array
 
 
 combine_Magallanes = pd.merge(df, df2, how='outer')
-combine_Magallanes.to_excel('test.xlsx')
+
 
 

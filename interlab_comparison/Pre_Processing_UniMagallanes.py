@@ -48,9 +48,8 @@ for i in range(0, len(df2)):
     array.append(date)
 
 df2['Decimal_date'] = array
+combine_Magallanes = pd.merge(df, df2, on='Decimal_date')
 
-
-combine_Magallanes = pd.merge(df, df2, how='outer')
 
 
 

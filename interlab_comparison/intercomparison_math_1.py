@@ -6,6 +6,7 @@ from Pre_Processing_ANSTO import combine_ANSTO
 from Pre_Processing_Heidelberg import combine_heidelberg
 from Pre_Processing_UniMagallanes import combine_Magallanes
 from Pre_Processing_SIO_LLNL import combine_SIO
+from X_my_functions import monte_carlo_randomization_trend, monte_carlo_randomization_smooth
 from tabulate import tabulate
 
 """
@@ -113,12 +114,14 @@ including:
 2006 - 2009: Early period before NaOH removal period
 2012 - 2016 : Period after NaOH removal period to end of record
 """
-baringhead = combine_heidelberg.loc[(combine_heidelberg['Site'] == 'CGO')]
-heidelberg = combine_heidelberg.loc[(combine_heidelberg['Site'] == 'RRL')]
+baringhead = combine_heidelberg.loc[(combine_heidelberg['Site'] == 'BHD')]
+print(baringhead)
+heidelberg = combine_heidelberg.loc[(combine_heidelberg['Site'] == 'CGO')]
+print(heidelberg)
 
 baringhead_1986_1991 = baringhead.loc[(baringhead['Decimal_date'] >= 1987) & (baringhead['Decimal_date'] <= 1991)].reset_index(drop=True)
 baringhead_1991_1994 = baringhead.loc[(baringhead['Decimal_date'] >= 1991) & (baringhead['Decimal_date'] <= 1994)].reset_index(drop=True)
-baringhead_1994_2006 = baringhead.loc[(baringhead['Decimal_date'] >= 1994) & (baringhead['Decimal_date'] <= 2006)].reset_index(drop=True)
+# baringhead_1994_2006 = baringhead.loc[(baringhead['Decimal_date'] >= 1994) & (baringhead['Decimal_date'] <= 2006)].reset_index(drop=True)
 baringhead_2006_2016 = baringhead.loc[(baringhead['Decimal_date'] > 2006) & (baringhead['Decimal_date'] <= 2016)].reset_index(drop=True)
 baringhead_2006_2009 = baringhead.loc[(baringhead['Decimal_date'] >= 2006) & (baringhead['Decimal_date'] <= 2009)].reset_index(drop=True)
 baringhead_2012_2016 = baringhead.loc[(baringhead['Decimal_date'] >= 2012) & (baringhead['Decimal_date'] <= 2016)].reset_index(drop=True)
@@ -129,12 +132,156 @@ heidelberg_2006_2016 = heidelberg.loc[(heidelberg['Decimal_date'] >= 1994) & (he
 heidelberg_2006_2009 = heidelberg.loc[(heidelberg['Decimal_date'] >= 2006) & (heidelberg['Decimal_date'] <= 2009)].reset_index(drop=True)
 heidelberg_2012_2016 = heidelberg.loc[(heidelberg['Decimal_date'] >= 2012) & (heidelberg['Decimal_date'] <= 2016)].reset_index(drop=True)
 
+# BARING HEAD VARIABLES
+xtot_bhd = baringhead['Decimal_date']  # entire dataset x-values
+ytot_bhd = baringhead['D14C']  # entire dataset y-values
+ztot_bhd = baringhead['D14C_err']  # entire dataset z-values
+
+x1_bhd = baringhead_1986_1991['Decimal_date']
+x2_bhd = baringhead_1991_1994['Decimal_date']
+x3_bhd = baringhead_2006_2016['Decimal_date']
+x4_bhd = baringhead_2006_2009['Decimal_date']
+x5_bhd = baringhead_2012_2016['Decimal_date']
+y1_bhd = baringhead_1986_1991['D14C']  #
+y2_bhd = baringhead_1991_1994['D14C']
+y3_bhd = baringhead_2006_2016['D14C']
+y4_bhd = baringhead_2006_2009['D14C']
+y5_bhd = baringhead_2012_2016['D14C']
+z1_bhd = baringhead_1986_1991['D14C_err']
+z2_bhd = baringhead_1991_1994['D14C_err']
+z3_bhd = baringhead_2006_2016['D14C_err']
+z4_bhd = baringhead_2006_2009['D14C_err']
+z5_bhd = baringhead_2012_2016['D14C_err']
+# HEIDELBERG CAPE GRIM VARIABLES
+xtot_heid = heidelberg['Decimal_date']  # entire dataset x-values
+ytot_heid = heidelberg['D14C']  # entire dataset y-values
+ztot_heid = heidelberg['D14C_err']  # entire dataset error(z)-values
+x1_heid = heidelberg_1986_1991['Decimal_date']
+print(x1_heid)
+x2_heid = heidelberg_1991_1994['Decimal_date']
+x3_heid = heidelberg_2006_2016['Decimal_date']
+x4_heid = heidelberg_2006_2009['Decimal_date']
+x5_heid = heidelberg_2012_2016['Decimal_date']
+y1_heid = heidelberg_1986_1991['D14C']
+y2_heid = heidelberg_1991_1994['D14C']
+y3_heid = heidelberg_2006_2016['D14C']
+y4_heid = heidelberg_2006_2009['D14C']
+y5_heid = heidelberg_2012_2016['D14C']
+z1_heid = heidelberg_1986_1991['D14C_err']
+z2_heid = heidelberg_1991_1994['D14C_err']
+z3_heid = heidelberg_2006_2016['D14C_err']
+z4_heid = heidelberg_2006_2009['D14C_err']
+z5_heid = heidelberg_2012_2016['D14C_err']
+
+"""
+So now we're almost ready to use the CCGCRV curve smoothing. One tricky bit is that - I want to compare the Cape Grim 
+and Baring Head records; however, the x-values in time are not necessarily overlapping. How to best compare them? 
+Luckily, the CCGCRV algorithm allows me to OUTPUT the smoothed data at any x-time that I desire. Therefore, in the next
+bit of code, I create an evenly distributed set of x-values that I will output the smoothed baringhead and heidelberg 
+data, in 480 points between 1980 and 2020. 
+ 
+"fake_x_temp" is called this way because it is an x-value I have created. Not 'fake' but I was lazy in initial naming 
+when first writing the code.  
+ 
+"""
+fake_x_temp = np.linspace(1980, 2020, 480)  # create arbitrary set of x-values to control output
+df_fake_xs = pd.DataFrame({'x': fake_x_temp})  # put this set into a pandas DataFrame for easier use
+my_x_1986_1991 = df_fake_xs.loc[(df_fake_xs['x'] >= min(x1_heid)) & (df_fake_xs['x'] <= max(x1_heid))].reset_index(drop=True)  # index it
+my_x_1991_1994 = df_fake_xs.loc[(df_fake_xs['x'] >= min(x2_bhd))  & (df_fake_xs['x'] <= max(x2_bhd))].reset_index(drop=True)  # index it
+my_x_2006_2016 = df_fake_xs.loc[(df_fake_xs['x'] >= min(x3_heid)) & (df_fake_xs['x'] <= max(x3_heid))].reset_index(drop=True)  # index it
+my_x_2006_2009 = df_fake_xs.loc[(df_fake_xs['x'] >= min(x4_heid)) & (df_fake_xs['x'] <= max(x4_heid))].reset_index(drop=True)  # index it
+my_x_2012_2016 = df_fake_xs.loc[(df_fake_xs['x'] >= min(x5_heid)) & (df_fake_xs['x'] <= max(x5_heid))].reset_index(drop=True)  # index it
+my_x_1986_1991 = my_x_1986_1991['x']  # when I wrote the function I'll be using in a few lines,
+my_x_1991_1994 = my_x_1991_1994['x']  # I specify that the first 4 arguments must be input as data/variables that
+my_x_2006_2016 = my_x_2006_2016['x']  # have been extracted from a pandas DataFrame, for consistency across testing
+my_x_2006_2009 = my_x_2006_2009['x']
+my_x_2012_2016 = my_x_2012_2016['x']
+
+"""
+######################################################################################################################
+######################################################################################################################
+######################################################################################################################
+######################################################################################################################
+######################################################################################################################
+
+Now comes the CCGCRV Curve smoothing, and Monte Carlo error analysis. 
+
+The following description also can be found in the my_functions.py file. 
+
+This function has three separate for-loops: 
+The first for-loop: 
+Takes an input array of time-series data and randomizes each data point
+within its measurements uncertainty. It does this "n" times, and vertically stacks it.
+For example, if you have a dataset with 10 measurements, and "n" is 1000, you will end
+up with an array of dimension (10x1000).
+If you're interested in re-testing how the normal distribution randomization works, you can copy and paste the 
+following few lines of code. This shows that indeed, the randomization does have a higher probability of putting the 
+randomized point closer to the mean, but actually the distribution follows the gaussian curve. 
+###########################
+array = []
+for i in range(0,10000):
+    rand = np.random.normal(10, 2, size=None)
+    array.append(rand)
+plt.hist(array, bins=100)
+plt.show()
+###########################
+
+The second for-loop: 
+Takes each row of the array (each row of "randomized data") and puts it through
+the ccgFilter curve smoother. It is important to define your own x-values that you want output
+if you want to compare two curves (this will keep arrays the same dimension).
+Each row from the fist loop is smoothed and stacked into yet another new array.
+
+The third for-loop: 
+Find the mean, standard deviation, and upper and lower uncertainty bounds of each
+"point" in the dataset. This loop takes the mean of all the first measurements, then all the second, etc.
+
+For clarty, I will define all of the arguments here below: 
+x_init: x-values of the dataset that you want to smooth. Must be in decimal date format. 
+fake_x: x-values of the data you want OUTPUT
+y_init: y-values of the dataset that you want to smooth. 
+y_error: y-value errors of the dataset that you want to smooth. 
+cutoff: for the CCGCRV algoritm, lower numbers smooth less, and higher numbers smooth more. 
+    See hyperlink above for more details. 
+n: how many iterations do you want to run? When writing code, keep this low. Once code is solid, increase to 10,000. 
+
+### If you want to see this function in action, refer to "MonteCarlo_Explained.py"
+https://github.com/christianlewis091/radiocarbon_intercomparison/blob/dev/interlab_comparison/MonteCarlo_Explained.py
 
 
+ESSENTIALLY WHAT WE ARE DOING: 
+1. RANDOMIZE THE HEIDELBERG AND BARING HEAD DATA 10,000 TIMES ALONG ITS NORMAL DISTRIBUTION
+2. SMOOTH THAT DATA USING CCGCRV
+3. FIND THE MEAN OF EACH X-VALUE FOR THOSE 10,000 ITERATIONS
+4. COMPARE THE HEIDELBERG AND BARING HEAD DATA IN TIME. 
 
+"""
+n = 10  # set the amount of times the code will iterate (set to 10,000 once everything is final)
+cutoff = 667  # FFT filter cutoff
+# Curve smoothing with getSmoothValue()
+heidelberg_1986_1991_results_smooth = monte_carlo_randomization_smooth(x1_heid, my_x_1986_1991, y1_heid, z1_heid, cutoff, n)
+heidelberg_1991_1994_results_smooth = monte_carlo_randomization_smooth(x2_heid, my_x_1991_1994, y2_heid, z2_heid, cutoff, n)
+heidelberg_2006_2016_results_smooth = monte_carlo_randomization_smooth(x3_heid, my_x_2006_2016, y3_heid, z3_heid, cutoff, n)
+heidelberg_2006_2009_results_smooth = monte_carlo_randomization_smooth(x4_heid, my_x_2006_2009, y4_heid, z4_heid, cutoff, n)
+heidelberg_2012_2016_results_smooth = monte_carlo_randomization_smooth(x5_heid, my_x_2012_2016, y5_heid, z5_heid, cutoff, n)
+bhd_1986_1991_results_smooth = monte_carlo_randomization_smooth(x1_bhd, my_x_1986_1991, y1_bhd, z1_bhd, cutoff, n)
+bhd_1991_1994_results_smooth = monte_carlo_randomization_smooth(x2_bhd, my_x_1991_1994, y2_bhd, z2_bhd, cutoff, n)
+bhd_2006_2016_results_smooth = monte_carlo_randomization_smooth(x3_bhd, my_x_2006_2016, y3_bhd, z3_bhd, cutoff, n)
+bhd_2006_2009_results_smooth = monte_carlo_randomization_smooth(x4_bhd, my_x_2006_2009, y4_bhd, z4_bhd, cutoff, n)
+bhd_2012_2016_results_smooth = monte_carlo_randomization_smooth(x5_bhd, my_x_2012_2016, y5_bhd, z5_bhd, cutoff, n)
+# Curve smoothing with getTrendValue()
+heidelberg_1986_1991_results_trend = monte_carlo_randomization_trend(x1_heid, my_x_1986_1991, y1_heid, z1_heid, cutoff, n)
+heidelberg_1991_1994_results_trend = monte_carlo_randomization_trend(x2_heid, my_x_1991_1994, y2_heid, z2_heid, cutoff, n)
+heidelberg_2006_2016_results_trend = monte_carlo_randomization_trend(x3_heid, my_x_2006_2016, y3_heid, z3_heid, cutoff, n)
+heidelberg_2006_2009_results_trend = monte_carlo_randomization_trend(x4_heid, my_x_2006_2009, y4_heid, z4_heid, cutoff, n)
+heidelberg_2012_2016_results_trend = monte_carlo_randomization_trend(x5_heid, my_x_2012_2016, y5_heid, z5_heid, cutoff, n)
+bhd_1986_1991_results_trend = monte_carlo_randomization_trend(x1_bhd, my_x_1986_1991, y1_bhd, z1_bhd, cutoff, n)
+bhd_1991_1994_results_trend = monte_carlo_randomization_trend(x2_bhd, my_x_1991_1994, y2_bhd, z2_bhd, cutoff, n)
+bhd_2006_2016_results_trend = monte_carlo_randomization_trend(x3_bhd, my_x_2006_2016, y3_bhd, z3_bhd, cutoff, n)
+bhd_2006_2009_results_trend = monte_carlo_randomization_trend(x4_bhd, my_x_2006_2009, y4_bhd, z4_bhd, cutoff, n)
+bhd_2012_2016_results_trend = monte_carlo_randomization_trend(x5_bhd, my_x_2012_2016, y5_bhd, z5_bhd, cutoff, n)
 
-
-
+# TODO write a function to simplify the block of code in A_heidelberg_intercomparison.py lines 351 - 455.
 
 
 

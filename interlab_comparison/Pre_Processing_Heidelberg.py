@@ -21,9 +21,10 @@ x_init_heid = long_date_to_decimal_date(x_init_heid)  # convert the x-values to 
 heidelberg['Decimal_date'] = x_init_heid  # add these decimal dates onto the dataframe
 heidelberg = heidelberg.dropna(subset=['D14C'])  # drop NaN's in the column I'm most interested in
 heidelberg = heidelberg.loc[(heidelberg['D14C'] > 10)]  # Filtering out an outlier around 2019
+
 heidelberg.reset_index()  # reset the index to avoid heaps of gnarly errors
 baringhead = baringhead.dropna(subset=['DELTA14C'])  # drop NaN's in the column I'm most interested in
-
+baringhead = baringhead.loc[(baringhead['DELTA14C_ERR'] > -999)]  # Filtering out data with uncertainties of -1000
 
 heidelberg = heidelberg.drop(columns=['sampler_id', 'samplingheight', 'startdate', 'enddate',
                                       'Average pf Start-date and enddate', 'date_d_mm_yr', 'date_as_number',

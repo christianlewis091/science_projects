@@ -133,10 +133,8 @@ ztot_heid = heidelberg['D14C_err'].reset_index(drop=True)  # entire dataset z-va
 # Now we'll index the data based on intervals
 i1 = [1986, 2016]  # this interval can be used to assess the data as a whole
 i2 = [1986, 1990]  # this interval goes from the beginning of the Heidelberg dataset +5 years
-i3 = [1990,
-      1994]  # this interval goes from the end of i2 + 4 years (comes from precedent of Turnbull 2017 doing 5-year increments)
-i4 = [1986,
-      1994]  # I'd like to use this test to see if there is a difference between splitting up into 4-year/5-year intervals or not
+i3 = [1990, 1994]  # this interval goes from the end of i2 + 4 years (comes from precedent of Turnbull 2017 doing 5-year increments)
+i4 = [1986, 1994]  # I'd like to use this test to see if there is a difference between splitting up into 4-year/5-year intervals or not
 i5 = [1994, 2006]  # this data will be removed as described in the precedent above.
 i6 = [2006, 2016]  # post-AMS period begin until the end of the Heidelberg record
 i7 = [2006, 2009]  # first interval of the second major chunk, as we will remove 2009-2012 because of NaOH issues
@@ -189,7 +187,7 @@ reason, so the next block of code is going to
 2) test that the smoother is successful before running it through the Monte Carlo function
 """
 cutoff = 667
-n = 10
+n = 1000
 for i in range(0, len(interval_array_x_bhd)):
     test_run = ccgFilter(interval_array_x_bhd[i], interval_array_y_bhd[i], cutoff).getSmoothValue(
         interval_array_x_bhd[i])
@@ -294,24 +292,68 @@ for i in range(0, len(interval_array_x_heid)):  # 9 time intervals
                           "heid_means_trend": heid_output_array_trend_means[i],
                           "heid_stdevs_trend": heid_output_array_trend_stdevs[i]})
     newdf = newdf.dropna()
-    df_array.append(newdf) # append the dataframes onto an array for later analysis
+    df_array.append(newdf)  # append the dataframes onto an array for later analysis
 
-print(df_array[0])
+# print(df_array[0])
 
-
-
-
-
-
+"""
+Let's calculate the mean offsets between the data
+"""
 
 
+def offset_calc(y1, y1err, y2, y2err):
+
+    difference = np.subtract(y1, y2)                  # subtract the data from each other
+    difference_error = np.sqrt(y1err**2 + y2err**2)   # propagate the error of differencing
+    mean_of_differences = np.average(difference)
+    standard_error = np.std(difference) / np.sqrt(len(y1))  # standard error of the subtraction array
+    return difference, difference_error, mean_of_differences, standard_error
 
 
+# The following for loop will calculate all the offsets for the different DataFrames in the array we created above
+# SMOOTH
+differences = []
+difference_errors = []
+mean_of_difference = []
+std_error = []
+for i in range(0, len(df_array)):
+    df = df_array[i]                                                        # access the first dataframe
+    x = offset_calc(df["rafter_means_smooth"], df["rafter_stdevs_smooth"], df["heid_means_smooth"], df["heid_stdevs_smooth"])
+    dif = x[0]
+    dif_er = x[1]
+    m = x[2]
+    stderr = x[3]
+    differences.append(dif)
+    difference_errors.append(dif_er)
+    mean_of_difference.append(m)
+    std_error.append(stderr)
+# create summary dataframe:
+smooth_diff_summary = pd.DataFrame({'Differences': differences, "1-sigma_error": difference_errors})
+smooth_diff_summary2 = pd.DataFrame({'Time Period': intervals,'Means': mean_of_difference, "Standard error": std_error})
 
+print(smooth_diff_summary2)
 
+# TREND
+differences = []
+difference_errors = []
+mean_of_difference = []
+std_error = []
+for i in range(0, len(df_array)):
+    df = df_array[i]                                                        # access the first dataframe
+    x = offset_calc(df["rafter_means_trend"], df["rafter_stdevs_trend"], df["heid_means_trend"], df["heid_stdevs_trend"])
+    dif = x[0]
+    dif_er = x[1]
+    m = x[2]
+    stderr = x[3]
+    differences.append(dif)
+    difference_errors.append(dif_er)
+    mean_of_difference.append(m)
+    std_error.append(stderr)
+# create summary dataframe:
+trend_diff_summary = pd.DataFrame({'Differences': differences, "1-sigma_error": difference_errors})
+trend_diff_summary2 = pd.DataFrame({'Time Period': intervals,'Means': mean_of_difference, "Standard error": std_error})
 
-
-
+print(trend_diff_summary2)
 
 #
 

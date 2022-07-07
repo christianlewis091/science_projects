@@ -86,16 +86,16 @@ def intercomparison_ttest(data1, data2, test_name, test_type):
 
 
 # UNCOMMENT WHEN DONE WRITING THIS FILE! HERE ARE THE OTHER INTERCOMPARISON!
-# # I was first supplied with FM data from ANSTO so I'm going to use FM for this calculation.
-# a = intercomparison_ttest(ansto['D14C'], rrl['D14C'], 'ANSTO v RRL Test: Tree Rings, D14C', 'paired')
-# a = intercomparison_ttest(ansto['FM'], rrl['FM'], 'ANSTO v RRL Test: Tree Rings, FM', 'paired')
-#
-# # I'll do this one in FM as well because it minimizes the amount of extra calculatinos
-# # that can lead to fake systematic bias.
-# b = intercomparison_ttest(sio_nwt3['FM'], rrl_nwt3['FM'], 'SIO/LLNL v RRL, NWT3 Intercomparison', 'not-paired')
-# c = intercomparison_ttest(sio_nwt4['FM'], rrl_nwt4['FM'], 'SIO/LLNL v RRL, NWT3 Intercomparison', 'not-paired')
-#
-# d = intercomparison_ttest(rafter, magallanes, 'Magallanes v RRL Test: Tree Rings', 'paired')
+# I was first supplied with FM data from ANSTO so I'm going to use FM for this calculation.
+a = intercomparison_ttest(ansto['D14C'], rrl['D14C'], 'ANSTO v RRL Test: Tree Rings, D14C', 'paired')
+a = intercomparison_ttest(ansto['FM'], rrl['FM'], 'ANSTO v RRL Test: Tree Rings, FM', 'paired')
+
+# I'll do this one in FM as well because it minimizes the amount of extra calculatinos
+# that can lead to fake systematic bias.
+b = intercomparison_ttest(sio_nwt3['FM'], rrl_nwt3['FM'], 'SIO/LLNL v RRL, NWT3 Intercomparison', 'not-paired')
+c = intercomparison_ttest(sio_nwt4['FM'], rrl_nwt4['FM'], 'SIO/LLNL v RRL, NWT3 Intercomparison', 'not-paired')
+
+d = intercomparison_ttest(rafter, magallanes, 'Magallanes v RRL Test: Tree Rings', 'paired')
 
 """
 Now to tackle the intercomparison between Heidelberg and Rafter, which will be done using atmospheric time series 
@@ -187,7 +187,7 @@ reason, so the next block of code is going to
 2) test that the smoother is successful before running it through the Monte Carlo function
 """
 cutoff = 667
-n = 1000
+n = 10
 for i in range(0, len(interval_array_x_bhd)):
     test_run = ccgFilter(interval_array_x_bhd[i], interval_array_y_bhd[i], cutoff).getSmoothValue(
         interval_array_x_bhd[i])
@@ -355,292 +355,17 @@ trend_diff_summary2 = pd.DataFrame({'Time Period': intervals,'Means': mean_of_di
 
 print(trend_diff_summary2)
 
-#
+# TODO add t-test loop
 
-#
-#
-#
-# plt.scatter(xtot_bhd, ytot_bhd)
-# plt.plot(xtot_bhd, template_array)
-# plt.show()
-# Commenting out rest of heidelberg stuff. Going to set through and ensure that I can figure out the later NaN issue by
-# stepping through more categorically...
+for i in range(0, 8):  # for the 9 time intervals that we're exploring for the data
+    x = df_array[i]    # access the first dataframe, which contains the means for the first time interval:
+    paired_t = intercomparison_ttest(x['rafter_means_smooth'], x['heid_means_smooth'], 'Rafter vs Heidelberg Paired T-test, smoothed Result', 'paired')
+
+for i in range(0, 8):  # for the 9 time intervals that we're exploring for the data
+    x = df_array[i]    # access the first dataframe, which contains the means for the first time interval:
+    paired_t = intercomparison_ttest(x['rafter_means_trend'], x['heid_means_trend'], 'Rafter vs Heidelberg Paired T-test, smoothed Result', 'paired')
 
 
-# x1_bhd = baringhead_1986_1991['Decimal_date']
-# x2_bhd = baringhead_1991_1994['Decimal_date']
-# x3_bhd = baringhead_2006_2016['Decimal_date']
-# x4_bhd = baringhead_2006_2009['Decimal_date']
-# x5_bhd = baringhead_2012_2016['Decimal_date']
-# y1_bhd = baringhead_1986_1991['D14C']  #
-# y2_bhd = baringhead_1991_1994['D14C']
-# y3_bhd = baringhead_2006_2016['D14C']
-# y4_bhd = baringhead_2006_2009['D14C']
-# y5_bhd = baringhead_2012_2016['D14C']
-# z1_bhd = baringhead_1986_1991['D14C_err']
-# z2_bhd = baringhead_1991_1994['D14C_err']
-# z3_bhd = baringhead_2006_2016['D14C_err']
-# z4_bhd = baringhead_2006_2009['D14C_err']
-# z5_bhd = baringhead_2012_2016['D14C_err']
-# # HEIDELBERG CAPE GRIM VARIABLES
-# xtot_heid = heidelberg['Decimal_date']  # entire dataset x-values
-# ytot_heid = heidelberg['D14C']  # entire dataset y-values
-# ztot_heid = heidelberg['D14C_err']  # entire dataset error(z)-values
-# x1_heid = heidelberg_1986_1991['Decimal_date']
-# x2_heid = heidelberg_1991_1994['Decimal_date']
-# x3_heid = heidelberg_2006_2016['Decimal_date']
-# x4_heid = heidelberg_2006_2009['Decimal_date']
-# x5_heid = heidelberg_2012_2016['Decimal_date']
-# y1_heid = heidelberg_1986_1991['D14C']
-# y2_heid = heidelberg_1991_1994['D14C']
-# y3_heid = heidelberg_2006_2016['D14C']
-# y4_heid = heidelberg_2006_2009['D14C']
-# y5_heid = heidelberg_2012_2016['D14C']
-# z1_heid = heidelberg_1986_1991['D14C_err']
-# z2_heid = heidelberg_1991_1994['D14C_err']
-# z3_heid = heidelberg_2006_2016['D14C_err']
-# z4_heid = heidelberg_2006_2009['D14C_err']
-# z5_heid = heidelberg_2012_2016['D14C_err']
-#
-# """
-# So now we're almost ready to use the CCGCRV curve smoothing. One tricky bit is that - I want to compare the Cape Grim
-# and Baring Head records; however, the x-values in time are not necessarily overlapping. How to best compare them?
-# Luckily, the CCGCRV algorithm allows me to OUTPUT the smoothed data at any x-time that I desire. Therefore, in the next
-# bit of code, I create an evenly distributed set of x-values that I will output the smoothed baringhead and heidelberg
-# data, in 480 points between 1980 and 2020.
-#
-# "fake_x_temp" is called this way because it is an x-value I have created. Not 'fake' but I was lazy in initial naming
-# when first writing the code.
-#
-# """
-# fake_x_temp = np.linspace(1980, 2020, 480)  # create arbitrary set of x-values to control output
-# df_fake_xs = pd.DataFrame({'x': fake_x_temp})  # put this set into a pandas DataFrame for easier use
-# my_x_1986_1991 = df_fake_xs.loc[(df_fake_xs['x'] >= min(x1_heid)) & (df_fake_xs['x'] <= max(x1_heid))].reset_index(drop=True)  # index it
-# my_x_1991_1994 = df_fake_xs.loc[(df_fake_xs['x'] >= min(x2_bhd))  & (df_fake_xs['x'] <= max(x2_bhd))].reset_index(drop=True)  # index it
-# my_x_2006_2016 = df_fake_xs.loc[(df_fake_xs['x'] >= min(x3_heid)) & (df_fake_xs['x'] <= max(x3_heid))].reset_index(drop=True)  # index it
-# my_x_2006_2009 = df_fake_xs.loc[(df_fake_xs['x'] >= min(x4_heid)) & (df_fake_xs['x'] <= max(x4_heid))].reset_index(drop=True)  # index it
-# my_x_2012_2016 = df_fake_xs.loc[(df_fake_xs['x'] >= min(x5_heid)) & (df_fake_xs['x'] <= max(x5_heid))].reset_index(drop=True)  # index it
-# my_x_1986_1991 = my_x_1986_1991['x']  # when I wrote the function I'll be using in a few lines,
-# my_x_1991_1994 = my_x_1991_1994['x']  # I specify that the first 4 arguments must be input as data/variables that
-# my_x_2006_2016 = my_x_2006_2016['x']  # have been extracted from a pandas DataFrame, for consistency across testing
-# my_x_2006_2009 = my_x_2006_2009['x']
-# my_x_2012_2016 = my_x_2012_2016['x']
-#
-# """
-# ######################################################################################################################
-# ######################################################################################################################
-# ######################################################################################################################
-# ######################################################################################################################
-# ######################################################################################################################
-#
-# Now comes the CCGCRV Curve smoothing, and Monte Carlo error analysis.
-#
-# The following description also can be found in the my_functions.py file.
-#
-# This function has three separate for-loops:
-# The first for-loop:
-# Takes an input array of time-series data and randomizes each data point
-# within its measurements uncertainty. It does this "n" times, and vertically stacks it.
-# For example, if you have a dataset with 10 measurements, and "n" is 1000, you will end
-# up with an array of dimension (10x1000).
-# If you're interested in re-testing how the normal distribution randomization works, you can copy and paste the
-# following few lines of code. This shows that indeed, the randomization does have a higher probability of putting the
-# randomized point closer to the mean, but actually the distribution follows the gaussian curve.
-# ###########################
-# array = []
-# for i in range(0,10000):
-#     rand = np.random.normal(10, 2, size=None)
-#     array.append(rand)
-# plt.hist(array, bins=100)
-# plt.show()
-# ###########################
-#
-# The second for-loop:
-# Takes each row of the array (each row of "randomized data") and puts it through
-# the ccgFilter curve smoother. It is important to define your own x-values that you want output
-# if you want to compare two curves (this will keep arrays the same dimension).
-# Each row from the fist loop is smoothed and stacked into yet another new array.
-#
-# The third for-loop:
-# Find the mean, standard deviation, and upper and lower uncertainty bounds of each
-# "point" in the dataset. This loop takes the mean of all the first measurements, then all the second, etc.
-#
-# For clarty, I will define all of the arguments here below:
-# x_init: x-values of the dataset that you want to smooth. Must be in decimal date format.
-# fake_x: x-values of the data you want OUTPUT
-# y_init: y-values of the dataset that you want to smooth.
-# y_error: y-value errors of the dataset that you want to smooth.
-# cutoff: for the CCGCRV algoritm, lower numbers smooth less, and higher numbers smooth more.
-#     See hyperlink above for more details.
-# n: how many iterations do you want to run? When writing code, keep this low. Once code is solid, increase to 10,000.
-#
-# ### If you want to see this function in action, refer to "MonteCarlo_Explained.py"
-# https://github.com/christianlewis091/radiocarbon_intercomparison/blob/dev/interlab_comparison/MonteCarlo_Explained.py
-#
-#
-# ESSENTIALLY WHAT WE ARE DOING:
-# 1. RANDOMIZE THE HEIDELBERG AND BARING HEAD DATA 10,000 TIMES ALONG ITS NORMAL DISTRIBUTION
-# 2. SMOOTH THAT DATA USING CCGCRV
-# 3. FIND THE MEAN OF EACH X-VALUE FOR THOSE 10,000 ITERATIONS
-# 4. COMPARE THE HEIDELBERG AND BARING HEAD DATA IN TIME.
-#
-# """
-# n = 10  # set the amount of times the code will iterate (set to 10,000 once everything is final)
-# cutoff = 667  # FFT filter cutoff
-# # Curve smoothing with getSmoothValue()
-# heidelberg_1986_1991_results_smooth = monte_carlo_randomization_smooth(x1_heid, my_x_1986_1991, y1_heid, z1_heid, cutoff, n)
-# heidelberg_1991_1994_results_smooth = monte_carlo_randomization_smooth(x2_heid, my_x_1991_1994, y2_heid, z2_heid, cutoff, n)
-# heidelberg_2006_2016_results_smooth = monte_carlo_randomization_smooth(x3_heid, my_x_2006_2016, y3_heid, z3_heid, cutoff, n)
-# heidelberg_2006_2009_results_smooth = monte_carlo_randomization_smooth(x4_heid, my_x_2006_2009, y4_heid, z4_heid, cutoff, n)
-# heidelberg_2012_2016_results_smooth = monte_carlo_randomization_smooth(x5_heid, my_x_2012_2016, y5_heid, z5_heid, cutoff, n)
-# bhd_1986_1991_results_smooth = monte_carlo_randomization_smooth(x1_bhd, my_x_1986_1991, y1_bhd, z1_bhd, cutoff, n)
-# bhd_1991_1994_results_smooth = monte_carlo_randomization_smooth(x2_bhd, my_x_1991_1994, y2_bhd, z2_bhd, cutoff, n)
-# bhd_2006_2016_results_smooth = monte_carlo_randomization_smooth(x3_bhd, my_x_2006_2016, y3_bhd, z3_bhd, cutoff, n)
-# bhd_2006_2009_results_smooth = monte_carlo_randomization_smooth(x4_bhd, my_x_2006_2009, y4_bhd, z4_bhd, cutoff, n)
-# bhd_2012_2016_results_smooth = monte_carlo_randomization_smooth(x5_bhd, my_x_2012_2016, y5_bhd, z5_bhd, cutoff, n)
-# # Curve smoothing with getTrendValue()
-# heidelberg_1986_1991_results_trend = monte_carlo_randomization_trend(x1_heid, my_x_1986_1991, y1_heid, z1_heid, cutoff, n)
-# heidelberg_1991_1994_results_trend = monte_carlo_randomization_trend(x2_heid, my_x_1991_1994, y2_heid, z2_heid, cutoff, n)
-# heidelberg_2006_2016_results_trend = monte_carlo_randomization_trend(x3_heid, my_x_2006_2016, y3_heid, z3_heid, cutoff, n)
-# heidelberg_2006_2009_results_trend = monte_carlo_randomization_trend(x4_heid, my_x_2006_2009, y4_heid, z4_heid, cutoff, n)
-# heidelberg_2012_2016_results_trend = monte_carlo_randomization_trend(x5_heid, my_x_2012_2016, y5_heid, z5_heid, cutoff, n)
-# bhd_1986_1991_results_trend = monte_carlo_randomization_trend(x1_bhd, my_x_1986_1991, y1_bhd, z1_bhd, cutoff, n)
-# bhd_1991_1994_results_trend = monte_carlo_randomization_trend(x2_bhd, my_x_1991_1994, y2_bhd, z2_bhd, cutoff, n)
-# bhd_2006_2016_results_trend = monte_carlo_randomization_trend(x3_bhd, my_x_2006_2016, y3_bhd, z3_bhd, cutoff, n)
-# bhd_2006_2009_results_trend = monte_carlo_randomization_trend(x4_bhd, my_x_2006_2009, y4_bhd, z4_bhd, cutoff, n)
-# bhd_2012_2016_results_trend = monte_carlo_randomization_trend(x5_bhd, my_x_2012_2016, y5_bhd, z5_bhd, cutoff, n)
-#
-# # TODO write a function to simplify the block of code in A_heidelberg_intercomparison.py lines 351 - 455.
-# # the [2] contains the means and stdevs summary dataframe
-# smooths_array = []  # initialize empty array for "data-dump"
-# list = [heidelberg_1986_1991_results_smooth[2],
-#         heidelberg_1991_1994_results_smooth[2],
-#         heidelberg_2006_2016_results_smooth[2],
-#         heidelberg_2006_2009_results_smooth[2],
-#         heidelberg_2012_2016_results_smooth[2],
-#         bhd_1986_1991_results_smooth[2],
-#         bhd_1991_1994_results_smooth[2],
-#         bhd_2006_2016_results_smooth[2],
-#         bhd_2006_2009_results_smooth[2],
-#         bhd_2012_2016_results_smooth[2]]
-#
-#
-#
-#
-# # testing = monte_carlo_randomization_smooth(x3_bhd, my_x_2006_2016, y3_bhd, z3_bhd, cutoff, n)
-# # testing the function
-# x_init = x3_bhd.reset_index(drop=True)  # ensure x-values begin at index 0
-# y_init = y3_bhd.reset_index(drop=True)  # ensure y-values begin at index 0
-# y_error = z3_bhd.reset_index(drop=True)  # ensure y err-values begin at index 0
-# # fake_x_for_dataframe = fake_x.reset_index(drop=True)  # ensure output x-values at index 0
-# # fake_x_for_dataframe = fake_x_for_dataframe['x']  # if not already extracted, extract the data from the DataFrame
-#
-# # First for-loop: randomize the y-values.
-#
-# # The line below: creates a copy of the y-value column. This is helpful because as I randomize the y-data, I will
-# # stack each new randomized column. So if n = 10, there will 10 stacked, randomized columns. The initial column
-# # was helpful to get the code running - was something to "stick the stack on". Not sure if this was required, but
-# # it helped me get the for-loop to run.
-# new_array = y_init
-#
-# for i in range(0, n):  # initialize the for-loop. It will run "n" times.
-#     empty_array = []  # initialize an empty array to add each individual value onto.
-#     for j in range(0, len(y_init)):  # nested loop: run through the column of y-data, length-of-y times.
-#         a = y_init[j]  # grab the j'th item in the y-value set
-#         b = y_error[j]  # grab the j'th item in the uncertainty set
-#         # return a random value in the normal distribution of a data point/error
-#         rand = np.random.normal(a, b, size=None)
-#         # (https://numpy.org/doc/stable/reference/random/generated/numpy.random.normal.html)
-#         empty_array.append(rand)  # append this randomized value to my growing list, the "empty_array"
-#     # the nested loop just finished filling another iteration of the empty array.
-#     # Now stack this onto our initialized "new_array" from line 89.
-#     new_array = np.vstack((new_array, empty_array))
-#     # The line below takes the new array and puts it into a pandas DataFrame.
-#     # This helps format the data in a way where it can be more quickly tested, and used in the future.
-#     # To plot the randomized data, index each row using randomized_dataframe.iloc[0]
-# randomized_dataframe = pd.DataFrame(new_array)
-# print(randomized_dataframe)
-# # end of first for-loop
-# ##################################################################################################################
-# ##################################################################################################################
-# ##################################################################################################################
-# # Second for-loop: smooth the randomized data using John Miller's CCGCRV.
-#
-# # Create an initial, trended array on which later arrays that are created will stack
-# template_array = ccgFilter(x_init, new_array[0], cutoff).getSmoothValue(my_x_2006_2016)
-# summary = pd.DataFrame({"x_init": x_init, "y": new_array[0]})
-# summary.to_excel('testing.xlsx')
-# print(template_array)
-# plt.scatter(x_init, new_array[0])
-# plt.show()
-#
-#
-#
-#
-#
-#
-#
-#
-#
-# # this for smooths each row of the randomized array from above, and stacks it up
-# for k in range(0, len(new_array)):
-#     row = new_array[k]  # grab the first row of the data
-#     smooth = ccgFilter(x_init, row, cutoff).getSmoothValue(my_x_2006_2016)  # outputs smooth values at my desired times, x
-#     template_array = np.vstack((template_array, smooth))
-#
-# # over time I have had to go between horizontal and vertical stacking of the data as I learn more about programming.
-# # beacuse it could lead to confusion, I've provided both types of DataFrames here on the two following lines,
-# # one where each iteration is contained as ROWS and one where each iteration is contained as a COLUMN.
-#
-# # each ROW is a new iteration. each COLUMN in a given X value
-# smoothed_dataframe = pd.DataFrame(template_array)
-# # each COLUMN is a new iteration. Each ROW is a given X value
-# smoothed_dataframe_trans = pd.DataFrame.transpose(smoothed_dataframe)
-#
-# mean_array = []
-# stdev_array = []
-# for i in range(0, len(smoothed_dataframe_trans)):
-#     row = smoothed_dataframe_trans.iloc[i]  # grab the first row of data
-#     stdev = np.std(row)  # compute the standard deviation of that row
-#     sum1 = np.sum(row)  # take the sum, and then mean (next line) of that data
-#     mean1 = sum1 / len(row)  # find the mean of that row
-#     mean_array.append(mean1)  # append the mean it to a new array
-#     stdev_array.append(stdev)  # append the stdev to a new array
-#
-# summary = pd.DataFrame({"Means": mean_array, "stdevs": stdev_array})
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-# # summary = testing[2]
-# #
-# # testdf = pd.DataFrame({"x": x3_bhd, "y": y3_bhd, "z": z3_bhd})
-# #
-# # testdf.to_excel('testing.xlsx')
-# # summary.to_excel('testing2.xlsx')
-#
-#
-#
-#
-#
-#
-#
+
+
+

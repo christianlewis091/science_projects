@@ -141,7 +141,7 @@ i7 = [2006, 2009]  # first interval of the second major chunk, as we will remove
 i8 = [2009, 2012]  # interval when there was an issue with NaOH sampling, see precedent described above
 i9 = [2012, 2016]  # post NaOH problem interval until the end of the Heidelberg data
 intervals = [i1, i2, i3, i4, i5, i6, i7, i8, i9]
-fake_x_temp = np.linspace(1980, 2020, 480)  # create arbitrary set of x-values to control output
+fake_x_temp = np.linspace(1986, 2016, 1920)  # create arbitrary set of x-values to control output
 df_fake_xs = pd.DataFrame({'Decimal_date': fake_x_temp})  # put this set into a pandas DataFrame
 
 # The following block of code will index the data according the time intervals set above, into three arrays for each variable, (time, D14C, D14C_err)
@@ -187,7 +187,7 @@ reason, so the next block of code is going to
 2) test that the smoother is successful before running it through the Monte Carlo function
 """
 cutoff = 667
-n = 10
+n = 100
 for i in range(0, len(interval_array_x_bhd)):
     test_run = ccgFilter(interval_array_x_bhd[i], interval_array_y_bhd[i], cutoff).getSmoothValue(
         interval_array_x_bhd[i])
@@ -301,13 +301,13 @@ Let's calculate the mean offsets between the data
 """
 
 
-def offset_calc(y1, y1err, y2, y2err):
+def offset_calc(y1, y1err, y2, y2err, date):
 
     difference = np.subtract(y1, y2)                  # subtract the data from each other
     difference_error = np.sqrt(y1err**2 + y2err**2)   # propagate the error of differencing
     mean_of_differences = np.average(difference)
     standard_error = np.std(difference) / np.sqrt(len(y1))  # standard error of the subtraction array
-    return difference, difference_error, mean_of_differences, standard_error
+    return difference, difference_error, mean_of_differences, standard_error, date
 
 
 # The following for loop will calculate all the offsets for the different DataFrames in the array we created above
@@ -316,54 +316,100 @@ differences = []
 difference_errors = []
 mean_of_difference = []
 std_error = []
+dates = []
 for i in range(0, len(df_array)):
     df = df_array[i]                                                        # access the first dataframe
-    x = offset_calc(df["rafter_means_smooth"], df["rafter_stdevs_smooth"], df["heid_means_smooth"], df["heid_stdevs_smooth"])
+    x = offset_calc(df["rafter_means_smooth"], df["rafter_stdevs_smooth"], df["heid_means_smooth"], df["heid_stdevs_smooth"], df['Decimal_date'])
     dif = x[0]
     dif_er = x[1]
     m = x[2]
     stderr = x[3]
+    date = x[4]
     differences.append(dif)
     difference_errors.append(dif_er)
     mean_of_difference.append(m)
     std_error.append(stderr)
-# create summary dataframe:
-smooth_diff_summary = pd.DataFrame({'Differences': differences, "1-sigma_error": difference_errors})
+    dates.append(date)
+
+
+dates_dataframe = pd.DataFrame({'I1 Dates': dates[0],
+                              'I2 Dates': dates[1],
+                              'I3 Dates': dates[2],
+                              'I4 Dates': dates[3],
+                              'I5 Dates': dates[4],
+                              'I6 Dates': dates[5],
+                              'I7 Dates': dates[6],
+                              'I8 Dates': dates[7],
+                              'I9 Dates': dates[8]})
+smooth_differences = pd.DataFrame({
+                                   'I1 Differences': differences[0],
+                                    'I2 Differences': differences[1],
+                                    'I3 Differences': differences[2],
+                                    'I4 Differences': differences[3],
+                                    'I5 Differences': differences[4],
+                                    'I6 Differences': differences[5],
+                                    'I7 Differences': differences[6],
+                                    'I8 Differences': differences[7],
+                                    'I9 Differences': differences[8]})
+smooth_difference_errors = pd.DataFrame({'I1 Differences 1-sigma error': differences[0],
+                                         'I2 Differences 1-sigma error': differences[1],
+                                         'I3 Differences 1-sigma error': differences[2],
+                                         'I4 Differences 1-sigma error': differences[3],
+                                         'I5 Differences 1-sigma error': differences[4],
+                                         'I6 Differences 1-sigma error': differences[5],
+                                         'I7 Differences 1-sigma error': differences[6],
+                                         'I8 Differences 1-sigma error': differences[7],
+                                         'I9 Differences 1-sigma error': differences[8]})
 smooth_diff_summary2 = pd.DataFrame({'Time Period': intervals,'Means': mean_of_difference, "Standard error": std_error})
 
-print(smooth_diff_summary2)
 
 # TREND
 differences = []
 difference_errors = []
 mean_of_difference = []
 std_error = []
+dates = []
 for i in range(0, len(df_array)):
     df = df_array[i]                                                        # access the first dataframe
-    x = offset_calc(df["rafter_means_trend"], df["rafter_stdevs_trend"], df["heid_means_trend"], df["heid_stdevs_trend"])
+    x = offset_calc(df["rafter_means_trend"], df["rafter_stdevs_trend"], df["heid_means_trend"], df["heid_stdevs_trend"], df['Decimal_date'])
     dif = x[0]
     dif_er = x[1]
     m = x[2]
     stderr = x[3]
+    date = x[4]
     differences.append(dif)
     difference_errors.append(dif_er)
     mean_of_difference.append(m)
     std_error.append(stderr)
-# create summary dataframe:
-trend_diff_summary = pd.DataFrame({'Differences': differences, "1-sigma_error": difference_errors})
+
+trend_differences = pd.DataFrame({'I1 Differences': differences[0],
+                                   'I2 Differences': differences[1],
+                                   'I3 Differences': differences[2],
+                                   'I4 Differences': differences[3],
+                                   'I5 Differences': differences[4],
+                                   'I6 Differences': differences[5],
+                                   'I7 Differences': differences[6],
+                                   'I8 Differences': differences[7],
+                                   'I9 Differences': differences[8]})
+trend_difference_errors = pd.DataFrame({'I1 Differences 1-sigma error': differences[0],
+                                         'I2 Differences 1-sigma error': differences[1],
+                                         'I3 Differences 1-sigma error': differences[2],
+                                         'I4 Differences 1-sigma error': differences[3],
+                                         'I5 Differences 1-sigma error': differences[4],
+                                         'I6 Differences 1-sigma error': differences[5],
+                                         'I7 Differences 1-sigma error': differences[6],
+                                         'I8 Differences 1-sigma error': differences[7],
+                                         'I9 Differences 1-sigma error': differences[8]})
 trend_diff_summary2 = pd.DataFrame({'Time Period': intervals,'Means': mean_of_difference, "Standard error": std_error})
 
-print(trend_diff_summary2)
-
 # what about the t-tests
-
 for i in range(0, 8):  # for the 9 time intervals that we're exploring for the data
     x = df_array[i]    # access the first dataframe, which contains the means for the first time interval:
     paired_t = intercomparison_ttest(x['rafter_means_smooth'], x['heid_means_smooth'], 'Rafter vs Heidelberg Paired T-test, smoothed Result', 'paired')
 
 for i in range(0, 8):  # for the 9 time intervals that we're exploring for the data
     x = df_array[i]    # access the first dataframe, which contains the means for the first time interval:
-    paired_t = intercomparison_ttest(x['rafter_means_trend'], x['heid_means_trend'], 'Rafter vs Heidelberg Paired T-test, smoothed Result', 'paired')
+    paired_t = intercomparison_ttest(x['rafter_means_trend'], x['heid_means_trend'], 'Rafter vs Heidelberg Paired T-test, trend Result', 'paired')
 
 # The following data will be written to a file beacuse when I read it into the vizualization data,
 # I don't want the data to have to run through 10,000 iterations of Monte Carlo each time I want to make a plot.
@@ -378,27 +424,21 @@ for i in range(0, 8):  # for the 9 time intervals that we're exploring for the d
 
 # write the data to excel
 sheetnames = ['Means 1986 - 2016', 'Means 1986 - 1990','Means 1990 - 1994', 'Means 1986 - 1994','Means 1994 - 2006','Means 2006 - 2016','Means 2006 - 2009','Means 2009 - 2012','Means 2012 - 2016']
-writer = pd.ExcelWriter('Heidelberg_intercomparison_result.xlsx', engine='openpyxl')
+writer = pd.ExcelWriter('Heidelberg_intercomparison_result_10000_July82022.xlsx', engine='openpyxl')
 for i in range(0, len(df_array)):
     df = df_array[i]
     df.to_excel(writer, sheet_name=str(sheetnames[i]))
+writer.save()
 
-# TODO Clean up this data writing tomorrow
-
-sheetnames2 = ['Diffs_Smooth_1986 - 2016', 'Diffs_Smooth_1986 - 1990','Diffs_Smooth_1990 - 1994', 'Diffs_Smooth_1986 - 1994','Diffs_Smooth_ 1994 - 2006','Diffs_Smooth_2006 - 2016','Diffs_Smooth_2006 - 2009','Diffs_Smooth_2009 - 2012','Diffs_Smooth_2012 - 2016']
-for i in range(0, len(smooth_diff_summary)):
-    df = smooth_diff_summary['Differences']
-    df = df[i]
-    df2 = smooth_diff_summary['1-sigma_error']
-    df2 = df2[i]
-    df.to_excel(writer, sheet_name=str(sheetnames2[i]))
+# add the differences sheet
+writer = pd.ExcelWriter('Heidelberg_intercomparison_result_differences_10000_July82022.xlsx', engine='openpyxl')
+dates_dataframe.to_excel(writer, sheet_name='Dates')
+smooth_differences.to_excel(writer, sheet_name='Smooth Differences')
 smooth_diff_summary2.to_excel(writer, sheet_name='Smoothed Differences Summary')
-
-# sheetnames3 = ['Diffs_Trend_1986 - 2016', 'Diffs_Trend_1986 - 1990','Diffs_Trend_1990 - 1994', 'Diffs_Trend_1986 - 1994','Diffs_Trend_ 1994 - 2006','Diffs_Trend_2006 - 2016','Diffs_Trend_2006 - 2009','Diffs_Trend_2009 - 2012','Diffs_Trend_2012 - 2016']
-# for i in range(0, len(trend_diff_summary)):
-#     df = trend_diff_summary[i]
-#     df.to_excel(writer, sheet_name=str(sheetnames3[i]))
-# trend_diff_summary2.to_excel(writer, sheet_name='Trend Differences Summary')
+smooth_difference_errors.to_excel(writer, sheet_name='Smooth Differences Error')
+trend_differences.to_excel(writer, sheet_name='Trend Differences')
+trend_difference_errors.to_excel(writer, sheet_name='Trend Differences Error')
+trend_diff_summary2.to_excel(writer, sheet_name='Trend Differences Summary')
 writer.save()
 
 

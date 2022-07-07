@@ -355,7 +355,7 @@ trend_diff_summary2 = pd.DataFrame({'Time Period': intervals,'Means': mean_of_di
 
 print(trend_diff_summary2)
 
-# TODO add t-test loop
+# what about the t-tests
 
 for i in range(0, 8):  # for the 9 time intervals that we're exploring for the data
     x = df_array[i]    # access the first dataframe, which contains the means for the first time interval:
@@ -364,6 +364,45 @@ for i in range(0, 8):  # for the 9 time intervals that we're exploring for the d
 for i in range(0, 8):  # for the 9 time intervals that we're exploring for the data
     x = df_array[i]    # access the first dataframe, which contains the means for the first time interval:
     paired_t = intercomparison_ttest(x['rafter_means_trend'], x['heid_means_trend'], 'Rafter vs Heidelberg Paired T-test, smoothed Result', 'paired')
+
+# The following data will be written to a file beacuse when I read it into the vizualization data,
+# I don't want the data to have to run through 10,000 iterations of Monte Carlo each time I want to make a plot.
+# SO, I'm going to run once at 10,000 and save the files, then set n back to 10.
+
+# What do I need to go to Excel?
+# df_array: array of the result dataframes from the 9 different time intervals
+# smooth_diff_summary
+# smooth_diff_summary2
+# trend_diff_summary
+# trend_diff_summary2
+
+# write the data to excel
+sheetnames = ['Means 1986 - 2016', 'Means 1986 - 1990','Means 1990 - 1994', 'Means 1986 - 1994','Means 1994 - 2006','Means 2006 - 2016','Means 2006 - 2009','Means 2009 - 2012','Means 2012 - 2016']
+writer = pd.ExcelWriter('Heidelberg_intercomparison_result.xlsx', engine='openpyxl')
+for i in range(0, len(df_array)):
+    df = df_array[i]
+    df.to_excel(writer, sheet_name=str(sheetnames[i]))
+
+# TODO Clean up this data writing tomorrow
+
+sheetnames2 = ['Diffs_Smooth_1986 - 2016', 'Diffs_Smooth_1986 - 1990','Diffs_Smooth_1990 - 1994', 'Diffs_Smooth_1986 - 1994','Diffs_Smooth_ 1994 - 2006','Diffs_Smooth_2006 - 2016','Diffs_Smooth_2006 - 2009','Diffs_Smooth_2009 - 2012','Diffs_Smooth_2012 - 2016']
+for i in range(0, len(smooth_diff_summary)):
+    df = smooth_diff_summary['Differences']
+    df = df[i]
+    df2 = smooth_diff_summary['1-sigma_error']
+    df2 = df2[i]
+    df.to_excel(writer, sheet_name=str(sheetnames2[i]))
+smooth_diff_summary2.to_excel(writer, sheet_name='Smoothed Differences Summary')
+
+# sheetnames3 = ['Diffs_Trend_1986 - 2016', 'Diffs_Trend_1986 - 1990','Diffs_Trend_1990 - 1994', 'Diffs_Trend_1986 - 1994','Diffs_Trend_ 1994 - 2006','Diffs_Trend_2006 - 2016','Diffs_Trend_2006 - 2009','Diffs_Trend_2009 - 2012','Diffs_Trend_2012 - 2016']
+# for i in range(0, len(trend_diff_summary)):
+#     df = trend_diff_summary[i]
+#     df.to_excel(writer, sheet_name=str(sheetnames3[i]))
+# trend_diff_summary2.to_excel(writer, sheet_name='Trend Differences Summary')
+writer.save()
+
+
+
 
 
 

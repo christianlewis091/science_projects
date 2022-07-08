@@ -9,13 +9,53 @@ from matplotlib import cm
 from colorspacious import cspace_converter
 import pandas as pd
 import seaborn as sns
+from scipy import stats
 
 # general plot parameters
-colors = sns.color_palette("rocket", 10)
-colors2 = sns.color_palette("mako", 10)
+colors = sns.color_palette("rocket", 6)
+colors2 = sns.color_palette("mako", 6)
 mpl.rcParams['pdf.fonttype'] = 42
 mpl.rcParams['font.size'] = 10
 size1 = 5
+
+
+"""
+Writing a quick function to save myself a few lines here...
+arguements: 
+
+Data 1, Data2: input the data you want to compare from pandas dataframe format. 
+Test_name: "This is the thing I'm testing" (input as a string!)
+test_type: options are 'paired' or 'not-paired'. Use 'paired' only if there are same length of points, such as two
+           exact time series
+        
+"""
+def intercomparison_ttest(data1, data2, test_name, test_type):
+    print(str(test_name))  # Print the name of the thing we're comparing
+    if test_type == 'paired':  # set the type of t-test
+        result = stats.ttest_rel(data1, data2)  # paired t-test result
+        difference = np.subtract(data1, data2)  # subtract the data from each other
+        mean1 = np.average(difference)  # find the mean of the difference between the datasets
+        standard_error = np.std(difference) / np.sqrt(len(difference))  # standard error of the subtraction array
+        print('The average difference between the groups is ' + str(mean1))
+
+    elif test_type == 'not-paired':
+        result = stats.ttest_ind(data1, data2)
+        avg1 = np.average(data1)  # compute "metadata" (wrong term maybe)?
+        std1 = np.std(data1)  # compute standard deviation
+        stderr1 = std1 / np.sqrt(len(data1))  # compute standard error
+        avg2 = np.average(data2)
+        std2 = np.std(data2)
+        stderr2 = std2 / np.sqrt(len(data2))
+        offset = avg1 - avg2  # compute the offset between the means of the two datasets
+        error_prop = (np.sqrt(stderr1 ** 2 + stderr2 ** 2))  # propagate the error
+
+    print(result)  # Print the t-test result
+    if result[1] < 0.01:  # if statement for me to print if they are different
+        print("The data are different at 98% confidence")
+    else:
+        print("The data are not different")
+    print('\n' * 1)  # print some blank lines
+    return result
 
 
 def scatter_plot(x1, y1, x2=None, y2=None, x3=None, y3=None, x4=None, y4=None,
@@ -24,23 +64,23 @@ def scatter_plot(x1, y1, x2=None, y2=None, x3=None, y3=None, x4=None, y4=None,
                  xmin=None, xmax=None, ymin=None, ymax=None, title=None, xlabel=None,
                  ylabel=None, savename=None, size1=None, **kwargs):
     if color1 is None:
-        color1 = colors[1]
+        color1 = colors[3]
     if color2 is None:
-        color2 = colors[2]
+        color2 = colors2[3]
     if color3 is None:
-        color3 = colors[3]
+        color3 = colors[4]
     if color4 is None:
-        color4 = colors[4]
+        color4 = colors2[4]
 
     plt.scatter(x1, y1, marker='o', label='{}'.format(label1), color=color1, s=size1)
     if y2 is not None:
-        plt.scatter(x2, y2, marker='o', label='{}'.format(label2), color=color2, s=size1)
+        plt.scatter(x2, y2, marker='D', label='{}'.format(label2), color=color2, s=size1)
 
     if y3 is not None:
-        plt.scatter(x3, y3, marker='o', label='{}'.format(label3), color=color3, s=size1)
+        plt.scatter(x3, y3, marker='^', label='{}'.format(label3), color=color3, s=size1)
 
     if y4 is not None:
-        plt.scatter(x4, y4, marker='o', label='{}'.format(label4), color=color4, s=size1)
+        plt.scatter(x4, y4, marker='X', label='{}'.format(label4), color=color4, s=size1)
 
     if title is not None:
         plt.title('{}'.format(title))
@@ -67,26 +107,26 @@ def error_plot(x1, y1, z1, x2=None, y2=None, x3=None, y3=None, x4=None, y4=None,
                z2=None, z3=None, z4=None,
                **kwargs):
     if color1 is None:
-        color1 = colors[1]
+        color1 = colors[3]
     if color2 is None:
-        color2 = colors[2]
+        color2 = colors2[3]
     if color3 is None:
-        color3 = colors[3]
+        color3 = colors[4]
     if color4 is None:
-        color4 = colors[4]
+        color4 = colors2[4]
 
     plt.errorbar(x1, y1, yerr=z1, marker='o', label='{}'.format(label1), color=color1, ecolor=color1, elinewidth=1,
                  capsize=2)
-    if y2 is not None:
-        plt.errorbar(x2, y2, marker='o', label='{}'.format(label2), color=color2, ecolor=color2, elinewidth=1,
+    # if y2 is not None:
+    plt.errorbar(x2, y2, yerr=z2, marker='D', label='{}'.format(label2), color=color2, ecolor=color2, elinewidth=1,
                      capsize=2)
 
     if y3 is not None:
-        plt.errorbar(x3, y3, marker='o', label='{}'.format(label3), color=color3, ecolor=color3, elinewidth=1,
+        plt.errorbar(x3, y3, marker='^', label='{}'.format(label3), color=color3, ecolor=color3, elinewidth=1,
                      capsize=2)
 
     if y4 is not None:
-        plt.errorbar(x4, y4, marker='o', label='{}'.format(label4), color=color4, ecolor=color4, elinewidth=1,
+        plt.errorbar(x4, y4, marker='X', label='{}'.format(label4), color=color4, ecolor=color4, elinewidth=1,
                      capsize=2)
 
     if title is not None:

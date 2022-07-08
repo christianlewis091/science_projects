@@ -50,4 +50,4 @@ baringhead = baringhead.rename(columns = {'SITE':'Site', 'DEC_DECAY_CORR':'Decim
                                           'F14C_ERR':'FM_err'})
 
 baringhead['Site'] = 'BHD'
-combine_heidelberg = pd.merge(heidelberg, baringhead, how='outer')
+combine_heidelberg = pd.concat([heidelberg, baringhead])

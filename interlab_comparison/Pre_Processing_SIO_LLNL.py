@@ -49,10 +49,15 @@ llnl = llnl.drop(columns=['Arbitrary_Sample_Number', 'Wheel', 'AMS_Lab', 'CURL',
 rrl_date = rrl['Decimal_date']  # extract x-values from heidelberg dataset
 rrl_date = long_date_to_decimal_date(rrl_date)  # convert the x-values to a decimal date
 rrl['Decimal_date'] = rrl_date  # add these decimal dates onto the dataframe
-
+llnl['Decimal_date'] = list(range(0,len(llnl)))
 llnl = llnl.rename(columns={'Fm':'FM', 'Fm_err':'FM_err','D14C_Err':'D14C_err'})
-combine_SIO = pd.merge(rrl, llnl, how='outer')
+print(len(llnl))
+combine_SIO = pd.concat([rrl, llnl])
 combine_SIO = combine_SIO.loc[(combine_SIO['standard_type'] == 'NWT3') | (combine_SIO['standard_type'] == 'NWT4')]
+
+# combined SIO needs a x-data for the LLNL, so I'm just going to add a linspace to it.
+
+
 
 # DONE!
 

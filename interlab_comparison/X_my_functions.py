@@ -1,8 +1,134 @@
 import numpy as np
 from X_miller_curve_algorithm import ccgFilter
-import pandas as pd
 from PyAstronomy import pyasl
 from tabulate import tabulate
+import matplotlib as mpl
+import matplotlib.pyplot as plt
+import matplotlib.gridspec as gridspec
+from matplotlib import cm
+from colorspacious import cspace_converter
+import pandas as pd
+import seaborn as sns
+
+# general plot parameters
+colors = sns.color_palette("rocket", 10)
+colors2 = sns.color_palette("mako", 10)
+mpl.rcParams['pdf.fonttype'] = 42
+mpl.rcParams['font.size'] = 10
+size1 = 5
+
+
+def scatter_plot(x1, y1, x2=None, y2=None, x3=None, y3=None, x4=None, y4=None,
+                 label1=None, label2=None, label3=None, label4=None,
+                 color1=None, color2=None, color3=None, color4=None,
+                 xmin=None, xmax=None, ymin=None, ymax=None, title=None, xlabel=None,
+                 ylabel=None, savename=None, size1=None, **kwargs):
+    if color1 is None:
+        color1 = colors[1]
+    if color2 is None:
+        color2 = colors[2]
+    if color3 is None:
+        color3 = colors[3]
+    if color4 is None:
+        color4 = colors[4]
+
+    plt.scatter(x1, y1, marker='o', label='{}'.format(label1), color=color1, s=size1)
+    if y2 is not None:
+        plt.scatter(x2, y2, marker='o', label='{}'.format(label2), color=color2, s=size1)
+
+    if y3 is not None:
+        plt.scatter(x3, y3, marker='o', label='{}'.format(label3), color=color3, s=size1)
+
+    if y4 is not None:
+        plt.scatter(x4, y4, marker='o', label='{}'.format(label4), color=color4, s=size1)
+
+    if title is not None:
+        plt.title('{}'.format(title))
+    if xmin is not None:
+        plt.xlim([xmin, xmax])
+    if ymin is not None:
+        plt.ylim([ymin, ymax])
+    if xlabel is not None:
+        plt.xlabel('{}'.format(xlabel), fontsize=14)
+    if ylabel is not None:
+        plt.ylabel('{}'.format(ylabel), fontsize=14)
+    plt.legend()
+    plt.savefig('C:/Users/clewis/IdeaProjects/GNS/radiocarbon_intercomparison/interlab_comparison/plots/{}.png'.format(
+        savename),
+        dpi=300, bbox_inches="tight")
+    plt.close()
+
+
+def error_plot(x1, y1, z1, x2=None, y2=None, x3=None, y3=None, x4=None, y4=None,
+               label1=None, label2=None, label3=None, label4=None,
+               color1=None, color2=None, color3=None, color4=None,
+               xmin=None, xmax=None, ymin=None, ymax=None, title=None, xlabel=None,
+               ylabel=None, savename=None, size1=None,
+               z2=None, z3=None, z4=None,
+               **kwargs):
+    if color1 is None:
+        color1 = colors[1]
+    if color2 is None:
+        color2 = colors[2]
+    if color3 is None:
+        color3 = colors[3]
+    if color4 is None:
+        color4 = colors[4]
+
+    plt.errorbar(x1, y1, yerr=z1, marker='o', label='{}'.format(label1), color=color1, ecolor=color1, elinewidth=1,
+                 capsize=2)
+    if y2 is not None:
+        plt.errorbar(x2, y2, marker='o', label='{}'.format(label2), color=color2, ecolor=color2, elinewidth=1,
+                     capsize=2)
+
+    if y3 is not None:
+        plt.errorbar(x3, y3, marker='o', label='{}'.format(label3), color=color3, ecolor=color3, elinewidth=1,
+                     capsize=2)
+
+    if y4 is not None:
+        plt.errorbar(x4, y4, marker='o', label='{}'.format(label4), color=color4, ecolor=color4, elinewidth=1,
+                     capsize=2)
+
+    if title is not None:
+        plt.title('{}'.format(title))
+    if xmin is not None:
+        plt.xlim([xmin, xmax])
+    if ymin is not None:
+        plt.ylim([ymin, ymax])
+    if xlabel is not None:
+        plt.xlabel('{}'.format(xlabel), fontsize=14)
+    if ylabel is not None:
+        plt.ylabel('{}'.format(ylabel), fontsize=14)
+    plt.legend()
+    plt.savefig('C:/Users/clewis/IdeaProjects/GNS/radiocarbon_intercomparison/interlab_comparison/plots/{}.png'.format(
+        savename),
+        dpi=300, bbox_inches="tight")
+    plt.close()
+
+# IDEA IS THERE BUT NEEDS MORE WORK.
+# def subplot_plot(plot_num, x1, y1, label1=None, color1=None, size1=None, savename=None,
+#                  x2= None, y2= None,  label2=None, color2=None,
+#                  x3= None, y3= None,  label3=None, color3=None,
+#                  x4= None, y4= None,  label4=None, color4=None,
+#                  x5= None, y5= None,  label5=None, color5=None,
+#                  x6= None, y6= None,  label6=None, color6=None,
+#                  **kwargs):
+#     fig = plt.figure(1, figsize=(10, 5))  # how big do you want the figure?
+#     if plot_num == 2:
+#         gs = gridspec.GridSpec(1, 2)
+#         xtr_subsplot = fig.add_subplot(gs[0:1, 0:1])
+#         plt.scatter(x1, y1, marker='o', label='{}'.format(label1), color=color1, s=size1)
+#         xtr_subsplot = fig.add_subplot(gs[0:1, 1:2])
+#         plt.savefig(
+#             'C:/Users/clewis/IdeaProjects/GNS/radiocarbon_intercomparison/interlab_comparison/plots/{}.png'.format(
+#                 savename),
+#             dpi=300, bbox_inches="tight")
+#
+#
+# x = [1, 2, 3]
+# y = [3, 4, 5]
+# subplot_plot(2, x, y)
+
 
 """
 This function will convert FM to D14C. 

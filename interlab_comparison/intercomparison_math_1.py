@@ -117,6 +117,9 @@ including:
 2006 - 2016: From the end of RRL removal period until the end of Heidelberg's record
 2006 - 2009: Early period before NaOH removal period
 2012 - 2016 : Period after NaOH removal period to end of record
+
+For some reason, by the end of this comparison, the data are quite different from the first time I ran this (see 
+the MAIN branch of my Github and A_heidelberg_intercomparison. Why is this????
 """
 baringhead = combine_heidelberg.loc[(combine_heidelberg['Site'] == 'BHD')]
 # BARING HEAD VARIABLES
@@ -187,7 +190,7 @@ reason, so the next block of code is going to
 2) test that the smoother is successful before running it through the Monte Carlo function
 """
 cutoff = 667
-n = 100
+n = 1000
 for i in range(0, len(interval_array_x_bhd)):
     test_run = ccgFilter(interval_array_x_bhd[i], interval_array_y_bhd[i], cutoff).getSmoothValue(
         interval_array_x_bhd[i])
@@ -432,6 +435,8 @@ writer.save()
 
 # add the differences sheet
 writer = pd.ExcelWriter('Heidelberg_intercomparison_result_differences_10000_July82022.xlsx', engine='openpyxl')
+baringhead.to_excel(writer, sheet_name='Baringhead Cleaned Data')
+heidelberg.to_excel(writer, sheet_name='Heidelberg Cleaned Data')
 dates_dataframe.to_excel(writer, sheet_name='Dates')
 smooth_differences.to_excel(writer, sheet_name='Smooth Differences')
 smooth_diff_summary2.to_excel(writer, sheet_name='Smoothed Differences Summary')

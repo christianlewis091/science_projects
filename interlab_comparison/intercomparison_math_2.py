@@ -1,9 +1,13 @@
 import numpy as np
-import pandas as pd
 from Pre_Processing_Heidelberg import combine_heidelberg
 from X_my_functions import monte_carlo_randomization_trend, monte_carlo_randomization_smooth
 from X_miller_curve_algorithm import ccgFilter
 from X_my_functions import intercomparison_ttest
+import matplotlib as mpl
+import matplotlib.pyplot as plt
+import matplotlib.gridspec as gridspec
+import pandas as pd
+import seaborn as sns
 
 
 """
@@ -55,7 +59,7 @@ i7 = [2006, 2009]  # first interval of the second major chunk, as we will remove
 i8 = [2009, 2012]  # interval when there was an issue with NaOH sampling, see precedent described above
 i9 = [2012, 2016]  # post NaOH problem interval until the end of the Heidelberg data
 intervals = [i1, i2, i3, i4, i5, i6, i7, i8, i9]
-fake_x_temp = np.linspace(1986, 2016, 1920)  # create arbitrary set of x-values to control output
+fake_x_temp = np.linspace(1986, 2016, 480)  # create arbitrary set of x-values to control output
 df_fake_xs = pd.DataFrame({'Decimal_date': fake_x_temp})  # put this set into a pandas DataFrame
 
 # The following block of code will index the data according the time intervals set above, into three arrays for each variable, (time, D14C, D14C_err)
@@ -101,7 +105,7 @@ reason, so the next block of code is going to
 2) test that the smoother is successful before running it through the Monte Carlo function
 """
 cutoff = 667
-n = 1000
+n = 10
 for i in range(0, len(interval_array_x_bhd)):
     test_run = ccgFilter(interval_array_x_bhd[i], interval_array_y_bhd[i], cutoff).getSmoothValue(
         interval_array_x_bhd[i])
@@ -208,7 +212,78 @@ for i in range(0, len(interval_array_x_heid)):  # 9 time intervals
     newdf = newdf.dropna()
     df_array.append(newdf)  # append the dataframes onto an array for later analysis
 
-# print(df_array[0])
+
+i1 = df_array[1]
+print(i1)
+
+colors = sns.color_palette("rocket", 6)
+colors2 = sns.color_palette("mako", 6)
+mpl.rcParams['pdf.fonttype'] = 42
+mpl.rcParams['font.size'] = 10
+size1 = 5
+fig = plt.figure(1)
+plt.scatter(xtot_bhd, ytot_bhd, marker='o', label='Rafter Baring Head Record (BHD)', color=colors[3], s=size1, alpha = 0.5)
+plt.scatter(xtot_heid, ytot_heid, marker='x', label='Heidelberg Cape Grim Record (CGO)', color=colors2[3], s=size1, alpha = 0.5)
+plt.plot(i1['Decimal_date'], i1['rafter_means_smooth'], marker='D', label='Heidelberg Cape Grim Record (CGO)', color='red')
+plt.plot(i1['Decimal_date'], i1['heid_means_smooth'], marker='D', label='Heidelberg Cape Grim Record (CGO)', color='blue')
+
+plt.legend()
+plt.xlim([1986, 1990])
+plt.ylim([147, 187])
+plt.xlabel('Date', fontsize=14)
+plt.ylabel('\u0394$^1$$^4$CO$_2$ (\u2030)', fontsize=14)  # label the y axis
+# plt.savefig('C:/Users/clewis/IdeaProjects/GNS/radiocarbon_intercomparison/interlab_comparison/plots/DEV_FirstDraft_figure1_b.png',
+#             dpi=300, bbox_inches="tight")
+plt.show()
+plt.close()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 """
 Let's calculate the mean offsets between the data

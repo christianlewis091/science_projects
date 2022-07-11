@@ -49,22 +49,6 @@ y4_average = np.average(y4)
 y4_1sigma = np.std(y4)
 
 
-
-
-
-
-
-
-
-
-
-
-# Magallanes data is setup slightly different, take a look at the data to see why it is indexed this way -
-# perhaps it is so only beccause I'm a novice coder...
-rafter = combine_Magallanes.loc[(combine_Magallanes['Site'] == 'RRL')]
-magallanes = combine_Magallanes.loc[(combine_Magallanes['Site'] == 'Magallanes')]
-
-
 # UNCOMMENT WHEN DONE WRITING THIS FILE! HERE ARE THE OTHER INTERCOMPARISON!
 # I was first supplied with FM data from ANSTO so I'm going to use FM for this calculation.
 a = intercomparison_ttest(ansto['D14C'], rrl['D14C'], 'ANSTO v RRL Test: Tree Rings, D14C', 'paired')
@@ -75,8 +59,9 @@ a = intercomparison_ttest(ansto['FM'], rrl['FM'], 'ANSTO v RRL Test: Tree Rings,
 b = intercomparison_ttest(sio_nwt3['FM'], rrl_nwt3['FM'], 'SIO/LLNL v RRL, NWT3 Intercomparison', 'not-paired')
 c = intercomparison_ttest(sio_nwt4['FM'], rrl_nwt4['FM'], 'SIO/LLNL v RRL, NWT3 Intercomparison', 'not-paired')
 
+
 # TODO deal with the multiple records from the same year
-# d = intercomparison_ttest(rafter, magallanes, 'Magallanes v RRL Test: Tree Rings', 'paired')
+d = intercomparison_ttest(combine_Magallanes['D14C_x'], combine_Magallanes['D14C_y'], 'Magallanes v RRL Test: Tree Rings', 'paired')
 
 
 

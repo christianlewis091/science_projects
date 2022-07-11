@@ -48,8 +48,16 @@ for i in range(0, len(df2)):
     array.append(date)
 
 df2['Decimal_date'] = array
-combine_Magallanes = pd.concat([df, df2])
+combine_Magallanes = pd.merge(df, df2, on = 'Decimal_date')
 
+# Magallanes needs a bit more special treatment because there are multiple measurements per year and I need to average them out.
+# See the following excel sheet:
+
+combine_Magallanes.to_excel('Magallanes_preprocessing.xlsx')
+# Now I've edited the file slightly...
+
+combine_Magallanes = pd.read_excel(r'C:\Users\clewis\IdeaProjects\GNS\radiocarbon_intercomparison\Interlab_comparison\Magallanes_preprocessing_fixed.xlsx', skiprows= 12)
+print(combine_Magallanes.columns)
 
 
 

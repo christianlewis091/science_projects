@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
 from Pre_Processing_UniMagallanes import combine_Magallanes
+from intercomparison_math_1 import flaskvn
 import seaborn as sns
 from intercomparison_math_1 import ansto, rrl, sio_nwt3, sio_nwt4, rrl_nwt3, rrl_nwt4, y1, y1_average, y1_1sigma, y2, y2_average, y2_1sigma, y3, y3_average, y3_1sigma, y4, y4_average, y4_1sigma
 from A_heidelberg_intercomparison import xtot_bhd, ytot_bhd, ztot_bhd, xtot_heid, ytot_heid, ztot_heid, x1_bhd, data1, data2, data3, my_x_1986_1991, curve1, curve2, curve3, bhd_1986_1991_mean_smooth, bhd_1986_1991_mean_trend, heidelberg_1986_1991_mean_smooth, heidelberg_1986_1991_mean_trend
@@ -13,6 +14,7 @@ from A_heidelberg_intercomparison import heidelberg_2006_2009_mean_trend, heidel
 from A_heidelberg_intercomparison import bhd_2012_2016_mean_trend, bhd_2012_2016_mean_smooth
 from A_heidelberg_intercomparison import heidelberg_2012_2016_mean_trend, heidelberg_2012_2016_mean_smooth
 from A_heidelberg_intercomparison import means, my_x_2006_2009_trimmed, my_x_2012_2016_trimmed
+from intercomparison_math_1 import naoh1, flask1, naoh_means1, flask_means1, naoh_means2, flask_means2, fake_x1, fake_x2, naoh2, flask2
 size1 = 5
 colors = sns.color_palette("rocket", 6)
 colors2 = sns.color_palette("mako", 6)
@@ -401,3 +403,39 @@ plt.savefig('C:/Users/clewis/IdeaProjects/GNS/radiocarbon_intercomparison/interl
 plt.close()
 # </editor-fold>
 
+
+
+"""
+Flask V NaOH Plot
+"""
+
+plt.errorbar(flaskvn['Decimal_date'], flaskvn['D14C_flask'], yerr=flaskvn['D14C_err_flask'], fmt='o', color=colors2[3], ecolor='black', elinewidth=1, capsize=2, label='Flask')
+plt.errorbar(flaskvn['Decimal_date'], flaskvn['D14C_NaOH'], yerr=flaskvn['D14C_err_NaOH'], fmt='o', color=colors[3], ecolor='black', elinewidth=1, capsize=2, label='NaOH')
+plt.ylabel('\u0394$^1$$^4$CO$_2$ (\u2030)', fontsize=14)  # label the y axis
+plt.xlabel('Date of Measurement', fontsize=14)  # label the y axis
+plt.legend()
+plt.show()
+plt.close()
+
+fig = plt.figure(1, figsize=(10,5))
+gs = gridspec.GridSpec(1, 2)
+xtr_subsplot = fig.add_subplot(gs[0:1, 0:1])
+plt.ylabel('\u0394$^1$$^4$CO$_2$ (\u2030)', fontsize=14)  # label the y axis
+plt.errorbar(naoh1['DEC_DECAY_CORR'], naoh1['DELTA14C'], yerr=naoh1['DELTA14C_ERR'], fmt='o', color=colors2[3], ecolor=colors2[3], elinewidth=1, capsize=2, label='NaOH', alpha = 0.5)
+plt.errorbar(flask1['DEC_DECAY_CORR'], flask1['DELTA14C'], yerr=flask1['DELTA14C_ERR'], fmt='o', color=colors[3], ecolor=colors[3], elinewidth=1, capsize=2, label='Flask', alpha = 0.5)
+plt.plot(fake_x1, naoh_means1, color=colors2[3], label='NaOH')
+plt.plot(fake_x1, flask_means1,color=colors[3], label='Flask')
+plt.xlim(min(flask1['DEC_DECAY_CORR']), max(naoh1['DEC_DECAY_CORR']))
+plt.ylim(150, 230)
+plt.legend()
+xtr_subsplot = fig.add_subplot(gs[0:1, 1:2])
+plt.errorbar(naoh2['DEC_DECAY_CORR'], naoh2['DELTA14C'], yerr=naoh2['DELTA14C_ERR'], fmt='o', color=colors2[3], ecolor=colors2[3], elinewidth=1, capsize=2, label='NaOH', alpha = 0.5)
+plt.errorbar(flask2['DEC_DECAY_CORR'], flask2['DELTA14C'], yerr=flask2['DELTA14C_ERR'], fmt='o', color=colors[3], ecolor=colors[3], elinewidth=1, capsize=2, label='Flask', alpha = 0.5)
+plt.plot(fake_x2, naoh_means2, color=colors2[3], label='NaOH')
+plt.plot(fake_x2, flask_means2, color=colors[3], label='Flask')
+plt.xlim(min(flask2['DEC_DECAY_CORR']), max(flask2['DEC_DECAY_CORR']))
+plt.legend()
+
+plt.savefig('C:/Users/clewis/IdeaProjects/GNS/radiocarbon_intercomparison/interlab_comparison/plots/dev_restructure/FlaskvNaOH.png',
+            dpi=300, bbox_inches="tight")
+plt.close()

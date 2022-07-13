@@ -1,8 +1,15 @@
 from Pre_Processing_ANSTO import combine_ANSTO
 from Pre_Processing_UniMagallanes import combine_Magallanes
 from Pre_Processing_SIO_LLNL import combine_SIO
-from X_my_functions import intercomparison_ttest
+from X_my_functions import intercomparison_ttest, monte_carlo_randomization_trend
 import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import matplotlib.gridspec as gridspec
+import seaborn as sns
+colors = sns.color_palette("rocket", 6)
+colors2 = sns.color_palette("mako", 6)
+seshadri = ['#c3121e', '#0348a1', '#ffb01c', '#027608', '#0193b0', '#9c5300', '#949c01', '#7104b5']
 
 """
 This file uses PRE-CLEANED data from the following institutions, 
@@ -52,17 +59,63 @@ y4_1sigma = np.std(y4)
 # UNCOMMENT WHEN DONE WRITING THIS FILE! HERE ARE THE OTHER INTERCOMPARISON!
 # I was first supplied with FM data from ANSTO so I'm going to use FM for this calculation.
 a = intercomparison_ttest(ansto['D14C'], rrl['D14C'], 'ANSTO v RRL Test: Tree Rings, D14C', 'paired')
-a = intercomparison_ttest(ansto['FM'], rrl['FM'], 'ANSTO v RRL Test: Tree Rings, FM', 'paired')
+b = intercomparison_ttest(ansto['FM'], rrl['FM'], 'ANSTO v RRL Test: Tree Rings, FM', 'paired')
 
 # I'll do this one in FM as well because it minimizes the amount of extra calculatinos
 # that can lead to fake systematic bias.
-b = intercomparison_ttest(sio_nwt3['FM'], rrl_nwt3['FM'], 'SIO/LLNL v RRL, NWT3 Intercomparison', 'not-paired')
-c = intercomparison_ttest(sio_nwt4['FM'], rrl_nwt4['FM'], 'SIO/LLNL v RRL, NWT3 Intercomparison', 'not-paired')
+c = intercomparison_ttest(sio_nwt3['FM'], rrl_nwt3['FM'], 'SIO/LLNL v RRL, NWT3 Intercomparison', 'not-paired')
+d = intercomparison_ttest(sio_nwt4['FM'], rrl_nwt4['FM'], 'SIO/LLNL v RRL, NWT3 Intercomparison', 'not-paired')
 
 
 # TODO deal with the multiple records from the same year
-d = intercomparison_ttest(combine_Magallanes['D14C_x'], combine_Magallanes['D14C_y'], 'Magallanes v RRL Test: Tree Rings', 'paired')
+e = intercomparison_ttest(combine_Magallanes['D14C_x'], combine_Magallanes['D14C_y'], 'Magallanes v RRL Test: Tree Rings', 'paired')
 
+"""
+Shown below are intercomparisons between GNS internally:
+Site Intercomparison: BHD v Cape Grim
+Method Intercomparison: NaOH v Flask for CO2 measurements. 
 
+An initial method intercomparison from my remote work shows that there is a difference between the two groups. I'm going to
+expand this analysis the entire dataset I have on hand of BHD and see if there is a difference...
+"""
+# I'm adding in some extra intercomparisons from GNS,
+# Cape Grim vs BHD intercomparison
+# NaOH v Flask Intercomparison.
 
+"""
+This two lines below show the initial intercomparison. 
+"""
+flaskvn = pd.read_excel(r'H:\The Science\Datasets\FlaskvNaOH.xlsx', skiprows=3).dropna(subset = 'D14C_flask')  # import heidelberg data
+f = intercomparison_ttest(flaskvn['D14C_flask'], flaskvn['D14C_NaOH'], 'Flask v NaOH @ Baring Head', 'paired')
+"""
+Updated intercomparison
+"""
+bhd = pd.read_excel(r'H:\The Science\Datasets\BHD_14CO2_datasets_20211013.xlsx')  # import Baring Head data
+bhd = bhd.loc[(bhd['DELTA14C_ERR'] > 0)]
+bhd1 = bhd.loc[(bhd['DEC_DECAY_CORR'] > 1984) & (bhd['DEC_DECAY_CORR'] < 1993)]
+bhd2 = bhd.loc[(bhd['DEC_DECAY_CORR'] > 2012)]
 
+naoh1 = bhd1.loc[(bhd1['METH_COLL'] == 'NaOH_static')]
+flask1 = bhd1.loc[(bhd1['METH_COLL'] == 'Whole_air')]
+naoh2 = bhd2.loc[(bhd2['METH_COLL'] == 'NaOH_static')]
+flask2 = bhd2.loc[(bhd2['METH_COLL'] == 'Whole_air')]
+
+n = 100
+fake_x1 = np.linspace(min(flask1['DEC_DECAY_CORR']), max(naoh1['DEC_DECAY_CORR']), len(bhd['DEC_DECAY_CORR']))  # create arbitrary set of x-values to control output
+fake_x2 = np.linspace(min(flask2['DEC_DECAY_CORR']), max(flask2['DEC_DECAY_CORR']), len(bhd['DEC_DECAY_CORR']))  # create arbitrary set of x-values to control output
+trend_naoh1 = monte_carlo_randomization_trend(naoh1['DEC_DECAY_CORR'], fake_x1, naoh1['DELTA14C'], naoh1['DELTA14C_ERR'], 667, n)
+trend_naoh2 = monte_carlo_randomization_trend(naoh2['DEC_DECAY_CORR'], fake_x2, naoh2['DELTA14C'], naoh2['DELTA14C_ERR'], 667, n)
+trend_flask1 = monte_carlo_randomization_trend(flask1['DEC_DECAY_CORR'], fake_x1, flask1['DELTA14C'], flask1['DELTA14C_ERR'], 667, n)
+trend_flask2 = monte_carlo_randomization_trend(flask2['DEC_DECAY_CORR'], fake_x2, flask2['DELTA14C'], flask2['DELTA14C_ERR'], 667, n)
+
+naoh_summary = trend_naoh1[2]
+naoh_means1 = naoh_summary['Means']
+naoh_summary = trend_naoh2[2]
+naoh_means2 = naoh_summary['Means']
+flask_summary = trend_flask1[2]
+flask_means1 = flask_summary['Means']
+flask_summary = trend_flask2[2]
+flask_means2 = flask_summary['Means']
+
+f = intercomparison_ttest(naoh_means1, flask_means1, 'Flask v NaOH @ Baring Head, Trended, Part1', 'paired')
+f = intercomparison_ttest(naoh_means2, flask_means2, 'Flask v NaOH @ Baring Head, Trended, Part2', 'paired')

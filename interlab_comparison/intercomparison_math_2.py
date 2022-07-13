@@ -1,13 +1,15 @@
-import numpy as np
-from Pre_Processing_Heidelberg import combine_heidelberg
-from X_my_functions import monte_carlo_randomization_trend, monte_carlo_randomization_smooth
-from X_miller_curve_algorithm import ccgFilter
-from X_my_functions import intercomparison_ttest
-import matplotlib as mpl
-import matplotlib.pyplot as plt
-import matplotlib.gridspec as gridspec
-import pandas as pd
-import seaborn as sns
+# OLD, DON"T USE
+
+# import numpy as np
+# from Pre_Processing_Heidelberg import combine_heidelberg
+# from X_my_functions import monte_carlo_randomization_trend, monte_carlo_randomization_smooth
+# from X_miller_curve_algorithm import ccgFilter
+# from X_my_functions import intercomparison_ttest
+# import matplotlib as mpl
+# import matplotlib.pyplot as plt
+# import matplotlib.gridspec as gridspec
+# import pandas as pd
+# import seaborn as sns
 
 
 """

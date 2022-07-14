@@ -1,7 +1,7 @@
 from Pre_Processing_ANSTO import combine_ANSTO
 from Pre_Processing_UniMagallanes import combine_Magallanes
 from Pre_Processing_SIO_LLNL import combine_SIO
-from X_my_functions import intercomparison_ttest, monte_carlo_randomization_trend
+from X_my_functions import intercomparison_ttest, monte_carlo_randomization_trend, long_date_to_decimal_date
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -70,9 +70,9 @@ d = intercomparison_ttest(sio_nwt4['FM'], rrl_nwt4['FM'], 'SIO/LLNL v RRL, NWT3 
 # TODO deal with the multiple records from the same year
 e = intercomparison_ttest(combine_Magallanes['D14C_x'], combine_Magallanes['D14C_y'], 'Magallanes v RRL Test: Tree Rings', 'paired')
 
+# <editor-fold desc="Flask v NaOH Method Intercomparison">
 """
 Shown below are intercomparisons between GNS internally:
-Site Intercomparison: BHD v Cape Grim
 Method Intercomparison: NaOH v Flask for CO2 measurements. 
 
 An initial method intercomparison from my remote work shows that there is a difference between the two groups. I'm going to
@@ -85,8 +85,13 @@ expand this analysis the entire dataset I have on hand of BHD and see if there i
 """
 This two lines below show the initial intercomparison. 
 """
+
 flaskvn = pd.read_excel(r'H:\The Science\Datasets\FlaskvNaOH.xlsx', skiprows=3).dropna(subset = 'D14C_flask')  # import heidelberg data
 f = intercomparison_ttest(flaskvn['D14C_flask'], flaskvn['D14C_NaOH'], 'Flask v NaOH @ Baring Head', 'paired')
+
+
+
+
 """
 Updated intercomparison
 """
@@ -100,7 +105,7 @@ flask1 = bhd1.loc[(bhd1['METH_COLL'] == 'Whole_air')]
 naoh2 = bhd2.loc[(bhd2['METH_COLL'] == 'NaOH_static')]
 flask2 = bhd2.loc[(bhd2['METH_COLL'] == 'Whole_air')]
 
-n = 100
+n = 10
 fake_x1 = np.linspace(min(flask1['DEC_DECAY_CORR']), max(naoh1['DEC_DECAY_CORR']), len(bhd['DEC_DECAY_CORR']))  # create arbitrary set of x-values to control output
 fake_x2 = np.linspace(min(flask2['DEC_DECAY_CORR']), max(flask2['DEC_DECAY_CORR']), len(bhd['DEC_DECAY_CORR']))  # create arbitrary set of x-values to control output
 trend_naoh1 = monte_carlo_randomization_trend(naoh1['DEC_DECAY_CORR'], fake_x1, naoh1['DELTA14C'], naoh1['DELTA14C_ERR'], 667, n)
@@ -119,3 +124,36 @@ flask_means2 = flask_summary['Means']
 
 f = intercomparison_ttest(naoh_means1, flask_means1, 'Flask v NaOH @ Baring Head, Trended, Part1', 'paired')
 f = intercomparison_ttest(naoh_means2, flask_means2, 'Flask v NaOH @ Baring Head, Trended, Part2', 'paired')
+# </editor-fold>
+
+# """
+# Does the extraction date impact the data ?
+# """
+# ed = pd.read_excel(r'H:\The Science\Datasets\Extraction_Dates.xlsx')  # import Baring Head data
+# bhd = pd.read_excel(r'H:\The Science\Datasets\BHD_14CO2_datasets_20211013 - Copy.xlsx')  # import Baring Head data
+# ed = ed.dropna(subset=['NZ'])
+# ed = ed.dropna(subset=['Extract'])
+#
+#
+# combined = pd.merge(bhd, ed, how = 'outer')
+# combined['Extract'] = long_date_to_decimal_date(combined['Extract'])
+#
+# naoh = combined.loc[(combined['METH_COLL'] == 'NaOH_static')]
+# flask = combined.loc[(combined['METH_COLL'] == 'Whole_air')]
+#
+# mtarray = []
+# for i in range(0, len(naoh)):
+#     row1 = naoh.iloc[i]
+#
+#     for k in range(0, len(flask)):
+#         row2 = flask.iloc[k]
+#
+#         if row1['DATE_ST_asnum'] < row2['DATE_COLLasnum'] < row1['DATE_END_asnum']:
+#             mtarray.append(row1)
+#             mtarray.append(row2)
+#
+# mtarray = pd.DataFrame(mtarray)
+# mtarray.to_excel('test2.xlsx')
+
+
+

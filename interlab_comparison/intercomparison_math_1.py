@@ -63,12 +63,14 @@ b = intercomparison_ttest(ansto['FM'], rrl['FM'], 'ANSTO v RRL Test: Tree Rings,
 
 # I'll do this one in FM as well because it minimizes the amount of extra calculatinos
 # that can lead to fake systematic bias.
-c = intercomparison_ttest(sio_nwt3['FM'], rrl_nwt3['FM'], 'SIO/LLNL v RRL, NWT3 Intercomparison', 'not-paired')
-d = intercomparison_ttest(sio_nwt4['FM'], rrl_nwt4['FM'], 'SIO/LLNL v RRL, NWT3 Intercomparison', 'not-paired')
-
+c = intercomparison_ttest(sio_nwt3['FM'], rrl_nwt3['FM'], 'SIO/LLNL v RRL, NWT3 Intercomparison (FM)', 'not-paired')
+d = intercomparison_ttest(sio_nwt4['FM'], rrl_nwt4['FM'], 'SIO/LLNL v RRL, NWT4 Intercomparison (FM)', 'not-paired')
+e = intercomparison_ttest(sio_nwt3['D14C'], rrl_nwt3['D14C'], 'SIO/LLNL v RRL, NWT3 Intercomparison (D14C)', 'not-paired')
+f = intercomparison_ttest(sio_nwt4['D14C'], rrl_nwt4['D14C'], 'SIO/LLNL v RRL, NWT4 Intercomparison (D14C', 'not-paired')
 
 # TODO deal with the multiple records from the same year
-e = intercomparison_ttest(combine_Magallanes['D14C_x'], combine_Magallanes['D14C_y'], 'Magallanes v RRL Test: Tree Rings', 'paired')
+e = intercomparison_ttest(combine_Magallanes['D14C_x'], combine_Magallanes['D14C_y'], 'Magallanes v RRL Test: Tree Rings (D14C)', 'paired')
+e = intercomparison_ttest(combine_Magallanes['FM_x'], combine_Magallanes['FM_y'], 'Magallanes v RRL Test: Tree Rings (FM)', 'paired')
 
 # <editor-fold desc="Flask v NaOH Method Intercomparison">
 """

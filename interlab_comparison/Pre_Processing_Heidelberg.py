@@ -51,3 +51,4 @@ baringhead = baringhead.rename(columns = {'SITE':'Site', 'DEC_DECAY_CORR':'Decim
 
 baringhead['Site'] = 'BHD'
 combine_heidelberg = pd.concat([heidelberg, baringhead])
+# combine_heidelberg.to_excel('testing.xlsx')

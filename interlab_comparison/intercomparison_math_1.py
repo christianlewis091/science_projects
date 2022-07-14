@@ -89,9 +89,6 @@ This two lines below show the initial intercomparison.
 flaskvn = pd.read_excel(r'H:\The Science\Datasets\FlaskvNaOH.xlsx', skiprows=3).dropna(subset = 'D14C_flask')  # import heidelberg data
 f = intercomparison_ttest(flaskvn['D14C_flask'], flaskvn['D14C_NaOH'], 'Flask v NaOH @ Baring Head', 'paired')
 
-
-
-
 """
 Updated intercomparison
 """
@@ -126,6 +123,10 @@ f = intercomparison_ttest(naoh_means1, flask_means1, 'Flask v NaOH @ Baring Head
 f = intercomparison_ttest(naoh_means2, flask_means2, 'Flask v NaOH @ Baring Head, Trended, Part2', 'paired')
 # </editor-fold>
 
+# <editor-fold desc="Extraction Dates">
+"""
+Very very frustrating issues with date formatting when trying to deal with the extraction date data. Will come back to this at future time. 
+"""
 # """
 # Does the extraction date impact the data ?
 # """
@@ -155,5 +156,5 @@ f = intercomparison_ttest(naoh_means2, flask_means2, 'Flask v NaOH @ Baring Head
 # mtarray = pd.DataFrame(mtarray)
 # mtarray.to_excel('test2.xlsx')
 
-
+# </editor-fold>
 

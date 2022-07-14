@@ -1,3 +1,4 @@
+# <editor-fold desc="Import Statements">
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
@@ -19,7 +20,7 @@ size1 = 5
 colors = sns.color_palette("rocket", 6)
 colors2 = sns.color_palette("mako", 6)
 seshadri = ['#c3121e', '#0348a1', '#ffb01c', '#027608', '#0193b0', '#9c5300', '#949c01', '#7104b5']
-
+# </editor-fold>
 
 # <editor-fold desc="SIO v Rafter">
 """
@@ -403,8 +404,7 @@ plt.savefig('C:/Users/clewis/IdeaProjects/GNS/radiocarbon_intercomparison/interl
 plt.close()
 # </editor-fold>
 
-
-
+# <editor-fold desc="Flask v NaOH Intercomparison">
 """
 Flask V NaOH Plot
 """
@@ -439,3 +439,4 @@ plt.legend()
 plt.savefig('C:/Users/clewis/IdeaProjects/GNS/radiocarbon_intercomparison/interlab_comparison/plots/dev_restructure/FlaskvNaOH.png',
             dpi=300, bbox_inches="tight")
 plt.close()
+# </editor-fold>

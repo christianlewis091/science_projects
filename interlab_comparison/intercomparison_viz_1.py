@@ -7,6 +7,7 @@ from intercomparison_math_1 import flaskvn
 import seaborn as sns
 from intercomparison_math_1 import ansto, rrl, sio_nwt3, sio_nwt4, rrl_nwt3, rrl_nwt4, y1, y1_average, y1_1sigma, y2, y2_average, y2_1sigma, y3, y3_average, y3_1sigma, y4, y4_average, y4_1sigma
 from intercomparison_math_1 import naoh1, flask1, naoh_means1, flask_means1, naoh_means2, flask_means2, fake_x1, fake_x2, naoh2, flask2
+import pandas as pd
 size1 = 5
 colors = sns.color_palette("rocket", 6)
 colors2 = sns.color_palette("mako", 6)
@@ -775,3 +776,19 @@ plt.savefig('C:/Users/clewis/IdeaProjects/GNS/radiocarbon_intercomparison/interl
             dpi=300, bbox_inches="tight")
 plt.close()
 # </editor-fold>
+
+
+
+df = pd.read_excel(r'C:\Users\clewis\IdeaProjects\GNS\radiocarbon_intercomparison\Interlab_comparison\Results_table_for_pub.xlsx')  # import data
+
+D14C = df.loc[(df['Parameter Used'] == 'D14C')]
+sns.barplot(x=D14C['Time Period'], y=D14C['Result'],  palette="Blues_d")
+plt.savefig('C:/Users/clewis/IdeaProjects/GNS/radiocarbon_intercomparison/interlab_comparison/plots/2022_Intercomparison_Paper/Final_Results_D14C.png',
+            dpi=300, bbox_inches="tight")
+plt.close()
+
+FM = df.loc[(df['Parameter Used'] == 'FM')]
+sns.barplot(x=FM['Time Period'], y=FM['Result'],  palette="Blues_d")
+plt.savefig('C:/Users/clewis/IdeaProjects/GNS/radiocarbon_intercomparison/interlab_comparison/plots/2022_Intercomparison_Paper/Final_Results_FM.png',
+            dpi=300, bbox_inches="tight")
+plt.close()

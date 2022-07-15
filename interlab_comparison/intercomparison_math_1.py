@@ -72,21 +72,17 @@ y4_average_fm = np.average(y4_fm)
 y4_1sigma_fm = np.std(y4_fm)
 
 
-
-
-
-
 # UNCOMMENT WHEN DONE WRITING THIS FILE! HERE ARE THE OTHER INTERCOMPARISON!
 # I was first supplied with FM data from ANSTO so I'm going to use FM for this calculation.
-a = intercomparison_ttest(ansto['D14C'], rrl['D14C'], 'ANSTO v RRL Test: Tree Rings, D14C', 'paired')
-b = intercomparison_ttest(ansto['FM'], rrl['FM'], 'ANSTO v RRL Test: Tree Rings, FM', 'paired')
+a = intercomparison_ttest(rrl['D14C'], ansto['D14C'], 'ANSTO v RRL Test: Tree Rings, D14C', 'paired')
+b = intercomparison_ttest(rrl['FM'], ansto['FM'], 'ANSTO v RRL Test: Tree Rings, FM', 'paired')
 
 # I'll do this one in FM as well because it minimizes the amount of extra calculatinos
 # that can lead to fake systematic bias.
-c = intercomparison_ttest(sio_nwt3['FM'], rrl_nwt3['FM'], 'SIO/LLNL v RRL, NWT3 Intercomparison (FM)', 'not-paired')
-d = intercomparison_ttest(sio_nwt4['FM'], rrl_nwt4['FM'], 'SIO/LLNL v RRL, NWT4 Intercomparison (FM)', 'not-paired')
-e = intercomparison_ttest(sio_nwt3['D14C'], rrl_nwt3['D14C'], 'SIO/LLNL v RRL, NWT3 Intercomparison (D14C)', 'not-paired')
-f = intercomparison_ttest(sio_nwt4['D14C'], rrl_nwt4['D14C'], 'SIO/LLNL v RRL, NWT4 Intercomparison (D14C', 'not-paired')
+c = intercomparison_ttest(rrl_nwt3['FM'], sio_nwt3['FM'], 'SIO/LLNL v RRL, NWT3 Intercomparison (FM)', 'not-paired')
+d = intercomparison_ttest(rrl_nwt4['FM'], sio_nwt4['FM'], 'SIO/LLNL v RRL, NWT4 Intercomparison (FM)', 'not-paired')
+e = intercomparison_ttest(rrl_nwt3['D14C'], sio_nwt3['D14C'], 'SIO/LLNL v RRL, NWT3 Intercomparison (D14C)', 'not-paired')
+f = intercomparison_ttest(rrl_nwt4['D14C'], sio_nwt4['D14C'], 'SIO/LLNL v RRL, NWT4 Intercomparison (D14C', 'not-paired')
 
 # TODO deal with the multiple records from the same year
 e = intercomparison_ttest(combine_Magallanes['D14C_x'], combine_Magallanes['D14C_y'], 'Magallanes v RRL Test: Tree Rings (D14C)', 'paired')

@@ -36,7 +36,7 @@ def intercomparison_ttest(data1, data2, test_name, test_type):
         difference = np.subtract(data1, data2)  # subtract the data from each other
         mean1 = np.average(difference)  # find the mean of the difference between the datasets
         standard_error = np.std(difference) / np.sqrt(len(difference))  # standard error of the subtraction array
-        print('The average difference between the groups is ' + str(mean1))
+        print('The average difference between the groups is ' + str(mean1) + 'and std error is ' + str(standard_error))
 
     elif test_type == 'not-paired':
         result = stats.ttest_ind(data1, data2)
@@ -48,7 +48,7 @@ def intercomparison_ttest(data1, data2, test_name, test_type):
         stderr2 = std2 / np.sqrt(len(data2))
         offset = avg1 - avg2  # compute the offset between the means of the two datasets
         error_prop = (np.sqrt(stderr1 ** 2 + stderr2 ** 2))  # propagate the error
-
+        print('The average difference between the groups is ' + str(offset) + 'and std error is ' + str(error_prop))
     print(result)  # Print the t-test result
     if result[1] < 0.01:  # if statement for me to print if they are different
         print("The data are different at 98% confidence")

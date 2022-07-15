@@ -55,6 +55,26 @@ y4 = rrl_nwt4['D14C']
 y4_average = np.average(y4)
 y4_1sigma = np.std(y4)
 
+y1_fm = sio_nwt3['FM']
+y1_average_fm = np.average(y1_fm)
+y1_1sigma_fm = np.std(y1_fm)
+
+y2_fm = sio_nwt4['FM']
+y2_average_fm = np.average(y2_fm)
+y2_1sigma_fm = np.std(y2_fm)
+
+y3_fm = rrl_nwt3['FM']
+y3_average_fm = np.average(y3_fm)
+y3_1sigma_fm = np.std(y3_fm)
+
+y4_fm = rrl_nwt4['FM']
+y4_average_fm = np.average(y4_fm)
+y4_1sigma_fm = np.std(y4_fm)
+
+
+
+
+
 
 # UNCOMMENT WHEN DONE WRITING THIS FILE! HERE ARE THE OTHER INTERCOMPARISON!
 # I was first supplied with FM data from ANSTO so I'm going to use FM for this calculation.

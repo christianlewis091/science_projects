@@ -111,9 +111,9 @@ f = intercomparison_ttest(flaskvn['D14C_flask'], flaskvn['D14C_NaOH'], 'Flask v 
 Updated intercomparison
 """
 bhd = pd.read_excel(r'H:\The Science\Datasets\BHD_14CO2_datasets_20211013.xlsx')  # import Baring Head data
-bhd = bhd.loc[(bhd['DELTA14C_ERR'] > 0)]
-bhd1 = bhd.loc[(bhd['DEC_DECAY_CORR'] > 1984) & (bhd['DEC_DECAY_CORR'] < 1993)]
-bhd2 = bhd.loc[(bhd['DEC_DECAY_CORR'] > 2012)]
+bhd = bhd.loc[(bhd['DELTA14C_ERR'] > 0)]                                          # filter out all data where the errors are less than zero
+bhd1 = bhd.loc[(bhd['DEC_DECAY_CORR'] > 1984) & (bhd['DEC_DECAY_CORR'] < 1993)]   # grab only data that is between 1984 and 1993
+bhd2 = bhd.loc[(bhd['DEC_DECAY_CORR'] > 2012)]                                    # then grab data that is after 2012 (we're removing the intermediate period)
 
 naoh1 = bhd1.loc[(bhd1['METH_COLL'] == 'NaOH_static')]
 flask1 = bhd1.loc[(bhd1['METH_COLL'] == 'Whole_air')]
@@ -145,18 +145,27 @@ f = intercomparison_ttest(naoh_means2, flask_means2, 'Flask v NaOH @ Baring Head
 """
 Very very frustrating issues with date formatting when trying to deal with the extraction date data. Will come back to this at future time. 
 """
-# """
-# Does the extraction date impact the data ?
-# """
-# ed = pd.read_excel(r'H:\The Science\Datasets\Extraction_Dates.xlsx')  # import Baring Head data
-# bhd = pd.read_excel(r'H:\The Science\Datasets\BHD_14CO2_datasets_20211013 - Copy.xlsx')  # import Baring Head data
-# ed = ed.dropna(subset=['NZ'])
-# ed = ed.dropna(subset=['Extract'])
+"""
+Does the extraction date impact the data ?
+"""
+ed = pd.read_excel(r'H:\The Science\Datasets\Extraction_Dates.xlsx')  # import Baring Head data
+bhd = pd.read_excel(r'H:\The Science\Datasets\BHD_14CO2_datasets_20211013.xlsx')  # import Baring Head data
+ed = ed.dropna(subset=['NZ'])
+ed = ed.dropna(subset=['Extract'])
 #
 #
-# combined = pd.merge(bhd, ed, how = 'outer')
-# combined['Extract'] = long_date_to_decimal_date(combined['Extract'])
-#
+combined = pd.merge(bhd, ed, on = 'NZ')
+# combined.to_excel('test.xlsx')
+x = combined['Extract']
+x = long_date_to_decimal_date(x)
+
+combined['Extraction Date Difference'] = x - combined['DEC_DECAY_CORR']
+
+combined.to_excel('test.xlsx')
+
+## combined['Extract'] = long_date_to_decimal_date(combined['Extract'])
+
+# #
 # naoh = combined.loc[(combined['METH_COLL'] == 'NaOH_static')]
 # flask = combined.loc[(combined['METH_COLL'] == 'Whole_air')]
 #
@@ -173,6 +182,6 @@ Very very frustrating issues with date formatting when trying to deal with the e
 #
 # mtarray = pd.DataFrame(mtarray)
 # mtarray.to_excel('test2.xlsx')
-
+#
 # </editor-fold>
 

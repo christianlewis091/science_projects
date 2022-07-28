@@ -91,7 +91,7 @@ map.drawcoastlines(linewidth=0.5)
 map.drawmapboundary(fill_color='paleturquoise', linewidth=0.1)
 map.fillcontinents(color=land, lake_color='aqua')
 map.drawcountries(linewidth=0.5)
-
+plt.show()
 # map.scatter(z, a, marker='D',color='m', s = size1)
 
 

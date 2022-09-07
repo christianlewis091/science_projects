@@ -71,7 +71,7 @@ plt.legend(fontsize=7.5)
 plt.xlabel('Date', fontsize=14)
 plt.title('Flask - NaOH \u0394$^1$$^4$C (\u2030)')
 plt.ylabel('\u0394\u0394$^1$$^4$C (\u2030)', fontsize=14)  # label the y axis
-plt.savefig('C:/Users/clewis/IdeaProjects/GNS/radiocarbon_intercomparison/interlab_comparison/plots/2022_Intercomparison_Paper/Flask_v_NaOH.png',
+plt.savefig('C:/Users/clewis/IdeaProjects/GNS/01_science_projects/01_interlab_comparison/03_outputs/plots/2022_Intercomparison_Paper/Flask_v_NaOH.png',
             dpi=300, bbox_inches="tight")
 plt.close()
 
@@ -82,7 +82,7 @@ plt.legend(fontsize=7.5)
 plt.xlabel('Time in flask before extraction (Years)', fontsize=14)
 plt.title('Flask - NaOH \u0394$^1$$^4$C (\u2030)')
 plt.ylabel('\u0394\u0394$^1$$^4$C (\u2030)', fontsize=14)  # label the y axis
-plt.savefig('C:/Users/clewis/IdeaProjects/GNS/radiocarbon_intercomparison/interlab_comparison/plots/2022_Intercomparison_Paper/Extraction_date_influence.png',
+plt.savefig('C:/Users/clewis/IdeaProjects/GNS/01_science_projects/01_interlab_comparison/03_outputs/plots/2022_Intercomparison_Paper/Extraction_date_influence.png',
             dpi=300, bbox_inches="tight")
 plt.close()
 
@@ -102,6 +102,6 @@ plt.legend(fontsize=7.5)
 plt.xlabel('Date', fontsize=14)
 plt.title('BHD v CGO')
 plt.ylabel('\u0394$^1$$^4$C (\u2030)', fontsize=14)  # label the y axis
-plt.savefig('C:/Users/clewis/IdeaProjects/GNS/radiocarbon_intercomparison/interlab_comparison/plots/2022_Intercomparison_Paper/Site_intercomparison.png',
+plt.savefig('C:/Users/clewis/IdeaProjects/GNS/01_science_projects/01_interlab_comparison/03_outputs/plots/2022_Intercomparison_Paper/Site_intercomparison.png',
             dpi=300, bbox_inches="tight")
 plt.close()

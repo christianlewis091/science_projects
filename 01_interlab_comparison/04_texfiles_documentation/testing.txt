@@ -1,0 +1,11 @@
+\documentclass{article}
+
+\usepackage{graphicx}
+
+\begin{document}
+My first \LaTeX~document!
+\includegraphics[scale=1.5]{/mnt/c/Users/clewis/IdeaProjects/GNS/01_science_projects/01_interlab_comparison/03_outputs/plots/newmap.png}
+
+\end{document}
+
+

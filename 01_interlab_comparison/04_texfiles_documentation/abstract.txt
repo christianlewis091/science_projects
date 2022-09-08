@@ -1,0 +1,3 @@
+\begin{abstract}
+Shelf seas are regions of high biological activity, contributing 15-30\% of global oceanic primary production, with temperate shelf seas as an important global carbon sink. To understand how shelf seas will respond to environmental changes it is important to fully understand phytoplankton dynamics and inter-annual variability of phytoplankton production in these areas. Previous modelling works have shown that meteorology can affect phytoplankton seasonal dynamics but there is still debate in the literature about the direct mechanisms that affect long-term phytoplankton productivity. 
+\end{abstract}

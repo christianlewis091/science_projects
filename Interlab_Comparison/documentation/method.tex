@@ -1,12 +1,83 @@
 \section{Method}
 \label{sec:method}
 
-The process that allows the development of stratification can be defined by the potential energy anomaly (PEA, $\Phi$). This parameter is a quantitative measure of stratification and represents the work required per unit volume to completely mix
-the water column $[Jm^{-3}]$. \\
+% symbols
+% ^{\circ} percent
+% ${\Delta^{14}C}$ D14C
 
-\begin{equation*}
-     \Phi=\frac{1}{h}\int_{-h}^{0}(\bar{\rho}-\rho(z))gzdz 
-\end{equation*}
+The following institutions' radiocarbon measurements (${\Delta^{14}C}$ and/or FM) 
+ were compared with the GNS Rafter Radiocarbon Laboratory in turn, each elaborated upon in the following sections. Each intercomparison is tailored specifically to the type of data available between each institution. 
+
+\subsection{Rafter Radiocarbon Lab}
+
+The rafter lab operates the longest runnnig record of atmospheric 14CO2...
+
+\subsection{Heidelberg University}
+
+The Heidelberg University Institute of Environmental Physics in affiliation with the ICOS Central Radiocarbon Laboratory operates a network of time-series stations measuring ${\Delta^{14}CO_{2}}$. One of these stations, Cape Grim, Tasmania (CGO; 40.68S, 144.68E, 94 m a.s.l; Levin et al., 2010), is a reasonable candidate through which to compare Heidelberg University to Rafter Radiocarbon Lab ${\Delta^{14}CO_{2}}$. Cape Grim and Baring Head observe a similar mixture of air from the Southern Ocean and Austrailia (Ziehn et al., 2014, Law et al, 2010), and a short initial time-series indicates no measurable differnece between the sites from 2017-2019 (~\ref{fig:bhdvcgo}). 
+
+Some data is removed - early period before XCAMS
+some later data is removed - had to do with NaOH method or something...
+
+The CGO and BHD ${\Delta^{14}CO_{2}}$ records are both non-stationary time-series in the sense that they both capture the 1950s "bomb-spike" (cite) and contain seasonality. Seasonality and noise in the long-term atmospheric data complicates efforts to decompose long-term systematic offsets between institutions. 
+CCGCRV curve fitting procedure (Thoning et al., 1989; www.esrl.noaa.gov/gmd/ccgg/mbl/crvfit/), is implemented to smooth through gaps in data and remove seasonailty in two steps. 
+FFT filter cuttoff 1...
+FTT Filter cutoff 2...
+
+The data is broken up into 5 period in which the data overal: [1987 - 1991, 1991 - 1994, 2006 - 2016, 2006 - 2009, 2012 - 2016]....
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+(including comparisons of standard material and non-stationary time series)  
+
+
+
+
+
+
+
+
+
+
+
+In
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 \noindent where z is the water column depth (m), h is the mixed layer thickness (m), g=9.81 (m $\rm s^{-2}$) is the gravitational acceleration, $\bar{\rho}$ is the water column mean density determined from temperature and salinity profiles, $\rho(z)$ is the density profile determined from temperature and salinity 
 profiles. 

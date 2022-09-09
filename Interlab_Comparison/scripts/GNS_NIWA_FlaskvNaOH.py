@@ -17,8 +17,8 @@ Also were we able to see a difference between atmospheric CO2 from Cape Grim and
 time in the past ( a very specific test) 
 """
 
-ed = pd.read_excel(r'H:\The Science\Datasets\Extraction_Dates.xlsx')              # import Baring Extraction Date Data
-bhd = pd.read_excel(r'H:\The Science\Datasets\BHD_14CO2_datasets_20211013.xlsx')  # import all Baring Head data
+ed = pd.read_excel(r'H:\Science\Datasets\Extraction_Dates.xlsx')              # import Baring Extraction Date Data
+bhd = pd.read_excel(r'H:\Science\Datasets\BHD_14CO2_datasets_20211013.xlsx')  # import all Baring Head data
 bhd = bhd.dropna(subset='DATE_ST').reset_index(drop = True)
 bhd = bhd.dropna(subset='DATE_END').reset_index(drop = True)
 ed = ed.dropna(subset='Extract').reset_index(drop = True)
@@ -71,7 +71,7 @@ plt.legend(fontsize=7.5)
 plt.xlabel('Date', fontsize=14)
 plt.title('Flask - NaOH \u0394$^1$$^4$C (\u2030)')
 plt.ylabel('\u0394\u0394$^1$$^4$C (\u2030)', fontsize=14)  # label the y axis
-plt.savefig('C:/Users/clewis/IdeaProjects/GNS/radiocarbon_intercomparison/interlab_comparison/plots/2022_Intercomparison_Paper/Flask_v_NaOH.png',
+plt.savefig('C:/Users/clewis/IdeaProjects/GNS/Interlab_Comparison/output/Flask_v_NaOH.png',
             dpi=300, bbox_inches="tight")
 plt.close()
 
@@ -82,7 +82,7 @@ plt.legend(fontsize=7.5)
 plt.xlabel('Time in flask before extraction (Years)', fontsize=14)
 plt.title('Flask - NaOH \u0394$^1$$^4$C (\u2030)')
 plt.ylabel('\u0394\u0394$^1$$^4$C (\u2030)', fontsize=14)  # label the y axis
-plt.savefig('C:/Users/clewis/IdeaProjects/GNS/radiocarbon_intercomparison/interlab_comparison/plots/2022_Intercomparison_Paper/Extraction_date_influence.png',
+plt.savefig('C:/Users/clewis/IdeaProjects/GNS/Interlab_Comparison/output//Extraction_date_influence.png',
             dpi=300, bbox_inches="tight")
 plt.close()
 
@@ -90,8 +90,7 @@ plt.close()
 The test that was done between CGO and Baring Head, how did that turn out? 
 """
 
-df = pd.read_excel(r'H:\The Science\Datasets\CGOvBHD.xlsx')              # import Baring Extraction Date Data
-
+df = pd.read_excel(r'H:\Science\Datasets\CGOvBHD.xlsx')
 f = intercomparison_ttest(df['BHD_D14C'], df['CGO_D14C'], 'CGOvBHD (Both NaOH)', 'paired')
 
 plt.errorbar(df['Date'], df['BHD_D14C'], label='BHD', yerr=df['standard deviation1'], fmt='o', color=colors[2], ecolor=colors[2], elinewidth=1, capsize=2)
@@ -102,6 +101,6 @@ plt.legend(fontsize=7.5)
 plt.xlabel('Date', fontsize=14)
 plt.title('BHD v CGO')
 plt.ylabel('\u0394$^1$$^4$C (\u2030)', fontsize=14)  # label the y axis
-plt.savefig('C:/Users/clewis/IdeaProjects/GNS/radiocarbon_intercomparison/interlab_comparison/plots/2022_Intercomparison_Paper/Site_intercomparison.png',
+plt.savefig('C:/Users/clewis/IdeaProjects/GNS/Interlab_Comparison/output/Site_intercomparison.png',
             dpi=300, bbox_inches="tight")
 plt.close()

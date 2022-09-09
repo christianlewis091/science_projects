@@ -1,0 +1,385 @@
+\errorcontextlines999\relax
+The various ``XX'' and ``xX'' pairs test whether there are errant spaces
+in the macros or the macro files.
+
+X\input mfpextra\relax X
+X\input mfpextra\relax X
+\def\empty{}
+
+\def\frac#1#2{{#1\over#2}}
+\def\cs#1{{\tt \char`\\#1}}
+\def\mybreak{\vskip 0pt plus 100pt\penalty 0 \vskip 0pt plus -100pt\relax}
+\def\\{\hfil\break\ignorespaces}
+\def\y{Rpop\Z\Z\\}
+\def\Y{Rpop\Z\Z}
+\everymath{\displaystyle}
+
+{\bf Stack-only operations:}\\
+Example of a program. Computes the solution of $ax^2 + bx + c = 0$ using
+the quadratic formula. If the result is complex, it detects this.
+Coefficients stored in \cs{A}, \cs{B} and \cs{C}. First case: $4x^2 +
+5y^2 - 1= 0$. Solutions are $x = -\frac{5}{8} \pm \frac{1}{8}\sqrt{41}$
+
+\def\A{4}\def\B{5}\def\C{-1}
+
+X\startMFPprogram                   %  stack
+\Rpush\B\Rdup\Rsq                   %  B(B^2)
+\Rpush\A\Rpush\C\Rmul\Rdbl\Rdbl     %  B(B^2)(4AC)
+\Rsub                               %  B(B^2-4AC)
+\IFneg{\def\I{i}\Rchs}{\def\I{}}%   %  B(|B^2-4AC|)
+\Rsqrt\Rpush\A\Rdbl\Rdiv            %  B(sqrt(|B^2-4AC|)/2A)
+\Rpop\Ypart                         %  B
+\Rpush\A\Rdbl\Rdiv\Rchs             %  (-B/2A)
+\Rpop\Xpart                         %
+%\expandafter\show\csname MFP@Rstack\endcsname
+\Rpush\Xpart\Rpush\Ypart\Radd\Rpop\Broot
+\Rpush\Xpart\Rpush\Ypart\Rsub\Rpop\Sroot
+\Export\Xpart
+\Export\Ypart
+\Export\Broot
+\Export\Sroot
+\Export\I
+\stopMFPprogram X
+
+\indent Solution: $x = \Xpart \pm \I\Ypart = \Broot$ and $\Sroot$.
+
+Second case $2x^2 - 2x + 3 = 0$. Solutions are $x = \frac{1}{2} \pm
+\frac{i}{2}\sqrt{5}$.
+
+\def\A{2}\def\B{-2}\def\C{3}
+
+X\startMFPprogram                   %  stack
+\Rpush\B\Rdup\Rsq                   %  B(B^2)
+\Rpush\A\Rpush\C\Rmul\Rdbl\Rdbl     %  B(B^2)(4AC)
+\Rsub                               %  B(B^2-4AC)
+\IFneg{\def\I{i}\Rchs}{\def\I{}}%   %  B(|B^2-4AC|)
+\Rsqrt\Rpush\A\Rdbl\Rdiv            %  B(sqrt(|B^2-4AC|)/2A)
+\Rpop\Ypart                         %  B
+\Rpush\A\Rdbl\Rdiv\Rchs             %  (-B/2A)
+\Rpop\Xpart                         %
+\Export\Xpart
+\Export\Ypart
+\Export\I
+\stopMFPprogram X
+
+%\expandafter\show\csname MFP@Rstack\endcsname
+\indent Solution: $x = \Xpart \pm \I\Ypart$.
+
+Now try square roots (should be exactly 1234.5678 and 1524):
+X\startMFPprogram                    %  stack
+\Rpush{1524157.65279684}\Rsqrt\Rpop\X
+\Rpush{1524}\Rsq\Rsqrt\Rpop\Y
+\Export\X
+\Export\Y
+\stopMFPprogram X \X { and }\Y.
+
+
+Below we test for speed and to check for any space characters
+accidentally produced. You should see only a few xX pairs with hopefully
+no spaces in between them. As curently set up, these tests perform about
+34000 numerical operations. It all takes about 31 seconds on a
+moderately old (2 years?) Windows 7 running plain tex from
+TeX~Live~2012.
+
+This operation count does not distinguish between basic operations like
+addition and multiplication, and those operations from mfpextra that are
+probably each equivalent to a dozen or more multiplications. Counting
+each such operation with the an estimated multiplicity, the tests
+probably perform 400 thousand or more basic operations.
+
+Of the basic operations, multiplication is (by measurement) 2--4 times
+as lengthy as addition, and division is 2--3 times as lengthy as
+multiplication. Actual times depend on the machine, but the ratios
+remain pretty much the same. Here is a summary of timings on my fastest
+machine; each operation is run 500 times in a loop. (A loop in which
+an input number is processed and a value returned, but no calculations are
+performed ({\tt\string\MFPzero}), times at $0.0\,$sec.) Timing obtained
+with {\tt\string\pdfelapsedtime}.
+
+\medskip
+
+\indent\vtop{\halign{\hfil$#$&\quad$#\,$sec\cr
+\noalign{\hrule\smallskip}
+2.54321+22432.87654321      &0.016\cr
+2.54321\times22432.87654321 &0.046\cr
+22432.87654321/2.54321      &0.11\cr
+\sqrt{23456789.54321}       &0.172\cr
+\mathop{\fam0 rand}(23456789.54321)  &0.105\cr
+1.00001234^{8000}           &0.72\cr
+\exp(2.54321)               &0.42\cr
+\sin(2.54321)               &0.41\cr
+\log(2.54321)               &0.73\cr
+\mathop{\fam0 angle}(254.321,100) &1.14\cr
+\noalign{\smallskip\hrule}
+}}
+
+\medskip
+
+Originally, all the tests below combined took 21 seconds on a 4-year-old
+Windows XP under TeX Live 2011. But since then I have changed angle and
+power computations so that they are considerably more accurate, but with
+a possible reduction in speed. I cannot test the speed reduction, since
+I no longer have that machine.
+
+For my current machines: On a Windows 7 machine, 64-bit, laptop, it
+takes 32 seconds to process this file. On another Windows 7 machine,
+32-bit, desktop, it takes about 10 seconds. (This difference could be
+explained partly by the fact that the last machine is newer and partly
+by the fact that TeX is a 32-bit program and therefore a better match to
+the 32-bit hardware.)
+
+\def\testi{% stack forms
+\startMFPprogram
+\Rpush{0.000 001}\Rpop\X
+\Rpush{1.2}\Rpush{-2.3}\Rexch\Rdup
+\Rpop\X\Rpop\X
+\Rpop\X\Rpush{21.34}\Rchs
+\Rpop\X\Rpush{21.34}\Rabs
+\Rpop\X\Rpush{21.34}\Rchs
+\Rpop\X\Rpush{21.34}\Rint
+\Rpop\X\Rpush{21.34}\Rfrac
+\Rpop\X\Rpush{21.34}\Rdbl
+\Rpop\X\Rpush{21.34}\Rhalve
+\Rpop\X\Rpush{21.34}\Rsgn
+\Rpop\X\Rpush{21.34}\Rsin
+\Rpop\X\Rpush{21.34}\Rcos
+\Rpop\X\Rpush{21.34}\Rdeg
+\Rpop\X\Rpush{21.34}\Rrad
+\Rpop\X\Rpush{21.34}\Rlog
+\Rpop\X\Rpush{21.34}\Rln
+\Rpop\X\Rpush{-1.34}\Rexp
+\Rpop\X\Rpush{3.3}\Rexp
+\Rpop\X\Rpush{21.34}\Rsq
+\Rpop\X\Rpush{21.34}\Rinv
+\Rpop\X\Rpush{21.34}\Rfloor
+\Rpop\X\Rpush{21.34}\Rceil
+\Rpop\X\Rpush{21.34}\Rsqrt
+\Rpop\X\Rpush{21.34}\Rrand
+\Rpop\X\Rpush{21.34}\Rpush{12.34}\Rcmp
+\IFlt{}{}\IFgt{}{}\IFeq{}{}\Rsub
+\IFneg{}{}\IFpos{}{}\IFzero{}{}\Rpop\X
+\Rpush{1.2}\Rpush{-2.3}\Radd
+\Rpop\X\Rpush{1.2}\Rpush{-2.3}\Rsub
+\Rpop\X\Rpush{1.2}\Rpush{-2.3}\Rmul
+\Rpop\X\Rpush{1.2}\Rpush{-2.3}\Rdiv
+\Rpop\X\Rpush{2.3}\Rpush{17}\Rpow
+\Rpop\X\Rpush{2.3}\Rpush{-17}\Rpow
+\Rpop\X\Rpush{1.2}\Rpush{-2.3}\Rmax
+\Rpop\X\Rpush{1.2}\Rpush{-2.3}\Rmin
+\stopMFPprogram}
+
+\def\testii{% unary operand forms, including
+\MFPchs\X\Z % extra tests of sin, log, exp and pow
+\MFPchs\Y\Z
+\MFPabs\X\Z
+\MFPabs\Y\Z
+\MFPdbl\X\Z
+\MFPdbl\Y\Z
+\MFPhalve\X\Z
+\MFPhalve\Y\Z
+\MFPint\X\Z
+\MFPint\Y\Z
+\MFPsgn\X\Z
+\MFPsgn\Y\Z
+\MFPsq\X\Z
+\MFPsq\Y\Z
+\MFPinv\X\Z
+\MFPinv\Y\Z
+\MFPfrac\X\Z
+\MFPfrac\Y\Z
+\MFPfloor\X\Z
+\MFPfloor\Y\Z
+\MFPceil\X\Z
+\MFPceil\Y\Z
+\MFPsin{30}\Z
+\MFPsin{420}\Z
+\MFPcos{60}\Z
+\MFPcos{390}\Z
+\MFPlog\X\Z
+\MFPln\X\Z
+\MFPexp\X\Z
+\MFPexp\Y\Z
+\MFPsin{1}\Z
+\MFPsin{2}\Z
+\MFPsin{3}\Z
+\MFPsin{4}\Z
+\MFPsin{5}\Z
+\MFPsin{6}\Z
+\MFPsin{7}\Z
+\MFPsin{8}\Z
+\MFPsin{9}\Z
+\MFPsin{10}\Z
+\MFPsin{20}\Z
+\MFPsin{30}\Z
+\MFPsin{40}\Z
+\MFPsin{50}\Z
+\MFPsin{60}\Z
+\MFPsin{70}\Z
+\MFPsin{80}\Z
+\MFPsin{90}\Z
+\MFPlog{.1}\Z
+\MFPlog{.2}\Z
+\MFPlog{.3}\Z
+\MFPlog{.4}\Z
+\MFPlog{.5}\Z
+\MFPlog{.6}\Z
+\MFPlog{.7}\Z
+\MFPlog{.8}\Z
+\MFPlog{.9}\Z
+\MFPlog{1}\Z
+\MFPlog{1.01}\Z
+\MFPlog{1.02}\Z
+\MFPlog{1.03}\Z
+\MFPlog{1.04}\Z
+\MFPlog{1.05}\Z
+\MFPlog{1.06}\Z
+\MFPlog{1.07}\Z
+\MFPlog{1.08}\Z
+\MFPlog{1.09}\Z
+\MFPexp{.000001}\Z
+\MFPexp{.00001}\Z
+\MFPexp{.0001}\Z
+\MFPexp{.001}\Z
+\MFPexp{.01}\Z
+\MFPexp{.1}\Z
+\MFPexp{1}\Z
+\MFPexp{2}\Z
+\MFPexp{3}\Z
+\MFPexp{4}\Z
+\MFPexp{5}\Z
+\MFPexp{6}\Z
+\MFPexp{7}\Z
+\MFPexp{8}\Z
+\MFPexp{9}\Z
+\MFPexp{10}\Z
+\MFPsqrt{10}\Z
+\MFPrand{10}\Z
+\MFPexp{-8.3254}\Z
+\MFPpow\MFPe{-10}\Z
+\MFPpow\MFPe{-9}\Z
+\MFPpow\MFPe{-8}\Z
+\MFPpow\MFPe{-7}\Z
+\MFPpow\MFPe{-6}\Z
+\MFPpow\MFPe{-5}\Z
+\MFPpow\MFPe{-4}\Z
+\MFPpow\MFPe{-3}\Z
+\MFPpow\MFPe{-2}\Z
+\MFPpow\MFPe{-1}\Z
+\MFPpow\MFPe{0}\Z
+\MFPpow\MFPe{1}\Z
+\MFPpow\MFPe{2}\Z
+\MFPpow\MFPe{3}\Z
+\MFPpow\MFPe{4}\Z
+\MFPpow\MFPe{5}\Z
+\MFPpow\MFPe{6}\Z
+\MFPpow\MFPe{7}\Z
+\MFPpow\MFPe{8}\Z
+\MFPpow\MFPe{9}\Z
+\MFPpow\MFPe{10}\Z}
+
+\def\testiii{%% binary operand forms and print formating, plus
+\MFPsqrt{0}\Z % additional tests of sqrt
+\MFPsqrt{1}\Z
+\MFPsqrt{2}\Z
+\MFPsqrt{3}\Z
+\MFPsqrt{4}\Z
+\MFPsqrt{5}\Z
+\MFPsqrt{6}\Z
+\MFPsqrt{7}\Z
+\MFPsqrt{8}\Z
+\MFPsqrt{9}\Z
+\MFPsqrt{10}\Z
+\MFPsqrt{1524157.65279684}\Z
+\MFPadd\X\Y\Z
+\MFPsub\X\Y\Z
+\MFPsub\Y\X\Z
+\MFPsub\X\X\Z
+\MFPsub\Y\Y\Z
+\MFPmul\X\Y\Z
+\MFPdiv\X\Y\Z
+\MFPdiv\Y\X\Z
+\MFPmax\X\Y\Z
+\MFPmin\X\Y\Z
+\MFPpow\X{5}\Z
+\MFPpow\X{-5}\Z
+\MFPpow\Y{5}\Z
+\MFPpow\Y{-5}\Z
+\MFPcmp\X\Y
+\IFlt{}{}\IFgt{}{}\IFeq{}{}%
+\MFPsub\X\Y\Z
+\IFneg{}{}\IFpos{}{}\IFzero{}{}%
+\def\T{333.00000000}%
+\def\S{1357.12345678}%
+\MFPtruncate{4}\T\Z
+\MFPtruncate{0}\T\Z
+\MFPtruncate{-2}\T\Z
+\MFPstrip\T\Z
+\MFPstrip*\T\Z
+\MFPround{3}\S\Z
+\MFPround{5}\S\Z
+\MFPround{0}\S\Z
+\MFPround{-2}\S\Z
+\def\T{-333.00000000}%
+\def\S{-1357.12345678}%
+\MFPtruncate{4}\T\Z
+\MFPtruncate{0}\T\Z
+\MFPtruncate{-2}\T\Z
+\MFPstrip\T\Z
+\MFPstrip*\T\Z
+\MFPround{3}\S\Z
+\MFPround{5}\S\Z
+\MFPround{0}\S\Z
+\MFPround{-2}\S\Z}
+
+Three test loops follow. The first repeats 500 times a stack program
+that performs each available command followed by popping the result and
+repushing the original value(s).
+
+\newcount\n
+\def\testloopi{%
+  \ifnum \n>0
+    \advance\n -1
+    \testi
+    \expandafter
+    \testloopi
+  \fi
+}
+\n=500
+x\testloopi X
+
+
+The second repeats 100 times a sequence in which all the unary operand
+commands are performed twice, plus extra of sine, log and exp.
+
+\def\testloopii{%
+  \ifnum \n>0
+    \advance\n -1
+    \testii
+    \expandafter
+    \testloopii
+  \fi
+}
+\def\X{1.2}
+\def\Y{-2.3}
+\n=100
+x\testloopii X
+
+
+The third repeats 100 times a sequence in which all the binary operand
+commands are performed, plus some extra tests of sqrt and then all the
+print-preparation commands.
+
+\def\testloopiii{%
+  \ifnum \n>0
+    \advance\n -1
+    \testiii
+    \expandafter
+    \testloopiii
+  \fi
+}
+
+\n=100
+x\testloopiii X
+\end
+
+\end{document}

@@ -1,0 +1,515 @@
+\errorcontextlines999\relax
+%\def\MFPextra{}
+%X\input minifp.sty\relax X
+%X\MFPloadextra X
+X\input mfpextra\relax X
+X\input mfpextra\relax X
+
+
+\def\filbreak{\vskip 12pt plus 100pt\penalty 0 \vskip 0pt plus -100pt\relax}
+\def\meaningless#1>{}
+\def\verbprint#1{%
+\begingroup
+  \toks0=\expandafter{#1}\edef\x{\the\toks0}%
+  \edef\x{\expandafter\meaningless\meaning\x}%
+  \tt "\x"%
+\endgroup}
+{\catcode`\@=11
+  \gdef\y{\Y\\}
+  \gdef\Y{\space\verbprint\MFP@Rstack}% adds its own space
+}
+\def\\{\hfill\break\ignorespaces}
+\def\U{\X}
+\baselineskip 12.1pt plus .2pt minus 2pt
+
+\filbreak
+\startMFPprogram
+{\bf Stack-only operations:}\\
+Stack is empty, test the error message for popping an empty
+stack:\immediate\write16{^^J*** The following tests the error for popping an
+empty stack:^^J}\Rpop\X\y
+Push 0.000 001:\Rpush{0.000 001}\y
+Pop into {\tt\string\X}:\Rpop\X\\
+\indent {\tt \string\X:}\verbprint\X\\
+\indent {\tt stack:}\y
+Push 1.2 then -2.3:\Rpush{1.2}\Rpush{-2.3}\y
+Exchange them:\Rexch\y
+Duplicate the last:\Rdup\Y
+
+\filbreak
+{\bf Unary operations:}\\
+First a new stack with only one value
+$21.34$:\Rpop\X\Rpop\X\Rpop\X\Rpush{21.34}\y
+Unless otherwise noted, the stack will always be restored to this value
+between operations.
+
+\medskip
+\noindent
+Change sign:\Rchs\y
+    \Rpop\X\Rpush{21.34}%
+Absolute value:\Rabs\y
+    \Rpop\X\Rpush{21.34}%
+Integer part:\Rint\y
+    \Rpop\X\Rpush{21.34}%
+Fractional part:\Rfrac\y
+    \Rpop\X\Rpush{21.34}%
+Double:\Rdbl\y
+    \Rpop\X\Rpush{21.34}%
+Halve:\Rhalve\y
+    \Rpop\X\Rpush{21.34}%
+Signum:\Rsgn\y
+    \Rpop\X\Rpush{-21.34}%
+Signum of negative:\Rsgn\y
+    \Rpop\X\Rpush{21.34}%
+Increment:\Rincr\y
+    \Rpop\X\Rpush{21.34}%
+Decrement:\Rdecr\y
+    \Rpop\X\Rpush{21.34}%
+Sine:\Rsin\y
+    \Rpop\X\Rpush{21.34}%
+Cosine:\Rcos\y
+    \Rpop\X\Rpush{21.34}%
+Radians to degrees:\Rdeg\y
+    \Rpop\X\Rpush{-21.34}%
+Degrees to radians (negative):\Rrad\y
+    \Rpop\X\Rpush{21.34}%
+Common logarithm:\Rlog\y
+    \Rpop\X\Rpush{21.34}%
+Natural logarithm:\Rln\y
+Put $-1.34$ on the stack:\Rpop\X\Rpush{-1.34}\y
+Exponential:\Rexp\y
+Put $3.3$ on the stack:\Rpop\X\Rpush{3.3}\y
+Exponential:\Rexp\y
+Back to $21.34$:\Rpop\X\Rpush{21.34}\y
+Square:\Rsq\y
+    \Rpop\X\Rpush{21.34}%
+Inversion:\Rinv\y
+    \Rpop\X\Rpush{21.34}%
+Floor:\Rfloor\y
+    \Rpop\X\Rpush{21.34}%
+Ceiling:\Rceil\y
+    \Rpop\X\Rpush{21.34}%
+Square root:\Rsqrt\y
+    \Rpop\X\Rpush{21.34}%
+Random number:\Rrand\y
+    \Rpop\X\Rpush{21.34}%
+% restart with second generator
+\MFPsetseed0
+\MFPrandgenB
+Another:\Rrand\y
+    \Rpop\X\Rpush{21.34}%
+% restart with third generator
+\MFPsetseed0
+\MFPrandgenC
+Another:\Rrand\y
+Now push $21.34$ and $12.34$ in that order:\Rpop\X\Rpush{21.34}\Rpush{12.34}\y
+Compare: \Rcmp
+    21.34 is\IFlt{}{ not} less than 12.34.
+    21.34 is\IFgt{}{ not} more than 12.34.
+    21.34 is\IFeq{}{ not} equal to  12.34.\\
+Take difference and check:\Rsub\Rchk\y
+    21.34-12.34 is\IFneg {}{ not} negative.
+    21.34-12.34 is\IFpos {}{ not} positive.
+    21.34-12.34 is\IFzero{}{ not} zero.
+
+\Rpop\X
+
+\filbreak
+{\bf Binary operations:}\\
+({\it After each operation we restore the original stack.})\\
+Start with empty stack and\\
+push 1.2 then -2.3:\Rpush{1.2}\Rpush{-2.3}\y
+Angle:\Rangle\y\Rpop\X\Rpush{1.2}\Rpush{-2.3}%
+Add:\Radd\y\Rpop\X\Rpush{1.2}\Rpush{-2.3}%
+Subtract:\Rsub\y\Rpop\X\Rpush{1.2}\Rpush{-2.3}%
+Multiply:\Rmul\y\Rpop\X\Rpush{1.2}\Rpush{-2.3}%
+Divide:\Rdiv\y
+New stack:\Rpop\X\Rpush{2.3}\Rpush{0}\y
+\immediate\write16{^^J*** The following tests the error for dividing by 0:^^J}
+Divide by zero:\Rdiv\y
+Reset stack:\Rpop\X\Rpush{2.3}\Rpush{17}\y
+Raise to a power ($(2.3)^{17}$):\Rpow\y
+Reset stack:\Rpop\X\Rpush{2.3}\Rpush{-17}\y
+Raise to a power ($(2.3)^{-17}$):\Rpow\y
+Back to $1.2$ and $-2.3$:\Rpop\X\Rpush{1.2}\Rpush{-2.3}\y
+Find max:\Rmax\y
+    \Rpop\X\Rpush{1.2}\Rpush{-2.3}%
+Find min:\Rmin\y
+Exporting stack (value above).\\
+Exporting \verbprint\U: \verbprint\X
+\ExportStack
+\Export\X
+% change \X
+\def\X{0}
+\stopMFPprogram
+
+\medskip
+\noindent
+Exported value of \verbprint\U: \verbprint\X\\
+Exported value of stack:\Y
+
+\def\w{\W\\}
+\def\W{ \verbprint\Z}% adds its own space
+
+\filbreak
+{\bf Operand forms}\\
+{\it All results go to {\tt\string\Z}. All operate on {\tt\string\X}
+and/or {\tt\string\Y}}\\
+Define ${\tt X}=1.2$ and ${\tt Y}=-2.3$:\def\X{1.2}\def\Y{-2.3}\\
+\indent {\tt X}:=\verbprint\X\\
+\indent {\tt Y}:=\verbprint\Y
+
+\filbreak
+{\bf Unary operations:}\\
+      Change sign of {\tt X}:\MFPchs\X\Z\w
+      Change sign of {\tt Y}:\MFPchs\Y\Z\w
+   Absolute value of {\tt X}:\MFPabs\X\Z\w
+   Absolute value of {\tt Y}:\MFPabs\Y\Z\w
+     Double value of {\tt X}:\MFPdbl\X\Z\w
+     Double value of {\tt Y}:\MFPdbl\Y\Z\w
+             Half of {\tt X}:\MFPhalve\X\Z\w
+             Half of {\tt Y}:\MFPhalve\Y\Z\w
+     Integer part of {\tt X}:\MFPint\X\Z\w
+     Integer part of {\tt Y}:\MFPint\Y\Z\w
+           Signum of {\tt X}:\MFPsgn\X\Z\w
+           Signum of {\tt Y}:\MFPsgn\Y\Z\w
+        Increment of {\tt X}:\MFPincr\X\Z\w
+        Increment of {\tt Y}:\MFPincr\Y\Z\w
+        Decrement of {\tt X}:\MFPdecr\X\Z\w
+        Decrement of {\tt Y}:\MFPdecr\Y\Z\w
+           Square of {\tt X}:\MFPsq\X\Z\w
+           Square of {\tt Y}:\MFPsq\Y\Z\w
+          Inverse of {\tt X}:\MFPinv\X\Z\w
+          Inverse of {\tt Y}:\MFPinv\Y\Z\w
+  Fractional part of {\tt X}:\MFPfrac\X\Z\w
+  Fractional part of {\tt Y}:\MFPfrac\Y\Z\w
+            Floor of {\tt X}:\MFPfloor\X\Z\w
+            Floor of {\tt Y}:\MFPfloor\Y\Z\w
+          Ceiling of {\tt X}:\MFPceil\X\Z\w
+          Ceiling of {\tt Y}:\MFPceil\Y\Z\w
+            Sine of {\tt 30}:\MFPsin{30}\Z\w
+           Sine of {\tt 420}:\MFPsin{420}\Z\w
+          Cosine of {\tt 60}:\MFPcos{60}\Z\w
+         Cosine of {\tt 390}:\MFPcos{390}\Z\w
+ Common logarithm of {\tt X}:\MFPlog\X\Z\w
+\immediate\write16{^^J*** The following tests the warning for log of a negative
+number:^^J}%
+ Common logarithm of {\tt Y}:\MFPlog\Y\Z\w
+Natural logarithm of {\tt X}:\MFPln\X\Z\w
+\immediate\write16{^^J*** The following tests the warning for ln of a negative
+number:^^J}%
+Natural Logarithm of {\tt Y}:\MFPln\Y\Z\w
+     Exponential of {\tt X}:\MFPexp\X\Z\w
+     Exponential of {\tt Y}:\MFPexp\Y\Z\w
+     Square root of {\tt X}:\MFPsqrt\X\Z\w
+     Square root of {\tt Y}:\MFPsqrt\Y\Z\w
+\MFPrandgenA
+Random number less than {\tt X}:\MFPrand\X\Z\w
+Random number less than {\tt Y}:\MFPrand\Y\Z\w
+\MFPsetseed0
+\MFPrandgenB
+  Another less than {\tt X}:\MFPrand\X\Z\w
+  Another less than {\tt Y}:\MFPrand\Y\Z\w
+\MFPsetseed0
+\MFPrandgenC
+  Another less than {\tt X}:\MFPrand\X\Z\w
+  Another less than {\tt Y}:\MFPrand\Y\Z\w
+
+\filbreak
+{\bf Extra tests of sine}\\
+Sine of 1:\MFPsin{1}\Z\w
+Cosine of 1:\MFPcos{1}\Z\w
+Sine of $-2$:\MFPsin{-2}\Z\w
+Cosine of 3:\MFPcos{3}\Z\w
+Sine of $-4$:\MFPsin{-4}\Z\w
+Cosine of 5:\MFPcos{5}\Z\w
+Sine of $-6$:\MFPsin{-6}\Z\w
+Cosine of 7:\MFPcos{7}\Z\w
+Sine of $-8$:\MFPsin{-8}\Z\w
+Cosine of 9:\MFPcos{9}\Z\w
+Sine of $-10$:\MFPsin{-10}\Z\w
+Cosine of 20:\MFPcos{20}\Z\w
+Sine of $-30$:\MFPsin{-30}\Z\w
+Cosine of 40:\MFPcos{40}\Z\w
+Sine of $-50$:\MFPsin{-50}\Z\w
+Cosine of 60:\MFPcos{60}\Z\w
+Sine of $-70$:\MFPsin{-70}\Z\w
+Cosine of 80:\MFPcos{80}\Z\w
+Sine of $-90$:\MFPsin{-90}\Z\w
+Sine of $135$:\MFPsin{135}\Z\w
+Sine of $180$:\MFPsin{180}\Z\w
+Sine of $225$:\MFPsin{225}\Z\w
+Sine of $270$:\MFPsin{270}\Z\w
+Sine of $315$:\MFPsin{315}\Z\W
+
+\medskip
+\noindent
+Angle of $(10,.1)$:\MFPangle{10}{.1}\Z\w
+Angle of $(-11.5,.1)$:\MFPangle{-11.5}{.1}\Z\w
+Angle of $(11.5,-.2)$:\MFPangle{11.5}{-.2}\Z\w
+Angle of $(-11.5,.3)$:\MFPangle{-11.5}{.3}\Z\w
+Angle of $(11.5,-.4)$:\MFPangle{11.5}{-.4}\Z\w
+Angle of $(-11.5,.5)$:\MFPangle{-11.5}{.5}\Z\w
+Angle of $(11.5,-.6)$:\MFPangle{11.5}{-.6}\Z\w
+Angle of $(-11.5,.7)$:\MFPangle{-11.5}{.7}\Z\w
+Angle of $(11.5,-.8)$:\MFPangle{11.5}{-.8}\Z\w
+Angle of $(-11.5,.9)$:\MFPangle{-11.5}{.9}\Z\w
+ Angle of $(11.5,-1)$:\MFPangle{11.5}{-1}\Z\w
+ Angle of $(-11.5,2)$:\MFPangle{-11.5}{2}\Z\w
+ Angle of $(11.5,-3)$:\MFPangle{11.5}{-3}\Z\w
+ Angle of $(-11.5,4)$:\MFPangle{-11.5}{4}\Z\w
+ Angle of $(11.5,-5)$:\MFPangle{11.5}{-5}\Z\w
+ Angle of $(-11.5,6)$:\MFPangle{-11.5}{6}\Z\w
+ Angle of $(11.5,-7)$:\MFPangle{11.5}{-7}\Z\w
+ Angle of $(-11.5,8)$:\MFPangle{-11.5}{8}\Z\w
+ Angle of $(11.5,-9)$:\MFPangle{11.5}{-9}\Z\w
+Angle of $(-11.5,10)$:\MFPangle{-11.5}{10}\Z\w
+Angle of $(11.5,-20)$:\MFPangle{11.5}{-20}\Z\w
+Angle of $(-11.5,30)$:\MFPangle{-11.5}{30}\Z\w
+Angle of $(11.5,-40)$:\MFPangle{11.5}{-40}\Z\w
+Angle of $(-11.5,50)$:\MFPangle{-11.5}{50}\Z\w
+Angle of $(11.5,-60)$:\MFPangle{11.5}{-60}\Z\w
+Angle of $(-11.5,70)$:\MFPangle{-11.5}{70}\Z\w
+Angle of $(11.5,-80)$:\MFPangle{11.5}{-80}\Z\w
+Angle of $(-11.5,90)$:\MFPangle{-11.5}{90}\Z\w
+Angle of $(11.5,-100)$:\MFPangle{11.5}{-100}\Z\w
+Angle of $(0,10)$:\MFPangle{0}{10}\Z\w
+Angle of $(0,-10)$:\MFPangle{0}{-10}\Z\w
+\immediate\write16{^^J*** The following tests the warning for angle of
+(0,0):^^J}
+Angle of $(0,0)$:\MFPangle{0}{0}\Z\W
+
+\noindent
+Testing large arguments:\\
+Angle of $(85 713 000, 99 999 999)$:\MFPangle{8571 3000}{9999 9999}\Z\W
+
+
+\filbreak
+{\bf Extra tests of log}\\
+ Log of $.1$:\MFPlog{.1}\Z\w
+ Log of $.2$:\MFPlog{.2}\Z\w
+ Log of $.3$:\MFPlog{.3}\Z\w
+ Log of $.4$:\MFPlog{.4}\Z\w
+ Log of $.5$:\MFPlog{.5}\Z\w
+ Log of $.6$:\MFPlog{.6}\Z\w
+ Log of $.7$:\MFPlog{.7}\Z\w
+ Log of $.8$:\MFPlog{.8}\Z\w
+ Log of $.9$:\MFPlog{.9}\Z\w
+  Log of $1$:\MFPlog{1}\Z\w
+Log of $1.01$:\MFPlog{1.01}\Z\w
+Log of $1.02$:\MFPlog{1.02}\Z\w
+Log of $1.03$:\MFPlog{1.03}\Z\w
+Log of $1.04$:\MFPlog{1.04}\Z\w
+Log of $1.05$:\MFPlog{1.05}\Z\w
+Log of $1.06$:\MFPlog{1.06}\Z\w
+Log of $1.07$:\MFPlog{1.07}\Z\w
+Log of $1.08$:\MFPlog{1.08}\Z\w
+Log of $1.09$:\MFPlog{1.09}\Z\w
+\immediate\write16{^^J*** The following tests the error for log of 0:^^J}
+Log of $0$:\MFPlog{0}\Z\W
+
+\filbreak
+{\bf Extra tests of exp}\\
+ Exp of $.00009990$:\MFPexp{.00009990}\Z
+\w
+ Exp of $.00009999$:\MFPexp{.00009999}\Z\w
+  Exp of $.0001$:\MFPexp{.0001}\Z\w
+  Exp of $.0002$:\MFPexp{.0002}\Z\w
+  Exp of $.0003$:\MFPexp{.0003}\Z\w
+  Exp of $.0004$:\MFPexp{.0004}\Z\w
+  Exp of $.0005$:\MFPexp{.0005}\Z\w
+  Exp of $.0006$:\MFPexp{.0006}\Z\w
+  Exp of $.0007$:\MFPexp{.0007}\Z\w
+  Exp of $.0008$:\MFPexp{.0008}\Z\w
+  Exp of $.0009$:\MFPexp{.0009}\Z\w
+   Exp of $.001$:\MFPexp{.001}\Z\w
+   Exp of $.002$:\MFPexp{.002}\Z\w
+   Exp of $.003$:\MFPexp{.003}\Z\w
+   Exp of $.004$:\MFPexp{.004}\Z\w
+   Exp of $.005$:\MFPexp{.005}\Z\w
+   Exp of $.006$:\MFPexp{.006}\Z\w
+   Exp of $.007$:\MFPexp{.007}\Z\w
+   Exp of $.008$:\MFPexp{.008}\Z\w
+   Exp of $.009$:\MFPexp{.009}\Z\w
+    Exp of $.01$:\MFPexp{.01}\Z\w
+    Exp of $.02$:\MFPexp{.02}\Z\w
+    Exp of $.03$:\MFPexp{.03}\Z\w
+    Exp of $.04$:\MFPexp{.04}\Z\w
+    Exp of $.05$:\MFPexp{.05}\Z\w
+    Exp of $.06$:\MFPexp{.06}\Z\w
+    Exp of $.07$:\MFPexp{.07}\Z\w
+    Exp of $.08$:\MFPexp{.08}\Z\w
+    Exp of $.09$:\MFPexp{.09}\Z\w
+     Exp of $.1$:\MFPexp{.1}\Z\w
+     Exp of $.2$:\MFPexp{.2}\Z\w
+     Exp of $.3$:\MFPexp{.3}\Z\w
+     Exp of $.4$:\MFPexp{.4}\Z\w
+     Exp of $.5$:\MFPexp{.5}\Z\w
+     Exp of $.6$:\MFPexp{.6}\Z\w
+     Exp of $.7$:\MFPexp{.7}\Z\w
+     Exp of $.8$:\MFPexp{.8}\Z\w
+     Exp of $.9$:\MFPexp{.9}\Z\w
+      Exp of $1$:\MFPexp{1}\Z\w
+      Exp of $2$:\MFPexp{2}\Z\w
+      Exp of $3$:\MFPexp{3}\Z\w
+      Exp of $4$:\MFPexp{4}\Z\w
+      Exp of $5$:\MFPexp{5}\Z\w
+      Exp of $6$:\MFPexp{6}\Z\w
+      Exp of $7$:\MFPexp{7}\Z\w
+      Exp of $8$:\MFPexp{8}\Z\w
+      Exp of $9$:\MFPexp{9}\Z\w
+     Exp of $10$:\MFPexp{10}\Z\w
+     Exp of $-8.3254$:\MFPexp{-8.3254}\Z\w
+     Exp of $18.42068073$:\MFPexp{18.42068073}\Z\w
+     Exp of $18.42068074$:\MFPexp{18.42068074}\Z\w
+\immediate\write16{^^J*** The following tests the error for a power too
+large:^^J}
+     Exp of $18.42068075$:\MFPexp{18.42068075}\Z\W
+
+\filbreak
+{\bf Extra tests of pow}\\
+  $-10$ power of $3$:\MFPpow{3}{-10}\Z\w
+   $-9$ power of $3$:\MFPpow{3}{-9}\Z\w
+   $-8$ power of $3$:\MFPpow{3}{-8}\Z\w
+   $-7$ power of $3$:\MFPpow{3}{-7}\Z\w
+   $-6$ power of $3$:\MFPpow{3}{-6}\Z\w
+   $-5$ power of $3$:\MFPpow{3}{-5}\Z\w
+   $-4$ power of $3$:\MFPpow{3}{-4}\Z\w
+   $-3$ power of $3$:\MFPpow{3}{-3}\Z\w
+   $-2$ power of $3$:\MFPpow{3}{-2}\Z\w
+   $-1$ power of $3$:\MFPpow{3}{-1}\Z\w
+    $0$ power of $3$:\MFPpow{3}{0}\Z\w
+    $1$ power of $3$:\MFPpow{3}{1}\Z\w
+    $2$ power of $3$:\MFPpow{3}{2}\Z\w
+    $3$ power of $3$:\MFPpow{3}{3}\Z\w
+    $4$ power of $3$:\MFPpow{3}{4}\Z\w
+    $5$ power of $3$:\MFPpow{3}{5}\Z\w
+    $6$ power of $3$:\MFPpow{3}{6}\Z\w
+    $7$ power of $3$:\MFPpow{3}{7}\Z\w
+    $8$ power of $3$:\MFPpow{3}{8}\Z\w
+    $9$ power of $3$:\MFPpow{3}{9}\Z\w
+   $10$ power of $3$:\MFPpow{3}{10}\Z\w
+\immediate\write16{^^J*** The following tests the error for a power too
+large:^^J}
+   $10$ power of $9$:\MFPpow{9}{10}\Z\w
+\immediate\write16{^^J*** The following also tests the error for a power too
+large:^^J}
+  $10$ power of $-9$:\MFPpow{-9}{10}\Z\w
+\immediate\write16{^^J*** The following also tests the error for a power too
+large:^^J}
+  $11$ power of $-9$:\MFPpow{-9}{11}\Z\w
+\immediate\write16{^^J*** The following tests the error for a negative power of
+0:^^J}
+  $-10$ power of $0$:\MFPpow{0}{-10}\Z\w
+\immediate\write16{^^J*** The following also tests the error for a power too
+large:^^J}
+  $-10$ power of $0.1$:\MFPpow{0.1}{-10}\Z\W
+
+\filbreak
+{\bf Extra tests of sqrt}\\
+\immediate\write16{^^J*** The following tests the warning for a square root of a
+negative:^^J}
+    Square root of $-1$:\MFPsqrt{-1}\Z\w
+     Square root of $0$:\MFPsqrt{0}\Z\w
+ Square root of $.0001$:\MFPsqrt{.0001}\Z\w
+  Square root of $.002$:\MFPsqrt{.002}\Z\w
+   Square root of $.03$:\MFPsqrt{.03}\Z\w
+    Square root of $.4$:\MFPsqrt{.4}\Z\w
+    Square root of $.5$:\MFPsqrt{.5}\Z\w
+    Square root of $.6$:\MFPsqrt{.6}\Z\w
+    Square root of $.7$:\MFPsqrt{.7}\Z\w
+    Square root of $.8$:\MFPsqrt{.8}\Z\w
+    Square root of $.9$:\MFPsqrt{.9}\Z\w
+    Square root of $1$:\MFPsqrt{1}\Z\w
+    Square root of $2$:\MFPsqrt{2}\Z\w
+    Square root of $3$:\MFPsqrt{3}\Z\w
+    Square root of $4$:\MFPsqrt{4}\Z\w
+    Square root of $5$:\MFPsqrt{5}\Z\w
+    Square root of $6$:\MFPsqrt{6}\Z\w
+    Square root of $7$:\MFPsqrt{7}\Z\w
+    Square root of $8$:\MFPsqrt{8}\Z\w
+    Square root of $9$:\MFPsqrt{9}\Z\w
+   Square root of $10$:\MFPsqrt{10}\Z\w
+   Square root of $99$:\MFPsqrt{99}\Z\w
+  Square root of $500$:\MFPsqrt{500}\Z\w
+ Square root of $1000$:\MFPsqrt{1000}\Z\w
+ Square root of $5000$:\MFPsqrt{5000}\Z\w
+ Square root of $9999$:\MFPsqrt{9999}\Z\w
+Square root of $100000$:\MFPsqrt{100000}\Z\w
+Square root of $100000$:\MFPsqrt{100000}\Z\w
+Square root of $1500000$:\MFPsqrt{1500000}\Z\w
+Square root of $1524157.65279684$ (should be exact):\MFPsqrt{1524157.65279684}\Z\w
+Square root of $15000000$:\MFPsqrt{15000000}\Z\w
+Square root of $99999998.00000001$ (should be exact):\MFPsqrt{99999998.00000001}\Z\w
+                            Square root of $9999.99$:\MFPsqrt{9999.99}\Z\w
+                       Square root of $9999.999 999$:\MFPsqrt{9999.999999}\Z\W
+
+\filbreak
+{\bf Binary operations:}\\
+Add $X+Y$:\MFPadd\X\Y\Z\w
+Add $\infty+\infty$:\MFPadd{99999999.99999999}{99999999.99999999}\Z\w
+Subtract $X-Y$:\MFPsub\X\Y\Z\w
+Subtract $Y-X$:\MFPsub\Y\X\Z\w
+Subtract $X-X$:\MFPsub\X\X\Z\w
+Subtract $Y-Y$:\MFPsub\Y\Y\Z\w
+Multiply:\MFPmul\X\Y\Z\w
+Multiply $10^{4}\times10^4$ (loses the overflow digit):\MFPmul{10000}{10000}\Z\w
+Divide $X/Y$:\MFPdiv\X\Y\Z\w
+Divide $Y/X$:\MFPdiv\Y\X\Z\w
+Max:\MFPmax\X\Y\Z\w
+Min:\MFPmin\X\Y\Z\w
+Angle $(X,Y)$:\MFPangle\X\Y\Z\w
+Angle $(Y,X)$:\MFPangle\Y\X\Z\w
+Power $X^5$:\MFPpow\X{5}\Z\w
+Power $X^{-5}$:\MFPpow\X{-5}\Z\w
+Power $Y^{5}$:\MFPpow\Y{5}\Z\w
+Power $Y^{-5}$:\MFPpow\Y{-5}\Z\w
+Compare: \MFPcmp\X\Y
+              \X\ is\IFlt{}{ not} less than \Y.
+              \X\ is\IFgt{}{ not} more than \Y.
+              \X\ is\IFeq{}{ not} equal to  \Y.\\
+Take difference and check:\MFPsub\X\Y\Z\w
+                                $\X-\Y$ is\IFneg{}{ not} negative.
+                                $\X-\Y$ is\IFpos{}{ not} positive.
+                                $\X-\Y$ is\IFzero{}{ not} zero.
+
+\filbreak
+{\bf Print-related formating}
+
+\def\T{333.00000000}
+\def\S{1357.12345678}
+
+\noindent This is original: $T ={}${\tt"\T"}\\
+Truncate to 4 digits right of decimal:\MFPtruncate{4}\T\Z\w
+Truncate to the decimal:\MFPtruncate{0}\T\Z\w
+Truncate to 2 digits left of decimal:\MFPtruncate{-2}\T\Z\w
+Strip trailing zeros:\MFPstrip\T\Z\w
+Strip trailing zeros (star form):\MFPstrip*\T\Z\W
+
+\noindent Original: $S = {}${\tt"\S"}\\
+Round to 3 decimals:\MFPround{3}\S\Z\w
+Round to 5 decimals:\MFPround{5}\S\Z\w
+Round to 0 decimals:\MFPround{0}\S\Z\w
+Round to 100s:\MFPround{-2}\S\Z\W
+
+\def\T{-333.00000000}
+\def\S{-1357.12345678}
+
+\filbreak
+\noindent All that again with negative numbers.
+
+\medskip
+\noindent This is original: $T ={}${\tt"\T"}\\
+Truncate to 4 digits right of decimal:\MFPtruncate{4}\T\Z\w
+Truncate to the decimal:\MFPtruncate{0}\T\Z\w
+Truncate to 2 digits left of decimal:\MFPtruncate{-2}\T\Z\w
+Strip trailing zeros:\MFPstrip\T\Z\w
+Strip trailing zeros (star form):\MFPstrip*\T\Z\W
+
+\noindent Original: $S = {}${\tt"\S"}\\
+Round to 3 decimals:\MFPround{3}\S\Z\w
+Round to 5 decimals:\MFPround{5}\S\Z\w
+Round to 0 decimals:\MFPround{0}\S\Z\w
+Round to 100s:\MFPround{-2}\S\Z\W
+
+\end{document}

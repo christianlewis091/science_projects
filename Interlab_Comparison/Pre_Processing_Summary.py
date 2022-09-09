@@ -5,7 +5,7 @@ from Pre_Processing_UniMagallanes import combine_Magallanes
 import pandas as pd
 
 # add the differences sheet
-writer = pd.ExcelWriter('C:/Users/clewis/IdeaProjects/GNS/01_science_projects/01_interlab_comparison/01_data/Pre_processing_output.xlsx', engine='openpyxl')
+writer = pd.ExcelWriter('Pre_processing_output.xlsx', engine='openpyxl')
 combine_ANSTO.to_excel(writer, sheet_name='ANSTO')
 combine_heidelberg.to_excel(writer, sheet_name='Heidelberg')
 combine_SIO.to_excel(writer, sheet_name='SIO')

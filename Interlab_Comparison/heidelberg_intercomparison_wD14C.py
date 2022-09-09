@@ -287,7 +287,7 @@ plt.legend()
 plt.xlabel('Date', fontsize=14)
 plt.ylabel('\u0394$^1$$^4$CO$_2$ (\u2030)', fontsize=14)  # label the y axis
 plt.savefig(
-    'C:/Users/clewis/IdeaProjects/GNS/01_science_projects/01_interlab_comparison/03_outputs/plots/2022_Intercomparison_Paper/FirstDraft_figure2.png',
+    'C:/Users/clewis/IdeaProjects/GNS/radiocarbon_intercomparison/interlab_comparison/plots/2022_Intercomparison_Paper/FirstDraft_figure2.png',
     dpi=300, bbox_inches="tight")
 plt.close()
 

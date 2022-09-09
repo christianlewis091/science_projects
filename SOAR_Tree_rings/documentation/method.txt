@@ -1,0 +1,12 @@
+\section{Method}
+\label{sec:method}
+
+The process that allows the development of stratification can be defined by the potential energy anomaly (PEA, $\Phi$). This parameter is a quantitative measure of stratification and represents the work required per unit volume to completely mix
+the water column $[Jm^{-3}]$. \\
+
+\begin{equation*}
+     \Phi=\frac{1}{h}\int_{-h}^{0}(\bar{\rho}-\rho(z))gzdz 
+\end{equation*}
+
+\noindent where z is the water column depth (m), h is the mixed layer thickness (m), g=9.81 (m $\rm s^{-2}$) is the gravitational acceleration, $\bar{\rho}$ is the water column mean density determined from temperature and salinity profiles, $\rho(z)$ is the density profile determined from temperature and salinity 
+profiles. 

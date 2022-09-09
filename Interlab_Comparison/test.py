@@ -1,1 +1,1 @@
-print("hello world")
+print("I'm now on Github! Today is Friday. ")

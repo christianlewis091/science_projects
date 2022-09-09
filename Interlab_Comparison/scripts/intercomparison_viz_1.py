@@ -62,7 +62,7 @@ plt.axhspan((y2_average-y2_1sigma), (y2_average+y2_1sigma), facecolor=colors[4],
 plt.xlabel('Measurement #', fontsize=14)  # label the y axis
 plt.legend()
 
-plt.savefig('C:/Users/clewis/IdeaProjects/GNS/radiocarbon_intercomparison/interlab_comparison/plots/2022_Intercomparison_Paper/SIOLLNLvRRL.png',
+plt.savefig('C:/Users/clewis/IdeaProjects/GNS/Interlab_Comparison/output/SIOLLNLvRRL.png',
             dpi=300, bbox_inches="tight")
 plt.close()
 
@@ -113,7 +113,7 @@ plt.xlabel('Measurement #', fontsize=14)  # label the y axis
 plt.legend()
 plt.ylim(0.965, 0.985)
 
-plt.savefig('C:/Users/clewis/IdeaProjects/GNS/radiocarbon_intercomparison/interlab_comparison/plots/2022_Intercomparison_Paper/SIOLLNLvRRL_FM.png',
+plt.savefig('C:/Users/clewis/IdeaProjects/GNS/Interlab_Comparison/output/SIOLLNLvRRL_FM.png',
             dpi=300, bbox_inches="tight")
 plt.close()
 # </editor-fold>
@@ -129,7 +129,7 @@ plt.legend(fontsize=7.5)
 # plt.ylim(.95, 1.3)
 plt.xlabel('Date', fontsize=14)
 plt.ylabel('\u0394$^1$$^4$C (\u2030)', fontsize=14)  # label the y axis
-plt.savefig('C:/Users/clewis/IdeaProjects/GNS/radiocarbon_intercomparison/interlab_comparison/plots/2022_Intercomparison_Paper/ANSTOvRRL.png',
+plt.savefig('C:/Users/clewis/IdeaProjects/GNS/Interlab_Comparison/output/ANSTOvRRL.png',
             dpi=300, bbox_inches="tight")
 plt.close()
 
@@ -140,7 +140,7 @@ plt.legend(fontsize=7.5)
 # plt.ylim(.95, 1.3)
 plt.xlabel('Date', fontsize=14)
 plt.ylabel('FM', fontsize=14)  # label the y axis
-plt.savefig('C:/Users/clewis/IdeaProjects/GNS/radiocarbon_intercomparison/interlab_comparison/plots/2022_Intercomparison_Paper/ANSTOvRRL_FM.png',
+plt.savefig('C:/Users/clewis/IdeaProjects/GNS/Interlab_Comparison/output/ANSTOvRRL_FM.png',
             dpi=300, bbox_inches="tight")
 plt.close()
 
@@ -156,7 +156,7 @@ plt.legend(fontsize=7.5)
 # plt.ylim(.95, 1.3)
 plt.xlabel('Date', fontsize=14)
 plt.ylabel('\u0394$^1$$^4$C (\u2030)', fontsize=14)  # label the y axis
-plt.savefig('C:/Users/clewis/IdeaProjects/GNS/radiocarbon_intercomparison/interlab_comparison/plots/2022_Intercomparison_Paper/MagallanesvRRL.png',
+plt.savefig('C:/Users/clewis/IdeaProjects/GNS/Interlab_Comparison/output/MagallanesvRRL.png',
             dpi=300, bbox_inches="tight")
 plt.close()
 
@@ -169,7 +169,7 @@ plt.legend(fontsize=7.5)
 # plt.ylim(.95, 1.3)
 plt.xlabel('Date', fontsize=14)
 plt.ylabel('FM', fontsize=14)  # label the y axis
-plt.savefig('C:/Users/clewis/IdeaProjects/GNS/radiocarbon_intercomparison/interlab_comparison/plots/2022_Intercomparison_Paper/MagallanesvRRL_FM.png',
+plt.savefig('C:/Users/clewis/IdeaProjects/GNS/Interlab_Comparison/output/MagallanesvRRL_FM.png',
             dpi=300, bbox_inches="tight")
 plt.close()
 
@@ -198,7 +198,7 @@ plt.xlim([1980, 2020])
 plt.ylim([0, 300])
 plt.xlabel('Date', fontsize=14)
 plt.ylabel('\u0394$^1$$^4$CO$_2$ (\u2030)', fontsize=14)  # label the y axis
-plt.savefig('C:/Users/clewis/IdeaProjects/GNS/radiocarbon_intercomparison/interlab_comparison/plots/2022_Intercomparison_Paper/DEV_FirstDraft_figure1.png',
+plt.savefig('C:/Users/clewis/IdeaProjects/GNS/Interlab_Comparison/output/DEV_FirstDraft_figure1.png',
             dpi=300, bbox_inches="tight")
 plt.close()
 # </editor-fold>
@@ -224,7 +224,7 @@ plt.ylim([140, 180])
 plt.legend()
 plt.xlabel('Date', fontsize=14)
 plt.ylabel('\u0394$^1$$^4$CO$_2$ (\u2030)', fontsize=14)  # label the y axis
-plt.savefig('C:/Users/clewis/IdeaProjects/GNS/radiocarbon_intercomparison/interlab_comparison/plots/2022_Intercomparison_Paper/DEV_FirstDraft_figure2.png',
+plt.savefig('C:/Users/clewis/IdeaProjects/GNS/Interlab_Comparison/output/DEV_FirstDraft_figure2.png',
             dpi=300, bbox_inches="tight")
 # plt.show()
 plt.close()
@@ -311,7 +311,7 @@ plt.ylim([140, 170])
 plt.legend(loc=(1.04,0.5))
 xtr_subsplot.set_yticklabels([])
 
-plt.savefig('C:/Users/clewis/IdeaProjects/GNS/radiocarbon_intercomparison/interlab_comparison/plots/2022_Intercomparison_Paper/DEV_FirstDraft_figureS1.png',
+plt.savefig('C:/Users/clewis/IdeaProjects/GNS/Interlab_Comparison/output/DEV_FirstDraft_figureS1.png',
             dpi=300, bbox_inches="tight")
 plt.close()
 # </editor-fold>
@@ -356,7 +356,7 @@ plt.xlabel('Date', fontsize=14)  # label the y axis
 plt.ylim([150, 175])
 plt.xlim([1988, 1991])
 # plt.legend()
-plt.savefig('C:/Users/clewis/IdeaProjects/GNS/radiocarbon_intercomparison/interlab_comparison/plots/2022_Intercomparison_Paper/DEV_FirstDraft_Figuretest2.png',
+plt.savefig('C:/Users/clewis/IdeaProjects/GNS/Interlab_Comparison/output/DEV_FirstDraft_Figuretest2.png',
             dpi=300, bbox_inches="tight")
 plt.close()
 # </editor-fold>
@@ -464,7 +464,7 @@ plt.plot(np.array(my_x_2012_2016_trimmed), heidelberg_2012_2016_mean_trend, colo
 plt.xlim([min(np.array(my_x_2012_2016_trimmed)), max(np.array(my_x_2012_2016_trimmed))])
 plt.ylim([min(bhd_2012_2016_mean_smooth), max(bhd_2012_2016_mean_smooth)])
 # plt.legend()
-plt.savefig('C:/Users/clewis/IdeaProjects/GNS/radiocarbon_intercomparison/interlab_comparison/plots/2022_Intercomparison_Paper/DEV_FirstDraft_figure3b_D14C.png',
+plt.savefig('C:/Users/clewis/IdeaProjects/GNS/Interlab_Comparison/output/DEV_FirstDraft_figure3b_D14C.png',
             dpi=300, bbox_inches="tight")
 # plt.show()
 plt.close()
@@ -496,7 +496,7 @@ plt.xlim([1980, 2020])
 # plt.ylim([0, 300])
 plt.xlabel('Date', fontsize=14)
 plt.ylabel('FM', fontsize=14)  # label the y axis
-plt.savefig('C:/Users/clewis/IdeaProjects/GNS/radiocarbon_intercomparison/interlab_comparison/plots/2022_Intercomparison_Paper/DEV_FirstDraft_figure1_FM.png',
+plt.savefig('C:/Users/clewis/IdeaProjects/GNS/Interlab_Comparison/output/DEV_FirstDraft_figure1_FM.png',
             dpi=300, bbox_inches="tight")
 plt.close()
 # </editor-fold>
@@ -627,7 +627,7 @@ plt.xlabel('Date', fontsize=14)  # label the y axis
 # plt.ylim([150, 175])
 plt.xlim([1988, 1991])
 # plt.legend()
-plt.savefig('C:/Users/clewis/IdeaProjects/GNS/radiocarbon_intercomparison/interlab_comparison/plots/2022_Intercomparison_Paper/DEV_FirstDraft_Figuretest2_FM.png',
+plt.savefig('C:/Users/clewis/IdeaProjects/GNS/Interlab_Comparison/output/DEV_FirstDraft_Figuretest2_FM.png',
             dpi=300, bbox_inches="tight")
 plt.close()
 # </editor-fold>
@@ -735,7 +735,7 @@ plt.plot(np.array(my_x_2012_2016_trimmed), heidelberg_2012_2016_mean_trend, colo
 plt.xlim([min(np.array(my_x_2012_2016_trimmed)), max(np.array(my_x_2012_2016_trimmed))])
 plt.ylim([min(bhd_2012_2016_mean_smooth), max(bhd_2012_2016_mean_smooth)])
 # plt.legend()
-plt.savefig('C:/Users/clewis/IdeaProjects/GNS/radiocarbon_intercomparison/interlab_comparison/plots/2022_Intercomparison_Paper/DEV_FirstDraft_figure3b_FM.png',
+plt.savefig('C:/Users/clewis/IdeaProjects/GNS/Interlab_Comparison/output/DEV_FirstDraft_figure3b_FM.png',
             dpi=300, bbox_inches="tight")
 # plt.show()
 plt.close()
@@ -772,23 +772,23 @@ plt.plot(fake_x2, flask_means2, color=colors[3], label='Flask')
 plt.xlim(min(flask2['DEC_DECAY_CORR']), max(flask2['DEC_DECAY_CORR']))
 plt.legend()
 
-plt.savefig('C:/Users/clewis/IdeaProjects/GNS/radiocarbon_intercomparison/interlab_comparison/plots/2022_Intercomparison_Paper/FlaskvNaOH.png',
+plt.savefig('C:/Users/clewis/IdeaProjects/GNS/Interlab_Comparison/output/FlaskvNaOH.png',
             dpi=300, bbox_inches="tight")
 plt.close()
 # </editor-fold>
 
 
 
-df = pd.read_excel(r'C:\Users\clewis\IdeaProjects\GNS\radiocarbon_intercomparison\Interlab_comparison\Results_table_for_pub.xlsx')  # import data
+df = pd.read_excel(r'C:\Users\clewis\IdeaProjects\GNS\Interlab_Comparison\output\Results_table_for_pub.xlsx')  # import data
 
 D14C = df.loc[(df['Parameter Used'] == 'D14C')]
 sns.barplot(x=D14C['Time Period'], y=D14C['Result'],  palette="Blues_d")
-plt.savefig('C:/Users/clewis/IdeaProjects/GNS/radiocarbon_intercomparison/interlab_comparison/plots/2022_Intercomparison_Paper/Final_Results_D14C.png',
+plt.savefig('C:/Users/clewis/IdeaProjects/GNS/Interlab_Comparison/output/Final_Results_D14C.png',
             dpi=300, bbox_inches="tight")
 plt.close()
 
 FM = df.loc[(df['Parameter Used'] == 'FM')]
 sns.barplot(x=FM['Time Period'], y=FM['Result'],  palette="Blues_d")
-plt.savefig('C:/Users/clewis/IdeaProjects/GNS/radiocarbon_intercomparison/interlab_comparison/plots/2022_Intercomparison_Paper/Final_Results_FM.png',
+plt.savefig('C:/Users/clewis/IdeaProjects/GNS/Interlab_Comparison/output/Final_Results_FM.png',
             dpi=300, bbox_inches="tight")
 plt.close()

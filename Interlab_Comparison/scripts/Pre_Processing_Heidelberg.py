@@ -7,8 +7,8 @@ import pandas as pd
 import numpy as np
 from X_my_functions import long_date_to_decimal_date, d14C_to_fm
 
-heidelberg = pd.read_excel(r'H:\The Science\Datasets\heidelberg_cape_grim.xlsx', skiprows=40)  # import heidelberg data
-baringhead = pd.read_excel(r'H:\The Science\Datasets\BHD_14CO2_datasets_20211013.xlsx')  # import Baring Head data
+heidelberg = pd.read_excel(r'H:\Science\Datasets\heidelberg_cape_grim.xlsx', skiprows=40)  # import heidelberg data
+baringhead = pd.read_excel(r'H:\Science\Datasets\BHD_14CO2_datasets_20211013.xlsx')  # import Baring Head data
 
 """ TIDY UP THE DATA FILES"""
 """ 

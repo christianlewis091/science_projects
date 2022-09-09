@@ -40,10 +40,10 @@ mpl.rcParams['pdf.fonttype'] = 42
 mpl.rcParams['font.size'] = 10
 size1 = 5
 
-heidelberg = pd.read_excel(r'H:\The Science\Datasets\heidelberg_cape_grim.xlsx', skiprows=40)  # import heidelberg data
-baringhead = pd.read_excel(r'H:\The Science\Datasets\BHD_14CO2_datasets_20211013.xlsx')  # import Baring Head data
-df2_dates = pd.read_excel(r'H:\The Science\Datasets\BHD_MeasurementDates.xlsx')  # CO2 measure date
-extraction_dates = pd.read_excel(r'H:\The Science\Datasets\BHDFlasks_WithExtractionDates.xlsx')  # CO2 extract date
+heidelberg = pd.read_excel(r'H:\Science\Datasets\heidelberg_cape_grim.xlsx', skiprows=40)  # import heidelberg data
+baringhead = pd.read_excel(r'H:\Science\Datasets\BHD_14CO2_datasets_20211013.xlsx')  # import Baring Head data
+df2_dates = pd.read_excel(r'H:\Science\Datasets\BHD_MeasurementDates.xlsx')  # CO2 measure date
+extraction_dates = pd.read_excel(r'H:\Science\Datasets\BHDFlasks_WithExtractionDates.xlsx')  # CO2 extract date
 
 """ TIDY UP THE DATA FILES"""
 """ 
@@ -231,7 +231,7 @@ ESSENTIALLY WHAT WE ARE DOING:
 
 I'm going to run it once below as a proof of concept with this dataset, and run a plot to show its working.
 """
-n = 10  # set the amount of times the code will iterate (set to 10,000 once everything is final)
+n = 10000  # set the amount of times the code will iterate (set to 10,000 once everything is final)
 cutoff = 667  # FFT filter cutoff
 
 bhd_1986_1991_results_smooth = monte_carlo_randomization_smooth(x1_bhd, my_x_1986_1991, y1_bhd, z1_bhd, cutoff, n)
@@ -287,7 +287,7 @@ plt.legend()
 plt.xlabel('Date', fontsize=14)
 plt.ylabel('\u0394$^1$$^4$CO$_2$ (\u2030)', fontsize=14)  # label the y axis
 plt.savefig(
-    'C:/Users/clewis/IdeaProjects/GNS/radiocarbon_intercomparison/interlab_comparison/plots/2022_Intercomparison_Paper/FirstDraft_figure2.png',
+    'C:/Users/clewis/IdeaProjects/GNS/Interlab_Comparison/output/FirstDraft_figure2.png',
     dpi=300, bbox_inches="tight")
 plt.close()
 

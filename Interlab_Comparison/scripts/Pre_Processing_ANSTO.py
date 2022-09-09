@@ -16,7 +16,7 @@ def fm_to_d14c(fm, fm_err, date):
     return Del14C, Del14C_err
 
 
-df = pd.read_excel(r'H:\The Science\Datasets\Ansto_intercomparison.xlsx', skiprows=28)
+df = pd.read_excel(r'H:\Science\Datasets\Ansto_intercomparison.xlsx', skiprows=28)
 
 ansto = df.loc[(df['Site'] == 'ANSTO')]                                              # extract ANSTO data
 ansto = ansto.rename(columns={"Year of Growth":"Decimal_date", "error":"FM_err"})    # ensure the column is named correctly for later

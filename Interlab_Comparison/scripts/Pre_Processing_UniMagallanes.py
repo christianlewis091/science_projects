@@ -7,12 +7,12 @@ import numpy as np
 import pandas as pd
 
 # read in our data from SOAR and Magallanes
-df = pd.read_excel(r'C:\Users\clewis\IdeaProjects\GNS\radiocarbon_intercomparison\Interlab_comparison\SOARTreeRingData_CBL_cleaned.xlsx')  # read in the Tree Ring data that already has flagged data removed
+df = pd.read_excel(r'C:\Users\clewis\IdeaProjects\GNS\Interlab_Comparison\data\SOARTreeRingData_CBL_cleaned.xlsx')  # read in the Tree Ring data that already has flagged data removed
 df = df.dropna(subset='∆14C').reset_index(drop=True)  # drop any data rows that doesn't have 14C data.
 df = df.loc[(df['Site'] == 'Monte Tarn, Punta Arenas')]
 df['Site'] = 'RRL'
 
-df2 = pd.read_excel(r'H:\The Science\Datasets\Jocelyn Chile tree data 1980-2016.xlsx')
+df2 = pd.read_excel(r'H:\Science\Datasets\Jocelyn Chile tree data 1980-2016.xlsx')
 df2 = df2.loc[(df2['Sheet']) == 4]  # grab the data from Monte Tarn ONLY
 df2['Decimal_date'] = np.float64(df2['Year of Growth'])  # add a new date column in the form of float.
 df2['Site'] = 'Magallanes'
@@ -56,7 +56,7 @@ combine_Magallanes = pd.merge(df, df2, on = 'Decimal_date')
 combine_Magallanes.to_excel('Magallanes_preprocessing.xlsx')
 # Now I've edited the file slightly...
 
-combine_Magallanes = pd.read_excel(r'C:\Users\clewis\IdeaProjects\GNS\radiocarbon_intercomparison\Interlab_comparison\Magallanes_preprocessing_fixed.xlsx', skiprows= 12)
+combine_Magallanes = pd.read_excel(r'C:\Users\clewis\IdeaProjects\GNS\Interlab_Comparison\data\Magallanes_preprocessing_fixed.xlsx', skiprows= 12)
 print(combine_Magallanes.columns)
 
 

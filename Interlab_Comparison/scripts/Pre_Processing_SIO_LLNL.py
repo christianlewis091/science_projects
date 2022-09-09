@@ -8,9 +8,9 @@ import numpy as np
 from X_my_functions import long_date_to_decimal_date
 
 # read in the data from the spreadsheets
-llnl = pd.read_excel(r'H:\The Science\Datasets\LLNLwheelcomparisons.xlsx',
+llnl = pd.read_excel(r'H:\Science\Datasets\LLNLwheelcomparisons.xlsx',
                      sheet_name='Data', skiprows=24)
-rrl = pd.read_excel(r'H:\The Science\Datasets\NWT_FARI_RRL_2022-02-15.xlsx')
+rrl = pd.read_excel(r'H:\Science\Datasets\NWT_FARI_RRL_2022-02-15.xlsx')
 rrl = rrl.dropna(subset=['AMS Submission Results Complete::DELTA14C'])
 # immediately slice off the following values from RRL data, Jocelyn deemed them not good, see excel sheet
 rrl = rrl.iloc[0:202]

@@ -104,13 +104,13 @@ expand this analysis the entire dataset I have on hand of BHD and see if there i
 This two lines below show the initial intercomparison. 
 """
 
-flaskvn = pd.read_excel(r'H:\The Science\Datasets\FlaskvNaOH.xlsx', skiprows=3).dropna(subset = 'D14C_flask')  # import heidelberg data
+flaskvn = pd.read_excel(r'H:\Science\Datasets\FlaskvNaOH.xlsx', skiprows=3).dropna(subset = 'D14C_flask')  # import heidelberg data
 f = intercomparison_ttest(flaskvn['D14C_flask'], flaskvn['D14C_NaOH'], 'Flask v NaOH @ Baring Head', 'paired')
 
 """
 Updated intercomparison
 """
-bhd = pd.read_excel(r'H:\The Science\Datasets\BHD_14CO2_datasets_20211013.xlsx')  # import Baring Head data
+bhd = pd.read_excel(r'H:\Science\Datasets\BHD_14CO2_datasets_20211013.xlsx')  # import Baring Head data
 bhd = bhd.loc[(bhd['DELTA14C_ERR'] > 0)]                                          # filter out all data where the errors are less than zero
 bhd1 = bhd.loc[(bhd['DEC_DECAY_CORR'] > 1984) & (bhd['DEC_DECAY_CORR'] < 1993)]   # grab only data that is between 1984 and 1993
 bhd2 = bhd.loc[(bhd['DEC_DECAY_CORR'] > 2012)]                                    # then grab data that is after 2012 (we're removing the intermediate period)
@@ -148,8 +148,8 @@ Very very frustrating issues with date formatting when trying to deal with the e
 """
 Does the extraction date impact the data ?
 """
-ed = pd.read_excel(r'H:\The Science\Datasets\Extraction_Dates.xlsx')  # import Baring Head data
-bhd = pd.read_excel(r'H:\The Science\Datasets\BHD_14CO2_datasets_20211013.xlsx')  # import Baring Head data
+ed = pd.read_excel(r'H:\Science\Datasets\Extraction_Dates.xlsx')  # import Baring Head data
+bhd = pd.read_excel(r'H:\Science\Datasets\BHD_14CO2_datasets_20211013.xlsx')  # import Baring Head data
 ed = ed.dropna(subset=['NZ'])
 ed = ed.dropna(subset=['Extract'])
 #
@@ -161,7 +161,7 @@ x = long_date_to_decimal_date(x)
 
 combined['Extraction Date Difference'] = x - combined['DEC_DECAY_CORR']
 
-combined.to_excel('test.xlsx')
+# combined.to_excel('test.xlsx')
 
 ## combined['Extract'] = long_date_to_decimal_date(combined['Extract'])
 

@@ -5,7 +5,16 @@ This file doesn't do any math, it just cleans and re-packages the data into a Pa
 """
 
 import pandas as pd
-from X_my_functions import fm_to_d14c
+import numpy as np
+import openpyxl
+
+def fm_to_d14c(fm, fm_err, date):
+    # D14C = 1000*(fm - 1)   # first, find D14C (without the age correction)
+    age_corr = np.exp((1950 - date) / 8267)
+    Del14C = 1000 * ((fm*age_corr) - 1)
+    Del14C_err = 1000 * fm_err
+    return Del14C, Del14C_err
+
 
 df = pd.read_excel(r'H:\The Science\Datasets\Ansto_intercomparison.xlsx', skiprows=28)
 
@@ -21,6 +30,8 @@ rrl = rrl.rename(columns={"Year of Growth": "Decimal_date", "error": "FM_err"}) 
 rrl = rrl[['Site', 'NZA','R','Job', 'Decimal_date', 'D14C', 'D14C_err','FM','FM_err']]
 
 combine_ANSTO = pd.concat([rrl, ansto])
+
+print('I did it')
 
 
 

@@ -1,0 +1,4 @@
+\section{Conclusions}
+\label{sec:conc}
+\noindent There are different ways to study shelf seas including using research vessels and remote, autonomous vehicles. Water samples are needed to understand the ecology and biogeochemistry of the system. However, data from research vessels is limited as it is not synoptic, i.e. it is not sampled at different locations simultaneously and, because of this, remote sensing plays an important role in the study of shelf seas. With satellite data it is possible to obtain information about the distribution of net phytoplankton production in the ocean, but other phenomena such as the SCM are difficult to observe. Besides, suspended sediments and dissolved organic material can influence this data. To complement the available data from research vessels and remote sensing, ocean models are used to study and understand marine biogeochemistry. 
+

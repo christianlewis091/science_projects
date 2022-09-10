@@ -158,7 +158,8 @@ data, in 480 points between 1980 and 2020.
 when first writing the code.
 
 """
-fake_x_temp = np.linspace(1986, 2016, 480)  # create arbitrary set of x-values to control output
+step_size = (2016 - 1987) * 12
+fake_x_temp = np.linspace(1986, 2016, step_size)  # create arbitrary set of x-values to control output
 df_fake_xs = pd.DataFrame({'x': fake_x_temp})  # put this set into a pandas DataFrame for easier use
 my_x_1986_1991 = df_fake_xs.loc[(df_fake_xs['x'] >= min(x1_heid)) & (df_fake_xs['x'] <= max(x1_heid))].reset_index(drop=True)  # index it
 my_x_1991_1994 = df_fake_xs.loc[(df_fake_xs['x'] >= min(x2_bhd)) & (df_fake_xs['x'] <= max(x2_bhd))].reset_index(drop=True)  # index it
@@ -231,7 +232,7 @@ ESSENTIALLY WHAT WE ARE DOING:
 
 I'm going to run it once below as a proof of concept with this dataset, and run a plot to show its working.
 """
-n = 10000  # set the amount of times the code will iterate (set to 10,000 once everything is final)
+n = 10  # set the amount of times the code will iterate (set to 10,000 once everything is final)
 cutoff = 667  # FFT filter cutoff
 
 bhd_1986_1991_results_smooth = monte_carlo_randomization_smooth(x1_bhd, my_x_1986_1991, y1_bhd, z1_bhd, cutoff, n)

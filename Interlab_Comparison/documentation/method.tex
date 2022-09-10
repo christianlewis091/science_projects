@@ -16,11 +16,29 @@ The rafter lab operates the longest runnnig record of atmospheric 14CO2...
 
 The Heidelberg University Institute of Environmental Physics in affiliation with the ICOS Central Radiocarbon Laboratory operates a network of time-series stations measuring ${\Delta^{14}CO_{2}}$. One of these stations, Cape Grim, Tasmania (CGO; 40.68S, 144.68E, 94 m a.s.l; Levin et al., 2010), is a reasonable candidate through which to compare Heidelberg University to Rafter Radiocarbon Lab ${\Delta^{14}CO_{2}}$. Cape Grim and Baring Head observe a similar mixture of air from the Southern Ocean and Austrailia (Ziehn et al., 2014, Law et al, 2010), and a short initial time-series indicates no measurable differnece between the sites from 2017-2019 (~\ref{fig:bhdvcgo}). 
 
-Some data is removed - early period before XCAMS
-some later data is removed - had to do with NaOH method or something...
+While the BHD record extends from 1950 to the present, the CGO record includes available data from 1987 to 2016, resulting in 30 years of overlapping data for intercomparison. 
+Two intervals will are ignored: 1995-2006 and 2009-2012.
+Variability in BHD exists between 1995 and 2005 as 1) the Rafter measurement method was changed from gas counting to AMS and 2) an online $^{13}C$ measurement allowed for approporiate fractionation correction (Turnbull et al, 2017; Zondervan et al., 2015), therefore this interval is ignored in the intercomparison. 
+Additionally, the interval of 2009-2012 is ignored as the BHD record sees increasing noise in this period related to a temporary change in NaOH sampling protocol. Further details on the decision to remove these data can be found in the Supplementary Information. 
+The remaining overlapping intervals are parsed into 4 sections: 1987 - 1991; 1991 - 1994; 2006 - 2009; 2012 - 2016. 
+Each of these data intervals are non-stationary time-series containing seasonality. 
+To extract long-term systematic offsets between institutions, and remove seasonality, the CCGCRV curve fitting procedure (Thoning et al., 1989; www.esrl.noaa.gov/gmd/ccgg/mbl/crvfit/) is implemented similar to (Turnbull et al., 2017). We employ the "smooth" and "trend" functions of the CCGCRV algoritm. "Smoothed" data includes the results of the polynomial and harmonic fits of the data, and a long-term low-pass filter of 667 days. "Trended" data is similar; retaining the polynomial fit to the function and ignoring harmonic components. 
 
-The CGO and BHD ${\Delta^{14}CO_{2}}$ records are both non-stationary time-series in the sense that they both capture the 1950s "bomb-spike" (cite) and contain seasonality. Seasonality and noise in the long-term atmospheric data complicates efforts to decompose long-term systematic offsets between institutions. 
-CCGCRV curve fitting procedure (Thoning et al., 1989; www.esrl.noaa.gov/gmd/ccgg/mbl/crvfit/), is implemented to smooth through gaps in data and remove seasonailty in two steps. 
+
+
+%    def getSmoothValue(self, x):
+%       """ Return the 'smoothed' data at time x
+%     This is the function plus the smoothed residuals.
+%   """
+
+%    def getTrendValue(self, x):
+%        """ Return the 'trend' of the data at time x
+%        This is the polynomial part of the function plus the trend of the residuals.
+%        i.e., poly plus the long term filter of the residuals
+%        Values outside the range of x will be given a Nan
+%        """
+
+
 FFT filter cuttoff 1...
 FTT Filter cutoff 2...
 

@@ -3,10 +3,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
 from Pre_Processing_UniMagallanes import combine_Magallanes
-from intercomparison_math_1 import flaskvn
+from intercomparison_math_1_SUPERCEDED import flaskvn
 import seaborn as sns
-from intercomparison_math_1 import ansto, rrl, sio_nwt3, sio_nwt4, rrl_nwt3, rrl_nwt4, y1, y1_average, y1_1sigma, y2, y2_average, y2_1sigma, y3, y3_average, y3_1sigma, y4, y4_average, y4_1sigma
-from intercomparison_math_1 import naoh1, flask1, naoh_means1, flask_means1, naoh_means2, flask_means2, fake_x1, fake_x2, naoh2, flask2
+from intercomparison_math_1_SUPERCEDED import ansto, rrl, sio_nwt3, sio_nwt4, rrl_nwt3, rrl_nwt4, y1, y1_average, y1_1sigma, y2, y2_average, y2_1sigma, y3, y3_average, y3_1sigma, y4, y4_average, y4_1sigma
+from intercomparison_math_1_SUPERCEDED import naoh1, flask1, naoh_means1, flask_means1, naoh_means2, flask_means2, fake_x1, fake_x2, naoh2, flask2
 import pandas as pd
 size1 = 5
 colors = sns.color_palette("rocket", 6)
@@ -66,7 +66,7 @@ plt.savefig('C:/Users/clewis/IdeaProjects/GNS/Interlab_Comparison/output/SIOLLNL
             dpi=300, bbox_inches="tight")
 plt.close()
 
-from intercomparison_math_1 import y1_fm, y1_average_fm, y1_1sigma_fm, y2_fm, y2_average_fm, y2_1sigma_fm, y3_fm, y3_average_fm, y3_1sigma_fm, y4_fm, y4_average_fm, y4_1sigma_fm
+from intercomparison_math_1_SUPERCEDED import y1_fm, y1_average_fm, y1_1sigma_fm, y2_fm, y2_average_fm, y2_1sigma_fm, y3_fm, y3_average_fm, y3_1sigma_fm, y4_fm, y4_average_fm, y4_1sigma_fm
 
 fig = plt.figure(4, figsize=(16.1, 10))
 gs = gridspec.GridSpec(4, 4)

@@ -5,50 +5,60 @@ import matplotlib.gridspec as gridspec
 from Pre_Processing_UniMagallanes import combine_Magallanes
 from intercomparison_math_1_SUPERCEDED import flaskvn
 import seaborn as sns
-from intercomparison_math_1_SUPERCEDED import ansto, rrl, sio_nwt3, sio_nwt4, rrl_nwt3, rrl_nwt4, y1, y1_average, y1_1sigma, y2, y2_average, y2_1sigma, y3, y3_average, y3_1sigma, y4, y4_average, y4_1sigma
-from intercomparison_math_1_SUPERCEDED import naoh1, flask1, naoh_means1, flask_means1, naoh_means2, flask_means2, fake_x1, fake_x2, naoh2, flask2
+from intercomparison_math_2_scipy import ansto, rrl, sio_nwt3, sio_nwt4, rrl_nwt3, rrl_nwt4, y1, y1_average, y1_1sigma, y2, y2_average, y2_1sigma, y3, y3_average, y3_1sigma, y4, y4_average, y4_1sigma
+from intercomparison_math_2_scipy import naoh1, flask1, naoh_means1, flask_means1, naoh_means2, flask_means2, fake_x1, fake_x2, naoh2, flask2
 import pandas as pd
 size1 = 5
 colors = sns.color_palette("rocket", 6)
 colors2 = sns.color_palette("mako", 6)
-seshadri = ['#c3121e', '#0348a1', '#ffb01c', '#027608', '#0193b0', '#9c5300', '#949c01', '#7104b5']
+
+farbe_bhd = '#0868ac'
+farbe_sio = '#43a2ca'
+farbe_ansto = '#bae4bc'
+farbe_maga = '#7bccc4'
+
+
 # </editor-fold>
 
 # <editor-fold desc="SIO v Rafter">
 """
+
 SIO/LLNL V Rafter Plot
+
+
+
 """
 fig = plt.figure(4, figsize=(16.1, 10))
 gs = gridspec.GridSpec(4, 4)
-gs.update(wspace=.5, hspace=.5)
+gs.update(wspace=.35, hspace=.5)
 
 xtr_subsplot = fig.add_subplot(gs[0:2, 0:2])
-plt.errorbar(rrl_nwt3['Decimal_date'], rrl_nwt3['D14C'], yerr=rrl_nwt3['D14C_err'], fmt='o', color=colors2[3], ecolor='black', elinewidth=1, capsize=2, label='RRL NWT3')
-plt.axhline(y=y3_average, color='black', linestyle='-')
-plt.axhspan((y3_average-y3_1sigma), (y3_average+y3_1sigma), facecolor=colors2[4], alpha=0.3)
+plt.errorbar(rrl_nwt3['Decimal_date'], rrl_nwt3['D14C'], yerr=rrl_nwt3['D14C_err'], fmt='o', color=farbe_bhd, ecolor=farbe_bhd, elinewidth=1, capsize=2, label='RRL NWT3')
+plt.axhline(y=y3_average, color=farbe_bhd, linestyle='-')
+plt.axhspan((y3_average-y3_1sigma), (y3_average+y3_1sigma), facecolor=farbe_bhd, alpha=0.3)
 plt.ylabel('\u0394$^1$$^4$CO$_2$ (\u2030)', fontsize=14)  # label the y axis
-plt.xlabel('Date of Measurement', fontsize=14)  # label the y axis
+# plt.xlabel('Date of Measurement', fontsize=14)  # label the y axis
 plt.legend()
 
 plt.ylim(30,55)
 
 xtr_subsplot = fig.add_subplot(gs[2:4, 0:2])
-plt.errorbar(rrl_nwt4['Decimal_date'], y4, yerr=rrl_nwt4['D14C_err'], fmt='o', color=colors2[4], ecolor='black', elinewidth=1, capsize=2, label='RRL NWT4')
-plt.axhline(y=y4_average, color='black', linestyle='-')
-plt.axhspan((y4_average-y4_1sigma), (y4_average+y4_1sigma), facecolor=colors2[5], alpha=0.3)
+plt.errorbar(rrl_nwt4['Decimal_date'], y4, yerr=rrl_nwt4['D14C_err'], fmt='o', color=farbe_bhd, ecolor=farbe_bhd, elinewidth=1, capsize=2, label='RRL NWT4')
+plt.axhline(y=y4_average, color=farbe_bhd, linestyle='-')
+plt.axhspan((y4_average-y4_1sigma), (y4_average+y4_1sigma), facecolor=farbe_bhd, alpha=0.3)
 plt.ylabel('\u0394$^1$$^4$CO$_2$ (\u2030)', fontsize=14)  # label the y axis
 plt.legend()
 plt.ylim(-40,-24)
-plt.xlabel('Date of Measurement', fontsize=14)  # label the y axis
+plt.xlabel('Date', fontsize=14)  # label the y axis
 
 xtr_subsplot = fig.add_subplot(gs[0:2, 2:4])
 plt.ylim(30,55)
 # plt.axhline(y=y3_average, color='black', linestyle='-')
 # plt.axhspan((y3_average-y3_1sigma), (y3_average+y3_1sigma), facecolor=colors2[4], alpha=0.3)
-plt.errorbar(sio_nwt3['Decimal_date'], y1, yerr=sio_nwt3['D14C_err'], fmt='X', color=colors[3], ecolor='black', elinewidth=1, capsize=2, label='LLNL NWT3')
-plt.axhline(y=y1_average, color='black', linestyle='--')
-plt.axhspan((y1_average-y1_1sigma), (y1_average+y1_1sigma), facecolor=colors[4], alpha=0.3)
-plt.xlabel('Measurement #', fontsize=14)  # label the y axis
+plt.errorbar(sio_nwt3['Decimal_date'], y1, yerr=sio_nwt3['D14C_err'], fmt='D', color=farbe_sio, ecolor=farbe_sio, elinewidth=1, capsize=2, label='LLNL NWT3')
+plt.axhline(y=y1_average, color=farbe_sio, linestyle='--')
+plt.axhspan((y1_average-y1_1sigma), (y1_average+y1_1sigma), facecolor=farbe_sio, alpha=0.3)
+# plt.xlabel('Measurement #', fontsize=14)  # label the y axis
 plt.legend()
 
 
@@ -56,9 +66,9 @@ xtr_subsplot = fig.add_subplot(gs[2:4, 2:4])
 plt.ylim(-40,-24)
 # plt.axhline(y=y4_average, color='black', linestyle='-')
 # plt.axhspan((y4_average-y4_1sigma), (y4_average+y4_1sigma), facecolor=colors2[5], alpha=0.3)
-plt.errorbar(sio_nwt4['Decimal_date'], y2, yerr=sio_nwt3['D14C_err'], fmt='X', color=colors[4], ecolor='black', elinewidth=1, capsize=2, label='LLNL NWT4')
-plt.axhline(y=y2_average, color='black', linestyle='--')
-plt.axhspan((y2_average-y2_1sigma), (y2_average+y2_1sigma), facecolor=colors[4], alpha=0.3)
+plt.errorbar(sio_nwt4['Decimal_date'], y2, yerr=sio_nwt3['D14C_err'], fmt='D', color=farbe_sio, ecolor=farbe_sio, elinewidth=1, capsize=2, label='LLNL NWT4')
+plt.axhline(y=y2_average, color=farbe_sio, linestyle='--')
+plt.axhspan((y2_average-y2_1sigma), (y2_average+y2_1sigma), facecolor=farbe_sio, alpha=0.3)
 plt.xlabel('Measurement #', fontsize=14)  # label the y axis
 plt.legend()
 
@@ -66,25 +76,25 @@ plt.savefig('C:/Users/clewis/IdeaProjects/GNS/Interlab_Comparison/output/SIOLLNL
             dpi=300, bbox_inches="tight")
 plt.close()
 
-from intercomparison_math_1_SUPERCEDED import y1_fm, y1_average_fm, y1_1sigma_fm, y2_fm, y2_average_fm, y2_1sigma_fm, y3_fm, y3_average_fm, y3_1sigma_fm, y4_fm, y4_average_fm, y4_1sigma_fm
+from intercomparison_math_2_scipy import y1_fm, y1_average_fm, y1_1sigma_fm, y2_fm, y2_average_fm, y2_1sigma_fm, y3_fm, y3_average_fm, y3_1sigma_fm, y4_fm, y4_average_fm, y4_1sigma_fm
 
 fig = plt.figure(4, figsize=(16.1, 10))
 gs = gridspec.GridSpec(4, 4)
-gs.update(wspace=.5, hspace=.5)
+gs.update(wspace=.35, hspace=.5)
 
 xtr_subsplot = fig.add_subplot(gs[0:2, 0:2])
-plt.errorbar(rrl_nwt3['Decimal_date'], rrl_nwt3['FM'], yerr=rrl_nwt3['FM_err'], fmt='o', color=colors2[3], ecolor='black', elinewidth=1, capsize=2, label='RRL NWT3')
-plt.axhline(y=y3_average_fm, color='black', linestyle='-')
-plt.axhspan((y3_average_fm-y3_1sigma_fm), (y3_average_fm+y3_1sigma_fm), facecolor=colors2[4], alpha=0.3)
+plt.errorbar(rrl_nwt3['Decimal_date'], rrl_nwt3['FM'], yerr=rrl_nwt3['FM_err'], fmt='o', color=farbe_bhd, ecolor=farbe_bhd, elinewidth=1, capsize=2, label='RRL NWT3')
+plt.axhline(y=y3_average_fm, color=farbe_bhd, linestyle='-')
+plt.axhspan((y3_average_fm-y3_1sigma_fm), (y3_average_fm+y3_1sigma_fm), facecolor=farbe_bhd, alpha=0.3)
 plt.ylabel('FM', fontsize=14)  # label the y axis
-plt.xlabel('Date of Measurement', fontsize=14)  # label the y axis
+# plt.xlabel('Date of Measurement', fontsize=14)  # label the y axis
 plt.legend()
 plt.ylim(1.035,1.065)
 
 xtr_subsplot = fig.add_subplot(gs[2:4, 0:2])
-plt.errorbar(rrl_nwt4['Decimal_date'], y4_fm, yerr=rrl_nwt4['FM_err'], fmt='o', color=colors2[4], ecolor='black', elinewidth=1, capsize=2, label='RRL NWT4')
-plt.axhline(y=y4_average_fm, color='black', linestyle='-')
-plt.axhspan((y4_average_fm-y4_1sigma_fm), (y4_average_fm+y4_1sigma_fm), facecolor=colors2[5], alpha=0.3)
+plt.errorbar(rrl_nwt4['Decimal_date'], y4_fm, yerr=rrl_nwt4['FM_err'], fmt='o', color=farbe_bhd, ecolor=farbe_bhd, elinewidth=1, capsize=2, label='RRL NWT4')
+plt.axhline(y=y4_average_fm, color=farbe_bhd, linestyle='-')
+plt.axhspan((y4_average_fm-y4_1sigma_fm), (y4_average_fm+y4_1sigma_fm), facecolor=farbe_bhd, alpha=0.3)
 plt.ylabel('FM', fontsize=14)  # label the y axis
 plt.legend()
 plt.ylim(0.965, 0.985)
@@ -94,10 +104,10 @@ xtr_subsplot = fig.add_subplot(gs[0:2, 2:4])
 # plt.ylim(30,55)
 # plt.axhline(y=y3_average, color='black', linestyle='-')
 # plt.axhspan((y3_average-y3_1sigma), (y3_average+y3_1sigma), facecolor=colors2[4], alpha=0.3)
-plt.errorbar(sio_nwt3['Decimal_date'], y1_fm, yerr=sio_nwt3['FM_err'], fmt='X', color=colors[3], ecolor='black', elinewidth=1, capsize=2, label='LLNL NWT3')
-plt.axhline(y=y1_average_fm, color='black', linestyle='--')
-plt.axhspan((y1_average_fm-y1_1sigma_fm), (y1_average_fm+y1_1sigma_fm), facecolor=colors[4], alpha=0.3)
-plt.xlabel('Measurement #', fontsize=14)  # label the y axis
+plt.errorbar(sio_nwt3['Decimal_date'], y1_fm, yerr=sio_nwt3['FM_err'], fmt='D', color=farbe_sio, ecolor=farbe_sio, elinewidth=1, capsize=2, label='LLNL NWT3')
+plt.axhline(y=y1_average_fm, color=farbe_sio, linestyle='--')
+plt.axhspan((y1_average_fm-y1_1sigma_fm), (y1_average_fm+y1_1sigma_fm), facecolor=farbe_sio, alpha=0.3)
+# plt.xlabel('Measurement #', fontsize=14)  # label the y axis
 plt.legend()
 plt.ylim(1.035,1.065)
 
@@ -106,9 +116,9 @@ xtr_subsplot = fig.add_subplot(gs[2:4, 2:4])
 # plt.ylim(-40,-24)
 # plt.axhline(y=y4_average, color='black', linestyle='-')
 # plt.axhspan((y4_average-y4_1sigma), (y4_average+y4_1sigma), facecolor=colors2[5], alpha=0.3)
-plt.errorbar(sio_nwt4['Decimal_date'], y2_fm, yerr=sio_nwt3['FM_err'], fmt='X', color=colors[4], ecolor='black', elinewidth=1, capsize=2, label='LLNL NWT4')
-plt.axhline(y=y2_average_fm, color='black', linestyle='--')
-plt.axhspan((y2_average_fm-y2_1sigma_fm), (y2_average_fm+y2_1sigma_fm), facecolor=colors[4], alpha=0.3)
+plt.errorbar(sio_nwt4['Decimal_date'], y2_fm, yerr=sio_nwt3['FM_err'], fmt='D', color=farbe_sio, ecolor=farbe_sio, elinewidth=1, capsize=2, label='LLNL NWT4')
+plt.axhline(y=y2_average_fm, color=farbe_sio, linestyle='--')
+plt.axhspan((y2_average_fm-y2_1sigma_fm), (y2_average_fm+y2_1sigma_fm), facecolor=farbe_sio, alpha=0.3)
 plt.xlabel('Measurement #', fontsize=14)  # label the y axis
 plt.legend()
 plt.ylim(0.965, 0.985)
@@ -120,58 +130,40 @@ plt.close()
 
 # <editor-fold desc="ANSTO v Rafter">
 """
+
+
+
+
+
+
 ANSTO v RRL Plot
+
+
+
+
+
+
+
+
+
 """
-plt.errorbar(rrl['Decimal_date'], rrl['D14C'], label='RRL', yerr=rrl['D14C_err'], fmt='o', color=colors2[3], ecolor=colors2[3], elinewidth=1, capsize=2)
-plt.errorbar(ansto['Decimal_date'], ansto['D14C'], label='ANSTO', yerr=ansto['D14C_err'], fmt='D', color=colors[3], ecolor=colors[3], elinewidth=1, capsize=2)
-plt.legend(fontsize=7.5)
-# plt.xlim(1980, 2020)
-# plt.ylim(.95, 1.3)
-plt.xlabel('Date', fontsize=14)
-plt.ylabel('\u0394$^1$$^4$C (\u2030)', fontsize=14)  # label the y axis
-plt.savefig('C:/Users/clewis/IdeaProjects/GNS/Interlab_Comparison/output/ANSTOvRRL.png',
+
+fig = plt.figure(1, figsize=(10,5))
+gs = gridspec.GridSpec(1, 2)
+xtr_subsplot = fig.add_subplot(gs[0:1, 0:1])
+plt.ylabel('\u0394$^1$$^4$CO$_2$ (\u2030)', fontsize=14)  # label the y axis
+plt.errorbar(rrl['Decimal_date'], rrl['D14C'], label='RRL', yerr=rrl['D14C_err'], fmt='o', color=farbe_bhd, ecolor=farbe_bhd, elinewidth=1, capsize=2)
+plt.errorbar(ansto['Decimal_date'], ansto['D14C'], label='ANSTO', yerr=ansto['D14C_err'], fmt='^', color=farbe_ansto, ecolor=farbe_ansto, elinewidth=1, capsize=2)
+plt.legend()
+xtr_subsplot = fig.add_subplot(gs[0:1, 1:2])
+plt.errorbar(combine_Magallanes['Decimal_date'], combine_Magallanes['D14C_x'], label='RRL', yerr=combine_Magallanes['D14C_err_x'], fmt='o', color=farbe_bhd, ecolor=farbe_bhd, elinewidth=1, capsize=2)
+plt.errorbar(combine_Magallanes['Decimal_date'], combine_Magallanes['D14C_y'], label='Uni Magallanes', yerr=combine_Magallanes['D14C_err_y'], fmt='s', color=farbe_maga, ecolor=farbe_maga, elinewidth=1, capsize=2)
+plt.legend()
+
+plt.savefig('C:/Users/clewis/IdeaProjects/GNS/Interlab_Comparison/output/Magallanes_Ansto_comb.png',
             dpi=300, bbox_inches="tight")
 plt.close()
 
-plt.errorbar(rrl['Decimal_date'], rrl['FM'], label='RRL', yerr=rrl['FM_err'], fmt='o', color=colors2[3], ecolor=colors2[3], elinewidth=1, capsize=2)
-plt.errorbar(ansto['Decimal_date'], ansto['FM'], label='ANSTO', yerr=ansto['FM_err'], fmt='D', color=colors[3], ecolor=colors[3], elinewidth=1, capsize=2)
-plt.legend(fontsize=7.5)
-# plt.xlim(1980, 2020)
-# plt.ylim(.95, 1.3)
-plt.xlabel('Date', fontsize=14)
-plt.ylabel('FM', fontsize=14)  # label the y axis
-plt.savefig('C:/Users/clewis/IdeaProjects/GNS/Interlab_Comparison/output/ANSTOvRRL_FM.png',
-            dpi=300, bbox_inches="tight")
-plt.close()
-
-# </editor-fold>
-
-# <editor-fold desc="Magallanes v RRL">
-plt.errorbar(combine_Magallanes['Decimal_date'], combine_Magallanes['D14C_x'], label='RRL', yerr=combine_Magallanes['D14C_err_x'],
-             fmt='D', color=colors2[3], ecolor=colors2[3], elinewidth=1, capsize=2)
-plt.errorbar(combine_Magallanes['Decimal_date'], combine_Magallanes['D14C_y'], label='Uni Magallanes', yerr=combine_Magallanes['D14C_err_y'],
-             fmt='D', color=colors[3], ecolor=colors[3], elinewidth=1, capsize=2)
-plt.legend(fontsize=7.5)
-# plt.xlim(1980, 2020)
-# plt.ylim(.95, 1.3)
-plt.xlabel('Date', fontsize=14)
-plt.ylabel('\u0394$^1$$^4$C (\u2030)', fontsize=14)  # label the y axis
-plt.savefig('C:/Users/clewis/IdeaProjects/GNS/Interlab_Comparison/output/MagallanesvRRL.png',
-            dpi=300, bbox_inches="tight")
-plt.close()
-
-plt.errorbar(combine_Magallanes['Decimal_date'], combine_Magallanes['FM_x'], label='RRL', yerr=combine_Magallanes['FM_err_x'],
-             fmt='D', color=colors2[3], ecolor=colors2[3], elinewidth=1, capsize=2)
-plt.errorbar(combine_Magallanes['Decimal_date'], combine_Magallanes['FM_y'], label='Uni Magallanes', yerr=combine_Magallanes['FM_err_y'],
-             fmt='D', color=colors[3], ecolor=colors[3], elinewidth=1, capsize=2)
-plt.legend(fontsize=7.5)
-# plt.xlim(1980, 2020)
-# plt.ylim(.95, 1.3)
-plt.xlabel('Date', fontsize=14)
-plt.ylabel('FM', fontsize=14)  # label the y axis
-plt.savefig('C:/Users/clewis/IdeaProjects/GNS/Interlab_Comparison/output/MagallanesvRRL_FM.png',
-            dpi=300, bbox_inches="tight")
-plt.close()
 
 # </editor-fold>
 

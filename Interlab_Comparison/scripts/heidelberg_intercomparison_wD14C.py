@@ -232,7 +232,7 @@ ESSENTIALLY WHAT WE ARE DOING:
 
 I'm going to run it once below as a proof of concept with this dataset, and run a plot to show its working.
 """
-n = 10000  # set the amount of times the code will iterate (set to 10,000 once everything is final)
+n = 10  # set the amount of times the code will iterate (set to 10,000 once everything is final)
 cutoff = 667  # FFT filter cutoff
 
 bhd_1986_1991_results_smooth = monte_carlo_randomization_smooth(x1_bhd, my_x_1986_1991, y1_bhd, z1_bhd, cutoff, n)
@@ -273,8 +273,7 @@ means = summary['Means']  # extracts the summary DataFrame
 
 fig = plt.figure(1)
 plt.title('Visualization of Monte Carlo and CCGCRV Process: 1987-1991 BHD')
-plt.errorbar(xtot_bhd, ytot_bhd, label='BHD Data', yerr=ztot_bhd, fmt='o', color='black', ecolor='black', elinewidth=1,
-             capsize=2)
+plt.errorbar(xtot_bhd, ytot_bhd, label='BHD Data', yerr=ztot_bhd, fmt='o', color='black', ecolor='black', elinewidth=1,capsize=2)
 plt.scatter(x1_bhd, data1, color=colors[0], label='Monte Carlo Iteration 1', alpha=0.35, marker='x')
 plt.scatter(x1_bhd, data2, color=colors[1], label='Monte Carlo Iteration 2', alpha=0.35, marker='^')
 plt.scatter(x1_bhd, data3, color=colors[2], label='Monte Carlo Iteration 3', alpha=0.35, marker='s')

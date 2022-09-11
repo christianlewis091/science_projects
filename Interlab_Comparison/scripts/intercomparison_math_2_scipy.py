@@ -86,55 +86,55 @@ names = [a, b, c, d, e, f, g, h]
 for item in names:
     print(item)
 
-# # <editor-fold desc="Flask v NaOH Method Intercomparison">
-# """
-# Shown below are intercomparisons between GNS internally:
-# Method Intercomparison: NaOH v Flask for CO2 measurements.
-#
-# An initial method intercomparison from my remote work shows that there is a difference between the two groups. I'm going to
-# expand this analysis the entire dataset I have on hand of BHD and see if there is a difference...
-# """
-# # I'm adding in some extra intercomparisons from GNS,
-# # Cape Grim vs BHD intercomparison
-# # NaOH v Flask Intercomparison.
-#
-# """
-# This two lines below show the initial intercomparison.
-# """
-#
-# flaskvn = pd.read_excel(r'H:\Science\Datasets\FlaskvNaOH.xlsx', skiprows=3).dropna(subset = 'D14C_flask')  # import heidelberg data
-# f = intercomparison_ttest(flaskvn['D14C_flask'], flaskvn['D14C_NaOH'], 'Flask v NaOH @ Baring Head', 'paired')
-#
-# """
-# Updated intercomparison
-# """
-# bhd = pd.read_excel(r'H:\Science\Datasets\BHD_14CO2_datasets_20211013.xlsx')  # import Baring Head data
-# bhd = bhd.loc[(bhd['DELTA14C_ERR'] > 0)]                                          # filter out all data where the errors are less than zero
-# bhd1 = bhd.loc[(bhd['DEC_DECAY_CORR'] > 1984) & (bhd['DEC_DECAY_CORR'] < 1993)]   # grab only data that is between 1984 and 1993
-# bhd2 = bhd.loc[(bhd['DEC_DECAY_CORR'] > 2012)]                                    # then grab data that is after 2012 (we're removing the intermediate period)
-#
-# naoh1 = bhd1.loc[(bhd1['METH_COLL'] == 'NaOH_static')]
-# flask1 = bhd1.loc[(bhd1['METH_COLL'] == 'Whole_air')]
-# naoh2 = bhd2.loc[(bhd2['METH_COLL'] == 'NaOH_static')]
-# flask2 = bhd2.loc[(bhd2['METH_COLL'] == 'Whole_air')]
-#
-# n = 10
-# fake_x1 = np.linspace(min(flask1['DEC_DECAY_CORR']), max(naoh1['DEC_DECAY_CORR']), len(bhd['DEC_DECAY_CORR']))  # create arbitrary set of x-values to control output
-# fake_x2 = np.linspace(min(flask2['DEC_DECAY_CORR']), max(flask2['DEC_DECAY_CORR']), len(bhd['DEC_DECAY_CORR']))  # create arbitrary set of x-values to control output
-# trend_naoh1 = monte_carlo_randomization_trend(naoh1['DEC_DECAY_CORR'], fake_x1, naoh1['DELTA14C'], naoh1['DELTA14C_ERR'], 667, n)
-# trend_naoh2 = monte_carlo_randomization_trend(naoh2['DEC_DECAY_CORR'], fake_x2, naoh2['DELTA14C'], naoh2['DELTA14C_ERR'], 667, n)
-# trend_flask1 = monte_carlo_randomization_trend(flask1['DEC_DECAY_CORR'], fake_x1, flask1['DELTA14C'], flask1['DELTA14C_ERR'], 667, n)
-# trend_flask2 = monte_carlo_randomization_trend(flask2['DEC_DECAY_CORR'], fake_x2, flask2['DELTA14C'], flask2['DELTA14C_ERR'], 667, n)
-#
-# naoh_summary = trend_naoh1[2]
-# naoh_means1 = naoh_summary['Means']
-# naoh_summary = trend_naoh2[2]
-# naoh_means2 = naoh_summary['Means']
-# flask_summary = trend_flask1[2]
-# flask_means1 = flask_summary['Means']
-# flask_summary = trend_flask2[2]
-# flask_means2 = flask_summary['Means']
-#
-# f = intercomparison_ttest(naoh_means1, flask_means1, 'Flask v NaOH @ Baring Head, Trended, Part1', 'paired')
-# f = intercomparison_ttest(naoh_means2, flask_means2, 'Flask v NaOH @ Baring Head, Trended, Part2', 'paired')
-# # </editor-fold>
+# <editor-fold desc="Flask v NaOH Method Intercomparison">
+"""
+Shown below are intercomparisons between GNS internally:
+Method Intercomparison: NaOH v Flask for CO2 measurements.
+
+An initial method intercomparison from my remote work shows that there is a difference between the two groups. I'm going to
+expand this analysis the entire dataset I have on hand of BHD and see if there is a difference...
+"""
+# I'm adding in some extra intercomparisons from GNS,
+# Cape Grim vs BHD intercomparison
+# NaOH v Flask Intercomparison.
+
+"""
+This two lines below show the initial intercomparison.
+"""
+
+flaskvn = pd.read_excel(r'H:\Science\Datasets\FlaskvNaOH.xlsx', skiprows=3).dropna(subset = 'D14C_flask')  # import heidelberg data
+f = intercomparison_ttest(flaskvn['D14C_flask'], flaskvn['D14C_NaOH'], 'Flask v NaOH @ Baring Head', 'paired')
+
+"""
+Updated intercomparison
+"""
+bhd = pd.read_excel(r'H:\Science\Datasets\BHD_14CO2_datasets_20211013.xlsx')  # import Baring Head data
+bhd = bhd.loc[(bhd['DELTA14C_ERR'] > 0)]                                          # filter out all data where the errors are less than zero
+bhd1 = bhd.loc[(bhd['DEC_DECAY_CORR'] > 1984) & (bhd['DEC_DECAY_CORR'] < 1993)]   # grab only data that is between 1984 and 1993
+bhd2 = bhd.loc[(bhd['DEC_DECAY_CORR'] > 2012)]                                    # then grab data that is after 2012 (we're removing the intermediate period)
+
+naoh1 = bhd1.loc[(bhd1['METH_COLL'] == 'NaOH_static')]
+flask1 = bhd1.loc[(bhd1['METH_COLL'] == 'Whole_air')]
+naoh2 = bhd2.loc[(bhd2['METH_COLL'] == 'NaOH_static')]
+flask2 = bhd2.loc[(bhd2['METH_COLL'] == 'Whole_air')]
+
+n = 10
+fake_x1 = np.linspace(min(flask1['DEC_DECAY_CORR']), max(naoh1['DEC_DECAY_CORR']), len(bhd['DEC_DECAY_CORR']))  # create arbitrary set of x-values to control output
+fake_x2 = np.linspace(min(flask2['DEC_DECAY_CORR']), max(flask2['DEC_DECAY_CORR']), len(bhd['DEC_DECAY_CORR']))  # create arbitrary set of x-values to control output
+trend_naoh1 = monte_carlo_randomization_trend(naoh1['DEC_DECAY_CORR'], fake_x1, naoh1['DELTA14C'], naoh1['DELTA14C_ERR'], 667, n)
+trend_naoh2 = monte_carlo_randomization_trend(naoh2['DEC_DECAY_CORR'], fake_x2, naoh2['DELTA14C'], naoh2['DELTA14C_ERR'], 667, n)
+trend_flask1 = monte_carlo_randomization_trend(flask1['DEC_DECAY_CORR'], fake_x1, flask1['DELTA14C'], flask1['DELTA14C_ERR'], 667, n)
+trend_flask2 = monte_carlo_randomization_trend(flask2['DEC_DECAY_CORR'], fake_x2, flask2['DELTA14C'], flask2['DELTA14C_ERR'], 667, n)
+
+naoh_summary = trend_naoh1[2]
+naoh_means1 = naoh_summary['Means']
+naoh_summary = trend_naoh2[2]
+naoh_means2 = naoh_summary['Means']
+flask_summary = trend_flask1[2]
+flask_means1 = flask_summary['Means']
+flask_summary = trend_flask2[2]
+flask_means2 = flask_summary['Means']
+
+f = intercomparison_ttest(naoh_means1, flask_means1, 'Flask v NaOH @ Baring Head, Trended, Part1', 'paired')
+f = intercomparison_ttest(naoh_means2, flask_means2, 'Flask v NaOH @ Baring Head, Trended, Part2', 'paired')
+# </editor-fold>

@@ -1,53 +1,66 @@
 \documentclass[a4paper,11pt]{article} %article style with 11pt fontsize
+% \documentclass[fleqn,10pt]{olplainarticle}
+% Use option lineno for line numbers 
+
 \usepackage[utf8]{inputenc} %to add symbols like accents
 \usepackage{graphicx} % to add figures
 \usepackage{amsmath} % to add math and equation environments
 \usepackage[margin=3cm]{geometry} % to define the style of the page, margin of 3cm
 \usepackage{multicol} %you might need to do multiple columns
 \usepackage{hyperref} %to create hyperlinks within the document
+\title{Updated assessment of ${\Delta^{14}CO_{2}}$ measurement intercomparability using atmospheric records and standard materials}
+\author{Christian Blair Lewis$^{1}$, Jocelyn Turnbull$^{1,2}$, Rachel Corran$^{1}$}
+\date{\today}
 
-\renewcommand{\contentsname}{Table of Contents} %renewcommand is used to be able to name your Table of Contents as you want, default is 'Contents'. Renewcommand with \contentsname allows you to do that. 
+
 
 \begin{document}
 
-\begin{titlepage}
-\begin{center}
-\title{YOUR UNIVERSITY}
-\large\underline{YOUR FACULTY} 
-\par \vspace{0.4in} %\vspace can give you a set vertical space (in inches 'in' or centimeters 'cm') between the previous and following lines to this command
-\normalsize{Volume 1 of 1}
-\par \vspace{0.4in}
-\large{\textbf{YOUR THESIS TITLE}}
-\par \vspace{0.2in}
-{by}
-\par \vspace{0.2in}
-\large{\textbf{YOUR NAME}}
-\par \vspace{0.4in}
-\large{Thesis for the degree of Doctor of Philosophy}
-\par \vspace{0.5in}
+\maketitle
 
-
-\end{center}
-\end{titlepage}
-
-\newpage\null\thispagestyle{empty}\newpage %leave the next page as blank
-\pagestyle{plain}
-
-\setcounter{secnumdepth}{3} % organisational level that receives a numbers
-% Print table of contents for level 3
-% Levels are: 0 - chapter, 1 - section, 2 - subsection, 3 - subsubsection
-\setcounter{tocdepth}{3}  % toc = table of contents, latex uses that abbreviation
-\pagenumbering{roman} % roman style (page numbering) for the table of contents
-
-\addcontentsline{toc}{section}{\Large{\textbf{Table of Contents}}} %we are adding an entry to TOC, which is TOC! We want TOC to be listed in the list.
-\tableofcontents 
-\cleardoublepage % this command ends the current page
 \pagenumbering{arabic} % arabic style (page numbering) for the rest of the document
 \include{Abstract} 
 \include{Intro}
 \include{Method}
+\include{Results}
 \include{Conclusions}
 
 \include{supp_info}
 
 \end{document}
+
+
+% TODO: add a/b/c/d to figure 3 (the 8-panel plot of different trends/smooths)
+% TODO: change one the lines in the above plot to be dashed or something so that if it's printed in black/white, its still recognizeable. 
+% TODO: move the legend from the first Results figure (Heidelberg v RRL) 
+% TODO: add a/b/c/d to the SIO LLNL plot as well
+% TODO: remove the x-axis label from the top two panels of the SIO/LLNL plot
+% TODO: replot all plots and make sure the colors / symbols are the same for each institution.
+% TODO: change labels in b/d for SIo/lnl plots to SIO/LLNL
+% TODO: change x-axis from "Date of Measurement" to Date.
+% TODO: put ansto and magallanes plots next to each other, their so somolar and have similar results, this makes more sense. 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

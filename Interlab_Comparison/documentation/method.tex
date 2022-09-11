@@ -1,4 +1,4 @@
-\section{Method}
+\section{Methods}
 \label{sec:method}
 
 % symbols
@@ -37,7 +37,7 @@ The following process occurs during each iteration for both BHD and CGO data:
 	\item This randomized time-series is smoothed/trended with CCGCRV algoritm 
 	\item The generated data (in 348 equal steps from 1987 to 2016) is appended to a growing dataframe of smoothed/trended data.
 \end{itemize}
-When the loop is complete, the mean and standard deviation of y each 348 x-values is calculated for BHD and CGO. These computed values are used to assess the intercomparability of BHD and CGO, and thus, Rafter Radiocarbon Lab and Heidelberg University over time. This Monte-Carlo simulation is shown on a small scale in Figure \ref{montecarloexplained}. Statistics are then computed for each of the four time-intervals described above. A paired t-test is used to determine if BHD and CGO are different. The null hypothesis, that there is no difference between the two datasets, is rejected p-values are <0.01. 
+When the loop is complete, the mean and standard deviation of y each 348 x-values is calculated for BHD and CGO. These computed values are used to assess the intercomparability of BHD and CGO, and thus, Rafter Radiocarbon Lab and Heidelberg University over time. This Monte-Carlo simulation is shown on a small scale in Figure \ref{montecarloexplained}. Statistics are then computed for each of the four time-intervals described above. 
 
 \begin{figure}[h!]
   \includegraphics[width=1\textwidth]{/mnt/c/Users/clewis/IdeaProjects/GNS/Interlab_Comparison/output/DEV_FirstDraft_figure2.png}
@@ -45,19 +45,31 @@ When the loop is complete, the mean and standard deviation of y each 348 x-value
   \label{fig:montecarloexplained}
 \end{figure}
 
+\begin{itemize}
+	\item Need to add details about NaOH sampling method. 
+\end{itemize}
+
+
 \subsection{Scripps Institude of Oceaography / Lawrence Livermore National Laboratory}
-\subsubsection{Available Data}
 
 RRL and Scripps Institude of Oceaography / Lawrence Livermore National Laboratory (SIO/LLNL) are compared through measurement of the same standard materials: Niwot Ridge 3 and Niwot Ridge 4 (NWT3 and NWT4). NWT3 and NWT4 are air standards from Niwot Ridge, Colorado collected in 2005 and 2006, the latter "spiked" with fossil ${CO_{2}}$. In these particular measurements, standards were graphitized and combusted at SIO and ${\Delta^{14}C}$ measured at LLNL. This intercomparison is sparse in terms of temporal overlap, with RRL measurements ranging from 2013 to 2020; and LLNL measurements encompassing March - April 2009. 
-% less than three wheels in reality. 
+\subsection{Australian Nuclear Science and Technology Organisation (ANSTO)}
+
+Intercomparability between ANSTO Centre for Accelerator Science and RRL ${\Delta^{14}C}$ is assesed via measurements of Kauri tree-rings. Both Institutions measured the same samples in this intercomparison.   
+\begin{itemize}
+	\item How was the sample prepared? Other details to add. 
+\end{itemize}
+
+\subsection{University of Magallanes (DO NOT PUBLISH WITHOUT EXPRESS PERMISSION FROM RICARDO}
+  
+Intercomparability between University of Magallanes and RRL ${\Delta^{14}C}$ is assesed via measurements of tree-rings in Monte Tarn, Chile (53S. Samples from either institution were collected from the same site; but not the same tree. 
+\begin{itemize}
+	\item How was the sample prepared? Other details to add. 
+\end{itemize}
 
 
-
-
-
-
-
-
+\subsection{Statistical Analyses}
+For intercomparisons of non-stationary time-series, such as RRL vs ANSTO, University of Magallanes, and Heidelberg University, intercomparability is assessed using paired (relative) t-tests. Comparison with SIO/LLNL uses an independent t-test. In all cases, the null hypothesis is that no difference between the institutions exists. The hypothesis is rejected if p-values are <0.01 (these are displayed in Table X). Statistical calculations were made using the Python scipy.stats library (https://docs.scipy.org/doc/scipy/reference/stats.html).
 
 
 

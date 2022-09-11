@@ -74,14 +74,14 @@ y4_1sigma_fm = np.std(y4_fm)
 
 # UNCOMMENT WHEN DONE WRITING THIS FILE! HERE ARE THE OTHER INTERCOMPARISON!
 # I was first supplied with FM data from ANSTO so I'm going to use FM for this calculation.
-a = stats.ttest_ind(rrl['D14C'], ansto['D14C'])
-b = stats.ttest_ind(rrl['FM'], ansto['FM'])
+a = stats.ttest_rel(rrl['D14C'], ansto['D14C'])
+b = stats.ttest_rel(rrl['FM'], ansto['FM'])
 c = stats.ttest_ind(rrl_nwt3['FM'], sio_nwt3['FM'])
 d = stats.ttest_ind(rrl_nwt4['FM'], sio_nwt4['FM'])
 e = stats.ttest_ind(rrl_nwt3['D14C'], sio_nwt3['D14C'])
 f = stats.ttest_ind(rrl_nwt4['D14C'], sio_nwt4['D14C'])
-g = stats.ttest_ind(combine_Magallanes['D14C_x'], combine_Magallanes['D14C_y'])
-h = stats.ttest_ind(combine_Magallanes['FM_x'], combine_Magallanes['FM_y'])
+g = stats.ttest_rel(combine_Magallanes['D14C_x'], combine_Magallanes['D14C_y'])
+h = stats.ttest_rel(combine_Magallanes['FM_x'], combine_Magallanes['FM_y'])
 names = [a, b, c, d, e, f, g, h]
 for item in names:
     print(item)

@@ -7,15 +7,10 @@ from intercomparison_math_1_SUPERCEDED import flaskvn
 import seaborn as sns
 from intercomparison_math_2_scipy import ansto, rrl, sio_nwt3, sio_nwt4, rrl_nwt3, rrl_nwt4, y1, y1_average, y1_1sigma, y2, y2_average, y2_1sigma, y3, y3_average, y3_1sigma, y4, y4_average, y4_1sigma
 from intercomparison_math_2_scipy import naoh1, flask1, naoh_means1, flask_means1, naoh_means2, flask_means2, fake_x1, fake_x2, naoh2, flask2
+from colors_set import *
 import pandas as pd
 size1 = 5
-colors = sns.color_palette("rocket", 6)
-colors2 = sns.color_palette("mako", 6)
 
-farbe_bhd = '#0868ac'
-farbe_sio = '#43a2ca'
-farbe_ansto = '#bae4bc'
-farbe_maga = '#7bccc4'
 
 
 # </editor-fold>
@@ -132,18 +127,7 @@ plt.close()
 """
 
 
-
-
-
-
 ANSTO v RRL Plot
-
-
-
-
-
-
-
 
 
 """
@@ -182,8 +166,8 @@ from heidelberg_intercomparison_wD14C import means, my_x_2006_2009_trimmed, my_x
 Figure 1. All the data together
 """
 fig = plt.figure(1)
-plt.scatter(xtot_bhd, ytot_bhd, marker='o', label='Rafter Baring Head Record (BHD)', color=colors[3], s=size1)
-plt.scatter(xtot_heid, ytot_heid, marker='x', label='Heidelberg Cape Grim Record (CGO)', color=colors2[3], s=size1)
+plt.scatter(xtot_bhd, ytot_bhd, marker='o', label='Rafter Baring Head Record (BHD)', color=farbe_bhd, s=size1)
+plt.scatter(xtot_heid, ytot_heid, marker='x', label='Heidelberg Cape Grim Record (CGO)', color=farbe_heid, s=size1)
 plt.legend()
 plt.title('Baring Head and Cape Grim Data > 1980')
 plt.xlim([1980, 2020])
@@ -202,15 +186,15 @@ Figure 2. Visual Example of the randomization and smoothing process.
 fig = plt.figure(2)
 
 plt.title('Visualization of Monte Carlo and CCGCRV Process: 1987-1991 BHD')
-plt.errorbar(xtot_bhd, ytot_bhd, label='CGO Data' , yerr=ztot_bhd, fmt='o', color='black', ecolor='black', elinewidth=1, capsize=2)
-plt.scatter(x1_bhd, data1, color = colors[0], label = 'Monte Carlo Iteration 1', alpha = 0.35, marker = 'x')
-plt.scatter(x1_bhd, data2, color = colors[1],  label = 'Monte Carlo Iteration 2', alpha = 0.35, marker = '^')
-plt.scatter(x1_bhd, data3, color = colors[2],  label = 'Monte Carlo Iteration 3', alpha = 0.35, marker = 's')
-plt.plot(my_x_1986_1991, curve1, color = colors[0], alpha = 0.35, linestyle = 'dotted')
-plt.plot(my_x_1986_1991, curve2, color = colors[1], alpha = 0.35, linestyle = 'dashed')
-plt.plot(my_x_1986_1991, curve3, color = colors[2], alpha = 0.35, linestyle = 'dashdot')
-plt.plot(my_x_1986_1991, bhd_1986_1991_mean_smooth, color = 'red',  label = 'CCGCRV Smooth Values', alpha = 1, linestyle = 'solid')
-plt.plot(my_x_1986_1991, bhd_1986_1991_mean_trend, color = 'blue',  label = 'CCGCRV Trend Values', alpha = 1, linestyle = 'solid')
+plt.errorbar(xtot_bhd, ytot_bhd, label='BHD Data' , yerr=ztot_bhd, fmt='o', color=farbe_bhd, ecolor=farbe_bhd, elinewidth=1, capsize=2)
+plt.scatter(x1_bhd, data1, color = c1, label = 'Monte Carlo Iteration 1', alpha = 0.35, marker = 'x')
+plt.scatter(x1_bhd, data2, color = c2,  label = 'Monte Carlo Iteration 2', alpha = 0.35, marker = '^')
+plt.scatter(x1_bhd, data3, color = c3,  label = 'Monte Carlo Iteration 3', alpha = 0.35, marker = 's')
+plt.plot(my_x_1986_1991, curve1, color = c1, alpha = 0.35, linestyle = 'dotted')
+plt.plot(my_x_1986_1991, curve2, color = c2, alpha = 0.35, linestyle = 'dashed')
+plt.plot(my_x_1986_1991, curve3, color = c3, alpha = 0.35, linestyle = 'dashdot')
+plt.plot(my_x_1986_1991, bhd_1986_1991_mean_smooth, color = farbe_bhd,  label = 'CCGCRV Smooth Values', alpha = 1, linestyle = 'dashed')
+plt.plot(my_x_1986_1991, bhd_1986_1991_mean_trend, color = farbe_bhd,  label = 'CCGCRV Trend Values', alpha = 1, linestyle = 'solid')
 plt.xlim([1989, 1991])
 plt.ylim([140, 180])
 plt.legend()
@@ -235,11 +219,11 @@ size2 = 15
 xtr_subsplot = fig.add_subplot(gs[0:1, 0:2])
 # plot data for left panel
 plt.text(1990.75, 167.5, "A", fontsize=12)
-plt.errorbar(xtot_bhd, ytot_bhd, label='CGO Data' , yerr=ztot_bhd, fmt='none', color='black', ecolor='black', elinewidth=1, capsize=2)
+plt.errorbar(xtot_bhd, ytot_bhd, label='BHD Data' , yerr=ztot_bhd, fmt='none', color=farbe_bhd, ecolor=farbe_bhd, elinewidth=1, capsize=2)
 plt.scatter(xtot_bhd, ytot_bhd, marker='o', label='Rafter Baring Head Record (BHD)', color='black', s=size2)
-plt.scatter(x1_bhd, data1, color = colors[0], label = 'Monte Carlo Iteration 1', alpha = 0.35, marker = 'x', s = size2)
-plt.scatter(x1_bhd, data2, color = colors[1],  label = 'Monte Carlo Iteration 2', alpha = 0.35, marker = '^', s = size2)
-plt.scatter(x1_bhd, data3, color = colors[2],  label = 'Monte Carlo Iteration 3', alpha = 0.35, marker = 's', s = size2)
+plt.scatter(x1_bhd, data1, color = c1, label = 'Monte Carlo Iteration 1', alpha = 0.35, marker = 'x', s = size2)
+plt.scatter(x1_bhd, data2, color = c2,  label = 'Monte Carlo Iteration 2', alpha = 0.35, marker = '^', s = size2)
+plt.scatter(x1_bhd, data3, color = c3,  label = 'Monte Carlo Iteration 3', alpha = 0.35, marker = 's', s = size2)
 # plt.plot(xs, curve1, color = colors[0], alpha = 0.35, linestyle = 'dotted')
 # plt.plot(xs, curve2, color = colors[1], alpha = 0.35, linestyle = 'dashed')
 # plt.plot(xs, curve3, color = colors[2], alpha = 0.35, linestyle = 'dashdot')
@@ -253,14 +237,14 @@ plt.ylabel('\u0394$^1$$^4$CO$_2$ (\u2030)', fontsize=14)  # label the y axis
 xtr_subsplot = fig.add_subplot(gs[0:1, 2:4])
 # plot data for left panel
 plt.text(1990.75, 167.5, "B", fontsize=12)
-plt.errorbar(xtot_bhd, ytot_bhd, label='CGO Data' , yerr=ztot_bhd, fmt='none', color='black', ecolor='black', elinewidth=1, capsize=2)
+plt.errorbar(xtot_bhd, ytot_bhd, label='BHD Data' , yerr=ztot_bhd, fmt='none', color=farbe_bhd, ecolor=farbe_bhd, elinewidth=1, capsize=2)
 plt.scatter(xtot_bhd, ytot_bhd, marker='o', label='Rafter Baring Head Record (BHD)', color='black', s=size2)
-plt.scatter(x1_bhd, data1, color = colors[0], label = 'Monte Carlo Iteration 1', alpha = 0.35, marker = 'x', s = size2)
-plt.scatter(x1_bhd, data2, color = colors[1],  label = 'Monte Carlo Iteration 2', alpha = 0.35, marker = '^', s = size2)
-plt.scatter(x1_bhd, data3, color = colors[2],  label = 'Monte Carlo Iteration 3', alpha = 0.35, marker = 's', s = size2)
-plt.plot(my_x_1986_1991, curve1, color = colors[0], alpha = 0.35, linestyle = 'dotted')
-plt.plot(my_x_1986_1991, curve2, color = colors[1], alpha = 0.35, linestyle = 'dashed')
-plt.plot(my_x_1986_1991, curve3, color = colors[2], alpha = 0.35, linestyle = 'dashdot')
+plt.scatter(x1_bhd, data1, color = c1, label = 'Monte Carlo Iteration 1', alpha = 0.35, marker = 'x', s = size2)
+plt.scatter(x1_bhd, data2, color = c2,  label = 'Monte Carlo Iteration 2', alpha = 0.35, marker = '^', s = size2)
+plt.scatter(x1_bhd, data3, color = c3,  label = 'Monte Carlo Iteration 3', alpha = 0.35, marker = 's', s = size2)
+plt.plot(my_x_1986_1991, curve1, color = c1, alpha = 0.35, linestyle = 'dotted')
+plt.plot(my_x_1986_1991, curve2, color = c2, alpha = 0.35, linestyle = 'dashed')
+plt.plot(my_x_1986_1991, curve3, color = c3, alpha = 0.35, linestyle = 'dashdot')
 # plt.plot(xs, means, color = 'red',  label = 'CCGCRV Smooth Values', alpha = 1, linestyle = 'solid')
 # plt.plot(xs, means2, color = 'blue',  label = 'CCGCRV Trend Values', alpha = 1, linestyle = 'solid')
 plt.xlim([1989, 1991])
@@ -271,15 +255,15 @@ xtr_subsplot.set_yticklabels([])
 xtr_subsplot = fig.add_subplot(gs[0:1, 4:6])
 # plot data for left panel
 plt.text(1990.75, 167.5, "C", fontsize=12)
-plt.errorbar(xtot_bhd, ytot_bhd, label='CGO Data' , yerr=ztot_bhd, fmt='none', color='black', ecolor='black', elinewidth=1, capsize=2)
+plt.errorbar(xtot_bhd, ytot_bhd, label='BHD Data' , yerr=ztot_bhd, fmt='none', color=farbe_bhd, ecolor=farbe_bhd, elinewidth=1, capsize=2)
 plt.scatter(xtot_bhd, ytot_bhd, marker='o', label='Rafter Baring Head Record (BHD)', color='black', s=size2)
-plt.scatter(x1_bhd, data1, color = colors[0], label = 'Monte Carlo Iteration 1', alpha = 0.35, marker = 'x', s = size2)
-plt.scatter(x1_bhd, data2, color = colors[1],  label = 'Monte Carlo Iteration 2', alpha = 0.35, marker = '^', s = size2)
-plt.scatter(x1_bhd, data3, color = colors[2],  label = 'Monte Carlo Iteration 3', alpha = 0.35, marker = 's', s = size2)
-plt.plot(my_x_1986_1991, curve1, color = colors[0], alpha = 0.35, linestyle = 'dotted')
-plt.plot(my_x_1986_1991, curve2, color = colors[1], alpha = 0.35, linestyle = 'dashed')
-plt.plot(my_x_1986_1991, curve3, color = colors[2], alpha = 0.35, linestyle = 'dashdot')
-plt.plot(my_x_1986_1991, means, color = 'red',  label = 'CCGCRV Smooth Values', alpha = 1, linestyle = 'solid')
+plt.scatter(x1_bhd, data1, color = c1, label = 'Monte Carlo Iteration 1', alpha = 0.35, marker = 'x', s = size2)
+plt.scatter(x1_bhd, data2, color = c2,  label = 'Monte Carlo Iteration 2', alpha = 0.35, marker = '^', s = size2)
+plt.scatter(x1_bhd, data3, color = c3,  label = 'Monte Carlo Iteration 3', alpha = 0.35, marker = 's', s = size2)
+plt.plot(my_x_1986_1991, curve1, color = c1, alpha = 0.35, linestyle = 'dotted')
+plt.plot(my_x_1986_1991, curve2, color = c2, alpha = 0.35, linestyle = 'dashed')
+plt.plot(my_x_1986_1991, curve3, color = c3, alpha = 0.35, linestyle = 'dashdot')
+plt.plot(my_x_1986_1991, means, color = farbe_bhd,  label = 'CCGCRV Smooth Values', alpha = 1, linestyle = 'solid')
 # plt.plot(xs, means2, color = 'blue',  label = 'CCGCRV Trend Values', alpha = 1, linestyle = 'solid')
 plt.xlim([1989, 1991])
 plt.ylim([140, 170])
@@ -288,16 +272,16 @@ xtr_subsplot.set_yticklabels([])
 xtr_subsplot = fig.add_subplot(gs[0:1, 6:8])
 # plot data for left panel
 plt.text(1990.75, 167.5, "D", fontsize=12)
-plt.errorbar(xtot_bhd, ytot_bhd, label='CGO Data' , yerr=ztot_bhd, fmt='none', color='black', ecolor='black', elinewidth=1, capsize=2)
+plt.errorbar(xtot_bhd, ytot_bhd, label='BHD Data' , yerr=ztot_bhd, fmt='none', color=farbe_bhd, ecolor=farbe_bhd, elinewidth=1, capsize=2)
 plt.scatter(xtot_bhd, ytot_bhd, marker='o', label='Rafter Baring Head Record (BHD)', color='black', s=size2)
-plt.scatter(x1_bhd, data1, color = colors[0], label = 'Monte Carlo Iteration 1', alpha = 0.35, marker = 'x', s = size2)
-plt.scatter(x1_bhd, data2, color = colors[1],  label = 'Monte Carlo Iteration 2', alpha = 0.35, marker = '^', s = size2)
-plt.scatter(x1_bhd, data3, color = colors[2],  label = 'Monte Carlo Iteration 3', alpha = 0.35, marker = 's', s = size2)
-plt.plot(my_x_1986_1991, curve1, color = colors[0], alpha = 0.35, linestyle = 'dotted')
-plt.plot(my_x_1986_1991, curve2, color = colors[1], alpha = 0.35, linestyle = 'dashed')
-plt.plot(my_x_1986_1991, curve3, color = colors[2], alpha = 0.35, linestyle = 'dashdot')
-plt.plot(my_x_1986_1991, bhd_1986_1991_mean_smooth, color = 'red',  label = 'CCGCRV Smooth Values', alpha = 1, linestyle = 'solid')
-plt.plot(my_x_1986_1991, bhd_1986_1991_mean_trend, color = 'blue',  label = 'CCGCRV Trend Values', alpha = 1, linestyle = 'solid')
+plt.scatter(x1_bhd, data1, color = c1, label = 'Monte Carlo Iteration 1', alpha = 0.35, marker = 'x', s = size2)
+plt.scatter(x1_bhd, data2, color = c2,  label = 'Monte Carlo Iteration 2', alpha = 0.35, marker = '^', s = size2)
+plt.scatter(x1_bhd, data3, color = c3,  label = 'Monte Carlo Iteration 3', alpha = 0.35, marker = 's', s = size2)
+plt.plot(my_x_1986_1991, curve1, color = c1, alpha = 0.35, linestyle = 'dotted')
+plt.plot(my_x_1986_1991, curve2, color = c2, alpha = 0.35, linestyle = 'dashed')
+plt.plot(my_x_1986_1991, curve3, color = c3, alpha = 0.35, linestyle = 'dashdot')
+plt.plot(my_x_1986_1991, means, color = farbe_bhd,  label = 'CCGCRV Smooth Values', alpha = 1, linestyle = 'solid')
+plt.plot(my_x_1986_1991, bhd_1986_1991_mean_trend, color = farbe_bhd,  label = 'CCGCRV Trend Values', alpha = 1, linestyle = 'solid')
 plt.xlim([1989, 1991])
 plt.ylim([140, 170])
 plt.legend(loc=(1.04,0.5))
@@ -308,50 +292,6 @@ plt.savefig('C:/Users/clewis/IdeaProjects/GNS/Interlab_Comparison/output/DEV_Fir
 plt.close()
 # </editor-fold>
 
-# <editor-fold desc="Heidelberg v Rafter: Old plot showing the smoothing of Heidelberg Data">
-"""
-Figure 3. A breakdown of the 4 periods of time that we test for the intercomparison,
-and how the smooth and trend data compare for each.
-"""
-size2 = 15
-# plt.scatter(xtot_bhd, ytot_bhd, marker='o', label='Rafter Baring Head Record (BHD)', color=colors[3], s=size2, alpha = 0.5)
-plt.scatter(xtot_heid, ytot_heid, marker='x', label='Heidelberg Cape Grim Record (CGO)', color=colors2[3], s=size2, alpha = 0.5)
-# plt.plot(np.array(my_x_1986_1991), bhd_1986_1991_mean_smooth, color=colors[3], label = 'BHD CCGCRV Smooth Fit')
-# plt.plot(np.array(my_x_1986_1991), bhd_1986_1991_mean_trend, color=colors[3], label = 'BHD CCGCRV Trend Fit', linestyle = 'dashed')
-plt.plot(np.array(my_x_1986_1991), heidelberg_1986_1991_mean_smooth, color=colors2[3], label = 'CGO CCGCRV Smooth Fit')
-plt.plot(np.array(my_x_1986_1991), heidelberg_1986_1991_mean_trend, color=colors2[3], label = 'CGO CCGCRV Trend Fit', linestyle = 'dashed')
-# plt.plot(np.array(my_x_1991_1994), bhd_1991_1994_mean_smooth, color=colors[3])
-# plt.plot(np.array(my_x_1991_1994), bhd_1991_1994_mean_trend, color=colors[3], linestyle = 'dashed')
-# plt.plot(np.array(my_x_1991_1994), heidelberg_1991_1994_mean_smooth, color=colors2[3])
-# plt.plot(np.array(my_x_1991_1994), heidelberg_1991_1994_mean_trend, color=colors2[3], linestyle = 'dashed')
-# plt.plot(np.array(my_x_2006_2009_trimmed), bhd_2006_2009_mean_smooth, color=colors[3])
-# plt.plot(np.array(my_x_2006_2009_trimmed), bhd_2006_2009_mean_trend, color=colors[3], linestyle = 'dashed')
-# plt.plot(np.array(my_x_2006_2009_trimmed), heidelberg_2006_2009_mean_smooth, color=colors2[3])
-# plt.plot(np.array(my_x_2006_2009_trimmed), heidelberg_2006_2009_mean_trend, color=colors2[3], linestyle = 'dashed')
-# plt.plot(np.array(my_x_2012_2016_trimmed), bhd_2012_2016_mean_smooth, color=colors[3])
-# plt.plot(np.array(my_x_2012_2016_trimmed), bhd_2012_2016_mean_trend, color=colors[3], linestyle = 'dashed')
-# plt.plot(np.array(my_x_2012_2016_trimmed), heidelberg_2012_2016_mean_smooth, color=colors2[3])
-# plt.plot(np.array(my_x_2012_2016_trimmed), heidelberg_2012_2016_mean_trend, color=colors2[3], linestyle = 'dashed')
-plt.axvline(x = 1987, color = 'black', alpha = 0.2, linestyle = 'solid')
-plt.axvline(x = 1991, color = 'black', alpha = 0.2, linestyle = 'solid')
-plt.axvline(x = 1994, color = 'black', alpha = 0.2, linestyle = 'solid')
-plt.axvline(x = 2006, color = 'black', alpha = 0.2, linestyle = 'solid')
-plt.axvline(x = 2009, color = 'black', alpha = 0.2, linestyle = 'solid')
-plt.axvline(x = 2012, color = 'black', alpha = 0.2, linestyle = 'solid')
-plt.axvline(x = 2016, color = 'black', alpha = 0.2, linestyle = 'solid')
-plt.ylabel('\u0394$^1$$^4$CO$_2$ (\u2030)', fontsize=14)  # label the y axis
-# plt.arrow(1994, 50, -6, 0,  fc="k", ec="k",head_width=0.05, head_length=0.1 )
-plt.xlabel('Date', fontsize=14)  # label the y axis
-# plt.ylim([0, 200])
-# plt.xlim([1986, 2020])
-# for presentation figure
-plt.ylim([150, 175])
-plt.xlim([1988, 1991])
-# plt.legend()
-plt.savefig('C:/Users/clewis/IdeaProjects/GNS/Interlab_Comparison/output/DEV_FirstDraft_Figuretest2.png',
-            dpi=300, bbox_inches="tight")
-plt.close()
-# </editor-fold>
 
 # <editor-fold desc="Heidelberg v Rafter: 4 - Time Interval, Smooth Curve Fits">
 fig = plt.figure(4, figsize=(10,5))
@@ -361,11 +301,11 @@ gs.update(wspace=1.2, hspace=0.2)
 
 xtr_subsplot = fig.add_subplot(gs[0:2, 0:2])
 # plot data for left panel
-plt.scatter(xtot_bhd, ytot_bhd, marker='o', label='Rafter Baring Head Record (BHD)', color=colors[3], s=size2, alpha = 0.3)
-plt.scatter(xtot_heid, ytot_heid, marker='x', label='Heidelberg Cape Grim Record (CGO)', color=colors2[3], s=size2, alpha = 0.3)
-plt.plot(np.array(my_x_1986_1991), bhd_1986_1991_mean_smooth, color=colors[3])
+plt.scatter(xtot_bhd, ytot_bhd, marker='o', label='Rafter Baring Head Record (BHD)', color=farbe_bhd, s=size2, alpha = 0.3)
+plt.scatter(xtot_heid, ytot_heid, marker='x', label='Heidelberg Cape Grim Record (CGO)', color=farbe_heid, s=size2, alpha = 0.3)
+plt.plot(np.array(my_x_1986_1991), bhd_1986_1991_mean_smooth, color=farbe_bhd)
 # plt.plot(np.array(my_x_1986_1991), bhd_1986_1991_mean_trend, color=colors[3])
-plt.plot(np.array(my_x_1986_1991), heidelberg_1986_1991_mean_smooth, color=colors2[3])
+plt.plot(np.array(my_x_1986_1991), heidelberg_1986_1991_mean_smooth, color=farbe_heid)
 # plt.plot(np.array(my_x_1986_1991), heidelberg_1986_1991_mean_trend, color=colors2[3])
 plt.xlim([min(np.array(my_x_1986_1991)), max(np.array(my_x_1986_1991))])
 plt.ylim([min(bhd_1986_1991_mean_smooth), max(bhd_1986_1991_mean_smooth)])
@@ -374,11 +314,11 @@ plt.xticks([])
 
 xtr_subsplot = fig.add_subplot(gs[0:2, 2:4])
 # plot data for left panel
-plt.scatter(xtot_bhd, ytot_bhd, marker='o', label='Rafter Baring Head Record (BHD)', color=colors[3], s=size2, alpha = 0.3)
-plt.scatter(xtot_heid, ytot_heid, marker='x', label='Heidelberg Cape Grim Record (CGO)', color=colors2[3], s=size2, alpha = 0.3)
-plt.plot(np.array(my_x_1991_1994), bhd_1991_1994_mean_smooth, color=colors[3])
+plt.scatter(xtot_bhd, ytot_bhd, marker='o', label='Rafter Baring Head Record (BHD)', color=farbe_bhd, s=size2, alpha = 0.3)
+plt.scatter(xtot_heid, ytot_heid, marker='x', label='Heidelberg Cape Grim Record (CGO)', color=farbe_heid, s=size2, alpha = 0.3)
+plt.plot(np.array(my_x_1991_1994), bhd_1991_1994_mean_smooth, color=farbe_bhd)
 # plt.plot(np.array(my_x_1991_1994), bhd_1991_1994_mean_trend, color=colors[3])
-plt.plot(np.array(my_x_1991_1994), heidelberg_1991_1994_mean_smooth, color=colors2[3])
+plt.plot(np.array(my_x_1991_1994), heidelberg_1991_1994_mean_smooth, color=farbe_heid)
 # plt.plot(np.array(my_x_1991_1994), heidelberg_1991_1994_mean_trend, color=colors2[3])
 plt.xlim([min(np.array(my_x_1991_1994)), max(np.array(my_x_1991_1994))])
 plt.ylim([min(bhd_1991_1994_mean_smooth), max(bhd_1991_1994_mean_smooth)])
@@ -386,11 +326,11 @@ plt.xticks([])
 
 xtr_subsplot = fig.add_subplot(gs[0:2, 4:6])
 # plot data for left panel
-plt.scatter(xtot_bhd, ytot_bhd, marker='o', label='Rafter Baring Head Record (BHD)', color=colors[3], s=size2, alpha = 0.3)
-plt.scatter(xtot_heid, ytot_heid, marker='x', label='Heidelberg Cape Grim Record (CGO)', color=colors2[3], s=size2, alpha = 0.3)
-plt.plot(np.array(my_x_2006_2009_trimmed), bhd_2006_2009_mean_smooth, color=colors[3])
+plt.scatter(xtot_bhd, ytot_bhd, marker='o', label='Rafter Baring Head Record (BHD)', color=farbe_bhd, s=size2, alpha = 0.3)
+plt.scatter(xtot_heid, ytot_heid, marker='x', label='Heidelberg Cape Grim Record (CGO)', color=farbe_heid, s=size2, alpha = 0.3)
+plt.plot(np.array(my_x_2006_2009_trimmed), bhd_2006_2009_mean_smooth, color=farbe_bhd)
 # plt.plot(np.array(my_x_2006_2009_trimmed), bhd_2006_2009_mean_trend, color=colors[3])
-plt.plot(np.array(my_x_2006_2009_trimmed), heidelberg_2006_2009_mean_smooth, color=colors2[3])
+plt.plot(np.array(my_x_2006_2009_trimmed), heidelberg_2006_2009_mean_smooth, color=farbe_heid)
 # plt.plot(np.array(my_x_2006_2009_trimmed), heidelberg_2006_2009_mean_trend, color=colors2[3])
 plt.xlim([min(np.array(my_x_2006_2009_trimmed)), max(np.array(my_x_2006_2009_trimmed))])
 plt.ylim([min(bhd_2006_2009_mean_smooth), max(bhd_2006_2009_mean_smooth)])
@@ -398,11 +338,11 @@ plt.xticks([])
 
 xtr_subsplot = fig.add_subplot(gs[0:2, 6:8])
 # plot data for left panel
-plt.scatter(xtot_bhd, ytot_bhd, marker='o', label='Rafter Baring Head Record (BHD)', color=colors[3], s=size2, alpha = 0.3)
-plt.scatter(xtot_heid, ytot_heid, marker='x', label='Heidelberg Cape Grim Record (CGO)', color=colors2[3], s=size2, alpha = 0.3)
-plt.plot(np.array(my_x_2012_2016_trimmed), bhd_2012_2016_mean_smooth, color=colors[3], label='Baring Head CCGCRV Fit')
+plt.scatter(xtot_bhd, ytot_bhd, marker='o', label='Rafter Baring Head Record (BHD)', color=farbe_bhd, s=size2, alpha = 0.3)
+plt.scatter(xtot_heid, ytot_heid, marker='x', label='Heidelberg Cape Grim Record (CGO)', color=farbe_heid, s=size2, alpha = 0.3)
+plt.plot(np.array(my_x_2012_2016_trimmed), bhd_2012_2016_mean_smooth, color=farbe_bhd, label='Baring Head CCGCRV Fit')
 # plt.plot(np.array(my_x_2012_2016_trimmed), bhd_2012_2016_mean_trend, color=colors[3])
-plt.plot(np.array(my_x_2012_2016_trimmed), heidelberg_2012_2016_mean_smooth, color=colors2[3], label='Cape Grim CCGCRV Fit')
+plt.plot(np.array(my_x_2012_2016_trimmed), heidelberg_2012_2016_mean_smooth, color=farbe_heid, label='Cape Grim CCGCRV Fit')
 # plt.plot(np.array(my_x_2012_2016_trimmed), heidelberg_2012_2016_mean_trend, color=colors2[3])
 plt.xlim([min(np.array(my_x_2012_2016_trimmed)), max(np.array(my_x_2012_2016_trimmed))])
 plt.ylim([min(bhd_2012_2016_mean_smooth), max(bhd_2012_2016_mean_smooth)])
@@ -411,12 +351,12 @@ plt.xticks([])
 
 xtr_subsplot = fig.add_subplot(gs[2:4, 0:2])
 # plot data for left panel
-plt.scatter(xtot_bhd, ytot_bhd, marker='o', label='Rafter Baring Head Record (BHD)', color=colors[3], s=size2, alpha = 0.3)
-plt.scatter(xtot_heid, ytot_heid, marker='x', label='Heidelberg Cape Grim Record (CGO)', color=colors2[3], s=size2, alpha = 0.3)
+plt.scatter(xtot_bhd, ytot_bhd, marker='o', label='Rafter Baring Head Record (BHD)', color=farbe_bhd, s=size2, alpha = 0.3)
+plt.scatter(xtot_heid, ytot_heid, marker='x', label='Heidelberg Cape Grim Record (CGO)', color=farbe_heid, s=size2, alpha = 0.3)
 # plt.plot(np.array(my_x_1986_1991), bhd_1986_1991_mean_smooth, color=colors[3])
-plt.plot(np.array(my_x_1986_1991), bhd_1986_1991_mean_trend, color=colors[3])
+plt.plot(np.array(my_x_1986_1991), bhd_1986_1991_mean_trend, color=farbe_bhd)
 # plt.plot(np.array(my_x_1986_1991), heidelberg_1986_1991_mean_smooth, color=colors2[3])
-plt.plot(np.array(my_x_1986_1991), heidelberg_1986_1991_mean_trend, color=colors2[3])
+plt.plot(np.array(my_x_1986_1991), heidelberg_1986_1991_mean_trend, color=farbe_heid)
 plt.xlim([min(np.array(my_x_1986_1991)), max(np.array(my_x_1986_1991))])
 plt.ylim([min(bhd_1986_1991_mean_smooth), max(bhd_1986_1991_mean_smooth)])
 plt.ylabel('\u0394$^1$$^4$CO$_2$ (\u2030)', fontsize=14)  # label the y axis
@@ -424,35 +364,35 @@ plt.ylabel('\u0394$^1$$^4$CO$_2$ (\u2030)', fontsize=14)  # label the y axis
 
 xtr_subsplot = fig.add_subplot(gs[2:4, 2:4])
 # plot data for left panel
-plt.scatter(xtot_bhd, ytot_bhd, marker='o', label='Rafter Baring Head Record (BHD)', color=colors[3], s=size2, alpha = 0.3)
-plt.scatter(xtot_heid, ytot_heid, marker='x', label='Heidelberg Cape Grim Record (CGO)', color=colors2[3], s=size2, alpha = 0.3)
+plt.scatter(xtot_bhd, ytot_bhd, marker='o', label='Rafter Baring Head Record (BHD)', color=farbe_bhd, s=size2, alpha = 0.3)
+plt.scatter(xtot_heid, ytot_heid, marker='x', label='Heidelberg Cape Grim Record (CGO)', color=farbe_heid, s=size2, alpha = 0.3)
 # plt.plot(np.array(my_x_1991_1994), bhd_1991_1994_mean_smooth, color=colors[3])
-plt.plot(np.array(my_x_1991_1994), bhd_1991_1994_mean_trend, color=colors[3])
+plt.plot(np.array(my_x_1991_1994), bhd_1991_1994_mean_trend, color=farbe_bhd)
 # plt.plot(np.array(my_x_1991_1994), heidelberg_1991_1994_mean_smooth, color=colors2[3])
-plt.plot(np.array(my_x_1991_1994), heidelberg_1991_1994_mean_trend, color=colors2[3])
+plt.plot(np.array(my_x_1991_1994), heidelberg_1991_1994_mean_trend, color=farbe_heid)
 plt.xlim([min(np.array(my_x_1991_1994)), max(np.array(my_x_1991_1994))])
 plt.ylim([min(bhd_1991_1994_mean_smooth), max(bhd_1991_1994_mean_smooth)])
 
 
 xtr_subsplot = fig.add_subplot(gs[2:4, 4:6])
 # plot data for left panel
-plt.scatter(xtot_bhd, ytot_bhd, marker='o', label='Rafter Baring Head Record (BHD)', color=colors[3], s=size2, alpha = 0.3)
-plt.scatter(xtot_heid, ytot_heid, marker='x', label='Heidelberg Cape Grim Record (CGO)', color=colors2[3], s=size2, alpha = 0.3)
+plt.scatter(xtot_bhd, ytot_bhd, marker='o', label='Rafter Baring Head Record (BHD)', color=farbe_bhd, s=size2, alpha = 0.3)
+plt.scatter(xtot_heid, ytot_heid, marker='x', label='Heidelberg Cape Grim Record (CGO)', color=farbe_heid, s=size2, alpha = 0.3)
 # plt.plot(np.array(my_x_2006_2009_trimmed), bhd_2006_2009_mean_smooth, color=colors[3])
-plt.plot(np.array(my_x_2006_2009_trimmed), bhd_2006_2009_mean_trend, color=colors[3])
+plt.plot(np.array(my_x_2006_2009_trimmed), bhd_2006_2009_mean_trend, color=farbe_bhd)
 # plt.plot(np.array(my_x_2006_2009_trimmed), heidelberg_2006_2009_mean_smooth, color=colors2[3])
-plt.plot(np.array(my_x_2006_2009_trimmed), heidelberg_2006_2009_mean_trend, color=colors2[3])
+plt.plot(np.array(my_x_2006_2009_trimmed), heidelberg_2006_2009_mean_trend, color=farbe_heid)
 plt.xlim([min(np.array(my_x_2006_2009_trimmed)), max(np.array(my_x_2006_2009_trimmed))])
 plt.ylim([min(bhd_2006_2009_mean_smooth), max(bhd_2006_2009_mean_smooth)])
 
 xtr_subsplot = fig.add_subplot(gs[2:4, 6:8])
 # plot data for left panel
-plt.scatter(xtot_bhd, ytot_bhd, marker='o', label='Rafter Baring Head Record (BHD)', color=colors[3], s=size2, alpha = 0.3)
-plt.scatter(xtot_heid, ytot_heid, marker='x', label='Heidelberg Cape Grim Record (CGO)', color=colors2[3], s=size2, alpha = 0.3)
+plt.scatter(xtot_bhd, ytot_bhd, marker='o', label='Rafter Baring Head Record (BHD)', color=farbe_bhd, s=size2, alpha = 0.3)
+plt.scatter(xtot_heid, ytot_heid, marker='x', label='Heidelberg Cape Grim Record (CGO)', color=farbe_heid, s=size2, alpha = 0.3)
 # plt.plot(np.array(my_x_2012_2016_trimmed), bhd_2012_2016_mean_smooth, color=colors[3])
-plt.plot(np.array(my_x_2012_2016_trimmed), bhd_2012_2016_mean_trend, color=colors[3])
+plt.plot(np.array(my_x_2012_2016_trimmed), bhd_2012_2016_mean_trend, color=farbe_bhd)
 # plt.plot(np.array(my_x_2012_2016_trimmed), heidelberg_2012_2016_mean_smooth, color=colors2[3])
-plt.plot(np.array(my_x_2012_2016_trimmed), heidelberg_2012_2016_mean_trend, color=colors2[3])
+plt.plot(np.array(my_x_2012_2016_trimmed), heidelberg_2012_2016_mean_trend, color=farbe_heid)
 plt.xlim([min(np.array(my_x_2012_2016_trimmed)), max(np.array(my_x_2012_2016_trimmed))])
 plt.ylim([min(bhd_2012_2016_mean_smooth), max(bhd_2012_2016_mean_smooth)])
 # plt.legend()
@@ -480,8 +420,8 @@ from heidelberg_intercomparison_wFM import means, my_x_2006_2009_trimmed, my_x_2
 Figure 1. All the data together
 """
 fig = plt.figure(1)
-plt.scatter(xtot_bhd, ytot_bhd, marker='o', label='Rafter Baring Head Record (BHD)', color=colors[3], s=size1)
-plt.scatter(xtot_heid, ytot_heid, marker='x', label='Heidelberg Cape Grim Record (CGO)', color=colors2[3], s=size1)
+plt.scatter(xtot_bhd, ytot_bhd, marker='o', label='Rafter Baring Head Record (BHD)', color=farbe_bhd, s=size1)
+plt.scatter(xtot_heid, ytot_heid, marker='x', label='Heidelberg Cape Grim Record (CGO)', color=farbe_heid, s=size1)
 plt.legend()
 plt.title('Baring Head and Cape Grim Data > 1980')
 plt.xlim([1980, 2020])
@@ -580,49 +520,6 @@ plt.close()
 # </editor-fold>
 
 # <editor-fold desc="Heidelberg v Rafter: Old plot showing the smoothing of Heidelberg Data">
-"""
-Figure 3. A breakdown of the 4 periods of time that we test for the intercomparison,
-and how the smooth and trend data compare for each.
-"""
-size2 = 15
-# plt.scatter(xtot_bhd, ytot_bhd, marker='o', label='Rafter Baring Head Record (BHD)', color=colors[3], s=size2, alpha = 0.5)
-plt.scatter(xtot_heid, ytot_heid, marker='x', label='Heidelberg Cape Grim Record (CGO)', color=colors2[3], s=size2, alpha = 0.5)
-# plt.plot(np.array(my_x_1986_1991), bhd_1986_1991_mean_smooth, color=colors[3], label = 'BHD CCGCRV Smooth Fit')
-# plt.plot(np.array(my_x_1986_1991), bhd_1986_1991_mean_trend, color=colors[3], label = 'BHD CCGCRV Trend Fit', linestyle = 'dashed')
-plt.plot(np.array(my_x_1986_1991), heidelberg_1986_1991_mean_smooth, color=colors2[3], label = 'CGO CCGCRV Smooth Fit')
-plt.plot(np.array(my_x_1986_1991), heidelberg_1986_1991_mean_trend, color=colors2[3], label = 'CGO CCGCRV Trend Fit', linestyle = 'dashed')
-# plt.plot(np.array(my_x_1991_1994), bhd_1991_1994_mean_smooth, color=colors[3])
-# plt.plot(np.array(my_x_1991_1994), bhd_1991_1994_mean_trend, color=colors[3], linestyle = 'dashed')
-# plt.plot(np.array(my_x_1991_1994), heidelberg_1991_1994_mean_smooth, color=colors2[3])
-# plt.plot(np.array(my_x_1991_1994), heidelberg_1991_1994_mean_trend, color=colors2[3], linestyle = 'dashed')
-# plt.plot(np.array(my_x_2006_2009_trimmed), bhd_2006_2009_mean_smooth, color=colors[3])
-# plt.plot(np.array(my_x_2006_2009_trimmed), bhd_2006_2009_mean_trend, color=colors[3], linestyle = 'dashed')
-# plt.plot(np.array(my_x_2006_2009_trimmed), heidelberg_2006_2009_mean_smooth, color=colors2[3])
-# plt.plot(np.array(my_x_2006_2009_trimmed), heidelberg_2006_2009_mean_trend, color=colors2[3], linestyle = 'dashed')
-# plt.plot(np.array(my_x_2012_2016_trimmed), bhd_2012_2016_mean_smooth, color=colors[3])
-# plt.plot(np.array(my_x_2012_2016_trimmed), bhd_2012_2016_mean_trend, color=colors[3], linestyle = 'dashed')
-# plt.plot(np.array(my_x_2012_2016_trimmed), heidelberg_2012_2016_mean_smooth, color=colors2[3])
-# plt.plot(np.array(my_x_2012_2016_trimmed), heidelberg_2012_2016_mean_trend, color=colors2[3], linestyle = 'dashed')
-plt.axvline(x = 1987, color = 'black', alpha = 0.2, linestyle = 'solid')
-plt.axvline(x = 1991, color = 'black', alpha = 0.2, linestyle = 'solid')
-plt.axvline(x = 1994, color = 'black', alpha = 0.2, linestyle = 'solid')
-plt.axvline(x = 2006, color = 'black', alpha = 0.2, linestyle = 'solid')
-plt.axvline(x = 2009, color = 'black', alpha = 0.2, linestyle = 'solid')
-plt.axvline(x = 2012, color = 'black', alpha = 0.2, linestyle = 'solid')
-plt.axvline(x = 2016, color = 'black', alpha = 0.2, linestyle = 'solid')
-plt.ylabel('FM', fontsize=14)  # label the y axis
-# plt.arrow(1994, 50, -6, 0,  fc="k", ec="k",head_width=0.05, head_length=0.1 )
-plt.xlabel('Date', fontsize=14)  # label the y axis
-# plt.ylim([0, 200])
-# plt.xlim([1986, 2020])
-# for presentation figure
-# plt.ylim([150, 175])
-plt.xlim([1988, 1991])
-# plt.legend()
-plt.savefig('C:/Users/clewis/IdeaProjects/GNS/Interlab_Comparison/output/DEV_FirstDraft_Figuretest2_FM.png',
-            dpi=300, bbox_inches="tight")
-plt.close()
-# </editor-fold>
 
 # <editor-fold desc="Heidelberg v Rafter: 4 - Time Interval, Smooth Curve Fits">
 fig = plt.figure(4, figsize=(10,5))
@@ -632,11 +529,11 @@ gs.update(wspace=1.2, hspace=0.2)
 
 xtr_subsplot = fig.add_subplot(gs[0:2, 0:2])
 # plot data for left panel
-plt.scatter(xtot_bhd, ytot_bhd, marker='o', label='Rafter Baring Head Record (BHD)', color=colors[3], s=size2, alpha = 0.3)
-plt.scatter(xtot_heid, ytot_heid, marker='x', label='Heidelberg Cape Grim Record (CGO)', color=colors2[3], s=size2, alpha = 0.3)
-plt.plot(np.array(my_x_1986_1991), bhd_1986_1991_mean_smooth, color=colors[3])
+plt.scatter(xtot_bhd, ytot_bhd, marker='o', label='Rafter Baring Head Record (BHD)', color=farbe_bhd, s=size2, alpha = 0.3)
+plt.scatter(xtot_heid, ytot_heid, marker='x', label='Heidelberg Cape Grim Record (CGO)', color=farbe_heid, s=size2, alpha = 0.3)
+plt.plot(np.array(my_x_1986_1991), bhd_1986_1991_mean_smooth, color=farbe_bhd)
 # plt.plot(np.array(my_x_1986_1991), bhd_1986_1991_mean_trend, color=colors[3])
-plt.plot(np.array(my_x_1986_1991), heidelberg_1986_1991_mean_smooth, color=colors2[3])
+plt.plot(np.array(my_x_1986_1991), heidelberg_1986_1991_mean_smooth, color=farbe_heid)
 # plt.plot(np.array(my_x_1986_1991), heidelberg_1986_1991_mean_trend, color=colors2[3])
 plt.xlim([min(np.array(my_x_1986_1991)), max(np.array(my_x_1986_1991))])
 plt.ylim([min(bhd_1986_1991_mean_smooth), max(bhd_1986_1991_mean_smooth)])
@@ -645,11 +542,11 @@ plt.xticks([])
 
 xtr_subsplot = fig.add_subplot(gs[0:2, 2:4])
 # plot data for left panel
-plt.scatter(xtot_bhd, ytot_bhd, marker='o', label='Rafter Baring Head Record (BHD)', color=colors[3], s=size2, alpha = 0.3)
-plt.scatter(xtot_heid, ytot_heid, marker='x', label='Heidelberg Cape Grim Record (CGO)', color=colors2[3], s=size2, alpha = 0.3)
-plt.plot(np.array(my_x_1991_1994), bhd_1991_1994_mean_smooth, color=colors[3])
+plt.scatter(xtot_bhd, ytot_bhd, marker='o', label='Rafter Baring Head Record (BHD)', color=farbe_bhd, s=size2, alpha = 0.3)
+plt.scatter(xtot_heid, ytot_heid, marker='x', label='Heidelberg Cape Grim Record (CGO)', color=farbe_heid, s=size2, alpha = 0.3)
+plt.plot(np.array(my_x_1991_1994), bhd_1991_1994_mean_smooth, color=farbe_bhd)
 # plt.plot(np.array(my_x_1991_1994), bhd_1991_1994_mean_trend, color=colors[3])
-plt.plot(np.array(my_x_1991_1994), heidelberg_1991_1994_mean_smooth, color=colors2[3])
+plt.plot(np.array(my_x_1991_1994), heidelberg_1991_1994_mean_smooth, color=farbe_heid)
 # plt.plot(np.array(my_x_1991_1994), heidelberg_1991_1994_mean_trend, color=colors2[3])
 plt.xlim([min(np.array(my_x_1991_1994)), max(np.array(my_x_1991_1994))])
 plt.ylim([min(bhd_1991_1994_mean_smooth), max(bhd_1991_1994_mean_smooth)])
@@ -657,11 +554,11 @@ plt.xticks([])
 
 xtr_subsplot = fig.add_subplot(gs[0:2, 4:6])
 # plot data for left panel
-plt.scatter(xtot_bhd, ytot_bhd, marker='o', label='Rafter Baring Head Record (BHD)', color=colors[3], s=size2, alpha = 0.3)
-plt.scatter(xtot_heid, ytot_heid, marker='x', label='Heidelberg Cape Grim Record (CGO)', color=colors2[3], s=size2, alpha = 0.3)
-plt.plot(np.array(my_x_2006_2009_trimmed), bhd_2006_2009_mean_smooth, color=colors[3])
+plt.scatter(xtot_bhd, ytot_bhd, marker='o', label='Rafter Baring Head Record (BHD)', color=farbe_bhd, s=size2, alpha = 0.3)
+plt.scatter(xtot_heid, ytot_heid, marker='x', label='Heidelberg Cape Grim Record (CGO)', color=farbe_heid, s=size2, alpha = 0.3)
+plt.plot(np.array(my_x_2006_2009_trimmed), bhd_2006_2009_mean_smooth, color=farbe_bhd)
 # plt.plot(np.array(my_x_2006_2009_trimmed), bhd_2006_2009_mean_trend, color=colors[3])
-plt.plot(np.array(my_x_2006_2009_trimmed), heidelberg_2006_2009_mean_smooth, color=colors2[3])
+plt.plot(np.array(my_x_2006_2009_trimmed), heidelberg_2006_2009_mean_smooth, color=farbe_heid)
 # plt.plot(np.array(my_x_2006_2009_trimmed), heidelberg_2006_2009_mean_trend, color=colors2[3])
 plt.xlim([min(np.array(my_x_2006_2009_trimmed)), max(np.array(my_x_2006_2009_trimmed))])
 plt.ylim([min(bhd_2006_2009_mean_smooth), max(bhd_2006_2009_mean_smooth)])
@@ -669,11 +566,11 @@ plt.xticks([])
 
 xtr_subsplot = fig.add_subplot(gs[0:2, 6:8])
 # plot data for left panel
-plt.scatter(xtot_bhd, ytot_bhd, marker='o', label='Rafter Baring Head Record (BHD)', color=colors[3], s=size2, alpha = 0.3)
-plt.scatter(xtot_heid, ytot_heid, marker='x', label='Heidelberg Cape Grim Record (CGO)', color=colors2[3], s=size2, alpha = 0.3)
-plt.plot(np.array(my_x_2012_2016_trimmed), bhd_2012_2016_mean_smooth, color=colors[3], label='Baring Head CCGCRV Fit')
+plt.scatter(xtot_bhd, ytot_bhd, marker='o', label='Rafter Baring Head Record (BHD)', color=farbe_bhd, s=size2, alpha = 0.3)
+plt.scatter(xtot_heid, ytot_heid, marker='x', label='Heidelberg Cape Grim Record (CGO)', color=farbe_heid, s=size2, alpha = 0.3)
+plt.plot(np.array(my_x_2012_2016_trimmed), bhd_2012_2016_mean_smooth, color=farbe_bhd, label='Baring Head CCGCRV Fit')
 # plt.plot(np.array(my_x_2012_2016_trimmed), bhd_2012_2016_mean_trend, color=colors[3])
-plt.plot(np.array(my_x_2012_2016_trimmed), heidelberg_2012_2016_mean_smooth, color=colors2[3], label='Cape Grim CCGCRV Fit')
+plt.plot(np.array(my_x_2012_2016_trimmed), heidelberg_2012_2016_mean_smooth, color=farbe_heid, label='Cape Grim CCGCRV Fit')
 # plt.plot(np.array(my_x_2012_2016_trimmed), heidelberg_2012_2016_mean_trend, color=colors2[3])
 plt.xlim([min(np.array(my_x_2012_2016_trimmed)), max(np.array(my_x_2012_2016_trimmed))])
 plt.ylim([min(bhd_2012_2016_mean_smooth), max(bhd_2012_2016_mean_smooth)])
@@ -682,12 +579,12 @@ plt.xticks([])
 
 xtr_subsplot = fig.add_subplot(gs[2:4, 0:2])
 # plot data for left panel
-plt.scatter(xtot_bhd, ytot_bhd, marker='o', label='Rafter Baring Head Record (BHD)', color=colors[3], s=size2, alpha = 0.3)
-plt.scatter(xtot_heid, ytot_heid, marker='x', label='Heidelberg Cape Grim Record (CGO)', color=colors2[3], s=size2, alpha = 0.3)
+plt.scatter(xtot_bhd, ytot_bhd, marker='o', label='Rafter Baring Head Record (BHD)', color=farbe_bhd, s=size2, alpha = 0.3)
+plt.scatter(xtot_heid, ytot_heid, marker='x', label='Heidelberg Cape Grim Record (CGO)', color=farbe_heid, s=size2, alpha = 0.3)
 # plt.plot(np.array(my_x_1986_1991), bhd_1986_1991_mean_smooth, color=colors[3])
-plt.plot(np.array(my_x_1986_1991), bhd_1986_1991_mean_trend, color=colors[3])
+plt.plot(np.array(my_x_1986_1991), bhd_1986_1991_mean_trend, color=farbe_bhd)
 # plt.plot(np.array(my_x_1986_1991), heidelberg_1986_1991_mean_smooth, color=colors2[3])
-plt.plot(np.array(my_x_1986_1991), heidelberg_1986_1991_mean_trend, color=colors2[3])
+plt.plot(np.array(my_x_1986_1991), heidelberg_1986_1991_mean_trend, color=farbe_heid)
 plt.xlim([min(np.array(my_x_1986_1991)), max(np.array(my_x_1986_1991))])
 plt.ylim([min(bhd_1986_1991_mean_smooth), max(bhd_1986_1991_mean_smooth)])
 
@@ -695,35 +592,35 @@ plt.ylabel('FM', fontsize=14)  # label the y axis
 
 xtr_subsplot = fig.add_subplot(gs[2:4, 2:4])
 # plot data for left panel
-plt.scatter(xtot_bhd, ytot_bhd, marker='o', label='Rafter Baring Head Record (BHD)', color=colors[3], s=size2, alpha = 0.3)
-plt.scatter(xtot_heid, ytot_heid, marker='x', label='Heidelberg Cape Grim Record (CGO)', color=colors2[3], s=size2, alpha = 0.3)
+plt.scatter(xtot_bhd, ytot_bhd, marker='o', label='Rafter Baring Head Record (BHD)', color=farbe_bhd, s=size2, alpha = 0.3)
+plt.scatter(xtot_heid, ytot_heid, marker='x', label='Heidelberg Cape Grim Record (CGO)', color=farbe_heid, s=size2, alpha = 0.3)
 # plt.plot(np.array(my_x_1991_1994), bhd_1991_1994_mean_smooth, color=colors[3])
-plt.plot(np.array(my_x_1991_1994), bhd_1991_1994_mean_trend, color=colors[3])
+plt.plot(np.array(my_x_1991_1994), bhd_1991_1994_mean_trend, color=farbe_bhd)
 # plt.plot(np.array(my_x_1991_1994), heidelberg_1991_1994_mean_smooth, color=colors2[3])
-plt.plot(np.array(my_x_1991_1994), heidelberg_1991_1994_mean_trend, color=colors2[3])
+plt.plot(np.array(my_x_1991_1994), heidelberg_1991_1994_mean_trend, color=farbe_heid)
 plt.xlim([min(np.array(my_x_1991_1994)), max(np.array(my_x_1991_1994))])
 plt.ylim([min(bhd_1991_1994_mean_smooth), max(bhd_1991_1994_mean_smooth)])
 
 
 xtr_subsplot = fig.add_subplot(gs[2:4, 4:6])
 # plot data for left panel
-plt.scatter(xtot_bhd, ytot_bhd, marker='o', label='Rafter Baring Head Record (BHD)', color=colors[3], s=size2, alpha = 0.3)
-plt.scatter(xtot_heid, ytot_heid, marker='x', label='Heidelberg Cape Grim Record (CGO)', color=colors2[3], s=size2, alpha = 0.3)
+plt.scatter(xtot_bhd, ytot_bhd, marker='o', label='Rafter Baring Head Record (BHD)', color=farbe_bhd, s=size2, alpha = 0.3)
+plt.scatter(xtot_heid, ytot_heid, marker='x', label='Heidelberg Cape Grim Record (CGO)', color=farbe_heid, s=size2, alpha = 0.3)
 # plt.plot(np.array(my_x_2006_2009_trimmed), bhd_2006_2009_mean_smooth, color=colors[3])
-plt.plot(np.array(my_x_2006_2009_trimmed), bhd_2006_2009_mean_trend, color=colors[3])
+plt.plot(np.array(my_x_2006_2009_trimmed), bhd_2006_2009_mean_trend, color=farbe_bhd)
 # plt.plot(np.array(my_x_2006_2009_trimmed), heidelberg_2006_2009_mean_smooth, color=colors2[3])
-plt.plot(np.array(my_x_2006_2009_trimmed), heidelberg_2006_2009_mean_trend, color=colors2[3])
+plt.plot(np.array(my_x_2006_2009_trimmed), heidelberg_2006_2009_mean_trend, color=farbe_heid)
 plt.xlim([min(np.array(my_x_2006_2009_trimmed)), max(np.array(my_x_2006_2009_trimmed))])
 plt.ylim([min(bhd_2006_2009_mean_smooth), max(bhd_2006_2009_mean_smooth)])
 
 xtr_subsplot = fig.add_subplot(gs[2:4, 6:8])
 # plot data for left panel
-plt.scatter(xtot_bhd, ytot_bhd, marker='o', label='Rafter Baring Head Record (BHD)', color=colors[3], s=size2, alpha = 0.3)
-plt.scatter(xtot_heid, ytot_heid, marker='x', label='Heidelberg Cape Grim Record (CGO)', color=colors2[3], s=size2, alpha = 0.3)
+plt.scatter(xtot_bhd, ytot_bhd, marker='o', label='Rafter Baring Head Record (BHD)', color=farbe_bhd, s=size2, alpha = 0.3)
+plt.scatter(xtot_heid, ytot_heid, marker='x', label='Heidelberg Cape Grim Record (CGO)', color=farbe_heid, s=size2, alpha = 0.3)
 # plt.plot(np.array(my_x_2012_2016_trimmed), bhd_2012_2016_mean_smooth, color=colors[3])
-plt.plot(np.array(my_x_2012_2016_trimmed), bhd_2012_2016_mean_trend, color=colors[3])
+plt.plot(np.array(my_x_2012_2016_trimmed), bhd_2012_2016_mean_trend, color=farbe_bhd)
 # plt.plot(np.array(my_x_2012_2016_trimmed), heidelberg_2012_2016_mean_smooth, color=colors2[3])
-plt.plot(np.array(my_x_2012_2016_trimmed), heidelberg_2012_2016_mean_trend, color=colors2[3])
+plt.plot(np.array(my_x_2012_2016_trimmed), heidelberg_2012_2016_mean_trend, color=farbe_heid)
 plt.xlim([min(np.array(my_x_2012_2016_trimmed)), max(np.array(my_x_2012_2016_trimmed))])
 plt.ylim([min(bhd_2012_2016_mean_smooth), max(bhd_2012_2016_mean_smooth)])
 # plt.legend()
@@ -738,8 +635,8 @@ plt.close()
 Flask V NaOH Plot
 """
 
-plt.errorbar(flaskvn['Decimal_date'], flaskvn['D14C_flask'], yerr=flaskvn['D14C_err_flask'], fmt='o', color=colors2[3], ecolor='black', elinewidth=1, capsize=2, label='Flask')
-plt.errorbar(flaskvn['Decimal_date'], flaskvn['D14C_NaOH'], yerr=flaskvn['D14C_err_NaOH'], fmt='o', color=colors[3], ecolor='black', elinewidth=1, capsize=2, label='NaOH')
+plt.errorbar(flaskvn['Decimal_date'], flaskvn['D14C_flask'], yerr=flaskvn['D14C_err_flask'], fmt='o', color=farbe_bhd, ecolor='black', elinewidth=1, capsize=2, label='Flask')
+plt.errorbar(flaskvn['Decimal_date'], flaskvn['D14C_NaOH'], yerr=flaskvn['D14C_err_NaOH'], fmt='o', color=farbe_bhd, ecolor='black', elinewidth=1, capsize=2, label='NaOH')
 plt.ylabel('\u0394$^1$$^4$CO$_2$ (\u2030)', fontsize=14)  # label the y axis
 plt.xlabel('Date of Measurement', fontsize=14)  # label the y axis
 plt.legend()
@@ -749,18 +646,18 @@ fig = plt.figure(1, figsize=(10,5))
 gs = gridspec.GridSpec(1, 2)
 xtr_subsplot = fig.add_subplot(gs[0:1, 0:1])
 plt.ylabel('\u0394$^1$$^4$CO$_2$ (\u2030)', fontsize=14)  # label the y axis
-plt.errorbar(naoh1['DEC_DECAY_CORR'], naoh1['DELTA14C'], yerr=naoh1['DELTA14C_ERR'], fmt='o', color=colors2[3], ecolor=colors2[3], elinewidth=1, capsize=2, label='NaOH', alpha = 0.5)
-plt.errorbar(flask1['DEC_DECAY_CORR'], flask1['DELTA14C'], yerr=flask1['DELTA14C_ERR'], fmt='o', color=colors[3], ecolor=colors[3], elinewidth=1, capsize=2, label='Flask', alpha = 0.5)
-plt.plot(fake_x1, naoh_means1, color=colors2[3], label='NaOH')
-plt.plot(fake_x1, flask_means1,color=colors[3], label='Flask')
+plt.errorbar(naoh1['DEC_DECAY_CORR'], naoh1['DELTA14C'], yerr=naoh1['DELTA14C_ERR'], fmt='o', color=farbe_bhd, ecolor=farbe_bhd, elinewidth=1, capsize=2, label='NaOH', alpha = 0.5)
+plt.errorbar(flask1['DEC_DECAY_CORR'], flask1['DELTA14C'], yerr=flask1['DELTA14C_ERR'], fmt='o', color=farbe_bhd, ecolor=farbe_bhd, elinewidth=1, capsize=2, label='Flask', alpha = 0.5)
+plt.plot(fake_x1, naoh_means1, color=farbe_bhd, label='NaOH')
+plt.plot(fake_x1, flask_means1,color=farbe_bhd, label='Flask')
 plt.xlim(min(flask1['DEC_DECAY_CORR']), max(naoh1['DEC_DECAY_CORR']))
 plt.ylim(150, 230)
 plt.legend()
 xtr_subsplot = fig.add_subplot(gs[0:1, 1:2])
-plt.errorbar(naoh2['DEC_DECAY_CORR'], naoh2['DELTA14C'], yerr=naoh2['DELTA14C_ERR'], fmt='o', color=colors2[3], ecolor=colors2[3], elinewidth=1, capsize=2, label='NaOH', alpha = 0.5)
-plt.errorbar(flask2['DEC_DECAY_CORR'], flask2['DELTA14C'], yerr=flask2['DELTA14C_ERR'], fmt='o', color=colors[3], ecolor=colors[3], elinewidth=1, capsize=2, label='Flask', alpha = 0.5)
-plt.plot(fake_x2, naoh_means2, color=colors2[3], label='NaOH')
-plt.plot(fake_x2, flask_means2, color=colors[3], label='Flask')
+plt.errorbar(naoh2['DEC_DECAY_CORR'], naoh2['DELTA14C'], yerr=naoh2['DELTA14C_ERR'], fmt='o', color=farbe_bhd, ecolor=farbe_bhd, elinewidth=1, capsize=2, label='NaOH', alpha = 0.5)
+plt.errorbar(flask2['DEC_DECAY_CORR'], flask2['DELTA14C'], yerr=flask2['DELTA14C_ERR'], fmt='o', color=farbe_bhd, ecolor=farbe_bhd, elinewidth=1, capsize=2, label='Flask', alpha = 0.5)
+plt.plot(fake_x2, naoh_means2, color=farbe_bhd, label='NaOH')
+plt.plot(fake_x2, flask_means2, color=farbe_bhd, label='Flask')
 plt.xlim(min(flask2['DEC_DECAY_CORR']), max(flask2['DEC_DECAY_CORR']))
 plt.legend()
 

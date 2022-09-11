@@ -32,6 +32,7 @@ from X_my_functions import monte_carlo_randomization_smooth
 from X_my_functions import monte_carlo_randomization_trend
 from Pre_Processing_Heidelberg import combine_heidelberg
 from scipy import stats
+from colors_set import *
 
 # general plot parameters
 colors = sns.color_palette("rocket", 6)
@@ -271,17 +272,17 @@ curve3 = bhd_1986_1991_RandomCurves_smooth.iloc[3]
 means = summary['Means']  # extracts the summary DataFrame
 # extracts the means from the summary DataFrame
 
+
 fig = plt.figure(1)
 plt.title('Visualization of Monte Carlo and CCGCRV Process: 1987-1991 BHD')
-plt.errorbar(xtot_bhd, ytot_bhd, label='BHD Data', yerr=ztot_bhd, fmt='o', color='black', ecolor='black', elinewidth=1,
-             capsize=2)
-plt.scatter(x1_bhd, data1, color=colors[0], label='Monte Carlo Iteration 1', alpha=0.35, marker='x')
-plt.scatter(x1_bhd, data2, color=colors[1], label='Monte Carlo Iteration 2', alpha=0.35, marker='^')
-plt.scatter(x1_bhd, data3, color=colors[2], label='Monte Carlo Iteration 3', alpha=0.35, marker='s')
-plt.plot(my_x_1986_1991, curve1, color=colors[0], alpha=0.35, linestyle='dotted')
-plt.plot(my_x_1986_1991, curve2, color=colors[1], alpha=0.35, linestyle='dashed')
-plt.plot(my_x_1986_1991, curve3, color=colors[2], alpha=0.35, linestyle='dashdot')
-plt.plot(my_x_1986_1991, means, color='red', label='CCGCRV Smooth Values', alpha=1, linestyle='solid')
+plt.errorbar(xtot_bhd, ytot_bhd, label='BHD Data', yerr=ztot_bhd, fmt='o', color='black', ecolor='black', elinewidth=1,capsize=2)
+plt.scatter(x1_bhd, data1, color=c1, label='Monte Carlo Iteration 1', alpha=0.5, marker='x')
+plt.scatter(x1_bhd, data2, color=c2, label='Monte Carlo Iteration 2', alpha=0.5, marker='^')
+plt.scatter(x1_bhd, data3, color=c3, label='Monte Carlo Iteration 3', alpha=0.5, marker='s')
+plt.plot(my_x_1986_1991, curve1, color=c1, alpha=0.5, linestyle='dotted')
+plt.plot(my_x_1986_1991, curve2, color=c2, alpha=0.5, linestyle='dashed')
+plt.plot(my_x_1986_1991, curve3, color=c3, alpha=0.5, linestyle='dashdot')
+plt.plot(my_x_1986_1991, means, color='black', label='CCGCRV Smooth Values', alpha=.8, linestyle='solid')
 plt.xlim([1989, 1991])
 plt.ylim([1.15, 1.18])
 plt.legend()

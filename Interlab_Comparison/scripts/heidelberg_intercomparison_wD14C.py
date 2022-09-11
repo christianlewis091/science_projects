@@ -32,13 +32,15 @@ from X_my_functions import monte_carlo_randomization_smooth
 from X_my_functions import monte_carlo_randomization_trend
 from Pre_Processing_Heidelberg import combine_heidelberg
 from scipy import stats
-
+from colors_set import *
+from colors_set import farbe_bhd, farbe_heid
 # general plot parameters
 colors = sns.color_palette("rocket", 6)
 colors2 = sns.color_palette("mako", 6)
 mpl.rcParams['pdf.fonttype'] = 42
 mpl.rcParams['font.size'] = 10
 size1 = 5
+
 
 heidelberg = pd.read_excel(r'H:\Science\Datasets\heidelberg_cape_grim.xlsx', skiprows=40)  # import heidelberg data
 baringhead = pd.read_excel(r'H:\Science\Datasets\BHD_14CO2_datasets_20211013.xlsx')  # import Baring Head data
@@ -274,15 +276,15 @@ means = summary['Means']  # extracts the summary DataFrame
 fig = plt.figure(1)
 plt.title('Visualization of Monte Carlo and CCGCRV Process: 1987-1991 BHD')
 plt.errorbar(xtot_bhd, ytot_bhd, label='BHD Data', yerr=ztot_bhd, fmt='o', color='black', ecolor='black', elinewidth=1,capsize=2)
-plt.scatter(x1_bhd, data1, color=colors[0], label='Monte Carlo Iteration 1', alpha=0.35, marker='x')
-plt.scatter(x1_bhd, data2, color=colors[1], label='Monte Carlo Iteration 2', alpha=0.35, marker='^')
-plt.scatter(x1_bhd, data3, color=colors[2], label='Monte Carlo Iteration 3', alpha=0.35, marker='s')
-plt.plot(my_x_1986_1991, curve1, color=colors[0], alpha=0.35, linestyle='dotted')
-plt.plot(my_x_1986_1991, curve2, color=colors[1], alpha=0.35, linestyle='dashed')
-plt.plot(my_x_1986_1991, curve3, color=colors[2], alpha=0.35, linestyle='dashdot')
-plt.plot(my_x_1986_1991, means, color='red', label='CCGCRV Smooth Values', alpha=1, linestyle='solid')
+plt.scatter(x1_bhd, data1, color=c1, label='Monte Carlo Iteration 1', alpha=0.5, marker='x')
+plt.scatter(x1_bhd, data2, color=c2, label='Monte Carlo Iteration 2', alpha=0.5, marker='^')
+plt.scatter(x1_bhd, data3, color=c3, label='Monte Carlo Iteration 3', alpha=0.5, marker='s')
+plt.plot(my_x_1986_1991, curve1, color=c1, alpha=0.5, linestyle='dotted')
+plt.plot(my_x_1986_1991, curve2, color=c2, alpha=0.5, linestyle='dashed')
+plt.plot(my_x_1986_1991, curve3, color=c3, alpha=0.5, linestyle='dashdot')
+plt.plot(my_x_1986_1991, means, color='black', label='CCGCRV Smooth Values', alpha=.8, linestyle='solid')
 plt.xlim([1989, 1991])
-plt.ylim([140, 170])
+plt.ylim([145, 170])
 plt.legend()
 plt.xlabel('Date', fontsize=14)
 plt.ylabel('\u0394$^1$$^4$CO$_2$ (\u2030)', fontsize=14)  # label the y axis

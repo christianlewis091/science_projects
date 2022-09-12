@@ -184,12 +184,45 @@ fig = plt.figure(1)
 plt.scatter(xtot_bhd, ytot_bhd, marker='o', label='Rafter Radiocarbon Lab' + '\n' ' - Baring Head, New Zealand [BHD]', color=farbe_bhd, s=size1)
 plt.scatter(xtot_heid, ytot_heid, marker='x', label='Heidelberg University' + '\n' ' - Cape Grim, Tasmania [CGO]', color=farbe_heid, s=size1)
 plt.legend()
-plt.title('Baring Head and Cape Grim Data')
+plt.title('Available Data for Uni Heidelberg and Rafter Radiocarbon Lab Intercomparison')
 plt.xlim([1985, 2020])
 plt.ylim([0, 220])
 plt.xlabel('Date', fontsize=14)
 plt.ylabel('\u0394$^1$$^4$CO$_2$ (\u2030)', fontsize=14)  # label the y axis
 plt.savefig('C:/Users/clewis/IdeaProjects/GNS/Interlab_Comparison/output/DEV_FirstDraft_figure1.png',
+            dpi=300, bbox_inches="tight")
+plt.close()
+
+"""
+Figure 3. A breakdown of the 4 periods of time that we test for the intercomparison,
+and how the smooth and trend data compare for each.
+"""
+size2 = 15
+plt.scatter(xtot_bhd, ytot_bhd, marker='o', label='Rafter Radiocarbon Lab' + '\n' ' - Baring Head, New Zealand [BHD]', color=farbe_bhd, s=size1)
+plt.scatter(xtot_heid, ytot_heid, marker='x', label='Heidelberg University' + '\n' ' - Cape Grim, Tasmania [CGO]', color=farbe_heid, s=size1)
+plt.axvspan(1987, 1991, facecolor='black', alpha=0.1)
+plt.axvspan(1991, 1994, facecolor='black', alpha=0.1)
+plt.axvspan(2006, 2009, facecolor='black', alpha=0.1)
+plt.axvspan(2012, 2016, facecolor='black', alpha=0.1)
+
+plt.axvline(x = 1987, color = 'black', alpha = 0.2, linestyle = 'solid')
+plt.axvline(x = 1991, color = 'black', alpha = 0.2, linestyle = 'solid')
+plt.axvline(x = 1994, color = 'black', alpha = 0.2, linestyle = 'solid')
+plt.axvline(x = 2006, color = 'black', alpha = 0.2, linestyle = 'solid')
+plt.axvline(x = 2009, color = 'black', alpha = 0.2, linestyle = 'solid')
+plt.axvline(x = 2012, color = 'black', alpha = 0.2, linestyle = 'solid')
+plt.axvline(x = 2016, color = 'black', alpha = 0.2, linestyle = 'solid')
+# plt.text(1988, 0, "1", fontsize=8)
+# plt.text(1991, 0, "2", fontsize=8)
+# plt.text(2007, 0, "3", fontsize=8)
+# plt.text(2011, 0, "4", fontsize=8)
+# plt.text(1980, 0, "Time Interval:", fontsize=8)
+plt.ylabel('\u0394$^1$$^4$CO$_2$ (\u2030)', fontsize=14)  # label the y axis
+# plt.arrow(1994, 50, -6, 0,  fc="k", ec="k",head_width=0.05, head_length=0.1 )
+plt.xlabel('Date', fontsize=14)  # label the y axis
+plt.legend()
+
+plt.savefig('C:/Users/clewis/IdeaProjects/GNS/Interlab_Comparison/output/new_test.png',
             dpi=300, bbox_inches="tight")
 plt.close()
 # </editor-fold>
@@ -618,3 +651,5 @@ sns.barplot(x=FM['Time Period'], y=FM['Result'],  palette="Blues_d")
 plt.savefig('C:/Users/clewis/IdeaProjects/GNS/Interlab_Comparison/output/Final_Results_FM.png',
             dpi=300, bbox_inches="tight")
 plt.close()
+
+

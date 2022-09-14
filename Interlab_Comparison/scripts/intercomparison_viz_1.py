@@ -26,7 +26,10 @@ gs.update(wspace=.35, hspace=.25)
 xtr_subsplot = fig.add_subplot(gs[0:2, 0:2])
 plt.errorbar(rrl_nwt3['Decimal_date'], rrl_nwt3['D14C'], yerr=rrl_nwt3['D14C_err'], fmt='o', color=farbe_bhd, ecolor=farbe_bhd, elinewidth=1, capsize=2, label='RRL NWT3')
 plt.axhline(y=y3_average, color='black', linestyle='-')
+plt.axhline(y=43.25+1.6, color='black', linestyle='--', alpha = 0.2) # indicating error bounds of INSTAAR Measurements from Lehman et al.
+plt.axhline(y=43.25-1.6, color='black', linestyle='--', alpha = 0.2)
 plt.axhspan((y3_average-y3_1sigma), (y3_average+y3_1sigma), facecolor=farbe_bhd, alpha=0.3)
+
 plt.ylabel('\u0394$^1$$^4$CO$_2$ (\u2030) [NWT3]', fontsize=14)  # label the y axis
 # plt.xlabel('Date of Measurement', fontsize=14)  # label the y axis
 plt.title('RRL')
@@ -37,6 +40,8 @@ plt.ylim(30,55)
 xtr_subsplot = fig.add_subplot(gs[2:4, 0:2])
 plt.errorbar(rrl_nwt4['Decimal_date'], y4, yerr=rrl_nwt4['D14C_err'], fmt='o', color=farbe_bhd, ecolor=farbe_bhd, elinewidth=1, capsize=2, label='RRL NWT4')
 plt.axhline(y=y4_average, color='black', linestyle='-')
+plt.axhline(y=-31.43-1.63, color='black', linestyle='--', alpha = 0.2) # indicating error bounds of INSTAAR Measurements from Lehman et al.
+plt.axhline(y=-31.43+1.63, color='black', linestyle='--', alpha = 0.2) # indicating error bounds of INSTAAR Measurements from Lehman et al.
 plt.axhspan((y4_average-y4_1sigma), (y4_average+y4_1sigma), facecolor=farbe_bhd, alpha=0.3)
 plt.ylabel('\u0394$^1$$^4$CO$_2$ (\u2030) [NWT4]', fontsize=14)  # label the y axis
 # plt.legend()
@@ -50,6 +55,8 @@ plt.ylim(30,55)
 plt.errorbar(sio_nwt3['Decimal_date'], y1, yerr=sio_nwt3['D14C_err'], fmt='D', color=farbe_sio, ecolor=farbe_sio, elinewidth=1, capsize=2, label='LLNL NWT3')
 plt.axhline(y=y1_average, color='black', linestyle='solid')
 plt.axhspan((y1_average-y1_1sigma), (y1_average+y1_1sigma), facecolor=farbe_sio, alpha=0.3)
+plt.axhline(y=43.25+1.6, color='black', linestyle='--', alpha = 0.2) # indicating error bounds of INSTAAR Measurements from Lehman et al.
+plt.axhline(y=43.25-1.6, color='black', linestyle='--', alpha = 0.2)
 plt.title('SIO/LLNL')
 # plt.xlabel('Measurement #', fontsize=14)  # label the y axis
 # plt.legend()
@@ -59,8 +66,10 @@ xtr_subsplot = fig.add_subplot(gs[2:4, 2:4])
 plt.ylim(-40,-24)
 # plt.axhline(y=y4_average, color='black', linestyle='-')
 # plt.axhspan((y4_average-y4_1sigma), (y4_average+y4_1sigma), facecolor=colors2[5], alpha=0.3)
-plt.errorbar(sio_nwt4['Decimal_date'], y2, yerr=sio_nwt3['D14C_err'], fmt='D', color=farbe_sio, ecolor=farbe_sio, elinewidth=1, capsize=2, label='LLNL NWT4')
+plt.errorbar(sio_nwt4['Decimal_date'], y2, yerr=sio_nwt4['D14C_err'], fmt='D', color=farbe_sio, ecolor=farbe_sio, elinewidth=1, capsize=2, label='LLNL NWT4')
 plt.axhline(y=y2_average, color='black', linestyle='solid')
+plt.axhline(y=-31.43-1.63, color='black', linestyle='--', alpha = 0.2) # indicating error bounds of INSTAAR Measurements from Lehman et al.
+plt.axhline(y=-31.43+1.63, color='black', linestyle='--', alpha = 0.2) # indicating error bounds of INSTAAR Measurements from Lehman et al.
 plt.axhspan((y2_average-y2_1sigma), (y2_average+y2_1sigma), facecolor=farbe_sio, alpha=0.3)
 plt.xlabel('Measurement #', fontsize=14)  # label the y axis
 # plt.legend()

@@ -71,6 +71,16 @@ y4_fm = rrl_nwt4['FM']
 y4_average_fm = np.average(y4_fm)
 y4_1sigma_fm = np.std(y4_fm)
 
+printlist = [y1_average, y1_1sigma,
+             y2_average, y2_1sigma,
+             y3_average, y3_1sigma,
+             y4_average, y4_1sigma]
+print('These are the results youre looking for')
+for item in printlist:
+    print(item)
+
+
+
 
 # UNCOMMENT WHEN DONE WRITING THIS FILE! HERE ARE THE OTHER INTERCOMPARISON!
 # I was first supplied with FM data from ANSTO so I'm going to use FM for this calculation.

@@ -652,4 +652,5 @@ plt.savefig('C:/Users/clewis/IdeaProjects/GNS/Interlab_Comparison/output/Final_R
             dpi=300, bbox_inches="tight")
 plt.close()
 
-
+print(len(sio_nwt3))
+print(len(rrl_nwt3))

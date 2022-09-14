@@ -54,7 +54,10 @@ function I wrote and lives in my_functions.py.
 """
 heidelberg = combine_heidelberg.loc[(combine_heidelberg['Site'] == 'CGO')]
 baringhead = combine_heidelberg.loc[(combine_heidelberg['Site'] == 'BHD')]
-
+baringhead = baringhead.loc[(baringhead['Decimal_date'] != 1990.0534)]     # There is an anomaly in NaOH data between 1990 - 1993, explained in
+                                                                           # Turnbull 2017. This one data point is the only NaOH measurement in that
+                                                                           # time band. By removing it, I can deal with this previously established
+                                                                           # phenomena
 """CAREFULLY SPLIT UP THE DATA INTO DIFFERENT TIME BINS AND GRAB VARIABLES """
 """
 Entire Baring Head File > 1980.
@@ -233,7 +236,7 @@ ESSENTIALLY WHAT WE ARE DOING:
 
 I'm going to run it once below as a proof of concept with this dataset, and run a plot to show its working.
 """
-n = 10 # set the amount of times the code will iterate (set to 10,000 once everything is final)
+n = 10000 # set the amount of times the code will iterate (set to 10,000 once everything is final)
 cutoff = 667  # FFT filter cutoff
 
 bhd_1986_1991_results_smooth = monte_carlo_randomization_smooth(x1_bhd, my_x_1986_1991, y1_bhd, z1_bhd, cutoff, n)

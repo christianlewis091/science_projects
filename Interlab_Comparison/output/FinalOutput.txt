@@ -1,81 +1,3 @@
-Output from table: 
-The following Data come with 10,000 iterations and the step size set to 378. 
-
-The following results were computed using CCGCRV Smooth (D14C), with an n of 10000
-Paired t-test result and difference in means for 1986 - 1991
-Ttest_relResult(statistic=6.083954925216524, pvalue=3.007500652326218e-07)
-(1.8747708207075795, 0.30454580039480167)
-Paired t-test result and difference in means for 1991 - 1994
-Ttest_relResult(statistic=3.963492876968848, pvalue=0.0004221040476967636)
-(1.7253322641556055, 0.42822739031016677)
-Paired t-test result and difference in means for 2006 - 2016
-Ttest_relResult(statistic=4.876646821686861, pvalue=3.7736378913305183e-06)
-(1.0680833617667818, 0.2180036961037839)
-Paired t-test result and difference in means for 2006 - 2009
-Ttest_relResult(statistic=2.215262173696489, pvalue=0.033754779657966874)
-(0.580331189370924, 0.2580882848732247)
-Paired t-test result and difference in means for 2012 - 2016
-Ttest_relResult(statistic=-2.5147634517374233, pvalue=0.01651829797560328)
-(-0.5443400944816987, 0.21351263130693302)
-
-
-The following results were computed using CCGCRV Trend (D14C), with an n of 10000
-Paired t-test result and difference in means for 1986 - 1991
-Ttest_relResult(statistic=20.13960343652285, pvalue=3.369609711046357e-23)
-(1.8510344916254018, 0.0908351659646319)
-Paired t-test result and difference in means for 1991 - 1994
-Ttest_relResult(statistic=9.539027901349687, pvalue=1.3573049701380934e-10)
-(1.9008885108342786, 0.19603440873261538)
-Paired t-test result and difference in means for 2006 - 2016
-Ttest_relResult(statistic=5.417325618305229, pvalue=3.7557855794503824e-07)
-(1.0900028246722713, 0.20027313402873148)
-Paired t-test result and difference in means for 2006 - 2009
-Ttest_relResult(statistic=3.728945482926139, pvalue=0.0007210995994766322)
-(0.5519440680775205, 0.14582317423130342)
-Paired t-test result and difference in means for 2012 - 2016
-Ttest_relResult(statistic=-4.9283081741042905, pvalue=1.8700251567332033e-05)
-(-0.5153784244169157, 0.10315226409546192)
-
-Process finished with exit code 0
-
-
-The following results were computed using CCGCRV Smooth (FM), with an n of 10000
-Paired t-test result and difference in means for 1986 - 1991
-Ttest_relResult(statistic=6.1098123976011065, pvalue=2.760530381133559e-07)
-(0.0018888465723914012, 0.0003055337738920577)
-Paired t-test result and difference in means for 1991 - 1994
-Ttest_relResult(statistic=4.072115287770592, pvalue=0.0003130785811687011)
-(0.001770861256203501, 0.0004278034195992449)
-Paired t-test result and difference in means for 2006 - 2016
-Ttest_relResult(statistic=6.400382963732365, pvalue=4.205241050274013e-09)
-(0.0013643369515442723, 0.0002121757237247532)
-Paired t-test result and difference in means for 2006 - 2009
-Ttest_relResult(statistic=2.2332909707128192, pvalue=0.032426535244417486)
-(0.0005879382886709926, 0.00025936056602204064)
-Paired t-test result and difference in means for 2012 - 2016
-Ttest_relResult(statistic=-0.6419445565366513, pvalue=0.5249760748182758)
-(-0.00015373863141505622, 0.00023623045065485006)
-
-
-The following results were computed using CCGCRV Trend (FM), with an n of 10000
-Paired t-test result and difference in means for 1986 - 1991
-Ttest_relResult(statistic=19.861829788386412, pvalue=5.719813237860669e-23)
-(0.001840292848445965, 9.157103018162325e-05)
-Paired t-test result and difference in means for 1991 - 1994
-Ttest_relResult(statistic=9.335865917695545, pvalue=2.2113174078317862e-10)
-(0.0018852446043962079, 0.0001986519722811937)
-Paired t-test result and difference in means for 2006 - 2016
-Ttest_relResult(statistic=7.151916147525417, pvalue=1.1097226842014119e-10)
-(0.001392702062043844, 0.00019382768813247265)
-Paired t-test result and difference in means for 2006 - 2009
-Ttest_relResult(statistic=3.913760957598402, pvalue=0.0004294881130681621)
-(0.0005638752496987041, 0.00014194047272612846)
-Paired t-test result and difference in means for 2012 - 2016
-Ttest_relResult(statistic=-0.9218904307758523, pvalue=0.36272306987942127)
-(-0.00013559435208309556, 0.0001450817152838433)
-
-Process finished with exit code 0
-
 ANSTO v RRL Test: Tree Rings, D14C
 The average difference between the groups is 0.46110432452585287and std error is 2.7607383035375324
 Ttest_relResult(statistic=0.15845108200803193, pvalue=0.8775997722995811)
@@ -131,12 +53,119 @@ The data are different at 98% confidence
 
 
 Flask v NaOH @ Baring Head, Trended, Part1
-The average difference between the groups is 3.7464826561897153and std error is 0.130709324683823
-Ttest_relResult(statistic=28.64511391324785, pvalue=2.330679210835909e-125)
+The average difference between the groups is 3.82132956833777and std error is 0.1376938662684414
+Ttest_relResult(statistic=27.73532749345211, pvalue=1.0240981358737548e-119)
 The data are different at 98% confidence
 
 
 Flask v NaOH @ Baring Head, Trended, Part2
-The average difference between the groups is -0.8735286378471996and std error is 0.04844153145328941
-Ttest_relResult(statistic=-18.021572399287, pvalue=2.3505706021119937e-61)
+The average difference between the groups is -0.8854489322958019and std error is 0.04561008277455417
+Ttest_relResult(statistic=-19.401533422591303, pvalue=3.232844170967968e-69)
 The data are different at 98% confidence
+
+
+Ttest_relResult(statistic=0.15845108200803193, pvalue=0.8775997722995811)
+Ttest_relResult(statistic=0.5170671023366259, pvalue=0.617575445664969)
+Ttest_indResult(statistic=2.841496945212632, pvalue=0.005495004083251092)
+Ttest_indResult(statistic=3.661229864016457, pvalue=0.0004166506986705008)
+Ttest_indResult(statistic=2.8398495199042815, pvalue=0.005521192151168426)
+Ttest_indResult(statistic=3.6590617902433604, pvalue=0.0004197404882645735)
+Ttest_relResult(statistic=0.9986101576433755, pvalue=0.3638285326361053)
+Ttest_relResult(statistic=0.997422401653868, pvalue=0.3643514201858421)
+Flask v NaOH @ Baring Head
+The average difference between the groups is 1.0407407407407405and std error is 0.3342222562725566
+Ttest_relResult(statistic=3.0849508126623815, pvalue=0.0032319669492302315)
+The data are different at 98% confidence
+
+
+Flask v NaOH @ Baring Head, Trended, Part1
+The average difference between the groups is 3.6952438561547454and std error is 0.12390196691770276
+Ttest_relResult(statistic=29.805629655620546, pvalue=1.4853626563153793e-132)
+The data are different at 98% confidence
+
+
+Flask v NaOH @ Baring Head, Trended, Part2
+This was run after the step change was made, and after the NaOH ponit from 1990-1993 was removed. 
+
+
+The average difference between the groups is -0.8766830617596502and std error is 0.04642382844778465
+Ttest_relResult(statistic=-18.87274452800255, pvalue=3.538344520463944e-66)
+The data are different at 98% confidence
+
+
+The following results were computed using CCGCRV Smooth (D14C), with an n of 10000
+Paired t-test result and difference in means for 1986 - 1991
+Ttest_relResult(statistic=5.494266892272138, pvalue=2.112632850048851e-06)
+(1.7685937057562027, 0.31813301426923096)
+Paired t-test result and difference in means for 1991 - 1994
+Ttest_relResult(statistic=4.064106433392307, pvalue=0.00032007044847620625)
+(1.7579721719279686, 0.42552659034716017)
+Paired t-test result and difference in means for 2006 - 2016
+Ttest_relResult(statistic=4.872606453544949, pvalue=3.837328252230649e-06)
+(1.0668485303161244, 0.2179322176952226)
+Paired t-test result and difference in means for 2006 - 2009
+Ttest_relResult(statistic=2.2257759390879874, pvalue=0.03297439848402704)
+(0.5831190322603605, 0.25810313791925965)
+Paired t-test result and difference in means for 2012 - 2016
+Ttest_relResult(statistic=-2.473581903719244, pvalue=0.01822867982441514)
+(-0.5384034722741206, 0.21469995103974487)
+
+
+The following results were computed using CCGCRV Trend (D14C), with an n of 10000
+Paired t-test result and difference in means for 1986 - 1991
+Ttest_relResult(statistic=17.64643904014494, pvalue=4.8820590533617676e-21)
+(1.748087318549481, 0.09790310359717388)
+Paired t-test result and difference in means for 1991 - 1994
+Ttest_relResult(statistic=9.531615771846198, pvalue=1.3815597568298178e-10)
+(1.8922511429368019, 0.19529540694378503)
+Paired t-test result and difference in means for 2006 - 2016
+Ttest_relResult(statistic=5.465095030604745, pvalue=3.044499015065172e-07)
+(1.0973835323616403, 0.19986683338463457)
+Paired t-test result and difference in means for 2006 - 2009
+Ttest_relResult(statistic=3.740165646129847, pvalue=0.0006989133378357374)
+(0.5485576906118322, 0.14449372350070253)
+Paired t-test result and difference in means for 2012 - 2016
+Ttest_relResult(statistic=-4.881845276239096, pvalue=2.1545892556013343e-05)
+(-0.51234659001957, 0.10352142165405874)
+
+
+
+
+The following results were computed using CCGCRV Smooth (FM), with an n of 10000
+Paired t-test result and difference in means for 1986 - 1991
+Ttest_relResult(statistic=5.505989567463933, pvalue=2.0326361631040667e-06)
+(0.0017766776778270635, 0.0003189067261317319)
+Paired t-test result and difference in means for 1991 - 1994
+Ttest_relResult(statistic=4.058200783040599, pvalue=0.00032532421170545746)
+(0.0017651473533075723, 0.0004278851516302083)
+Paired t-test result and difference in means for 2006 - 2016
+Ttest_relResult(statistic=6.410344883653716, pvalue=4.011441328963764e-09)
+(0.0013645675640187635, 0.00021188180268587428)
+Paired t-test result and difference in means for 2006 - 2009
+Ttest_relResult(statistic=2.237477472287832, pvalue=0.03212487877032307)
+(0.0005907662865640118, 0.00026012047798298834)
+Paired t-test result and difference in means for 2012 - 2016
+Ttest_relResult(statistic=-0.6137528190457999, pvalue=0.5432377336916152)
+(-0.0001473339691369751, 0.00023678804792575623)
+
+
+The following results were computed using CCGCRV Trend (FM), with an n of 10000
+Paired t-test result and difference in means for 1986 - 1991
+Ttest_relResult(statistic=17.612663231543845, pvalue=5.2418292167386025e-21)
+(0.0017781315970542774, 9.97767343707009e-05)
+Paired t-test result and difference in means for 1991 - 1994
+Ttest_relResult(statistic=9.439645271059751, pvalue=1.7221710511372537e-10)
+(0.0018958187190190904, 0.00019756996055360902)
+Paired t-test result and difference in means for 2006 - 2016
+Ttest_relResult(statistic=7.125809546587877, pvalue=1.2620039456519426e-10)
+(0.0013906412267549143, 0.00019424994330060526)
+Paired t-test result and difference in means for 2006 - 2009
+Ttest_relResult(statistic=3.9126970717565257, pvalue=0.0004307797465569632)
+(0.0005583912258940923, 0.00014059823591090176)
+Paired t-test result and difference in means for 2012 - 2016
+Ttest_relResult(statistic=-0.9102559528229852, pvalue=0.36874216272418636)
+(-0.00013323295315078017, 0.0001443771667019234)
+9
+88
+
+Process finished with exit code 0

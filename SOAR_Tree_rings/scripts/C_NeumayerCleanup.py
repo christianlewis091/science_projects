@@ -1,7 +1,11 @@
 """
+October 6, 2022.
+File was tidied up, AND
+because we're going to use three reference datasets, two in which the Heidelberg data is NOT offset corrected,
+I want to keep an original column of Neumayer data next to the offset corrected one.
+
 In a previous python file, I find the interlaboratory offsets between Uni Heidelberg and RRL through time.
-I am now going to apply these calculated offsets to the remaining Southern Hemisphere data from Uni Heidelberg,
-which is the Neumayer dataset.
+I am now going to apply these calculated offsets to the Heidelberg University Macquarie dataset.
 
 """
 import matplotlib as mpl
@@ -23,7 +27,7 @@ mpl.rcParams['pdf.fonttype'] = 42
 mpl.rcParams['font.size'] = 10
 size1 = 5
 
-neumayer = pd.read_excel(r'H:\The Science\Datasets\heidelberg_neumayer.xlsx', skiprows=40)  # import heidelberg data
+neumayer = pd.read_excel(r'H:\Science\Datasets\heidelberg_neumayer.xlsx', skiprows=40)  # import heidelberg data
 neumayer = neumayer.dropna(subset=['D14C']).reset_index(drop=True)
 
 # This file contains data from 1983 to 2021.
@@ -69,33 +73,38 @@ neu = pd.merge(neu, h4, how='outer')
 neu = pd.merge(neu, h5, how='outer')
 neu = pd.merge(neu, h6, how='outer')
 
-print(len(neu))
+neu.to_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/NEU_offset.xlsx')
 
-y = [offset1, offset1, offset1, offset3, offset3, offset3, offset4, offset4, offset4, offset6, offset6, offset6]  # pulled from A_heidelberg Intercomparison.
-y_err = [error1, error1, error1, error3, error3, error3, error4, error4, error4, error6, error6, error6]
-x =[min(neu['Decimal_date']), (1986 + 1991)/2, 1992, 1994, (1994 + 2005)/2, 2005, 2006, (2006 + 2009)/2, 2009, 2012, (2012 + 2016)/2, max(neu['Decimal_date'])]  # find the middle of each time- chunk.
-
-dff = pd.DataFrame({"offset_xs": x, "offset_ys": y, "offset_errs": y_err})  # my function works best when data are pulled from pandas DF
-
-offset_smoothed = monte_carlo_randomization_trend(dff['offset_xs'], neu['Decimal_date'], dff['offset_ys'], dff['offset_errs'], cutoff, n)  # use the offset values to create an offset smoothing curve
-offset_smoothed_summary = offset_smoothed[2]  # extract summary file
-offset_smoothed_mean = offset_smoothed_summary['Means']  # grab means
-offset_smoothed_stdevs = offset_smoothed_summary['stdevs']  # grab stdevs
-neu['smoothed_offset'] = offset_smoothed_mean  # deposit the number for the smoothed offset in the excel sheet
-neu['D14C_2'] = neu['D14C'] + neu['smoothed_offset']  # add it to the original data (correct the offset)
-neu['smoothed_offset_error'] = offset_smoothed_stdevs
-neu['weightedstderr_D14C_2'] = np.sqrt(neu['weightedstderr_D14C']**2 + offset_smoothed_stdevs**2)
-# is there a meaningful difference between the smoothed offset and the Pre and Post offset?
-
-neu = neu.rename(columns={"weightedstderr_D14C": "D14C_err"})
-neu = neu.rename(columns={"F14C_ERR": "F14C_err"})
-neu = neu.rename(columns={"smoothed_offset": "offset2"})
-neu = neu.rename(columns={"smoothed_offset_error": "offset2_err"})
-neu = neu.rename(columns={"weightedstderr_D14C_2": "D14C_2_err"})
-neu = neu.rename(columns={"weightedstderr_D14C_1": "D14C_1_err"})
-print(neu.columns)
-
-# Reorder the columns in an order that makes more sense
-neu = neu[['#location', 'Decimal_date', 'D14C', 'D14C_err', 'D14C_1', 'D14C_1_err', 'offset2', 'offset2_err', 'D14C_2', 'D14C_2_err']]
-neu.to_excel('Neumayer_offset.xlsx')
-
+"""
+The following code is deprecated
+"""
+# print(len(neu))
+#
+# y = [offset1, offset1, offset1, offset3, offset3, offset3, offset4, offset4, offset4, offset6, offset6, offset6]  # pulled from A_heidelberg Intercomparison.
+# y_err = [error1, error1, error1, error3, error3, error3, error4, error4, error4, error6, error6, error6]
+# x =[min(neu['Decimal_date']), (1986 + 1991)/2, 1992, 1994, (1994 + 2005)/2, 2005, 2006, (2006 + 2009)/2, 2009, 2012, (2012 + 2016)/2, max(neu['Decimal_date'])]  # find the middle of each time- chunk.
+#
+# dff = pd.DataFrame({"offset_xs": x, "offset_ys": y, "offset_errs": y_err})  # my function works best when data are pulled from pandas DF
+#
+# offset_smoothed = monte_carlo_randomization_trend(dff['offset_xs'], neu['Decimal_date'], dff['offset_ys'], dff['offset_errs'], cutoff, n)  # use the offset values to create an offset smoothing curve
+# offset_smoothed_summary = offset_smoothed[2]  # extract summary file
+# offset_smoothed_mean = offset_smoothed_summary['Means']  # grab means
+# offset_smoothed_stdevs = offset_smoothed_summary['stdevs']  # grab stdevs
+# neu['smoothed_offset'] = offset_smoothed_mean  # deposit the number for the smoothed offset in the excel sheet
+# neu['D14C_2'] = neu['D14C'] + neu['smoothed_offset']  # add it to the original data (correct the offset)
+# neu['smoothed_offset_error'] = offset_smoothed_stdevs
+# neu['weightedstderr_D14C_2'] = np.sqrt(neu['weightedstderr_D14C']**2 + offset_smoothed_stdevs**2)
+# # is there a meaningful difference between the smoothed offset and the Pre and Post offset?
+#
+# neu = neu.rename(columns={"weightedstderr_D14C": "D14C_err"})
+# neu = neu.rename(columns={"F14C_ERR": "F14C_err"})
+# neu = neu.rename(columns={"smoothed_offset": "offset2"})
+# neu = neu.rename(columns={"smoothed_offset_error": "offset2_err"})
+# neu = neu.rename(columns={"weightedstderr_D14C_2": "D14C_2_err"})
+# neu = neu.rename(columns={"weightedstderr_D14C_1": "D14C_1_err"})
+# print(neu.columns)
+#
+# # Reorder the columns in an order that makes more sense
+# neu = neu[['#location', 'Decimal_date', 'D14C', 'D14C_err', 'D14C_1', 'D14C_1_err', 'offset2', 'offset2_err', 'D14C_2', 'D14C_2_err']]
+# df.to_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/NEU_offset.xlsx')
+#

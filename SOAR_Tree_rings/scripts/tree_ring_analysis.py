@@ -1,32 +1,18 @@
+"""
+October 6, 2022
 
+This code looks at each of the SOAR Tree Ring sites from Chile and New Zealand that was analyzed here at the Rafter lab,
+and tries to find where the bad ring counts are. At the end, two files are created, one that includes the flags,
+and labels why they are flagged. The second removes all the flagged data, leaving only the "cleaned" data.
 
 """
-Purpose:
-Use the harmonized Southern Hemisphere dataset to see if we can find shifts in SOAR tree rings
-to understand Southern ocean upwelling.
-Outcome:
-Currently in DEV mode.
-"""
-# TODO Index based on the flags in the dataset!
-# Import all the basic libraries that I'll be using
-import numpy as np
 import matplotlib as mpl
-import matplotlib.pyplot as plt
 import pandas as pd
 pd.options.mode.chained_assignment = None  # default='warn'
 import seaborn as sns
 from B_CGO_BHD_harmonization import harmonized
-from X_miller_curve_algorithm import ccgFilter
-from X_my_functions import monte_carlo_randomization_trend
-from mpl_toolkits.basemap import Basemap
 import matplotlib.pyplot as plt
-from matplotlib.patches import Polygon
 
-"""
-These next few lines appear often at the top of my codes. 
-These next lines set some initial parameters that figures in the code will follow
-and imports some nice colors that we'll use. 
-"""
 plt.close()
 colors = sns.color_palette("rocket", 6)  # import sns color pallet rocket
 colors2 = sns.color_palette("mako", 6)  # import sns color pallet mako.
@@ -720,14 +706,54 @@ They check out!
 """
 # print(len(df)) == 648
 # print(len(combined2)) == 648
-combined.to_excel('SOARTreeRingData_CBL_flags.xlsx')
+combined.to_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/SOARTreeRingData_CBL_flags.xlsx')
 
 """
 Finally, I want to remove all the flagged data so I'm only left with things I HAVEN'T Flagged.
 """
 df_cleaned = combined.loc[(combined['CBL_flag']) == '...']
 # print(len(df_cleaned))
-df_cleaned.to_excel('SOARTreeRingData_CBL_cleaned.xlsx')
+df_cleaned.to_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/SOARTreeRingData_CBL_cleaned.xlsx')
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 # now, I've rebooted this code from a previous iteration, and to deal with renaming, I'm going to change from df_cleaned to df to be able to use the res of the code.
 

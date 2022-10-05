@@ -9,10 +9,12 @@ import numpy as np
 import pandas as pd
 import seaborn as sns
 from X_my_functions import long_date_to_decimal_date
-from A_heidelberg_intercomparison import offset1, offset2, offset3, offset4, offset5, offset6
-from A_heidelberg_intercomparison import error1, error2, error3, error4, error5, error6
+from B_CGO_BHD_harmonization import offset1, offset2, offset3, offset4, offset5, offset6
+from B_CGO_BHD_harmonization import error1, error2, error3, error4, error5, error6
 from X_my_functions import monte_carlo_randomization_trend
-from A_heidelberg_intercomparison import cutoff, n
+
+n = 5  # set the amount of times the code will iterate (set to 10,000 once everything is final)
+cutoff = 667  # FFT filter cutoff
 
 # general plot parameters
 colors = sns.color_palette("rocket", 6)

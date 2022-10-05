@@ -49,11 +49,11 @@ harm_fm = harmonized['F14C']
 harm_y_errs = harmonized['D14C_offsetcorrected_err']
 harm_fm_errs = harmonized['F14C_err']
 
-harm_sum_xs = harmonized_summer['Decimal_date']  # see dataset_harmonization.py
-harm_sum_ys = harmonized_summer['D14C_offsetcorrected']  # see dataset_harmonization.py
-harm_sum_y_errs = harmonized_summer['D14C_offsetcorrected_err']
-harm_sum_fm = harmonized_summer['F14C']
-harm_sum_fm_errs = harmonized_summer['F14C_err']
+# harm_sum_xs = harmonized_summer['Decimal_date']  # see dataset_harmonization.py
+# harm_sum_ys = harmonized_summer['D14C_offsetcorrected']  # see dataset_harmonization.py
+# harm_sum_y_errs = harmonized_summer['D14C_offsetcorrected_err']
+# harm_sum_fm = harmonized_summer['F14C']
+# harm_sum_fm_errs = harmonized_summer['F14C_err']
 
 """
 Before I do anything else, as advised, let's check to see which if any tree ring subsets

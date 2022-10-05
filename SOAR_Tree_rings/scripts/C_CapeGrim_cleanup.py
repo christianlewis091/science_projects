@@ -17,8 +17,8 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
 from X_my_functions import long_date_to_decimal_date
-from A_heidelberg_intercomparison import offset1, offset2, offset3, offset4, offset5, offset6
-from A_heidelberg_intercomparison import error1, error2, error3, error4, error5, error6
+from B_CGO_BHD_harmonization import offset1, offset2, offset3, offset4, offset5, offset6
+from B_CGO_BHD_harmonization import error1, error2, error3, error4, error5, error6
 from A_heidelberg_intercomparison import dff  # import the dataframe to produce the smoothed offset calcs
 from A_heidelberg_intercomparison import cutoff
 from X_miller_curve_algorithm import ccgFilter

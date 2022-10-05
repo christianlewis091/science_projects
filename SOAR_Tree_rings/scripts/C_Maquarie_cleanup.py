@@ -9,11 +9,12 @@ import numpy as np
 import pandas as pd
 import seaborn as sns
 from X_my_functions import long_date_to_decimal_date
-from A_heidelberg_intercomparison import offset1, offset2, offset3, offset4, offset5, offset6
-from A_heidelberg_intercomparison import error1, error2, error3, error4, error5, error6
+from B_CGO_BHD_harmonization import offset1, offset2, offset3, offset4, offset5, offset6
+from B_CGO_BHD_harmonization import error1, error2, error3, error4, error5, error6
 from X_my_functions import monte_carlo_randomization_trend
-from A_heidelberg_intercomparison import cutoff, n
-from scipy import stats
+# from B_CGO_BHD_harmonization import cutoff, n
+n = 5  # set the amount of times the code will iterate (set to 10,000 once everything is final)
+cutoff = 667  # FFT filter cutoff
 
 # general plot parameters
 colors = sns.color_palette("rocket", 6)
@@ -88,14 +89,14 @@ df.to_excel('MCQ_offset.xlsx')
 This is the third of three Heidelberg inter-comparison files that I am correcting for these offsets. Now I'm going 
 to combine them all into one for clarity
 """
-cgo = pd.read_excel(r'C:\Users\clewis\IdeaProjects\GNS\radiocarbon_intercomparison\Interlab_comparison\CapeGrim_offset.xlsx')
-neu = pd.read_excel(r'C:\Users\clewis\IdeaProjects\GNS\radiocarbon_intercomparison\Interlab_comparison\Neumayer_offset.xlsx')
-
-all_offset_corrected_heid = pd.merge(cgo, df, how='outer')  # combine cape grim and MCQ first
-all_offset_corrected_heid = pd.merge(all_offset_corrected_heid, neu, how='outer')   # tack on neumayer
-
-all_offset_corrected_heid = all_offset_corrected_heid[['#location', 'Decimal_date','D14C','D14C_err','D14C_1','D14C_1_err','D14C_2','D14C_2_err']]
-all_offset_corrected_heid.to_excel('Heidelberg_OffsetCorrections.xlsx')
+# cgo = pd.read_excel(r'C:\Users\clewis\IdeaProjects\GNS\radiocarbon_intercomparison\Interlab_comparison\CapeGrim_offset.xlsx')
+# neu = pd.read_excel(r'C:\Users\clewis\IdeaProjects\GNS\radiocarbon_intercomparison\Interlab_comparison\Neumayer_offset.xlsx')
+#
+# all_offset_corrected_heid = pd.merge(cgo, df, how='outer')  # combine cape grim and MCQ first
+# all_offset_corrected_heid = pd.merge(all_offset_corrected_heid, neu, how='outer')   # tack on neumayer
+#
+# all_offset_corrected_heid = all_offset_corrected_heid[['#location', 'Decimal_date','D14C','D14C_err','D14C_1','D14C_1_err','D14C_2','D14C_2_err']]
+# all_offset_corrected_heid.to_excel('Heidelberg_OffsetCorrections.xlsx')
 
 
 

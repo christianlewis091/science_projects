@@ -19,7 +19,8 @@ neu = pd.read_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/NEU
 soar = soar[['Ring code', 'R number', 'Site', 'F14C', 'F14Cerr',
              'DecimalDate', '∆14C', '∆14Cerr', 'Lat', 'Lon']]
 soar = soar.rename(columns={'∆14C': 'D14C',
-                            '∆14Cerr': 'D14Cerr'})
+                            '∆14Cerr': 'D14Cerr',
+                            'DecimalDate': 'Decimal_date'})
 
 mcq = mcq[['#location', 'Sample', 'Lab', 'Analysis',
            'Sample ', 'Sample.1', 'Average of Dates', 'D14C', '1sigma_error',
@@ -30,14 +31,8 @@ neu = neu[['#location', 'sampler_id',
            'D14C', 'weightedstderr_D14C', 'wheightedanalyticalstdev_D14C',
            'Decimal_date', 'D14C_1',
            'weightedstderr_D14C_1']]
-neu = mcq.rename(columns={'weightedstderr_D14C': 'D14Cerr'})
+neu = neu.rename(columns={'weightedstderr_D14C': 'D14Cerr'})
 
 complete_samples = pd.concat([soar, mcq, neu])
 complete_samples.to_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/complete_samples.xlsx')
 
-#
-# print(soar.columns)
-# print()
-# print(mcq.columns)
-# print()
-# print(neu.columns)

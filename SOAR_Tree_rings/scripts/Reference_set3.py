@@ -8,10 +8,7 @@ This script is quite similar to B_CGO_BHD_harmonization because I began this scr
 
 """
 import numpy as np
-import matplotlib as mpl
-import matplotlib.pyplot as plt
 import pandas as pd
-import seaborn as sns
 from X_my_functions import long_date_to_decimal_date
 
 """ LOAD UP AND TIDY THE DATA"""

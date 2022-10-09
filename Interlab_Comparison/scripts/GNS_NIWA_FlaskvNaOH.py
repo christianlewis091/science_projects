@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+from scipy import stats
 from X_my_functions import long_date_to_decimal_date, intercomparison_ttest
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -91,16 +92,18 @@ The test that was done between CGO and Baring Head, how did that turn out?
 """
 
 df = pd.read_excel(r'H:\Science\Datasets\CGOvBHD.xlsx')
-f = intercomparison_ttest(df['BHD_D14C'], df['CGO_D14C'], 'CGOvBHD (Both NaOH)', 'paired')
-
-plt.errorbar(df['Date'], df['BHD_D14C'], label='BHD', yerr=df['standard deviation1'], fmt='o', color=colors[2], ecolor=colors[2], elinewidth=1, capsize=2)
-plt.errorbar(df['Date'], df['CGO_D14C'], label='CGO', yerr=df['standard deviation2'], fmt='o', color=colors2[2], ecolor=colors2[2], elinewidth=1, capsize=2)
-plt.legend(fontsize=7.5)
-# plt.xlim(1980, 2020)
-# plt.ylim(.95, 1.3)
-plt.xlabel('Date', fontsize=14)
-plt.title('BHD v CGO')
-plt.ylabel('\u0394$^1$$^4$C (\u2030)', fontsize=14)  # label the y axis
-plt.savefig('C:/Users/clewis/IdeaProjects/GNS/Interlab_Comparison/output/Site_intercomparison.png',
-            dpi=300, bbox_inches="tight")
-plt.close()
+#
+c = stats.ttest_rel(df['BHD_D14C'], df['CGO_D14C'])
+print(c)
+# f = intercomparison_ttest(df['BHD_D14C'], df['CGO_D14C'], 'CGOvBHD (Both NaOH)', 'paired')
+# plt.errorbar(df['Date'], df['BHD_D14C'], label='BHD', yerr=df['standard deviation1'], fmt='o', color=colors[2], ecolor=colors[2], elinewidth=1, capsize=2)
+# plt.errorbar(df['Date'], df['CGO_D14C'], label='CGO', yerr=df['standard deviation2'], fmt='o', color=colors2[2], ecolor=colors2[2], elinewidth=1, capsize=2)
+# plt.legend(fontsize=7.5)
+# # plt.xlim(1980, 2020)
+# # plt.ylim(.95, 1.3)
+# plt.xlabel('Date', fontsize=14)
+# plt.title('BHD v CGO')
+# plt.ylabel('\u0394$^1$$^4$C (\u2030)', fontsize=14)  # label the y axis
+# plt.savefig('C:/Users/clewis/IdeaProjects/GNS/Interlab_Comparison/output/Site_intercomparison.png',
+#             dpi=300, bbox_inches="tight")
+# plt.close()

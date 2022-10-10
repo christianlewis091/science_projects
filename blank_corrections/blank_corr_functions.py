@@ -82,6 +82,13 @@ def blank_corr_normal(input_name, yn, date_bound_input):
     The next few lines that have been commented out are so beacuse it takes the longest to actually load the standard data. When the code is done and dusted, I will uncomment these out
     But for now, it's silly to wait every time to load so much data when I'm working on other parts of the script
     """
+
+    """
+    Lets write a summary template file which will be pasted into RLIMS 
+    """
+    f = open(r'I:/C14Data/C14_blank_corrections_dev/PythonOutput/TW{}_summary.txt'.format(input_name), 'w')
+
+
     x = stds_hist['Date Run']
     stds_hist['Date Run'] = long_date_to_decimal_date(x)                     # This line converts the dates to "Decimal Date" so that I can find only dates that are 0.5 years max before most recent date
     date_bound = max(stds_hist['Date Run']) - np.float(date_bound_input)
@@ -186,8 +193,8 @@ def blank_corr_normal(input_name, yn, date_bound_input):
                 stds_used.append(-999)
 
     if len(not_found) > 0:
-        print(f"Sample with type {not_found} could not be matched with a corresponding R number for correction."
-              f"Please add these sample types with corresponding R number in Pretreatment_reference.xlsx and re-run the script")
+        print((f"Sample with type {not_found} could not be matched with a corresponding R number for correction."
+              f"Please add these sample types with corresponding R number in Pretreatment_reference.xlsx and re-run the script"), file = f)
 
     df['MCC'] = mcc_arr2
     df['MCC_1sigma'] = mcc_1sigma2
@@ -209,10 +216,10 @@ def blank_corr_normal(input_name, yn, date_bound_input):
 
     # </editor-fold>
 
-    """
-    Lets write a summary template file which will be pasted into RLIMS 
-    """
-    f = open(r'I:/C14Data/C14_blank_corrections_dev/PythonOutput/TW{}_summary.txt'.format(input_name), 'w')
+    # """
+    # Lets write a summary template file which will be pasted into RLIMS
+    # """
+    # f = open(r'I:/C14Data/C14_blank_corrections_dev/PythonOutput/TW{}_summary.txt'.format(input_name), 'w')
 
     print('TW{} measurement:'.format(input_name), file = f)  # writes title
     print("", file = f)

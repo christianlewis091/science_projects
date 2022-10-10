@@ -5,6 +5,8 @@ from PyAstronomy import pyasl
 from blank_corr_functions import long_date_to_decimal_date
 from openpyxl import Workbook
 warnings.simplefilter("ignore")
+import pyinstaller
+
 
 
 """

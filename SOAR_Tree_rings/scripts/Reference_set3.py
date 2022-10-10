@@ -64,6 +64,8 @@ baringhead = baringhead.rename(columns={"DELTA14C": "D14C"})
 baringhead = baringhead.rename(columns={"DELTA14C_ERR": "weightedstderr_D14C"})
 
 reference3 = pd.merge(baringhead, cgo, how='outer')
+reference3 = reference3.loc[(reference3['weightedstderr_D14C'] > 0)]
+
 reference3.sort_values(by=['Decimal_date'], inplace=True)
 reference3.to_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/reference3.xlsx')
 

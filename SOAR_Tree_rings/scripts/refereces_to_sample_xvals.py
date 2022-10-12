@@ -29,7 +29,7 @@ output_xvals = pd.concat([ref2['Decimal_date'], ref3['Decimal_date'], samples['D
 output_xvals = pd.DataFrame({'x': output_xvals}).sort_values(by=['x'], ascending=True).reset_index(drop=True)
 output_xvals_sorted = output_xvals['x']
 output_xvals_sorted.to_excel('testing_sort.xlsx')
-n = 10  # set the amount of times the code will iterate (set to 10,000 once everything is final)
+n = 10000  # set the amount of times the code will iterate (set to 10,000 once everything is final)
 cutoff = 667  # FFT filter cutoff
 
 """

@@ -3,10 +3,11 @@ import numpy as np
 import warnings
 from blank_corr_functions import long_date_to_decimal_date
 warnings.simplefilter("ignore")
-
 """
-This script calculates MCC values for different data types for XCAMS blank correction. 
-This script has been tested to capture the same blanks as the following past wheels: 
+October 10, 2022
+
+This script calculates MCC values for different data types for XCAMS blank correction. This is a copy of the file in 
+this folder called "Iteration3.py" but I'm editing it for more clarity, and this may supersede that file later. 
 
 """
 # ask the user to input the TW# of the current wheel.
@@ -16,10 +17,6 @@ input_name = input("What is the TW of this wheel?")
 df = pd.read_excel(r'I:\C14Data\C14_blank_corrections_dev\TW{}.xlsx'.format(input_name)).dropna(subset='Job::Sample Type From Sample Table').reset_index(drop=True)  # grab the file that has been exported from RLIMS, thanks to Valerie's new button.
 stds_hist = pd.read_excel(r'I:\C14Data\C14_blank_corrections_dev\TW{}standards.xlsx'.format(input_name)).dropna(subset='Date Run').reset_index(drop=True)  # Read in the standards associated with it.
 refs = pd.read_excel(r'I:\C14Data\C14_blank_corrections_dev\Pretreatment_reference.xlsx').dropna(subset='R number to correct from')  # Grab a small file I made that associates samples types to R numbers for correction
-
-# this line checks that no standards in the list are LARGER than the largest TP # in the wheel (can't use future data to correct present wheel (NOT WORKING...)
-# max_TP = max(df['TP'])
-# stds_hist = stds_hist.loc[stds_hist['TP'] < max_TP]
 
 sample_type_list = np.unique(df['Job::Sample Type From Sample Table'])  # saving this list to write to a file later
 
@@ -77,8 +74,6 @@ else:
 This next block of code searches the standards extracted from the database, and find the MCC related to each of the items on my "Pretreatment_reference" excel sheet
 It will find an MCC for all types of standards, even if those are not used on the wheel. This MCC will be referred to later when we add it onto the samples. 
 
-The next few lines that have been commented out are so beacuse it takes the longest to actually load the standard data. When the code is done and dusted, I will uncomment these out
-But for now, it's silly to wait every time to load so much data when I'm working on other parts of the script
 """
 x = stds_hist['Date Run']
 stds_hist['Date Run'] = long_date_to_decimal_date(x)                     # This line converts the dates to "Decimal Date" so that I can find only dates that are 0.5 years max before most recent date
@@ -187,7 +182,7 @@ for k in range(0, len(df)):
 
 if len(not_found) > 0:
     print((f"Sample with type {not_found} could not be matched with a corresponding R number for correction."
-          f"Please add these sample types with corresponding R number in Pretreatment_reference.xlsx and re-run the script"), file = f)
+           f"Please add these sample types with corresponding R number in Pretreatment_reference.xlsx and re-run the script"), file = f)
 
 df['MCC'] = mcc_arr2
 df['MCC_1sigma'] = mcc_1sigma2
@@ -196,16 +191,27 @@ df['Pretreatment type'] = pretreatment
 df['Standards used'] = stds_used
 
 stds_dataframe = stds_dataframe.drop_duplicates(subset = 'TP', keep='first')
+
+df_condensed = df[['TP','MCC', 'MCC_1sigma','Standards used']]
+df_condensed = df_condensed.rename(columns={'MCC': 'rts_bl_av',
+                                            'MCC_1sigma': 'rts_bl_av_error',
+                                            'Standards used': 'TPs Blanks'})
+
+# refs.to_csv(r'I:/C14Data/C14_blank_corrections_dev/MCC_output/TW{}_MCC.csv'.format(input_name))
+# stds_dataframe.to_csv(r'I:/C14Data/C14_blank_corrections_dev/MCC_details/TW{}_MCCdetails.csv'.format(input_name))
+# df.to_csv(r'I:/C14Data/C14_blank_corrections_dev/Output_Results/TW{}_results.csv'.format(input_name))
+df_condensed.to_csv(r'I:/C14Data/C14_blank_corrections_dev/RLIMS_import/TW{}_reimport.csv'.format(input_name))
+
 with pd.ExcelWriter(r'I:/C14Data/C14_blank_corrections_dev/PythonOutput/TW{}_results.xlsx'.format(input_name)) as writer:
 
     # use to_excel function and specify the sheet_name and index
     # to store the dataframe in specified sheet
     refs.to_excel(writer, sheet_name="Current MCCs", index=False)
-    df.to_excel(writer, sheet_name="TW{}_results".format(input_name), index=False)
     stds_dataframe.to_excel(writer, sheet_name="Current MCC Details", index=False)
-    """
-    This next line will write the details of all the stds used for MCC calculation, but I need to clean it up slightly first. 
-    """
+    df.to_excel(writer, sheet_name="TW{}_results".format(input_name), index=False)
+"""
+This next line will write the details of all the stds used for MCC calculation, but I need to clean it up slightly first. 
+"""
 
 # </editor-fold>
 
@@ -221,7 +227,7 @@ print("", file = f)
 print('Primaries:', file = f)
 print('* OX-1 Cathodes', file = f)
 print('_______{} cathodes used'.format(len(primary_standards['TP'])
-                                                        ), file = f)
+                                       ), file = f)
 print('_______All accepted', file = f)
 print("", file = f)
 print('Secondaries:', file = f)

@@ -15,7 +15,6 @@ In this GUI form, the execute button calls a function in "blank_corr_functions" 
 is a literal copy of Iteration3. I only wanted to make a GUI so I can make an executable so someone else can run it.
 
 """
-
 root = Tk()
 
 hello_message = Label(root, text="Blank Correction GUI: Last Updated October 13, 2022 (Author: Christian B. Lewis)")

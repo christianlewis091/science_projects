@@ -35,7 +35,9 @@ neu = neu[['#location', 'sampler_id',
 neu = neu.rename(columns={'weightedstderr_D14C': 'D14Cerr'})
 
 complete_samples = pd.concat([soar, mcq, neu])
+complete_samples = complete_samples.sort_values(by=['Decimal_date'], ascending=True).reset_index(drop=True)
 complete_samples.to_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/complete_samples.xlsx')
 
-plt.scatter(complete_samples['Decimal_date'], complete_samples['D14C'])
-plt.show()
+# print(len(complete_samples))
+# plt.scatter(complete_samples['Decimal_date'], complete_samples['D14C'])
+# plt.show()

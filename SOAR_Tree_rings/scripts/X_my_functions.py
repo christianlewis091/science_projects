@@ -15,7 +15,6 @@ mpl.rcParams['pdf.fonttype'] = 42
 mpl.rcParams['font.size'] = 10
 size1 = 5
 
-
 """
 Writing a quick function to save myself a few lines here...
 arguements: 
@@ -26,6 +25,8 @@ test_type: options are 'paired' or 'not-paired'. Use 'paired' only if there are 
            exact time series
         
 """
+
+
 def intercomparison_ttest(data1, data2, test_name, test_type):
     print(str(test_name))  # Print the name of the thing we're comparing
     if test_type == 'paired':  # set the type of t-test
@@ -116,7 +117,7 @@ def error_plot(x1, y1, z1, x2=None, y2=None, x3=None, y3=None, x4=None, y4=None,
                  capsize=2)
     # if y2 is not None:
     plt.errorbar(x2, y2, yerr=z2, marker='D', label='{}'.format(label2), color=color2, ecolor=color2, elinewidth=1,
-                     capsize=2)
+                 capsize=2)
 
     if y3 is not None:
         plt.errorbar(x3, y3, marker='^', label='{}'.format(label3), color=color3, ecolor=color3, elinewidth=1,
@@ -141,6 +142,7 @@ def error_plot(x1, y1, z1, x2=None, y2=None, x3=None, y3=None, x4=None, y4=None,
         savename),
         dpi=300, bbox_inches="tight")
     plt.close()
+
 
 # IDEA IS THERE BUT NEEDS MORE WORK.
 # def subplot_plot(plot_num, x1, y1, label1=None, color1=None, size1=None, savename=None,
@@ -170,12 +172,15 @@ def error_plot(x1, y1, z1, x2=None, y2=None, x3=None, y3=None, x4=None, y4=None,
 """
 This function will convert FM to D14C. 
 """
+
+
 def d14C_to_fm(D14C, D14C_err, date):
     # D14C = 1000*(fm - 1)   # first, find D14C (without the age correction)
     age_corr = np.exp((1950 - date) / 8267)
     FM = ((D14C / 1000) + 1) / age_corr
     FM_err = D14C_err / 1000
     return FM, FM_err
+
 
 # TO TEST, RUN THE CODE BELOW.
 # df = pd.read_excel(r'H:\The Science\Datasets\function_testing.xlsx')  # import Baring Head data
@@ -192,10 +197,12 @@ def d14C_to_fm(D14C, D14C_err, date):
 """
 This function will convert FM to D14C. 
 """
+
+
 def fm_to_d14c(fm, fm_err, date):
     # D14C = 1000*(fm - 1)   # first, find D14C (without the age correction)
     age_corr = np.exp((1950 - date) / 8267)
-    Del14C = 1000 * ((fm*age_corr) - 1)
+    Del14C = 1000 * ((fm * age_corr) - 1)
     Del14C_err = 1000 * fm_err
     return Del14C, Del14C_err
 
@@ -429,6 +436,7 @@ def monte_carlo_randomization_trend(x_init, fake_x, y_init, y_error, cutoff, n):
 
     return randomized_dataframe, smoothed_dataframe, summary
 
+
 """
 ######################################################################################################################
 ######################################################################################################################
@@ -438,6 +446,7 @@ RETIRED FUNCTIONS NO LONGER IN USE
 ######################################################################################################################
 ######################################################################################################################
 """
+
 
 def basic_analysis(x, y, name1, name2):
     # compute data for individual datasets
@@ -459,6 +468,7 @@ def basic_analysis(x, y, name1, name2):
     table2 = (tabulate(data, headers=["Label", "Average", "Std Error / Prop Error"]))
     df = pd.DataFrame(data=data)
     return df
+
 
 """
 This function does a paired two-tail t-test. The t-value range comes from the stdev_array in the
@@ -576,139 +586,124 @@ def two_tail_paired_t_test(y1, y1err, y2, y2err):
     return result
 
 
+"""
+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+PLOTTING FUNCTIONS
+"""
+"""Setup some colors for later"""
+# https://colorbrewer2.org/#type=sequential&scheme=BuGn&n=3
+# Skyblue to distant mountain green
+a1, a2, a3, a4, a5, a6 = '#253494','#7fcdbb','#2c7fb8','#c7e9b4','#41b6c4','#ffffcc'
+c1, c2, c3 = '#ece2f0', '#a6bddb', '#1c9099'
+d1, d2 = '#ef8a62', '#67a9cf'
+size1 = 10
 
-# def year_month_todecimaldate(x, y):
-#     L = np.linspace(0, 1, 365)
-#     # add the number that is 1/2 of the previous month plus the current month
-#     Jan = 31
-#     Feb = (28 / 2) + 31
-#     Mar = (31 / 2) + 31 + 28
-#     Apr = (30 / 2) + 31 + 28 + 31
-#     May = (31 / 2) + 31 + 28 + 31 + 30
-#     June = (30 / 2) + 31 + 28 + 31 + 30 + 31
-#     July = (31 / 2) + 31 + 28 + 31 + 30 + 31 + 30
-#     August = (31 / 2) + 31 + 28 + 31 + 30 + 31 + 30 + 31
-#     Sep = (30 / 2) + 31 + 28 + 31 + 30 + 31 + 30 + 31 + 31
-#     Oct = (31 / 2) + 31 + 28 + 31 + 30 + 31 + 30 + 31 + 31 + 30
-#     Nov = (30 / 2) + 31 + 28 + 31 + 30 + 31 + 30 + 31 + 31 + 30 + 30
-#     Dec = (31 / 2) + 31 + 28 + 31 + 30 + 31 + 30 + 31 + 31 + 30 + 30 + 30
-#     empty_array = []
-#     for i in range(0, len(x)):
-#         r = x[i]
-#         if y[i] == 1:
-#             r = x[i] + L[int(Jan)]
-#         elif y[i] == 2:
-#             r = x[i] + L[int(Feb)]
-#         elif y[i] == 3:
-#             r = x[i] + L[int(Mar)]
-#         elif y[i] == 4:
-#             r = x[i] + L[int(Apr)]
-#         elif y[i] == 5:
-#             r = x[i] + L[int(May)]
-#         elif y[i] == 6:
-#             r = x[i] + L[int(June)]
-#         elif y[i] == 7:
-#             r = x[i] + L[int(July)]
-#         elif y[i] == 8:
-#             r = x[i] + L[int(August)]
-#         elif y[i] == 9:
-#             r = x[i] + L[int(Sep)]
-#         elif y[i] == 10:
-#             r = x[i] + L[int(Oct)]
-#         elif y[i] == 11:
-#             r = x[i] + L[int(Nov)]
-#         elif y[i] == 12:
-#             r = x[i] + L[int(Dec)]
-#         empty_array.append(r)
-#
-#     return empty_array
+"""
+can plot ONE line plot, and up to 4 overlaid scatters
+"""
 
-# """
-# The following function should determine monthly averages for a dataset.
-# It will output these monthly averages along with a decimal date being the first decimal of that month.
-# """
-#
-#
-# def monthly_averages(x_values, y_values, y_err):
-#     x_values = np.array(x_values)
-#     y_values = np.array(y_values)
-#     y_err = np.array(y_err)
-#
-#     Begin = 0
-#     Jan = 31
-#     Feb = 28 + 31
-#     Mar = 31 + 31 + 28
-#     Apr = 30 + 31 + 28 + 31
-#     May = 31 + 31 + 28 + 31 + 30
-#     June = 30 + 31 + 28 + 31 + 30 + 31
-#     July = 31 + 31 + 28 + 31 + 30 + 31 + 30
-#     August = 31 + 31 + 28 + 31 + 30 + 31 + 30 + 31
-#     Sep = 30 + 31 + 28 + 31 + 30 + 31 + 30 + 31 + 31
-#     Oct = 31 + 31 + 28 + 31 + 30 + 31 + 30 + 31 + 31 + 30
-#     Nov = 30 + 31 + 28 + 31 + 30 + 31 + 30 + 31 + 31 + 30 + 30
-#     Dec = 31 + 31 + 28 + 31 + 30 + 31 + 30 + 31 + 31 + 30 + 30 + 30
-#     months = np.array([Begin, Jan, Feb, Mar, Apr, May, June, July, August, Sep, Oct, Nov, Dec])
-#     months = months / 365
-#
-#     # first, enter the available years on file:
-#     lin1 = np.linspace(int(min(x_values)),
-#                        int(max(x_values)),
-#                        (int(max(x_values)) - int(min(x_values)) + 1))
-#
-#     # initialize some vars
-#     mean_of_date = 0
-#     mean_of_y = 0
-#
-#     permarray_x = []
-#     permarray_y = []
-#     permarray_z = []
-#     for i in range(0, len(lin1)):  # loop in the years
-#         year = int(lin1[i])  # grab only the integer parts of the years in the data
-#
-#         for j in range(0, len(months)):  # loop in the months
-#
-#             temparray_x = []
-#             temparray_y = []
-#             temparray_z = []
-#             # print('The current month is ' + str(months[j]) + 'in year ' + str(year))
-#             months_min = months[j]
-#             # TODO fix this line of code to filter between one month and the next more accurately
-#             months_max = months_min + 0.08
-#
-#             for k in range(0, len(y_values)):  # grab the data i want to use
-#                 y_current = y_values[k]
-#                 x_current = x_values[k]
-#                 z_current = y_err[k]
-#                 x_decimal_only = x_current - int(x_current)
-#                 x_int = int(x_current)
-#                 # if my data exists in the time frame I'm currently searching through,
-#                 if (x_int == year) and (x_decimal_only >= months_min) and (x_decimal_only < months_max):
-#                     # append that x and y data to initialized arrays
-#                     temparray_x.append(x_int + months_min)
-#                     temparray_y.append(y_current)
-#                     temparray_z.append(z_current)
-#
-#             # if at the end of the month, the length of the temporary arrays are non-zero,
-#             # clean and append that information to a permanent array
-#             if len(temparray_x) != 0:
-#                 tempsum = sum(temparray_x)
-#                 tempmean = tempsum / len(temparray_x)  # this works fine because it averages the same # repeatedly
-#
-#                 tempsum2 = sum(temparray_y)
-#                 tempmean2 = tempsum2 / len(temparray_y)
-#
-#                 tempsum3 = sum(temparray_z)                  # todo change from simple averaging of error to proper prop
-#                 tempmean3 = tempsum3 / len(temparray_z)
-#
-#                 permarray_x.append(tempmean)
-#                 permarray_y.append(tempmean2)
-#                 permarray_z.append(tempmean3)
-#                 # print(permarray_x)
-#                 # print(permarray_y)
-#
-#             # else:
-#             #     permarray_x.append(x_int + months_min)
-#             #     permarray_y.append(-999)
-#
-#     return permarray_x, permarray_y, permarray_z
-#
+
+def plotfunc_line(px1, py1, label_p1=None, color_p1=a1, alpha_p1=None,
+                  sx1=None, sy1=None, label_s1=None, color_s1=a2, alpha_s1=None, marker_s1='o', size1=None,
+                  sx2=None, sy2=None, label_s2=None, color_s2=a3, alpha_s2=None, marker_s2='D',
+                  sx3=None, sy3=None, label_s3=None, color_s3=a4, alpha_s3=None, marker_s3='x',
+                  sx4=None, sy4=None, label_s4=None, color_s4=a5, alpha_s4=None, marker_s4='^',
+                  xmin=None, xmax=None, ymin=None, ymax=None,
+                  ylab='\u0394$^1$$^4$CO$_2$ (\u2030)', xlab='Date', name='unnamed'):
+    plt.plot(px1, py1, label='{}'.format(label_p1), color=color_p1, alpha=alpha_p1)
+    plt.scatter(sx1, sy1, label='{}'.format(label_s1), color=color_s1, alpha=alpha_s1, marker=marker_s1, s=size1)
+    plt.scatter(sx2, sy2, label='{}'.format(label_s2), color=color_s2, alpha=alpha_s2, marker=marker_s2, s=size1)
+    plt.scatter(sx3, sy3, label='{}'.format(label_s3), color=color_s3, alpha=alpha_s3, marker=marker_s3, s=size1)
+    plt.scatter(sx4, sy4, label='{}'.format(label_s4), color=color_s4, alpha=alpha_s4, marker=marker_s4, s=size1)
+    plt.xlim([xmin, xmax])
+    plt.ylim([ymin, ymax])
+    plt.xlabel(xlab, fontsize=14)
+    plt.ylabel(ylab, fontsize=14)  # label the y axis
+    plt.savefig('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/{0}.png'.format(name),
+                dpi=300, bbox_inches="tight")
+    plt.close()
+
+
+"""
+can plot up to 4 overlaid scatters
+"""
+
+
+def plotfunc_scat(sx1, sy1, label_s1=None, color_s1=a1, alpha_s1=None, marker_s1='o', size1=None,
+                  sx2=None, sy2=None, label_s2=None, color_s2=a2, alpha_s2=None, marker_s2='D',
+                  sx3=None, sy3=None, label_s3=None, color_s3=a3, alpha_s3=None, marker_s3='x',
+                  sx4=None, sy4=None, label_s4=None, color_s4=a4, alpha_s4=None, marker_s4='^',
+                  xmin=None, xmax=None, ymin=None, ymax=None,
+                  ylab='\u0394$^1$$^4$CO$_2$ (\u2030)', xlab='Date', name='unnamed'):
+    plt.scatter(sx1, sy1, label='{}'.format(label_s1), color=color_s1, alpha=alpha_s1, marker=marker_s1, s=size1)
+    plt.scatter(sx2, sy2, label='{}'.format(label_s2), color=color_s2, alpha=alpha_s2, marker=marker_s2, s=size1)
+    plt.scatter(sx3, sy3, label='{}'.format(label_s3), color=color_s3, alpha=alpha_s3, marker=marker_s3, s=size1)
+    plt.scatter(sx4, sy4, label='{}'.format(label_s4), color=color_s4, alpha=alpha_s4, marker=marker_s4, s=size1)
+    plt.xlim([xmin, xmax])
+    plt.ylim([ymin, ymax])
+    plt.xlabel(xlab, fontsize=14)
+    plt.ylabel(ylab, fontsize=14)  # label the y axis
+    plt.savefig('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/{0}.png'.format(name),
+                dpi=300, bbox_inches="tight")
+    plt.close()
+
+
+"""
+can plot ONE line plot, and up to 4 overlaid scatters
+"""
+
+
+def plotfunc_2line(px1, py1, px2, py2,
+                   label_p1=None, color_p1=a1, alpha_p1=None,
+                   label_p2=None, color_p2=a2, alpha_p2=None, size1=None,
+                   sx1=None, sy1=None, label_s1=None, color_s1=a3, alpha_s1=None, marker_s1='o',
+                   sx2=None, sy2=None, label_s2=None, color_s2=a4, alpha_s2=None, marker_s2='D',
+                   sx3=None, sy3=None, label_s3=None, color_s3=a5, alpha_s3=None, marker_s3='x',
+                   sx4=None, sy4=None, label_s4=None, color_s4=a6, alpha_s4=None, marker_s4='^',
+                   xmin=None, xmax=None, ymin=None, ymax=None,
+                   ylab='\u0394$^1$$^4$CO$_2$ (\u2030)', xlab='Date', name='unnamed'):
+    plt.plot(px1, py1, label='{}'.format(label_p1), color=color_p1, alpha=alpha_p1)
+    plt.plot(px2, py2, label='{}'.format(label_p2), color=color_p2, alpha=alpha_p2)
+    plt.scatter(sx1, sy1, label='{}'.format(label_s1), color=color_s1, alpha=alpha_s1, marker=marker_s1, s=size1)
+    plt.scatter(sx2, sy2, label='{}'.format(label_s2), color=color_s2, alpha=alpha_s2, marker=marker_s2, s=size1)
+    plt.scatter(sx3, sy3, label='{}'.format(label_s3), color=color_s3, alpha=alpha_s3, marker=marker_s3, s=size1)
+    plt.scatter(sx4, sy4, label='{}'.format(label_s4), color=color_s4, alpha=alpha_s4, marker=marker_s4, s=size1)
+    plt.xlim([xmin, xmax])
+    plt.ylim([ymin, ymax])
+    plt.xlabel(xlab, fontsize=14)
+    plt.ylabel(ylab, fontsize=14)  # label the y axis
+    plt.savefig('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/{0}.png'.format(name),
+                dpi=300, bbox_inches="tight")
+    plt.close()
+
+
+"""
+can plot up to 4 overlaid scatters
+"""
+
+
+def plotfunc_error(sx1, sy1, sz1, xmin=None, xmax=None, ymin=None, ymax=None,
+                   ylab='\u0394$^1$$^4$CO$_2$ (\u2030)', xlab='Date', name='unnamed'):
+
+    plt.errorbar(sx1, sy1, yerr=sz1, fmt='o', color=a1, ecolor=a1, elinewidth=1, capsize=2, label='RRL NWT3')
+    fig = plt.figure(1, figsize=(16.1, 10))
+    plt.xlim([xmin, xmax])
+    plt.ylim([ymin, ymax])
+    plt.xlabel(xlab, fontsize=14)
+    plt.ylabel(ylab, fontsize=14)  # label the y axis
+    plt.savefig('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/{0}.png'.format(name),
+                dpi=300, bbox_inches="tight")
+    plt.close()
+
+
+

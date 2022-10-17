@@ -1,7 +1,10 @@
 """
+October 17, 2022
+Data outputs properly, but the final trended line isn't really smooth at all. The trended lines should be really smooth,
+free of jagged peaks. Have I actually used smooth instead of trend? I do both...
+
 October 14, 2022
 Still troubleshooting the data output here, dates are coming out funky I think because of scrambling along indexes
-
 
 October 10, 2022
 

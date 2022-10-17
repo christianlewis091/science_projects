@@ -436,8 +436,8 @@ def blank_corr_101322(input_name, date_bound_input, num_list):
     stds_dataframe = stds_dataframe.drop_duplicates(subset = 'TP', keep='first')
 
     df_condensed = df[['TP','MCC', 'MCC_1sigma','Standards used']]
-    df_condensed = df_condensed.rename(columns={'MCC': 'rts_bl_av',
-                                                'MCC_1sigma': 'rts_bl_av_error',
+    df_condensed = df_condensed.rename(columns={'MCC': 'Blank rts assigned',
+                                                'MCC_1sigma': 'Blank rts err assigned',
                                                 'Standards used': 'TPs Blanks'})
 
     # refs.to_csv(r'I:/C14Data/C14_blank_corrections_dev/MCC_output/TW{}_MCC.csv'.format(input_name))

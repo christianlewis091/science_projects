@@ -387,9 +387,11 @@ def blank_corr_101322(input_name, date_bound_input, num_list):
     not_found = []
 
     df = df.loc[(df['Description from Sample'] != 'Kapuni CO2 cylinder')]  # remove the Kapuni and the sucrose
-    df = df.loc[(df['Description from Sample'] != 'ANU Sucrose - IAEA C6')]
+    # df = df.loc[(df['Description from Sample'] != 'ANU Sucrose - IAEA C6')] # putting the sucrose back in.
     df = df.loc[(df['Category In Calculation'] != 'Background Test')]
     df = df.loc[(df['Category In Calculation'] != 'Background Inorganic')]
+    df = df.loc[(df['Category In Calculation'] != 'Background Organic')]
+    df = df.loc[(df['Category In Calculation'] != 'Background Air')]
     df = df.loc[(df['Job::Sample Type From Sample Table'] != 'other organic material')]
 
     for k in range(0, len(df)):

@@ -2,9 +2,14 @@
 # # https://www.youtube.com/watch?v=YXPyB4XeYLA&t=2640s&ab_channel=freeCodeCamp.org
 from tkinter import *
 from tkinter import ttk
-from blank_corr_functions import blank_corr_normal, blank_corr_101322
+from blank_corr_functions import blank_corr_101322
 
 """
+Update: October 17, 2022
+Blank_corr_101322 has been updated to also EXCLUDE anything with category Background Inorganic. 
+Blank_corr_101322 has been updated to have MCC error as 45% of MCC value.
+Blank_corr_101322 has been updated to have OXALICS MCC set to 0. 
+
 Update: October 13, 2022
 It seems I can't turn the script "BlankCorrection_101022.py" into an exe file without actully wrapping it up into
 a GUI. That's fine I can do that here. Will try that today. 

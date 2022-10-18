@@ -5,6 +5,18 @@ from tkinter import ttk
 from blank_corr_functions import blank_corr_101322
 
 """
+Update: October 19, 2022
+I've begun building the second iteration of the blank correction code. 
+This next iteration of the blank correction function was initiated after a conversation with Margaret, Cathy, and Jenny, 
+as well as after TW3435 to resolve multiple issues with the initial script. 
+1. We really need to deal directly with the pretreatment Process list, rather than assuming the same pretreatment 
+for any given material, because for example, Wood treated with AAA and not cellulose is prone to manual error, which 
+this entire excercise is meant to avoid. 
+2. It would be helpful for Jenny Cathy and Margaret if the blanks that were used were deposited into the Blank Values 
+Used Table, so it looks like it always did before. 
+3. I need to slightly reformat the .txt file writing to suit what Jenny and Cathy look for, which is a more itemized list
+of certain types of metadata (see binder)
+
 Update: October 17, 2022
 Blank_corr_101322 has been updated to also EXCLUDE anything with category Background Inorganic, Background Organic, and Background Air. 
 Blank_corr_101322 has been updated to have MCC error as 45% of MCC value.

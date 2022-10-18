@@ -262,22 +262,12 @@ plt.close()
 
 
 
-fig = plt.figure(4, figsize=(10, 12.5))
-gs = gridspec.GridSpec(2, 2)
-gs.update(wspace=.15, hspace=0)
 
-xtr_subsplot = fig.add_subplot(gs[0:1, 0:2])
-plt.errorbar(lats, mean_array_ref2, std_error_array_ref2, fmt='o', color=ch1, ecolor=ch1, elinewidth=1, capsize=2, alpha = alph, label='R2')
-plt.errorbar(lats, mean_array_ref3, std_error_array_ref3, fmt='o', color=ch2, ecolor=ch2, elinewidth=1, capsize=2, alpha = alph, label='R3')
-plt.xticks([])
-plt.ylabel('Average Difference from Reference', fontsize=14)  # label the y axis
-
-xtr_subsplot = fig.add_subplot(gs[1:2, 0:2])
+fig = plt.figure()
 plt.errorbar(lats, mean_array_ref2, stdevr1, fmt='o', color=ch1, ecolor=ch1, elinewidth=1, capsize=2, alpha = alph, label='R2')
 plt.errorbar(lats, mean_array_ref3, stdevr2, fmt='o', color=ch2, ecolor=ch2, elinewidth=1, capsize=2, alpha = alph, label='R3')
 plt.xlabel('Latitude', fontsize=14)  # label the y axis
 plt.ylabel('Average Difference from Reference', fontsize=14)  # label the y axis
-
 plt.savefig('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/plot3.png',
             dpi=300, bbox_inches="tight")
 plt.close()

@@ -2,7 +2,7 @@
 # # https://www.youtube.com/watch?v=YXPyB4XeYLA&t=2640s&ab_channel=freeCodeCamp.org
 from tkinter import *
 from tkinter import ttk
-from blank_corr_functions import blank_corr_101322
+from blank_corr_functions import blank_corr_101922
 
 """
 Update: October 19, 2022
@@ -70,7 +70,7 @@ def execute():
     value2 = value2.split()  # This line takes the input from the "Standards you don't want" box and splits it into a list, but a string-list
     value2 = list(value2)   # this takes it from a string list to a list
 
-    x = blank_corr_101322(value1, value3, value2)  # This calls the function written in Iteration4 which actually runs the script.
+    x = blank_corr_101922(value1, value3, value2)  # This calls the function written in Iteration4 which actually runs the script.
     print(x)
 
     end_message = Label(root, text="Done! Please check I:\C14Data\C14_blank_corrections_dev\PythonOutput for your data. ")

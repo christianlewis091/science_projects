@@ -1,11 +1,10 @@
-from Pre_Processing_Heidelberg import combine_heidelberg
-import numpy as np
+"""
+"""
+import pandas as pd
 
-baringhead = combine_heidelberg.loc[(combine_heidelberg['Site'] == 'BHD')]
-print(len(baringhead))
+df = pd.read_excel(r'I:\C14Data\C14_blank_corrections_dev\TW3435.xlsx').reset_index(drop=True)
+df_pres = pd.read_excel(r'I:\C14Data\C14_blank_corrections_dev\TW3435_PreTreatments.xlsx').reset_index(drop=True)
 
-baringhead = baringhead.loc[(baringhead['Decimal_date'] != 1990.0534)]
-print(len(baringhead))
-
-
-testing2 = baringhead.loc[(baringhead['Decimal_date'].between(1990, 1993)) & (baringhead['METH_COLL'] == 'NaOH_static')]
+merged = pd.merge(df, df_pres, on='Job', how='outer')
+print(merged)
+merged.to_excel(r'I:\C14Data\C14_blank_corrections_dev\mergetest.xlsx')

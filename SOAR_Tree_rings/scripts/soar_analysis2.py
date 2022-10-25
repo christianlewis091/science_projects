@@ -12,9 +12,8 @@ chile = df_2.loc[df_2['Country'] == 0]
 nz = df_2.loc[df_2['Country'] == 1]
 ant = df_2.loc[df_2['Country'] == 2]
 
-
 def analysis1(df, year):
-    df = df.loc[(df['Decimal_date'] < year) & (df['Decimal_date'] >= (year-10))]
+    df = df.loc[(df['Decimal_date'] < year) & (df['Decimal_date'] >= (year - 10))]
     b1 = df.loc[(df['NewLat'] > - 40) & (df['NewLat'] <= - 39)]
     b2 = df.loc[(df['NewLat'] > - 42) & (df['NewLat'] < - 40)]
     b3 = df.loc[(df['NewLat'] > - 44.25) & (df['NewLat'] < - 43)]
@@ -30,7 +29,7 @@ def analysis1(df, year):
     # now we find the summary data based on each
     # (This loop finds the mean and standard deviation of the b1-b9 above, and links it to a lat lon
     datas = [b1, b2, b3, b4, b5, b6, b7, b8, b9, b10]
-    lats = [-40, -42, -44, -47, -48, -53, -54, -55, -60, -75] # The MAX LAT
+    lats = [-40, -42, -44, -47, -48, -53, -54, -55, -60, -75]  # The MAX LAT
     mean_array_ref2 = []
     std_error_array_ref2 = []
     mean_array_ref3 = []
@@ -51,7 +50,9 @@ def analysis1(df, year):
 
     results = pd.DataFrame(
         {"Lat": lats, "Mean_r2": mean_array_ref2, "Mean_r3": mean_array_ref3, "stdev_r2": stdev1, "stdev_r3": stdev2})
+    results['Year'] = year
     return results
+
 
 chileresults = pd.DataFrame()
 nzresults = pd.DataFrame()
@@ -65,16 +66,19 @@ for year in years:
     chileresults = pd.concat([chileresults, chile_an])
     nzresults = pd.concat([nzresults, nz_an])
     antresults = pd.concat([antresults, ant_an])
-# chile_an = analysis1(chile, 2000)
-# chileresults = pd.concat([chileresults, chile_an])
-# chile_an = analysis1(chile, 2010)
-# chileresults = pd.concat([chileresults, chile_an])
-# chile_an = analysis1(chile, 2020)
-# chileresults = pd.concat([chileresults, chile_an])
 
-print(chileresults)
-# nz_an = analysis1(nz)
-# ant_an = analysis1(ant)
+
+chileresults = chileresults.dropna(subset="Mean_r2")
+nzresults = nzresults.dropna(subset="Mean_r2")
+antresults  = antresults .dropna(subset="Mean_r2")
+
+# with pd.ExcelWriter(r'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/soar_time_series.xlsx') as writer:
+#
+#     # use to_excel function and specify the sheet_name and index
+#     # to store the dataframe in specified sheet
+#     chileresults.to_excel(writer, sheet_name="Chile", index=False)
+#     nzresults.to_excel(writer, sheet_name="NewZealand", index=False)
+#     antresults.to_excel(writer, sheet_name="Antarctica", index=False)
 
 
 
@@ -94,62 +98,85 @@ PLOTTING FUNCTIONS
 """
 # https://colorbrewer2.org/#type=sequential&scheme=BuGn&n=3
 # Skyblue to distant mountain green
-a1, a2, a3, a4, a5, a6 = '#253494', '#7fcdbb', '#2c7fb8', '#c7e9b4', '#41b6c4', '#ffffcc'
-c1, c2, c3 = '#ece2f0', '#a6bddb', '#1c9099'
-d1, d2 = '#ef8a62', '#67a9cf'
-size1 = 10
+a1, a2, a3, a4, a5, a6 = '#d73027', '#fee090', '#abd9e9', '#4575b4', '#41b6c4', '#ffffcc'
+# c1, c2, c3 = '#ece2f0', '#a6bddb', '#1c9099'
+# d1, d2 = '#ef8a62', '#67a9cf'
+# size1 = 10
 ch1 = 'red'
 ch2 = a3
 ch3 = 'black'
 alph = .9
 
-fig = plt.figure()
 
-plt.errorbar(chile_an['Lat'], chile_an['Mean_r2'], chile_an['stdev_r2'], fmt='o', color=ch1, ecolor=ch1, elinewidth=1, capsize=2, alpha=1, label='Chile_R2')
-plt.errorbar(chile_an['Lat'], chile_an['Mean_r3'], chile_an['stdev_r3'], fmt='o', color=ch1, ecolor=ch1, elinewidth=1, capsize=2, alpha=.5, label='Chile_R3')
+sp1 = chileresults.loc[chileresults['Year'] == 1990]
+sp2 = chileresults.loc[chileresults['Year'] == 2000]
+sp3 = chileresults.loc[chileresults['Year'] == 2010]
+sp4 = chileresults.loc[chileresults['Year'] == 2020]
 
-plt.errorbar(nz_an['Lat'], nz_an['Mean_r2'], nz_an['stdev_r2'], fmt='D', color=ch2, ecolor=ch2, elinewidth=1, capsize=2, alpha=1, label='NZ_R2')
-plt.errorbar(nz_an['Lat'], nz_an['Mean_r3'], nz_an['stdev_r3'], fmt='D', color=ch2, ecolor=ch2, elinewidth=1, capsize=2, alpha=0.5, label='NZ_R3')
+fig = plt.figure(4, figsize=(12, 4))
+gs = gridspec.GridSpec(2, 6)
+gs.update(wspace=.35, hspace=.25)
 
-plt.errorbar(ant_an['Lat'], ant_an['Mean_r2'], ant_an['stdev_r2'], fmt='X', color=ch3, ecolor=ch3, elinewidth=1, capsize=2, alpha=1, label='ANT_R2')
-plt.errorbar(ant_an['Lat'], ant_an['Mean_r3'], ant_an['stdev_r3'], fmt='X', color=ch3, ecolor=ch3, elinewidth=1, capsize=2, alpha=.5, label='ANT_R3')
+xtr_subsplot = fig.add_subplot(gs[0:2, 0:2])
+plt.title('Chile')
+
+plt.errorbar(sp1['Lat'], sp1['Mean_r2'], sp1['stdev_r2'], fmt='o', color=a1, ecolor=a1, elinewidth=1, capsize=2, alpha=alph, label='1980 - 1990')
+plt.plot(sp1['Lat'], sp1['Mean_r2'], color=a1)
+
+plt.errorbar(sp2['Lat'], sp2['Mean_r2'], sp2['stdev_r2'], fmt='D', color=a2, ecolor=a2, elinewidth=1, capsize=2, alpha=alph, label='1990 - 2000')
+plt.plot(sp2['Lat'], sp2['Mean_r2'], color=a2)
+
+plt.errorbar(sp3['Lat'], sp3['Mean_r2'], sp3['stdev_r2'], fmt='X', color=a3, ecolor=a3, elinewidth=1, capsize=2, alpha=alph, label='2000 - 2010')
+plt.plot(sp3['Lat'], sp3['Mean_r2'], color=a3)
+
+plt.errorbar(sp4['Lat'], sp4['Mean_r2'], sp4['stdev_r2'], fmt='^', color=a4, ecolor=a4, elinewidth=1, capsize=2, alpha=alph, label='2010 - 2020')
+plt.plot(sp4['Lat'], sp4['Mean_r2'], color=a4)
+plt.ylim(-12, 8)
+plt.xlim(-60, -35)
+
+
+xtr_subsplot = fig.add_subplot(gs[0:2, 2:4])
+plt.title('New Zealand')
+sp1 = nzresults.loc[nzresults['Year'] == 1990]
+plt.errorbar(sp1['Lat'], sp1['Mean_r2'], sp1['stdev_r2'], fmt='o', color=a1, ecolor=a1, elinewidth=1, capsize=2, alpha=alph, label='1980 - 1990')
+plt.plot(sp1['Lat'], sp1['Mean_r2'], color=a1)
+
+sp2 = nzresults.loc[nzresults['Year'] == 2000]
+plt.errorbar(sp2['Lat'], sp2['Mean_r2'], sp2['stdev_r2'], fmt='D', color=a2, ecolor=a2, elinewidth=1, capsize=2, alpha=alph, label='1990 - 2000')
+plt.plot(sp2['Lat'], sp2['Mean_r2'], color=a2)
+
+sp3 = nzresults.loc[nzresults['Year'] == 2010]
+plt.errorbar(sp3['Lat'], sp3['Mean_r2'], sp3['stdev_r2'], fmt='X', color=a3, ecolor=a3, elinewidth=1, capsize=2, alpha=alph, label='2000 - 2010')
+plt.plot(sp3['Lat'], sp3['Mean_r2'], color=a3)
+
+sp4 = nzresults.loc[nzresults['Year'] == 2020]
+plt.errorbar(sp4['Lat'], sp4['Mean_r2'], sp4['stdev_r2'], fmt='^', color=a4, ecolor=a4, elinewidth=1, capsize=2, alpha=alph, label='2010 - 2020')
+plt.plot(sp4['Lat'], sp4['Mean_r2'], color=a4)
+plt.ylim(-12, 8)
+plt.xlim(-60, -35)
+
+
+xtr_subsplot = fig.add_subplot(gs[0:2, 4:6])
+plt.title('Antarctica')
+sp1 = antresults.loc[antresults['Year'] == 1990]
+plt.errorbar(sp1['Lat'], sp1['Mean_r2'], sp1['stdev_r2'], fmt='o', color=a1, ecolor=a1, elinewidth=1, capsize=2, alpha=alph, label='1980 - 1990')
+plt.plot(sp1['Lat'], sp1['Mean_r2'], color=a1)
+
+sp2 = antresults.loc[antresults['Year'] == 2000]
+plt.errorbar(sp1['Lat'], sp1['Mean_r2'], sp1['stdev_r2'], fmt='D', color=a2, ecolor=a2, elinewidth=1, capsize=2, alpha=alph, label='1990 - 2000')
+plt.plot(sp2['Lat'], sp2['Mean_r2'], color=a2)
+
+sp3 = antresults.loc[antresults['Year'] == 2010]
+plt.errorbar(sp3['Lat'], sp3['Mean_r2'], sp3['stdev_r2'], fmt='X', color=a3, ecolor=a3, elinewidth=1, capsize=2, alpha=alph, label='2000 - 2010')
+plt.plot(sp3['Lat'], sp3['Mean_r2'], color=a3)
+
+sp4 = antresults.loc[antresults['Year'] == 2020]
+plt.errorbar(sp4['Lat'], sp4['Mean_r2'], sp4['stdev_r2'], fmt='^', color=a4, ecolor=a4, elinewidth=1, capsize=2, alpha=alph, label='2010 - 2020')
+plt.plot(sp4['Lat'], sp4['Mean_r2'], color=a4)
+plt.ylim(-12, 8)
+plt.xlim(-76, -70)
 plt.legend()
-plt.ylabel('Difference From Reference', fontsize=14)  # label the y axis
-plt.xlabel('Latitude', fontsize=14)  # label the y axis
 plt.savefig('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/plot4.png',
             dpi=300, bbox_inches="tight")
 plt.close()
 
-
-
-
-
-# fig = plt.figure(4, figsize=(12, 4))
-# gs = gridspec.GridSpec(2, 6)
-# gs.update(wspace=.35, hspace=.25)
-#
-# xtr_subsplot = fig.add_subplot(gs[0:2, 0:2])
-# plt.title('Chilean Sampling Sites')
-# plt.errorbar(chile_an['Lat'], chile_an['Mean_r2'], chile_an['stdev_r2'], fmt='o', color=ch1, ecolor=ch1, elinewidth=1, capsize=2, alpha=alph, label='R2')
-# plt.errorbar(chile_an['Lat'], chile_an['Mean_r3'], chile_an['stdev_r3'], fmt='o', color=ch2, ecolor=ch2, elinewidth=1, capsize=2, alpha=alph, label='R2')
-#
-#
-# plt.xlabel('Latitude', fontsize=14)  # label the y axis
-#
-#
-# xtr_subsplot = fig.add_subplot(gs[0:2, 2:4])
-# plt.title('NZ Sampling Sites')
-# plt.errorbar(nz_an['Lat'], nz_an['Mean_r2'], nz_an['stdev_r2'], fmt='o', color=ch1, ecolor=ch1, elinewidth=1, capsize=2, alpha=alph, label='R2')
-# plt.errorbar(nz_an['Lat'], nz_an['Mean_r3'], nz_an['stdev_r3'], fmt='o', color=ch2, ecolor=ch2, elinewidth=1, capsize=2, alpha=alph, label='R2')
-# plt.xlabel('Latitude', fontsize=14)  # label the y axis
-#
-#
-# xtr_subsplot = fig.add_subplot(gs[0:2, 4:6])
-# plt.title('Antarctic Sampling Sites (Neumayer Station)')
-# plt.errorbar(ant_an['Lat'], ant_an['Mean_r2'], ant_an['stdev_r2'], fmt='o', color=ch1, ecolor=ch1, elinewidth=1, capsize=2, alpha=alph, label='R2')
-# plt.errorbar(ant_an['Lat'], ant_an['Mean_r3'], ant_an['stdev_r3'], fmt='o', color=ch2, ecolor=ch2, elinewidth=1, capsize=2, alpha=alph, label='R2')
-# plt.xlabel('Latitude', fontsize=14)  # label the y axis
-
-# plt.savefig('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/plot4.png',
-#             dpi=300, bbox_inches="tight")
-# plt.close()

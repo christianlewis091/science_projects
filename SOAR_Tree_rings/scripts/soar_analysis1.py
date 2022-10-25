@@ -9,9 +9,9 @@ df = pd.read_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/samp
 ref2 = pd.read_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/harmonized_dataset.xlsx')
 ref3 = pd.read_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/reference3.xlsx')
 
-df = df.loc[df['Decimal_date'] > 1980]
-ref2 = ref2.loc[ref2['Decimal_date'] > 1980]
-ref3 = ref3.loc[ref3['Decimal_date'] > 1980]
+df = df.loc[df['Decimal_date'] > 1980].reset_index(drop=True)
+ref2 = ref2.loc[ref2['Decimal_date'] > 1980].reset_index(drop=True)
+ref3 = ref3.loc[ref3['Decimal_date'] > 1980].reset_index(drop=True)
 # I need to drop the index column in order to drop some duplicates that made their way through
 df = df[['Ring code', 'R number', 'Site', 'F14C',
          'F14Cerr', 'Decimal_date', 'D14C', 'D14Cerr', 'Lat', 'Lon', '#location',
@@ -74,7 +74,7 @@ df['Country'] = country_array
 # print(len(test))
 # x_0 = len(df)
 # some duplicates were able to slide through from initial dataset from Jocelyn, through cleaning process, to here
-df = df.drop_duplicates()
+df = df.drop_duplicates().reset_index(drop=True)
 # x_1 = len(df)
 # dx = x_0-x_1
 # print(x_0)

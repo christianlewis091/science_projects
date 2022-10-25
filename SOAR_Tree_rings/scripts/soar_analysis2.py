@@ -13,7 +13,8 @@ nz = df_2.loc[df_2['Country'] == 1]
 ant = df_2.loc[df_2['Country'] == 2]
 
 
-def analysis1(df):
+def analysis1(df, year):
+    df = df.loc[(df['Decimal_date'] < year) & (df['Decimal_date'] >= (year-10))]
     b1 = df.loc[(df['NewLat'] > - 40) & (df['NewLat'] <= - 39)]
     b2 = df.loc[(df['NewLat'] > - 42) & (df['NewLat'] < - 40)]
     b3 = df.loc[(df['NewLat'] > - 44.25) & (df['NewLat'] < - 43)]
@@ -25,9 +26,9 @@ def analysis1(df):
     b9 = df.loc[(df['NewLat'] > - 60) & (df['NewLat'] < -55.5)]
     b10 = df.loc[(df['NewLat'] > - 75) & (df['NewLat'] < -60)]
 
-# See Plot 2 for the data based on the indexing above
-# now we find the summary data based on each
-# (This loop finds the mean and standard deviation of the b1-b9 above, and links it to a lat lon
+    # See Plot 2 for the data based on the indexing above
+    # now we find the summary data based on each
+    # (This loop finds the mean and standard deviation of the b1-b9 above, and links it to a lat lon
     datas = [b1, b2, b3, b4, b5, b6, b7, b8, b9, b10]
     lats = [-40, -42, -44, -47, -48, -53, -54, -55, -60, -75] # The MAX LAT
     mean_array_ref2 = []
@@ -52,9 +53,28 @@ def analysis1(df):
         {"Lat": lats, "Mean_r2": mean_array_ref2, "Mean_r3": mean_array_ref3, "stdev_r2": stdev1, "stdev_r3": stdev2})
     return results
 
-chile_an = analysis1(chile)
-nz_an = analysis1(nz)
-ant_an = analysis1(ant)
+chileresults = pd.DataFrame()
+nzresults = pd.DataFrame()
+antresults = pd.DataFrame()
+years = [1990, 2000, 2010, 2020]
+for year in years:
+    chile_an = analysis1(chile, year)
+    nz_an = analysis1(nz, year)
+    ant_an = analysis1(ant, year)
+
+    chileresults = pd.concat([chileresults, chile_an])
+    nzresults = pd.concat([nzresults, nz_an])
+    antresults = pd.concat([antresults, ant_an])
+# chile_an = analysis1(chile, 2000)
+# chileresults = pd.concat([chileresults, chile_an])
+# chile_an = analysis1(chile, 2010)
+# chileresults = pd.concat([chileresults, chile_an])
+# chile_an = analysis1(chile, 2020)
+# chileresults = pd.concat([chileresults, chile_an])
+
+print(chileresults)
+# nz_an = analysis1(nz)
+# ant_an = analysis1(ant)
 
 
 

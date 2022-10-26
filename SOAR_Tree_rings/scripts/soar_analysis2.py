@@ -7,7 +7,7 @@ import matplotlib.gridspec as gridspec
 """
 This file will continue where SOAR_analysis1.py left off, but will index based on longitude, and decades.
 """
-print(df_2.columns)
+
 chile = df_2.loc[df_2['Country'] == 0]
 nz = df_2.loc[df_2['Country'] == 1]
 ant = df_2.loc[df_2['Country'] == 2]
@@ -106,6 +106,7 @@ ch1 = 'red'
 ch2 = a3
 ch3 = 'black'
 alph = .9
+alph2 = 0.5
 
 
 sp1 = chileresults.loc[chileresults['Year'] == 1990]
@@ -122,17 +123,27 @@ plt.title('Chile')
 
 plt.errorbar(sp1['Lat'], sp1['Mean_r2'], sp1['stdev_r2'], fmt='o', color=a1, ecolor=a1, elinewidth=1, capsize=2, alpha=alph, label='1980 - 1990')
 plt.plot(sp1['Lat'], sp1['Mean_r2'], color=a1)
+plt.errorbar(sp1['Lat'], sp1['Mean_r3'], sp1['stdev_r3'], fmt='o', color=a1, ecolor=a1, elinewidth=1, capsize=2, alpha=alph2, label='1980 - 1990')
+plt.plot(sp1['Lat'], sp1['Mean_r3'], color=a1)
 
 plt.errorbar(sp2['Lat'], sp2['Mean_r2'], sp2['stdev_r2'], fmt='D', color=a2, ecolor=a2, elinewidth=1, capsize=2, alpha=alph, label='1990 - 2000')
 plt.plot(sp2['Lat'], sp2['Mean_r2'], color=a2)
+plt.errorbar(sp2['Lat'], sp2['Mean_r3'], sp2['stdev_r3'], fmt='D', color=a2, ecolor=a2, elinewidth=1, capsize=2, alpha=alph2, label='1990 - 2000')
+plt.plot(sp2['Lat'], sp2['Mean_r3'], color=a2)
 
 plt.errorbar(sp3['Lat'], sp3['Mean_r2'], sp3['stdev_r2'], fmt='X', color=a3, ecolor=a3, elinewidth=1, capsize=2, alpha=alph, label='2000 - 2010')
 plt.plot(sp3['Lat'], sp3['Mean_r2'], color=a3)
+plt.errorbar(sp3['Lat'], sp3['Mean_r3'], sp3['stdev_r3'], fmt='X', color=a3, ecolor=a3, elinewidth=1, capsize=2, alpha=alph2, label='2000 - 2010')
+plt.plot(sp3['Lat'], sp3['Mean_r3'], color=a3)
 
 plt.errorbar(sp4['Lat'], sp4['Mean_r2'], sp4['stdev_r2'], fmt='^', color=a4, ecolor=a4, elinewidth=1, capsize=2, alpha=alph, label='2010 - 2020')
 plt.plot(sp4['Lat'], sp4['Mean_r2'], color=a4)
+plt.errorbar(sp4['Lat'], sp4['Mean_r3'], sp4['stdev_r3'], fmt='^', color=a4, ecolor=a4, elinewidth=1, capsize=2, alpha=alph2, label='2010 - 2020')
+plt.plot(sp4['Lat'], sp4['Mean_r3'], color=a4)
 plt.ylim(-12, 8)
 plt.xlim(-60, -35)
+plt.ylabel('Difference from Reference', fontsize=14)  # label the y axis
+plt.xlabel('Latitude (N)', fontsize=14)  # label the y axis
 
 
 xtr_subsplot = fig.add_subplot(gs[0:2, 2:4])
@@ -140,43 +151,123 @@ plt.title('New Zealand')
 sp1 = nzresults.loc[nzresults['Year'] == 1990]
 plt.errorbar(sp1['Lat'], sp1['Mean_r2'], sp1['stdev_r2'], fmt='o', color=a1, ecolor=a1, elinewidth=1, capsize=2, alpha=alph, label='1980 - 1990')
 plt.plot(sp1['Lat'], sp1['Mean_r2'], color=a1)
+plt.errorbar(sp1['Lat'], sp1['Mean_r3'], sp1['stdev_r3'], fmt='o', color=a1, ecolor=a1, elinewidth=1, capsize=2, alpha=alph2, label='1980 - 1990')
+plt.plot(sp1['Lat'], sp1['Mean_r3'], color=a1)
 
 sp2 = nzresults.loc[nzresults['Year'] == 2000]
 plt.errorbar(sp2['Lat'], sp2['Mean_r2'], sp2['stdev_r2'], fmt='D', color=a2, ecolor=a2, elinewidth=1, capsize=2, alpha=alph, label='1990 - 2000')
 plt.plot(sp2['Lat'], sp2['Mean_r2'], color=a2)
+plt.errorbar(sp2['Lat'], sp2['Mean_r3'], sp2['stdev_r3'], fmt='D', color=a2, ecolor=a2, elinewidth=1, capsize=2, alpha=alph2, label='1990 - 2000')
+plt.plot(sp2['Lat'], sp2['Mean_r3'], color=a2)
 
 sp3 = nzresults.loc[nzresults['Year'] == 2010]
 plt.errorbar(sp3['Lat'], sp3['Mean_r2'], sp3['stdev_r2'], fmt='X', color=a3, ecolor=a3, elinewidth=1, capsize=2, alpha=alph, label='2000 - 2010')
 plt.plot(sp3['Lat'], sp3['Mean_r2'], color=a3)
+plt.errorbar(sp3['Lat'], sp3['Mean_r3'], sp3['stdev_r3'], fmt='X', color=a3, ecolor=a3, elinewidth=1, capsize=2, alpha=alph2, label='2000 - 2010')
+plt.plot(sp3['Lat'], sp3['Mean_r3'], color=a3)
 
 sp4 = nzresults.loc[nzresults['Year'] == 2020]
 plt.errorbar(sp4['Lat'], sp4['Mean_r2'], sp4['stdev_r2'], fmt='^', color=a4, ecolor=a4, elinewidth=1, capsize=2, alpha=alph, label='2010 - 2020')
 plt.plot(sp4['Lat'], sp4['Mean_r2'], color=a4)
+plt.errorbar(sp4['Lat'], sp4['Mean_r3'], sp4['stdev_r3'], fmt='^', color=a4, ecolor=a4, elinewidth=1, capsize=2, alpha=alph2, label='2010 - 2020')
+plt.plot(sp4['Lat'], sp4['Mean_r3'], color=a4)
 plt.ylim(-12, 8)
 plt.xlim(-60, -35)
-
+plt.xlabel('Latitude (N)', fontsize=14)  # label the y axis
 
 xtr_subsplot = fig.add_subplot(gs[0:2, 4:6])
 plt.title('Antarctica')
 sp1 = antresults.loc[antresults['Year'] == 1990]
 plt.errorbar(sp1['Lat'], sp1['Mean_r2'], sp1['stdev_r2'], fmt='o', color=a1, ecolor=a1, elinewidth=1, capsize=2, alpha=alph, label='1980 - 1990')
 plt.plot(sp1['Lat'], sp1['Mean_r2'], color=a1)
+plt.errorbar(sp1['Lat'], sp1['Mean_r3'], sp1['stdev_r3'], fmt='o', color=a1, ecolor=a1, elinewidth=1, capsize=2, alpha=alph2, label='1980 - 1990')
+plt.plot(sp1['Lat'], sp1['Mean_r3'], color=a1)
 
 sp2 = antresults.loc[antresults['Year'] == 2000]
 plt.errorbar(sp1['Lat'], sp1['Mean_r2'], sp1['stdev_r2'], fmt='D', color=a2, ecolor=a2, elinewidth=1, capsize=2, alpha=alph, label='1990 - 2000')
 plt.plot(sp2['Lat'], sp2['Mean_r2'], color=a2)
+plt.errorbar(sp1['Lat'], sp1['Mean_r3'], sp1['stdev_r3'], fmt='D', color=a2, ecolor=a2, elinewidth=1, capsize=2, alpha=alph2, label='1990 - 2000')
+plt.plot(sp2['Lat'], sp2['Mean_r3'], color=a2)
 
 sp3 = antresults.loc[antresults['Year'] == 2010]
 plt.errorbar(sp3['Lat'], sp3['Mean_r2'], sp3['stdev_r2'], fmt='X', color=a3, ecolor=a3, elinewidth=1, capsize=2, alpha=alph, label='2000 - 2010')
 plt.plot(sp3['Lat'], sp3['Mean_r2'], color=a3)
+plt.errorbar(sp3['Lat'], sp3['Mean_r3'], sp3['stdev_r3'], fmt='X', color=a3, ecolor=a3, elinewidth=1, capsize=2, alpha=alph2, label='2000 - 2010')
+plt.plot(sp3['Lat'], sp3['Mean_r3'], color=a3)
 
 sp4 = antresults.loc[antresults['Year'] == 2020]
 plt.errorbar(sp4['Lat'], sp4['Mean_r2'], sp4['stdev_r2'], fmt='^', color=a4, ecolor=a4, elinewidth=1, capsize=2, alpha=alph, label='2010 - 2020')
 plt.plot(sp4['Lat'], sp4['Mean_r2'], color=a4)
+plt.errorbar(sp4['Lat'], sp4['Mean_r3'], sp4['stdev_r3'], fmt='^', color=a4, ecolor=a4, elinewidth=1, capsize=2, alpha=alph2, label='2010 - 2020')
+plt.plot(sp4['Lat'], sp4['Mean_r2'], color=a4)
 plt.ylim(-12, 8)
 plt.xlim(-76, -70)
+plt.xlabel('Latitude (N)', fontsize=14)  # label the y axis
 plt.legend()
 plt.savefig('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/plot4.png',
             dpi=300, bbox_inches="tight")
 plt.close()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+"""
+Some extra misc. calc's for the paper: What are the sizes of the errors relative to each other? R2 v R3, and the time-
+averaged means
+"""
+r2_error = np.average(df_2['r2_diff_trend_errprop'])
+r2_std = np.std(df_2['r2_diff_trend_errprop'])
+
+r3_error = np.average(df_2['r3_diff_trend_errprop'])
+r3_std = np.std(df_2['r3_diff_trend_errprop'])
+
+print(r2_error)
+print(r2_std)
+
+print(r3_error)
+print(r3_std)
+
+print()
+print()
+
+# time averaged means
+timeseries_err_ch = np.average(chileresults['stdev_r2'])
+timeseries_std_ch = np.std(chileresults['stdev_r2'])
+
+timeseries_err_nz = np.average(nzresults['stdev_r2'])
+timeseries_std_nz = np.std(nzresults['stdev_r2'])
+
+timeseries_err_ant = np.average(antresults['stdev_r2'])
+timeseries_std_ant = np.std(antresults['stdev_r2'])
+
+printlist = [timeseries_err_ch, timeseries_std_ch, timeseries_err_nz, timeseries_std_nz, timeseries_err_ant, timeseries_std_ant]
+for item in printlist:
+    print(item)
+
+
 

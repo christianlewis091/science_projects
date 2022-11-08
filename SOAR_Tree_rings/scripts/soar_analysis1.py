@@ -192,6 +192,8 @@ PLOTTING FUNCTIONS
 a1, a2, a3, a4, a5, a6 = '#253494', '#7fcdbb', '#2c7fb8', '#c7e9b4', '#41b6c4', '#ffffcc'
 c1, c2, c3 = '#ece2f0', '#a6bddb', '#1c9099'
 d1, d2 = '#ef8a62', '#67a9cf'
+colors = [a1, a2, a3, a4, a5, a6, c1, c2, c3, d1, d2,a1, a2, a3, a4, a5, a6, c1, c2, c3, d1, d2,a1, a2, a3, a4, a5, a6, c1, c2, c3, d1, d2]
+markers = ['o', '^', '8', 's', 'p', '*', 'X', 'D','o', '^', '8', 's', 'p', '*', 'X', 'D','o', '^', '8', 's', 'p', '*', 'X', 'D']
 size1 = 10
 ch1 = 'black'
 ch2 = a3
@@ -202,7 +204,6 @@ p1 = plotfunc_2line(ref2['Decimal_date'], ref2['D14C'], color_p1='black', size1=
 
 p2 = plotfunc_error(df['Decimal_date'], df['deltadelta'], df['deltadelta_err'],
                     ylab='\u0394Reference2 - \u0394Reference3 - (\u2030) [NWT3]', name='Errorplot1')
-
 # fig = plt.figure()
 # ax = plt.axes(projection='3d')
 # plt.scatter(df['Decimal_date'], df['D14C_1'], cmap='viridis', linewidth=0.5)
@@ -212,35 +213,73 @@ p2 = plotfunc_error(df['Decimal_date'], df['deltadelta'], df['deltadelta_err'],
 plt.show()
 plt.close()
 
-fig = plt.figure(4, figsize=(10, 12.5))
-gs = gridspec.GridSpec(6, 1)
-gs.update(wspace=.35, hspace=.25)
+"""
+For the next plot, I want to plot by site, but I need to slightly adjust the site tab since
+some sites appear in different places than others
+"""
+site_array = []
+for i in range(0, len(df)):
+    current_row = df.iloc[i]
+    if str(current_row['#location']) == 'nan':
+        site_array.append(current_row['Site'])
+    elif str(current_row['Site']) == 'nan':
+        site_array.append(current_row['#location'])
+df['SiteNew'] = site_array
+df = df.sort_values(by=['Decimal_date'], ascending=False).reset_index(drop=True)
+locs = np.unique(df['SiteNew'])
+
+
+fig = plt.figure(4, figsize=(15, 10))
+gs = gridspec.GridSpec(6, 3)
+gs.update(wspace=.15, hspace=.35)
+
 
 xtr_subsplot = fig.add_subplot(gs[0:3, 0:1])
-
+plt.title('Background Reference')
+plt.text(1980, 8, '[A]', fontsize=12)
 # plt.errorbar(df['Decimal_date'], df['D14C'], yerr=df['D14Cerr'], fmt='o', color='black', ecolor='black', elinewidth=1, capsize=2, alpha = 0.5)
-plt.plot(df['Decimal_date'], df['D14C_ref2t_mean'], color=a1, label='R2 (BHD+CGO, harmonized')
-plt.plot(df['Decimal_date'], df['D14C_ref3t_mean'], color=a2, label='R3 (BHD w CGO in gaps')
+plt.plot(df['Decimal_date'], df['D14C_ref2t_mean'], color=a1, label='R2 (BHD+CGO, harmonized)')
+plt.plot(df['Decimal_date'], df['D14C_ref3t_mean'], color=a2, label='R3 (BHD w CGO in gaps)')
 plt.ylabel('\u0394$^1$$^4$CO$_2$ (\u2030)', fontsize=14)  # label the y axis
+plt.ylim(0, 300)
 plt.legend()
 
-xtr_subsplot = fig.add_subplot(gs[3:4, 0:1])
+xtr_subsplot = fig.add_subplot(gs[0:3, 1:2])
+for i in range(0, len(locs)):
+    col = colors[i]
+    mark = markers[i]
+    slice = df.loc[df['SiteNew'] == str(locs[i])]  # grab the first data to plot, based on location
+    plt.scatter(slice['Decimal_date'], slice['D14C'], label='{}'.format(str(locs[i])), color=col, marker=mark, alpha = 0.5)
+plt.title('Southern Hemisphere Tree Rings and Atmos. Samples')
+plt.ylim(0, 300)
+plt.text(1980, 8, '[B]', fontsize=12)
+plt.yticks([])
+plt.legend(bbox_to_anchor=(1.02, 1), loc='upper left', borderaxespad=0)
+
+xtr_subsplot = fig.add_subplot(gs[3:4, 0:3])
+plt.text(1978.5, -20, '[C]', fontsize=12)
+# plt.title('Samples Relative to Reference 2')
 plt.errorbar(df['Decimal_date'], df['r2_diff_trend'], yerr=df['r2_diff_trend_errprop'], fmt='o', color='black',
              ecolor='black', elinewidth=1, capsize=2, alpha=0.5)
-plt.ylabel('S - R2', fontsize=14)  # label the y axis
+plt.xticks([])
 
-xtr_subsplot = fig.add_subplot(gs[4:5, 0:1])
+xtr_subsplot = fig.add_subplot(gs[4:5, 0:3])
+# plt.title('Samples Relative to Reference 3')
 plt.errorbar(df['Decimal_date'], df['r3_diff_trend'], yerr=df['r3_diff_trend_errprop'], fmt='o', color='black',
              ecolor='black', elinewidth=1, capsize=2, alpha=0.5)
-plt.ylabel('S - R3', fontsize=14)  # label the y axis
+plt.ylabel('\u0394\u0394$^1$$^4$CO$_2$ (\u2030)', fontsize=14)  # label the y a
+plt.xticks([])
+plt.text(1978.5, -20, '[D]', fontsize=12)
 
-xtr_subsplot = fig.add_subplot(gs[5:6, 0:1])
+xtr_subsplot = fig.add_subplot(gs[5:6, 0:3])
+# plt.title('Plot C - D')
 plt.errorbar(df['Decimal_date'], df['deltadelta'], yerr=df['deltadelta_err'], fmt='o', color='black', ecolor='black',
              elinewidth=1, capsize=2, alpha=0.5)
-plt.ylabel('plot b - c', fontsize=14)  # label the y axis
+plt.text(1978.5, -7.50, '[E]', fontsize=12)
 plt.xlabel('Date', fontsize=14)  # label the y axis
 plt.savefig('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/plot1.png',
             dpi=300, bbox_inches="tight")
+
 plt.close()
 
 # """3d PLOT"""

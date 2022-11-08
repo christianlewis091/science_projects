@@ -17,6 +17,7 @@ Particularly we want to know if how we are doing in recent times – not sure if
 """
 """Read in the data"""
 df = pd.read_csv(r'H:\Science\Current_Projects\04_ams_data_quality\13C_standard_analysis_November2022\c13Standards2022_11_01.csv')
+df = df.dropna(subset='Analysis Type')
 # for 1 year (begin 2022)
 # df = df.loc[df['Job'] > 219966]
 # # for 2 year (begin 2020)
@@ -51,3 +52,11 @@ data = pd.DataFrame({"Sample ID": name, "Average": average, "1-sigma": stddev, "
 """Write that data to an excel sheet"""
 data.to_excel('H:/Science/Current_Projects/04_ams_data_quality/C13_reduced.xlsx')
 
+# df = pd.read_excel(r'H:\Science\Current_Projects\04_ams_data_quality\13C_standard_analysis_November2022\13C_4_11_2022.xlsx')
+# df = df.dropna(subset='Date Measured')
+# df = df.loc[df['delta13C'] < -5]
+# plt.scatter(df['Date Measured'], df['delta13C'])
+# plt.xlabel('Date Measured')
+# plt.ylabel('Delta13C')
+# plt.title('26294_1')
+# plt.savefig('H:/Science/Current_Projects/04_ams_data_quality/13C_standard_analysis_November2022/plots/26294_1.png', dpi=300, bbox_inches="tight")

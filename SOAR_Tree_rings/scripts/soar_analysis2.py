@@ -210,32 +210,6 @@ plt.close()
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 """
 Some extra misc. calc's for the paper: What are the sizes of the errors relative to each other? R2 v R3, and the time-
 averaged means
@@ -246,14 +220,14 @@ r2_std = np.std(df_2['r2_diff_trend_errprop'])
 r3_error = np.average(df_2['r3_diff_trend_errprop'])
 r3_std = np.std(df_2['r3_diff_trend_errprop'])
 
-print(r2_error)
-print(r2_std)
-
-print(r3_error)
-print(r3_std)
-
-print()
-print()
+# print(r2_error)
+# print(r2_std)
+#
+# print(r3_error)
+# print(r3_std)
+#
+# print()
+# print()
 
 # time averaged means
 timeseries_err_ch = np.average(chileresults['stdev_r2'])
@@ -265,9 +239,9 @@ timeseries_std_nz = np.std(nzresults['stdev_r2'])
 timeseries_err_ant = np.average(antresults['stdev_r2'])
 timeseries_std_ant = np.std(antresults['stdev_r2'])
 
-printlist = [timeseries_err_ch, timeseries_std_ch, timeseries_err_nz, timeseries_std_nz, timeseries_err_ant, timeseries_std_ant]
-for item in printlist:
-    print(item)
+# printlist = [timeseries_err_ch, timeseries_std_ch, timeseries_err_nz, timeseries_std_nz, timeseries_err_ant, timeseries_std_ant]
+# for item in printlist:
+#     print(item)
 
 
 

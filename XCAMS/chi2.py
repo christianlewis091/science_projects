@@ -12,6 +12,8 @@ right tail?
 """
 import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt
+from scipy.stats import chi2
 
 df = pd.read_excel(r'H:\Science\Current_Projects\04_ams_data_quality\AMS_stats\TW3438_testing.xlsx', skiprows=3)
 
@@ -50,6 +52,7 @@ for i in range(0, len(unks_positions)):
     sigma_i = fcir_i / np.sqrt(c14_i + 1)        # calculates PER RUN sigma (eqn 3b)
     w = 1/(sigma_i**2)                           # calculates PER RUN W
 
+
     # since the eqn 4a shows sigma(i), which indicates per run, I'm going to do the step inside the brackets next.
     numerator = (w * (fcir_i)) / fcir_calibration
 
@@ -63,5 +66,224 @@ for i in range(0, len(unks_positions)):
     unks = pd.concat([unks, cat], axis=0).reset_index(drop=True)
 
 unks['RTS'] = rts_array
-unks.to_excel(r'H:\Science\Current_Projects\04_ams_data_quality\AMS_stats\testing.xlsx')
+# unks.to_excel(r'H:\Science\Current_Projects\04_ams_data_quality\AMS_stats\testing.xlsx')
+
+"""
+I'm writing my own chi2 test based on the pdf in the AMS data quality folder called chi2. 
+Will explain more later in latex doc. 
+"""
+# The first thing we need is the "M" which is our FCIR (3a (Zondervan 2015))
+# arrays are based on cell names in excel
+g = []
+columni = []
+j = []
+k = []
+
+for i in range(0, len(calibration_positions)):
+    cat = df.loc[df['position'] == calibration_positions[i]]
+    c14_i, c12_i, c13_i, t = cat['14Ccnts'], cat['12Ccurr'], cat['13Ccurr'], cat['Tdetect']
+    fcir_i = (c14_i * c12_i) / (t * (c13_i**2))  # calculates PER RUN FCIR
+    fcir_j = np.average(fcir_i)  # This is our "M"
+
+    sigma_i = fcir_i / np.sqrt(cat['14Ccnts'] + 1)
+
+    sigma_j = np.average(sigma_i)  # This is our "sigma"
+    sigma_j = sigma_j**2           # This is our "sigma^2"
+    Mz_num = fcir_j / sigma_j      # Equivalent to column J in excel sheet
+    Mz_denom = 1 / sigma_j         # Equivalent to column K in excel sheet
+
+    g.append(fcir_j)
+    columni.append(sigma_j)
+    j.append(Mz_num)
+    k.append(Mz_denom)
+#
+chi2data = pd.DataFrame({"M": g, "sigma^2": columni, "Mznum": j, "Mzdenom": k})
+# chi2data.to_excel(r'H:\Science\Current_Projects\04_ams_data_quality\AMS_stats\test2.xlsx')
+
+mz_num = np.sum(chi2data['Mznum'])
+mz_den = np.sum(chi2data['Mzdenom'])
+mz = mz_num/mz_den
+
+dof = (len(calibration_positions) - 1)
+chi2data['chi2'] = ((chi2data['M'] - mz)**2 ) / chi2data['sigma^2']
+chi2_norm = np.sum(chi2data['chi2'])
+chi2_red = np.sum(chi2data['chi2']) / dof
+print(chi2_red)
+
+xmax = 30
+chiLim = 14.067
+x = np.arange(0, xmax, 0.001)
+plt.plot(x, chi2.pdf(x, df=dof))
+# plt.axvspan(chiLim, xmax, alpha= 0.2)
+# plt.axvline(chi2_norm*100)
+plt.axvline(chi2_red*100)
+plt.show()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# array1 = []
+# array2 = []
+# array3 = []
+# catarr = []
+# chiarr = []
+# for i in range(0, len(calibration_positions)):
+#     cat = df.loc[df['position'] == calibration_positions[i]]
+#
+#     c14_i, c12_i, c13_i, t = cat['14Ccnts'], cat['12Ccurr'], cat['13Ccurr'], cat['Tdetect']
+#     fcir_i = (c14_i * c12_i) / (t * (c13_i**2))  # calculates PER RUN FCIR
+#     fcir_j = np.average(fcir_i)  # The average of THIS CATHODE's FCIR
+#     var_j = np.var(fcir_i)       # Find variance of THIS CATHODE' FCIR
+#
+#     total_counts = np.sum(cat['14Ccnts'])
+#     sigma_j = fcir_j / np.sqrt(total_counts + 1)  # 1 sigma of THIS CATHODE (not per run)
+#     # chi = (fcir_j - )
+#
+#     array1.append(fcir_j)
+#     array2.append(sigma_j)
+#     array3.append(var_j)
+#     catarr.append(np.average(cat['position']))
+#
+# chi2data = pd.DataFrame({"Position": catarr, "FCIR_average": array1, "FCIR_variance": array3, "FCIR_1sigma": array2})
+# chi2data.to_excel(r'H:\Science\Current_Projects\04_ams_data_quality\AMS_stats\test.xlsx')
+#
+#
+#
+#
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

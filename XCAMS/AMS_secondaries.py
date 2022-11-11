@@ -3,6 +3,7 @@ import numpy as np
 import warnings
 from fpdf import FPDF
 import matplotlib.pyplot as plt
+from matplotlib.backends.backend_pdf import PdfPages
 from PyAstronomy import pyasl
 from openpyxl import Workbook
 
@@ -45,16 +46,25 @@ stddev_arr = []
 count_arr = []
 chi2_arr = []
 
-for i in range(0, len(names)):
-    current_name = names[i]
-    current_std = df.loc[df['R_number'] == current_name]
+with PdfPages('H:/Science/Current_Projects/04_ams_data_quality/multipage_pdf.pdf') as pdf:
+    for i in range(0, len(names)):
+        current_name = names[i]
+        current_std = df.loc[df['R_number'] == current_name]
 
-    count_arr.append(len(current_std))
-    name_arr.append(current_name)
-    average_arr.append(np.average(current_std['Ratio to standard']))
-    stddev_arr.append(np.std(current_std['Ratio to standard']))
-    x = cbl_chi2(current_std)
-    chi2_arr.append(x)
+        count_arr.append(len(current_std))
+        name_arr.append(current_name)
+        average_arr.append(np.average(current_std['Ratio to standard']))
+        stddev_arr.append(np.std(current_std['Ratio to standard']))
+
+        residuals = current_std['Ratio to standard'] - np.average(current_std['Ratio to standard'])
+
+        x = cbl_chi2(current_std)
+        chi2_arr.append(x)
+        plt.scatter(current_std['Job'], residuals, label='Chi^2 = {}'.format(x), color='black')
+        plt.axhline(0, color='black', alpha=0.15)
+        plt.title('Page One')
+        pdf.savefig()  # saves the current figure into a pdf page
+        plt.close()
 
 data = pd.DataFrame({"Sample ID": name_arr, "Average": average_arr, "1-sigma": stddev_arr, "Chi2 Reduced": chi2_arr, "Count": count_arr}).sort_values("Sample ID",ascending=False).reset_index(drop=True)
 data.to_excel('H:/Science/Current_Projects/04_ams_data_quality/secondariesdev.xlsx')

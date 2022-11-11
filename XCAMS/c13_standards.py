@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 from PyAstronomy import pyasl
 import matplotlib.gridspec as gridspec
 
+
 """
 Tuesday 1/11/2022 12:26
 
@@ -52,11 +53,37 @@ data = pd.DataFrame({"Sample ID": name, "Average": average, "1-sigma": stddev, "
 """Write that data to an excel sheet"""
 data.to_excel('H:/Science/Current_Projects/04_ams_data_quality/C13_reduced.xlsx')
 
-# df = pd.read_excel(r'H:\Science\Current_Projects\04_ams_data_quality\13C_standard_analysis_November2022\13C_4_11_2022.xlsx')
-# df = df.dropna(subset='Date Measured')
-# df = df.loc[df['delta13C'] < -5]
-# plt.scatter(df['Date Measured'], df['delta13C'])
-# plt.xlabel('Date Measured')
-# plt.ylabel('Delta13C')
-# plt.title('26294_1')
-# plt.savefig('H:/Science/Current_Projects/04_ams_data_quality/13C_standard_analysis_November2022/plots/26294_1.png', dpi=300, bbox_inches="tight")
+df = pd.read_excel(r'H:\Science\Current_Projects\04_ams_data_quality\13C_standard_analysis_November2022\13C_4_11_2022.xlsx')
+df = df.dropna(subset='Date Measured')
+df = df.loc[df['delta13C'] < -5]
+plt.scatter(df['Date Measured'], df['delta13C'])
+plt.xlabel('Date Measured')
+plt.ylabel('Delta13C')
+plt.title('26294_1')
+plt.savefig('H:/Science/Current_Projects/04_ams_data_quality/13C_standard_analysis_November2022/plots/26294_1.png', dpi=300, bbox_inches="tight")
+
+# """
+# Extra misc stuff
+# """
+# df = pd.read_excel(r'H:\Science\Current_Projects\04_ams_data_quality\AMS_stats\faria.xlsx')
+# plt.errorbar(df['Date Run'], df['Ratio to standard'], df['Ratio to standard error'], fmt='o', elinewidth=1, capsize=2, alpha=1, color='#4575b4', label='FARI-A')
+# plt.axhline(np.average(df['Ratio to standard']), alpha=0.5, color='black')
+# plt.xlabel('Date Run')
+# plt.ylabel('RTS')
+# plt.legend()
+# # plt.axhspan((np.average(df['Ratio to standard']) - np.std(df['Ratio to standard']), (np.average(df['Ratio to standard']) + np.std(df['Ratio to standard']))))
+# plt.savefig('H:/Science/Current_Projects/04_ams_data_quality/TW3438_faria.png', dpi=300, bbox_inches="tight")
+#
+# print(np.average(df['Ratio to standard']), np.std(df['Ratio to standard']))
+# plt.close()
+#
+# df = pd.read_excel(r'H:\Science\Current_Projects\04_ams_data_quality\AMS_stats\farib.xlsx')
+# plt.errorbar(df['Date Run'], df['Ratio to standard'], df['Ratio to standard error'], fmt='o', elinewidth=1, capsize=2, alpha=1, color='#4575b4', label='FARI-B')
+# plt.axhline(np.average(df['Ratio to standard']), alpha=0.5, color='black')
+# plt.xlabel('Date Run')
+# plt.ylabel('RTS')
+# plt.legend()
+# # plt.axhspan((np.average(df['Ratio to standard']) - np.std(df['Ratio to standard']), (np.average(df['Ratio to standard']) + np.std(df['Ratio to standard']))))
+# plt.savefig('H:/Science/Current_Projects/04_ams_data_quality/TW3438_farib.png', dpi=300, bbox_inches="tight")
+#
+# print(np.average(df['Ratio to standard']), np.std(df['Ratio to standard']))

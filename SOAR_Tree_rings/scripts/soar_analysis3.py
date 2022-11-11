@@ -4,6 +4,7 @@ from soar_analysis1 import df_2
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
 
+
 site_array = []
 for i in range(0, len(df_2)):
     current_row = df_2.iloc[i]

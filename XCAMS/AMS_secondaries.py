@@ -23,36 +23,59 @@ def long_date_to_decimal_date(x):
     return array  # return the new data
 
 
+# # Define chi2 test
+# def cbl_chi2(data):
+#     # see file:///H:/Science/Current_Projects/04_ams_data_quality/AMS_stats/chi2.pdf, first page
+#     final_lin = 'ok'
+#     data['mz_num'] = data['Ratio to standard'] / data['Ratio to standard error'] ** 2
+#     data['mz_denom'] = 1 / data['Ratio to standard error'] ** 2
+#     data['sigma^2_mz'] = 1 / data['Ratio to standard error'] ** 2
+#     Mz = (np.sum(data['mz_num'])) / (np.sum(data['mz_denom']))
+#     sig = 1 / (np.sum(data['mz_denom']))
+#
+#     data['x_2_num'] = (data['Ratio to standard'] - Mz) ** 2
+#     data['x_2_denom'] = data['Ratio to standard error'] ** 2
+#
+#     data['x2'] = data['x_2_num'] / data['x_2_denom']
+#     chi2 = np.sum(data['x2'])
+#     chi2_red = chi2 / len(data)
+#     # print(chi2_red)
+#     if chi2_red > 1:
+#         lins = np.linspace(0, 100, 1000)
+#         for j in range(0, len(lins)):
+#             lin = lins[j]
+#             data['denom_adjusted'] = (data['Ratio to standard error']*(1+lin)) ** 2
+#             data['x2_adjusted'] = data['x_2_num'] / data['denom_adjusted']
+#             chi2_adjusted = np.sum(data['x2_adjusted'])
+#             chi2_red_adjusted = chi2_adjusted / len(data)
+#             if chi2_red_adjusted < 1:
+#                 final_lin = lin*100
+#                 break
+#
+#     return chi2_red, final_lin
+
 # Define chi2 test
-def cbl_chi2(data):
+def cbl_chi2_v2(data):
     # see file:///H:/Science/Current_Projects/04_ams_data_quality/AMS_stats/chi2.pdf, first page
     final_lin = 'ok'
-    data['mz_num'] = data['Ratio to standard'] / data['Ratio to standard error'] ** 2
-    data['mz_denom'] = 1 / data['Ratio to standard error'] ** 2
-    data['sigma^2_mz'] = 1 / data['Ratio to standard error'] ** 2
-    Mz = (np.sum(data['mz_num'])) / (np.sum(data['mz_denom']))
-    sig = 1 / (np.sum(data['mz_denom']))
+    average = np.average(data['residuals'])
+    data['chi2'] = ((data['residuals'] - average) ** 2) / (data['residuals_error'] **2)
+    chi2_red = np.sum(data['chi2']) / (len(data) - 1)
 
-    data['x_2_num'] = (data['Ratio to standard'] - Mz) ** 2
-    data['x_2_denom'] = data['Ratio to standard error'] ** 2
-
-    data['x2'] = data['x_2_num'] / data['x_2_denom']
-    chi2 = np.sum(data['x2'])
-    chi2_red = chi2 / len(data)
     # print(chi2_red)
     if chi2_red > 1:
         lins = np.linspace(0, 100, 1000)
         for j in range(0, len(lins)):
             lin = lins[j]
-            data['denom_adjusted'] = (data['Ratio to standard error']*(1+lin)) ** 2
-            data['x2_adjusted'] = data['x_2_num'] / data['denom_adjusted']
-            chi2_adjusted = np.sum(data['x2_adjusted'])
-            chi2_red_adjusted = chi2_adjusted / len(data)
+            data['chi2_adjusted'] = ((data['residuals'] - average) ** 2) / ((data['residuals_error']*(1+lin)) **2)
+            chi2_red_adjusted = np.sum(data['chi2_adjusted']) / (len(data) - 1)
             if chi2_red_adjusted < 1:
                 final_lin = lin*100
                 break
 
     return chi2_red, final_lin
+
+
 
 
 """Read in the data"""
@@ -81,7 +104,7 @@ average_arr = []
 stddev_arr = []
 count_arr = []
 chi2_arr = []
-with PdfPages('H:/Science/Current_Projects/04_ams_data_quality/multipage_pdf.pdf') as pdf:
+with PdfPages('H:/Science/Current_Projects/04_ams_data_quality/multipage_pdf_v1.pdf') as pdf:
     for i in range(0, len(names)):
         current_name = names[i]
         current_std = df.loc[df['Job::R'] == current_name].reset_index(drop=True)
@@ -89,25 +112,27 @@ with PdfPages('H:/Science/Current_Projects/04_ams_data_quality/multipage_pdf.pdf
             current_desc = current_std['AMS Submission Results Complete::Description from Sample']
             current_desc = current_desc[0]
 
-            x = cbl_chi2(current_std)
-
             # append some stats of this current standard to the arrays that I created above.
             count_arr.append(len(current_std))
             name_arr.append(current_name)
             average_arr.append(np.average(current_std['Ratio to standard']))
             stddev_arr.append(np.std(current_std['Ratio to standard']))
-            chi2_arr.append(x)
+
 
             # make the plot
-            residuals = current_std['Ratio to standard'] - np.average(current_std['Ratio to standard'])
-            plt.scatter(current_std['Decimal_date'], residuals, label='Chi^2 = {}'.format(x), color='black')
+            current_std['residuals'] = current_std['Ratio to standard'] - np.average(current_std['Ratio to standard'])
+            current_std['residuals_error'] = np.sqrt(current_std['Ratio to standard error']**2 + np.std(current_std['Ratio to standard'])**2)
+            x = cbl_chi2_v2(current_std)
+            chi2_arr.append(x[0])
+
+            plt.scatter(current_std['Decimal_date'], current_std['residuals'], label='Chi^2 = {}'.format(x), color='black')
             plt.axhline(0, color='black', alpha=0.15)
-            plt.ylim(1.10*(min(residuals)), 1.10*(max(residuals)))
+            plt.ylim(1.10*(min(current_std['residuals'])), 1.10*(max(current_std['residuals'])))
 
             # make the plot a bit more helpful to see...
-            plt.text(min(current_std['Decimal_date']), max(residuals), "Chi2 = {}".format(round(x[0], 2)), fontsize=12, backgroundcolor='lightsteelblue', color='red')
+            plt.text(min(current_std['Decimal_date']), max(current_std['residuals']), "Chi2 = {}".format(round(x[0], 2)), fontsize=12, backgroundcolor='lightsteelblue', color='red')
             if x[1] != 'ok':
-                plt.text(min(current_std['Decimal_date']), 0.8*max(residuals), "Error adjustment required: {} %".format(round(x[1], 3)), fontsize=12, backgroundcolor='lightsteelblue')
+                plt.text(min(current_std['Decimal_date']), 0.8*max(current_std['residuals']), "Error adjustment required: {} %".format(round(x[1], 3)), fontsize=12, backgroundcolor='lightsteelblue')
             plt.title('{}: {}'.format(current_name, current_desc))
             pdf.attach_note("plot of sin(x)")
             # save the plot to a PDF

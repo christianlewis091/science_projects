@@ -707,3 +707,28 @@ def plotfunc_error(sx1, sy1, sz1, xmin=None, xmax=None, ymin=None, ymax=None,
 
 
 
+def growing_season(df):
+    try:
+        dates = df['Average of Dates']
+    except KeyError:
+        dates = df['Average']
+
+    season_array = []
+    for i in range(0, len(dates)):
+        currentrow = dates.iloc[i]
+        month = currentrow.month
+        year = currentrow.year
+
+        if str(month) in ['9', ' 10', '11', '12']:
+            season_array.append(f"growing_season_{year}_{year + 1}")
+
+        elif str(month) in ['1', '2', '3', '4']:
+            season_array.append(f"growing_season_{year - 1}_{year}")
+
+        else:
+            season_array.append('non-growing')
+
+    return(season_array)
+
+
+

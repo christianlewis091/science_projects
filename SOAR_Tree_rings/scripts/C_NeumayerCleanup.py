@@ -12,13 +12,13 @@ import matplotlib as mpl
 import numpy as np
 import pandas as pd
 import seaborn as sns
-from X_my_functions import long_date_to_decimal_date
+from X_my_functions import long_date_to_decimal_date, growing_season
 from B_CGO_BHD_harmonization import offset1, offset2, offset3, offset4, offset5, offset6
 from B_CGO_BHD_harmonization import error1, error2, error3, error4, error5, error6
 from X_my_functions import monte_carlo_randomization_trend
 
-n = 5  # set the amount of times the code will iterate (set to 10,000 once everything is final)
-cutoff = 667  # FFT filter cutoff
+# n = 5  # set the amount of times the code will iterate (set to 10,000 once everything is final)
+# cutoff = 667  # FFT filter cutoff
 
 # general plot parameters
 colors = sns.color_palette("rocket", 6)
@@ -73,7 +73,12 @@ neu = pd.merge(neu, h4, how='outer')
 neu = pd.merge(neu, h5, how='outer')
 neu = pd.merge(neu, h6, how='outer')
 
-neu.to_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/NEU_offset.xlsx')
+neu['season_category'] = growing_season(neu)
+
+means = neu.groupby('season_category').mean().reset_index()
+means = means.loc[means['season_category'] != 'non-growing']
+means['Site'] = 'NMY'
+means.to_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/NEU_offset.xlsx')
 
 """
 The following code is deprecated

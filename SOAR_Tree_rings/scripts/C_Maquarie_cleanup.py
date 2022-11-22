@@ -12,13 +12,13 @@ import matplotlib as mpl
 import numpy as np
 import pandas as pd
 import seaborn as sns
-from X_my_functions import long_date_to_decimal_date
+from X_my_functions import long_date_to_decimal_date, growing_season
 from B_CGO_BHD_harmonization import offset1, offset2, offset3, offset4, offset5, offset6
 from B_CGO_BHD_harmonization import error1, error2, error3, error4, error5, error6
 from X_my_functions import monte_carlo_randomization_trend
 
-n = 5  # set the amount of times the code will iterate (set to 10,000 once everything is final)
-cutoff = 667  # FFT filter cutoff
+# n = 5  # set the amount of times the code will iterate (set to 10,000 once everything is final)
+# cutoff = 667  # FFT filter cutoff
 
 # general plot parameters
 colors = sns.color_palette("rocket", 6)
@@ -33,6 +33,7 @@ df = df.dropna(subset=['D14C']).reset_index(drop=True)
 x = df['Average of Dates']  # extract x-values from heidelberg dataset
 x = long_date_to_decimal_date(x)  # convert the x-values to a decimal date
 df['Decimal_date'] = x  # add these decimal dates onto the dataframe
+
 
 # This dataset goes from 1992 - 2020
 # h1 = df.loc[(df['Decimal_date'] > 1986) & (df['Decimal_date'] < 1991)].reset_index()
@@ -58,7 +59,16 @@ df = pd.merge(df, h4, how='outer')
 df = pd.merge(df, h5, how='outer')
 df = pd.merge(df, h6, how='outer')
 
-df.to_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/MCQ_offset.xlsx')
+# averaging across the growing seasons AFTER the data has been offset corrected.
+df['season_category'] = growing_season(df)
+
+means = df.groupby('season_category').mean().reset_index()
+means = means.loc[means['season_category'] != 'non-growing']
+means['Site'] = 'MCQ'
+
+
+
+means.to_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/MCQ_offset.xlsx')
 
 
 

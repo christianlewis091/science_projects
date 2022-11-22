@@ -13,13 +13,13 @@ df = df.loc[df['Decimal_date'] > 1980].reset_index(drop=True)
 ref2 = ref2.loc[ref2['Decimal_date'] > 1980].reset_index(drop=True)
 ref3 = ref3.loc[ref3['Decimal_date'] > 1980].reset_index(drop=True)
 # I need to drop the index column in order to drop some duplicates that made their way through
-df = df[['Ring code', 'R number', 'Site', 'F14C',
-         'F14Cerr', 'Decimal_date', 'D14C', 'D14Cerr', 'Lat', 'Lon', '#location',
-         'Sample', 'Lab', 'Analysis', 'Sample ', 'Sample.1', 'Average of Dates',
-         'd13C', 'Flag', 'D14C_1', 'weightedstderr_D14C_1', 'sampler_id',
-         'wheightedanalyticalstdev_D14C', 'D14C_ref2s_mean', 'D14C_ref2s_std',
-         'D14C_ref2t_mean', 'D14C_ref2t_std', 'D14C_ref3s_mean',
-         'D14C_ref3s_std', 'D14C_ref3t_mean', 'D14C_ref3t_std']]
+# df = df[['Ring code', 'R number', 'Site', 'F14C',
+#          'F14Cerr', 'Decimal_date', 'D14C', 'D14Cerr', 'Lat', 'Lon', '#location',
+#          'Sample', 'Lab', 'Analysis', 'Sample ', 'Sample.1', 'Average of Dates',
+#          'd13C', 'Flag', 'D14C_1', 'weightedstderr_D14C_1', 'sampler_id',
+#          'wheightedanalyticalstdev_D14C', 'D14C_ref2s_mean', 'D14C_ref2s_std',
+#          'D14C_ref2t_mean', 'D14C_ref2t_std', 'D14C_ref3s_mean',
+#          'D14C_ref3s_std', 'D14C_ref3t_mean', 'D14C_ref3t_std']]
 
 """ 
 Need to add lat and lon data to NEUMAYER and MCQ
@@ -36,10 +36,10 @@ lat_array = []
 lon_array = []
 for i in range(0, len(df)):
     current_row = df.iloc[i]
-    if current_row['#location'] == 'NMY':
+    if current_row['Site'] == 'NMY':
         lat_array.append(neumayer_lat)
         lon_array.append(neumayer_lon)
-    elif current_row['#location'] == 'Macquarie_Isl.':
+    elif current_row['Site'] == 'MCQ':
         lat_array.append(mcq_lat)
         lon_array.append(mcq_lon)
     elif current_row['Site'] == '23 Nikau St, Eastbourne, NZ':
@@ -212,21 +212,22 @@ p2 = plotfunc_error(df['Decimal_date'], df['deltadelta'], df['deltadelta_err'],
 # #             dpi=300, bbox_inches="tight")
 plt.show()
 plt.close()
+"""The below block of code was made redundant in edits"""
+# """
+# For the next plot, I want to plot by site, but I need to slightly adjust the site tab since
+# some sites appear in different places than others
+# """
+# site_array = []
+# for i in range(0, len(df)):
+#     current_row = df.iloc[i]
+#     if str(current_row['#location']) == 'nan':
+#         site_array.append(current_row['Site'])
+#     elif str(current_row['Site']) == 'nan':
+#         site_array.append(current_row['#location'])
+# df['SiteNew'] = site_array
+# df = df.sort_values(by=['Decimal_date'], ascending=False).reset_index(drop=True)
 
-"""
-For the next plot, I want to plot by site, but I need to slightly adjust the site tab since
-some sites appear in different places than others
-"""
-site_array = []
-for i in range(0, len(df)):
-    current_row = df.iloc[i]
-    if str(current_row['#location']) == 'nan':
-        site_array.append(current_row['Site'])
-    elif str(current_row['Site']) == 'nan':
-        site_array.append(current_row['#location'])
-df['SiteNew'] = site_array
-df = df.sort_values(by=['Decimal_date'], ascending=False).reset_index(drop=True)
-locs = np.unique(df['SiteNew'])
+locs = np.unique(df['Site'])
 
 
 fig = plt.figure(4, figsize=(15, 10))
@@ -248,7 +249,7 @@ xtr_subsplot = fig.add_subplot(gs[0:3, 1:2])
 for i in range(0, len(locs)):
     col = colors[i]
     mark = markers[i]
-    slice = df.loc[df['SiteNew'] == str(locs[i])]  # grab the first data to plot, based on location
+    slice = df.loc[df['Site'] == str(locs[i])]  # grab the first data to plot, based on location
     plt.scatter(slice['Decimal_date'], slice['D14C'], label='{}'.format(str(locs[i])), color=col, marker=mark, alpha = 0.5)
 plt.title('Southern Hemisphere Tree Rings and Atmos. Samples')
 plt.ylim(0, 300)

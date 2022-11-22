@@ -7,10 +7,13 @@ import pandas as pd
 import datetime as dt
 import seaborn as sns
 
-df = pd.read_excel(r'H:\Science\Datasets\heidelberg_MQA.xlsx', skiprows=0)
+# df = pd.read_excel(r'H:\Science\Datasets\heidelberg_MQA.xlsx', skiprows=0)
 
 def growing_season(df):
-    dates = df['Average of Dates']
+    try:
+        dates = df['Average of Dates']
+    except:
+        dates = df['Average']
     season_array = []
     for i in range(0, len(dates)):
         currentrow = dates.iloc[i]
@@ -28,10 +31,10 @@ def growing_season(df):
 
     return(season_array)
 
-x = growing_season(df)
-df['season_category'] = x
+# x = growing_season(df)
+# df['season_category'] = x
+#
+# means = df.groupby('season_category').mean().reset_index()
+# # means = df.groupby('season_category').apply(np.mean)
+# means = pd.DataFrame(means)
 
-means = df.groupby('season_category').mean().reset_index()
-# means = df.groupby('season_category').apply(np.mean)
-means = pd.DataFrame(means)
-means.to_excel(r'H:\Science\Datasets\testingmeans.xlsx')

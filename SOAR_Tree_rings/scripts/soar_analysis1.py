@@ -1,3 +1,4 @@
+import numpy
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -110,11 +111,14 @@ df['weightedstderr_D14C_1'] = mtarray2
 """
 How is the data when viewed relative to reference 2 and reference 3? 
 """
-# The difference between the CORRECTED samples, and REFERENCE 2, the harmonized reference
+# The difference between the CORRECTED samples, and REFERENCE 2, the harmonized reference (WEIGHTED RESIDUAL)
+quaderr = np.sqrt(df['weightedstderr_D14C_1']**2 + df['D14C_ref2t_std']**2)
+
 df['r2_diff_trend'] = df['D14C_1'] - df['D14C_ref2t_mean']
 df['r2_diff_trend_errprop'] = np.sqrt(df['weightedstderr_D14C_1'] ** 2 + df['D14C_ref2t_std'] ** 2)
 
-# The difference between the raw samples, and REFERENCE 3, BHD with CGO in the gaps
+
+# The difference between the raw samples, and REFERENCE 3, BHD with CGO in the gaps (WEIGHTED RESIDUAL)
 df['r3_diff_trend'] = df['D14C'] - df['D14C_ref3t_mean']
 df['r3_diff_trend_errprop'] = np.sqrt(df['D14Cerr'] ** 2 + df['D14C_ref3t_std'] ** 2)
 

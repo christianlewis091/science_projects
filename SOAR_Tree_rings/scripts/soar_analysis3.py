@@ -5,16 +5,16 @@ import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
 
 
-site_array = []
-for i in range(0, len(df_2)):
-    current_row = df_2.iloc[i]
-    if str(current_row['#location']) == 'nan':
-        site_array.append(current_row['Site'])
-    elif str(current_row['Site']) == 'nan':
-        site_array.append(current_row['#location'])
-df_2['SiteNew'] = site_array
+# site_array = []
+# for i in range(0, len(df_2)):
+#     current_row = df_2.iloc[i]
+#     if str(current_row['#location']) == 'nan':
+#         site_array.append(current_row['Site'])
+#     elif str(current_row['Site']) == 'nan':
+#         site_array.append(current_row['#location'])
+# df_2['SiteNew'] = site_array
 df_2 = df_2.sort_values(by=['NewLat', 'Decimal_date'], ascending=False).reset_index(drop=True)
-locs = np.unique(df_2['SiteNew'])
+locs = np.unique(df_2['Site'])
 
 chile = df_2.loc[df_2['Country'] == 0].reset_index(drop=True)
 nz = df_2.loc[df_2['Country'] == 1].reset_index(drop=True)
@@ -25,16 +25,16 @@ ant = df_2.loc[df_2['Country'] == 2].reset_index(drop=True)
 The following code block just allows me to preserve the original index order of the data after indexing by Country
 """
 # u, indices = np.unique(a, return_index=True) # https://numpy.org/doc/stable/reference/generated/numpy.unique.html
-u1, locs1 = np.unique(chile['SiteNew'], return_index=True)
+u1, locs1 = np.unique(chile['Site'], return_index=True)
 temp = pd.DataFrame({"ind": u1, "locs":locs1}).sort_values(by=['locs'], ascending=True).reset_index(drop=True)
 locs1 = temp['ind']
 print(locs1)
 
-u2, locs2 = np.unique(nz['SiteNew'], return_index=True)
+u2, locs2 = np.unique(nz['Site'], return_index=True)
 temp2 = pd.DataFrame({"ind": u2, "locs":locs2}).sort_values(by=['locs'], ascending=True).reset_index(drop=True)
 locs2 = temp2['ind']
 
-u3, locs3 = np.unique(ant['SiteNew'], return_index=True)
+u3, locs3 = np.unique(ant['Site'], return_index=True)
 temp3 = pd.DataFrame({"ind": u3, "locs":locs3}).sort_values(by=['locs'], ascending=True).reset_index(drop=True)
 locs3 = temp3['ind']
 # print(locs1)
@@ -57,7 +57,7 @@ xtr_subsplot = fig.add_subplot(gs[0:2, 0:2])
 for i in range(0, len(locs1)):
     col = colors[i]
     mark = markers[i]
-    slice = chile.loc[chile['SiteNew'] == str(locs1[i])].reset_index(drop=True)  # grab the first data to plot, based on location
+    slice = chile.loc[chile['Site'] == str(locs1[i])].reset_index(drop=True)  # grab the first data to plot, based on location
     latitude = slice['NewLat']
     latitude = latitude[0]
     latitude = round(latitude, 1)
@@ -71,7 +71,7 @@ xtr_subsplot = fig.add_subplot(gs[2:4, 0:2])
 for i in range(0, len(locs2)):
     col = colors[i]
     mark = markers[i]
-    slice = nz.loc[nz['SiteNew'] == str(locs2[i])].reset_index(drop=True)  # grab the first data to plot, based on location
+    slice = nz.loc[nz['Site'] == str(locs2[i])].reset_index(drop=True)  # grab the first data to plot, based on location
     latitude = slice['NewLat']
     latitude = latitude[0]
     latitude = round(latitude, 1)
@@ -85,7 +85,7 @@ xtr_subsplot = fig.add_subplot(gs[4:6, 0:2])
 for i in range(0, len(locs3)):
     col = colors[i]
     mark = markers[i]
-    slice = ant.loc[ant['SiteNew'] == str(locs3[i])].reset_index(drop=True)  # grab the first data to plot, based on location
+    slice = ant.loc[ant['Site'] == str(locs3[i])].reset_index(drop=True)  # grab the first data to plot, based on location
     latitude = slice['NewLat']
     latitude = latitude[0]
     latitude = round(latitude, 1)

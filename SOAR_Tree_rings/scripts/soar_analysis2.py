@@ -210,6 +210,26 @@ plt.close()
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 """
 Some extra misc. calc's for the paper: What are the sizes of the errors relative to each other? R2 v R3, and the time-
 averaged means

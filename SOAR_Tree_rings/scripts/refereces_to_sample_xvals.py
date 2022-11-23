@@ -22,11 +22,11 @@ import matplotlib.pyplot as plt
 
 # read in the list of all SAMPLES (SOAR, MCQ, NEU)
 samples = pd.read_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/complete_samples.xlsx')
-samples = samples[['Ring code', 'R number', 'Site', 'F14C', 'F14Cerr',
-                  'Decimal_date', 'D14C', 'D14Cerr', 'Lat', 'Lon', '#location', 'Sample',
-                  'Lab', 'Analysis', 'Sample ', 'Sample.1', 'Average of Dates', 'd13C',
-                  'Flag', 'D14C_1', 'weightedstderr_D14C_1', 'sampler_id',
-                  'wheightedanalyticalstdev_D14C']]
+# samples = samples[['Ring code', 'R number', 'Site', 'F14C', 'F14Cerr',
+#                   'Decimal_date', 'D14C', 'D14Cerr', 'Lat', 'Lon', '#location', 'Sample',
+#                   'Lab', 'Analysis', 'Sample ', 'Sample.1', 'Average of Dates', 'd13C',
+#                   'Flag', 'D14C_1', 'weightedstderr_D14C_1', 'sampler_id',
+#                   'wheightedanalyticalstdev_D14C']]
 
 # samples['Ref1'] = -999  # currently a placeholder
 
@@ -60,8 +60,8 @@ montes = pd.DataFrame({'Decimal_date': output_xvals['x'],
                        'D14C_ref3s_mean': reference3_smooth['Means'], 'D14C_ref3s_std': reference3_smooth['stdevs'],
                        'D14C_ref3t_mean': reference3_trend['Means'], 'D14C_ref3t_std': reference3_trend['stdevs']
                         }).drop_duplicates(subset='Decimal_date')
+# montes.to_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/test.xlsx')
 montes.to_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/monte_output.xlsx')
-
 
 
 

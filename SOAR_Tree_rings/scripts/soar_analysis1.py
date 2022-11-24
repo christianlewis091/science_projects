@@ -124,6 +124,13 @@ df['r3_diff_trend_errprop'] = np.sqrt(df['D14Cerr'] ** 2 + df['D14C_ref3t_std'] 
 
 # And the difference between the two differences...
 df['deltadelta'] = df['r2_diff_trend'] - df['r3_diff_trend']
+# print(len(df['deltadelta']))
+# print(max(df['deltadelta']))
+#
+#
+# print(np.average(df['deltadelta']))
+# print(np.std(df['deltadelta']))
+
 df['deltadelta_err'] = np.sqrt(df['r2_diff_trend_errprop'] ** 2 + df['r3_diff_trend_errprop'] ** 2)
 #
 # df.to_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/testing.xlsx')
@@ -243,8 +250,8 @@ xtr_subsplot = fig.add_subplot(gs[0:3, 0:1])
 plt.title('Background Reference')
 plt.text(1980, 8, '[A]', fontsize=12)
 # plt.errorbar(df['Decimal_date'], df['D14C'], yerr=df['D14Cerr'], fmt='o', color='black', ecolor='black', elinewidth=1, capsize=2, alpha = 0.5)
-plt.plot(df['Decimal_date'], df['D14C_ref2t_mean'], color=a1, label='R2 (BHD+CGO, harmonized)')
-plt.plot(df['Decimal_date'], df['D14C_ref3t_mean'], color=a2, label='R3 (BHD w CGO in gaps)')
+plt.plot(df['Decimal_date'], df['D14C_ref2t_mean'], color=a1, label='SHB1 (BHD+CGO, harmonized)')
+plt.plot(df['Decimal_date'], df['D14C_ref3t_mean'], color=a2, label='SHB2 (BHD w CGO in gaps)')
 plt.ylabel('\u0394$^1$$^4$CO$_2$ (\u2030)', fontsize=14)  # label the y axis
 plt.ylim(0, 300)
 plt.legend()
@@ -261,26 +268,26 @@ plt.text(1980, 8, '[B]', fontsize=12)
 plt.yticks([])
 plt.legend(bbox_to_anchor=(1.02, 1), loc='upper left', borderaxespad=0)
 
-xtr_subsplot = fig.add_subplot(gs[3:4, 0:3])
-plt.text(1978.5, -20, '[C]', fontsize=12)
-# plt.title('Samples Relative to Reference 2')
-plt.errorbar(df['Decimal_date'], df['r2_diff_trend'], yerr=df['r2_diff_trend_errprop'], fmt='o', color='black',
-             ecolor='black', elinewidth=1, capsize=2, alpha=0.5)
-plt.xticks([])
+# xtr_subsplot = fig.add_subplot(gs[3:4, 0:3])
+# plt.text(1978.5, -20, '[C]', fontsize=12)
+# # plt.title('Samples Relative to Reference 2')
+# plt.errorbar(df['Decimal_date'], df['r2_diff_trend'], yerr=df['r2_diff_trend_errprop'], fmt='o', color='black',
+#              ecolor='black', elinewidth=1, capsize=2, alpha=0.5)
+# plt.xticks([])
+#
+# xtr_subsplot = fig.add_subplot(gs[4:5, 0:3])
+# # plt.title('Samples Relative to Reference 3')
+# plt.errorbar(df['Decimal_date'], df['r3_diff_trend'], yerr=df['r3_diff_trend_errprop'], fmt='o', color='black',
+#              ecolor='black', elinewidth=1, capsize=2, alpha=0.5)
+# plt.ylabel('\u0394\u0394$^1$$^4$CO$_2$ (\u2030)', fontsize=14)  # label the y a
+# plt.xticks([])
+# plt.text(1978.5, -20, '[D]', fontsize=12)
 
-xtr_subsplot = fig.add_subplot(gs[4:5, 0:3])
-# plt.title('Samples Relative to Reference 3')
-plt.errorbar(df['Decimal_date'], df['r3_diff_trend'], yerr=df['r3_diff_trend_errprop'], fmt='o', color='black',
-             ecolor='black', elinewidth=1, capsize=2, alpha=0.5)
-plt.ylabel('\u0394\u0394$^1$$^4$CO$_2$ (\u2030)', fontsize=14)  # label the y a
-plt.xticks([])
-plt.text(1978.5, -20, '[D]', fontsize=12)
-
-xtr_subsplot = fig.add_subplot(gs[5:6, 0:3])
+xtr_subsplot = fig.add_subplot(gs[3:6, 0:3])
 # plt.title('Plot C - D')
 plt.errorbar(df['Decimal_date'], df['deltadelta'], yerr=df['deltadelta_err'], fmt='o', color='black', ecolor='black',
              elinewidth=1, capsize=2, alpha=0.5)
-plt.text(1978.5, -7.50, '[E]', fontsize=12)
+plt.text(1978.5, -7.50, '[C]', fontsize=12)
 plt.xlabel('Date', fontsize=14)  # label the y axis
 plt.savefig('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/plot1.png',
             dpi=300, bbox_inches="tight")

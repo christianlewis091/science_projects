@@ -142,12 +142,21 @@ results_array = pd.DataFrame({"Site": site_array, "Lat": lat_array, "Paired T-te
 results_array.to_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/testttest.xlsx')
 
 
-
-
-
-
-
-
+"""an extra plot"""
+a1, a3, a5, a8 ='#d73027', '#fdae61', '#1c9099', '#4575b4' # testing
+fig = plt.figure()
+campbell = nz.loc[nz['Site'] == str(locs2[6])].reset_index(drop=True)
+mcq = nz.loc[nz['Site'] == str(locs2[7])].reset_index(drop=True)
+plt.plot(campbell['Decimal_date'], campbell['r2_diff_trend'], color=a1)
+plt.errorbar(campbell['Decimal_date'], campbell['r2_diff_trend'], campbell['r2_diff_trend_errprop'], fmt='o', elinewidth=1, capsize=2, alpha=1, color=a1, label=f"-52.5 N N, {str(locs2[6])}")
+plt.plot(mcq['Decimal_date'], mcq['r2_diff_trend'], color=a5)
+plt.errorbar(mcq['Decimal_date'], mcq['r2_diff_trend'], mcq['r2_diff_trend_errprop'], fmt='x', elinewidth=1, capsize=2, alpha=1, color=a5, label=f"-54.6 N N, {str(locs2[7])}")
+plt.axhline(0, color='black')
+plt.ylabel('\u0394\u0394$^1$$^4$CO$_2$ (\u2030) [Sample - SHB1]')
+plt.legend()
+plt.savefig('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/plot6_point5.png',
+            dpi=300, bbox_inches="tight")
+plt.close
 
 
 

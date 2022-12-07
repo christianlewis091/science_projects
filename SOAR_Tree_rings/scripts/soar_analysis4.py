@@ -1,3 +1,15 @@
+"""
+Updated: 29 November 2022
+
+This file does the following:
+1. Assigns new BROADER latitude bands
+2. Assigns time bands which can be made coarser or finer using the apply_time_bands function.
+
+3. Finds means of each of those bands using the split apply combine method.
+4. Creates plots 7 (decadal averages) and 8 (rolling mean).
+"""
+
+
 import pandas as pd
 import numpy as np
 from soar_analysis1 import df_2
@@ -20,7 +32,7 @@ ant = df_2.loc[df_2['Country'] == 2]
 
 """
 Lets define bands of latitude: 
-Band 1: -40 to -45
+Band 1: -38 to -45
 Band 2: -45 to -50
 Band 3: -50 to -55
 Band 4: < -60
@@ -53,7 +65,7 @@ def apply_time_bands(df):
 
     for i in range(0, len(df)):
         current_row = df.iloc[i]
-        space = np.linspace(1980, 2025, 10)
+        space = np.linspace(1980, 2025, 5)
         for k in range(0, len(space)-1):
             if space[k] < current_row['Decimal_date'] <= (space[k+1]):
                 result_array.append(f"Interval_{space[k]}_{space[k+1]}")
@@ -83,6 +95,8 @@ means_nz1 = nz_band1.groupby('Time_Bands').mean().reset_index()
 means_nz2 = nz_band2.groupby('Time_Bands').mean().reset_index()
 means_nz3 = nz_band3.groupby('Time_Bands').mean().reset_index()
 means_ant = ant_band4.groupby('Time_Bands').mean().reset_index()
+# print(means_ch1.to_markdown())
+# print(means_nz1.to_markdown())
 
 stds_ch1 = chile_band1.groupby('Time_Bands').std().reset_index()
 stds_ch2 = chile_band2.groupby('Time_Bands').std().reset_index()
@@ -116,8 +130,8 @@ CREATE THE PLOT
 """
 a1, a3, a5, a8 ='#d73027', '#fdae61', '#1c9099', '#4575b4' # testing
 #landschutzer
-schutz_x = [1985, 1990, 1995, 2000, 2005, 2010, 2015]
-schutz_y = np.multiply([-1.5, -1.4, -1.2, -1, -1.5, -2, -2.2], -1)
+# schutz_x = [1985, 1990, 1995, 2000, 2005, 2010, 2015]
+# schutz_y = np.multiply([-1.5, -1.4, -1.2, -1, -1.5, -2, -2.2], -1)
 
 # CREATES THE FIGURE
 q = 6
@@ -135,9 +149,9 @@ ax2.plot(means_nz2['Decimal_date'], means_nz2['r2_diff_trend'], label='NZ 45-50S
 ax2.plot(means_nz3['Decimal_date'], means_nz3['r2_diff_trend'], label='NZ 50-55S', color = a5)
 ax3.plot(means_ant['Decimal_date'], means_ant['r2_diff_trend'], label = 'NMW (70S)', color = a8)
 # HOLDS ON THE LANDSCHUTZER DATA
-ax4.plot(schutz_x, schutz_y, label='Landschutzer', alpha = 0.3, linestyle='--', color='black')
-ax5.plot(schutz_x, schutz_y, label='Landschutzer', alpha = 0.3, linestyle='--', color='black')
-ax6.plot(schutz_x, schutz_y, label='Landschutzer', alpha = 0.3, linestyle='--', color='black')
+# ax4.plot(schutz_x, schutz_y, label='Landschutzer', alpha = 0.3, linestyle='--', color='black')
+# ax5.plot(schutz_x, schutz_y, label='Landschutzer', alpha = 0.3, linestyle='--', color='black')
+# ax6.plot(schutz_x, schutz_y, label='Landschutzer', alpha = 0.3, linestyle='--', color='black')
 
 #PLOTS THE BACKGROUND COLORS/ERROR RANGE
 
@@ -152,14 +166,17 @@ ax3.fill_between(means_ant['Decimal_date'], (means_ant['r2_diff_trend']+stds_ant
 ax1.set_ylabel('SOAR Residuals', color='black')
 ax2.set_ylabel('SOAR Residuals', color='black')
 ax3.set_ylabel('SOAR Residuals', color='black')
-ax4.set_ylabel('Lanschutzer Data (--)', color='black')
-ax5.set_ylabel('Lanschutzer Data (--)', color='black')
-ax6.set_ylabel('Lanschutzer Data (--)', color='black')
+# ax4.set_ylabel('Lanschutzer Data (--)', color='black')
+# ax5.set_ylabel('Lanschutzer Data (--)', color='black')
+# ax6.set_ylabel('Lanschutzer Data (--)', color='black')
 
 ax1.legend(), ax2.legend(), ax3.legend()
 ymin = -10
 ymax = 10
+xmin = 1980
+xmax = 2020
 ax1.axis(ymin=ymin, ymax=ymax), ax2.axis(ymin=ymin, ymax=ymax), ax3.axis(ymin=ymin, ymax=ymax)
+ax1.axis(xmin=xmin, xmax=xmax), ax2.axis(xmin=xmin, xmax=xmax), ax3.axis(xmin=xmin, xmax=xmax)
 plt.savefig('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/plot7.png',
             dpi=300, bbox_inches="tight")
 plt.close()
@@ -180,9 +197,9 @@ ax2.plot(nz_band2['Decimal_date'], nz_band2['Rolling_mean'], label='NZ 45-50S', 
 ax2.plot(nz_band3['Decimal_date'], nz_band3['Rolling_mean'], label='NZ 50-55S', color = a5)
 ax3.plot(ant_band4['Decimal_date'], ant_band4['Rolling_mean'], label = 'NMW (70S)', color = a8)
 # HOLDS ON THE LANDSCHUTZER DATA
-ax4.plot(schutz_x, schutz_y, label='Landschutzer', alpha = 0.3, linestyle='--', color='black')
-ax5.plot(schutz_x, schutz_y, label='Landschutzer', alpha = 0.3, linestyle='--', color='black')
-ax6.plot(schutz_x, schutz_y, label='Landschutzer', alpha = 0.3, linestyle='--', color='black')
+# ax4.plot(schutz_x, schutz_y, label='Landschutzer', alpha = 0.3, linestyle='--', color='black')
+# ax5.plot(schutz_x, schutz_y, label='Landschutzer', alpha = 0.3, linestyle='--', color='black')
+# ax6.plot(schutz_x, schutz_y, label='Landschutzer', alpha = 0.3, linestyle='--', color='black')
 
 #PLOTS THE BACKGROUND COLORS/ERROR RANGE
 
@@ -198,14 +215,17 @@ ax3.fill_between(ant_band4['Decimal_date'], (ant_band4['Rolling_mean']+ant_band4
 ax1.set_ylabel('SOAR Residuals', color='black')
 ax2.set_ylabel('SOAR Residuals', color='black')
 ax3.set_ylabel('SOAR Residuals', color='black')
-ax4.set_ylabel('Lanschutzer Data (--)', color='black')
-ax5.set_ylabel('Lanschutzer Data (--)', color='black')
-ax6.set_ylabel('Lanschutzer Data (--)', color='black')
+# ax4.set_ylabel('Lanschutzer Data (--)', color='black')
+# ax5.set_ylabel('Lanschutzer Data (--)', color='black')
+# ax6.set_ylabel('Lanschutzer Data (--)', color='black')
 
 ax1.legend(), ax2.legend(), ax3.legend()
 ymin = -10
 ymax = 10
+xmin = 1980
+xmax = 2020
 ax1.axis(ymin=ymin, ymax=ymax), ax2.axis(ymin=ymin, ymax=ymax), ax3.axis(ymin=ymin, ymax=ymax)
+ax1.axis(xmin=xmin, xmax=xmax), ax2.axis(xmin=xmin, xmax=xmax), ax3.axis(xmin=xmin, xmax=xmax)
 plt.savefig('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/plot8.png',
             dpi=300, bbox_inches="tight")
 plt.close()

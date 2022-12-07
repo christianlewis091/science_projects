@@ -1,3 +1,17 @@
+"""
+Updated: 29 November 2022
+
+This file does the following:
+1. It uses a for loop to iterate through all the different sites in the three dataset groups (Chile, NZ, antarctica)
+and runs a paired t-test to compare the use of Reference 2 from Reference 3. The results get output to here:
+results_array.to_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/site_ttest.xlsx')
+
+2. It also makes Plot 6!
+3. It also makes Plot 6.5, used to compare Campbell Island and MCQ, which was intended to validate Campbell Island.
+
+"""
+
+
 import pandas as pd
 import numpy as np
 from soar_analysis1 import df_2
@@ -139,7 +153,7 @@ plt.close()
 
 
 results_array = pd.DataFrame({"Site": site_array, "Lat": lat_array, "Paired T-test p-value": result_array})
-results_array.to_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/testttest.xlsx')
+results_array.to_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/site_ttest.xlsx')
 
 
 """an extra plot"""
@@ -156,7 +170,7 @@ plt.ylabel('\u0394\u0394$^1$$^4$CO$_2$ (\u2030) [Sample - SHB1]')
 plt.legend()
 plt.savefig('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/plot6_point5.png',
             dpi=300, bbox_inches="tight")
-plt.close
+plt.close()
 
 
 

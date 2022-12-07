@@ -1,3 +1,20 @@
+"""
+Updated: 29 November 2022
+
+This file does the following:
+1. Cleans up data
+ - (Neumayer and MacQuarie Island didn't have Lat Lon's in them yet)
+ - Longitudes weren't all on the same plane (some in terms of W, others E).
+2. Adds a flag for the country zone of origin, Chile = 0, NZ = 1, NMY = 2
+3. Currently, the data has two types of "sample D14C values". 1) Original D14C values, and "corrected" D14C values
+which are called D14C_1. These corrected values only exist for NEU and MCQ datasets, and will be used in reference to
+the harmonized dataset, where the reference also has a correction applied. However, in the dataframe, the SOAR data cells
+wrt D14C_1 are completely empty (because no corrected data exists), and this may complicate the otherwise simple script.
+Therefore, I'm going to tell python, wherever D14C_1 is NaN, put in the data from D14C.
+4. Calculates the "residuals" (maybe not best term), i.e.; df['r2_diff_trend'], which is heavily used later.
+5. Creates Plots 1, 2, and 3.
+"""
+
 import numpy
 import pandas as pd
 import numpy as np
@@ -6,6 +23,7 @@ from mpl_toolkits import mplot3d
 from X_my_functions import plotfunc_line, plotfunc_scat, plotfunc_2line, plotfunc_error
 import matplotlib.gridspec as gridspec
 
+
 df = pd.read_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/samples_with_references10000.xlsx')
 ref2 = pd.read_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/harmonized_dataset.xlsx')
 ref3 = pd.read_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/reference3.xlsx')
@@ -13,14 +31,6 @@ ref3 = pd.read_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/re
 df = df.loc[df['Decimal_date'] > 1980].reset_index(drop=True)
 ref2 = ref2.loc[ref2['Decimal_date'] > 1980].reset_index(drop=True)
 ref3 = ref3.loc[ref3['Decimal_date'] > 1980].reset_index(drop=True)
-# I need to drop the index column in order to drop some duplicates that made their way through
-# df = df[['Ring code', 'R number', 'Site', 'F14C',
-#          'F14Cerr', 'Decimal_date', 'D14C', 'D14Cerr', 'Lat', 'Lon', '#location',
-#          'Sample', 'Lab', 'Analysis', 'Sample ', 'Sample.1', 'Average of Dates',
-#          'd13C', 'Flag', 'D14C_1', 'weightedstderr_D14C_1', 'sampler_id',
-#          'wheightedanalyticalstdev_D14C', 'D14C_ref2s_mean', 'D14C_ref2s_std',
-#          'D14C_ref2t_mean', 'D14C_ref2t_std', 'D14C_ref3s_mean',
-#          'D14C_ref3s_std', 'D14C_ref3t_mean', 'D14C_ref3t_std']]
 
 """ 
 Need to add lat and lon data to NEUMAYER and MCQ

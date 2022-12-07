@@ -1,3 +1,15 @@
+"""
+Updated: 29 November 2022
+
+This file does the following:
+1. Breaks up the data based on certain latitudinal bands defined in analysis1.py.
+2. Calculates broad data for each latitudinal band, for different time intervals.
+3. Creates plot 4.
+
+This entire file will be left as is, but has been pretty much overruled by the files that produce
+plot 7, a better version of plot 4.
+"""
+
 import pandas as pd
 import numpy as np
 from soar_analysis1 import df_2
@@ -207,25 +219,6 @@ plt.legend()
 plt.savefig('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/plot4.png',
             dpi=300, bbox_inches="tight")
 plt.close()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

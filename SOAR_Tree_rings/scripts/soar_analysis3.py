@@ -34,7 +34,8 @@ chile = df_2.loc[df_2['Country'] == 0].reset_index(drop=True)
 nz = df_2.loc[df_2['Country'] == 1].reset_index(drop=True)
 ant = df_2.loc[df_2['Country'] == 2].reset_index(drop=True)
 
-
+chile_experiment = chile
+# chile.to_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/blahblah.xlsx')
 """
 The following code block just allows me to preserve the original index order of the data after indexing by Country
 """

@@ -247,7 +247,7 @@ plt.close()
 
 
 """
-Quickly trying to find the slopes on either side of the pean DD14C on Figure 4. This will appear in the results section.
+Quickly trying to find the slopes on either side of the peak DD14C on Figure 4. This will appear in the results section.
 """
 # First I want to write a few lines that can identify the date at which DD14C is max in CH and NZ 38-45S.
 means_ch1 = means_ch1.loc[means_ch1['Decimal_date'] > 1984]  # remove the uptick pre1985
@@ -288,8 +288,10 @@ def slope_check(df, max_date, name):
 # Chile max r2_diff_trend is 6.68416 in 2002
 # For NZ, max r2_diff_trend is  1.8781 in 2006.53
 x = slope_check(means_ch1, 2002.000, 'chile_band1')
-x = slope_check(means_nz1, 2006.53000, 'NZ_band1')
-x = slope_check(means_ch2, min(means_ch2['Decimal_date']), 'ch_band2')
-x = slope_check(means_ch3, min(means_ch3['Decimal_date']), 'ch_band3')
+x = slope_check(means_ch2, 2006.53000, 'NZ_band1')
+x = slope_check(means_ch3, min(means_ch3['Decimal_date']), 'ch_band2')
+x = slope_check(means_nz1, min(means_nz1['Decimal_date']), 'ch_band3')
 x = slope_check(means_nz2, min(means_nz2['Decimal_date']), 'nz_band2')
 x = slope_check(means_nz3, min(means_nz3['Decimal_date']), 'nz_band3')
+
+print(means_ch1)

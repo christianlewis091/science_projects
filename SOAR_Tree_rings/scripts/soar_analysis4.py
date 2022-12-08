@@ -65,7 +65,7 @@ def apply_time_bands(df):
 
     for i in range(0, len(df)):
         current_row = df.iloc[i]
-        space = np.linspace(1980, 2025, 5)
+        space = np.linspace(1980, 2025, 10)
         for k in range(0, len(space)-1):
             if space[k] < current_row['Decimal_date'] <= (space[k+1]):
                 result_array.append(f"Interval_{space[k]}_{space[k+1]}")

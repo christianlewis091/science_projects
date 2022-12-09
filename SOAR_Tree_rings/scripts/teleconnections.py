@@ -25,6 +25,9 @@ for i in range(0, len(chile_experiment)):
 chile_experiment['YEAR'] = resultarray
 
 merged = pd.merge(chile_experiment, sam, how='outer', on='YEAR')  # merge the files back together
+merged = pd.merge(merged, enso, how='outer', on='YEAR')  # merge the files back together
+
+
 merged.to_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/blahblah.xlsx')
 # merged = merged.loc[merged['Site'] == 'Raul Marin Balmaceda']
 
@@ -45,7 +48,7 @@ plt.title('Sam Index (January only)')
 plt.xlim(1980, 2022)
 
 xtr_subsplot = fig.add_subplot(gs[6:9, 0:2])
-plt.scatter(merged['r2_diff_trend'], merged['JAN'])
+plt.scatter(merged['r2_diff_trend'], merged['DJ'])
 
 # plt.show()
 plt.savefig('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/teleconnections.png',
@@ -53,9 +56,9 @@ plt.savefig('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/teleconnect
 plt.close()
 
 
-plt.scatter(merged['r2_diff_trend'], merged['NOV'])
+plt.scatter(merged['r2_diff_trend'], merged['DJ'])
 plt.xlabel('DD14C')
-plt.ylabel('SAM Index')
+plt.ylabel('ENSO Index')
 plt.show()
 
 

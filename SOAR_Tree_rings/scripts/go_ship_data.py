@@ -11,8 +11,19 @@ import matplotlib.gridspec as gridspec
 import os
 import csv
 import pandas.errors
+import seawater
+import gsw as gsw
 
 df = pd.read_csv('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/test_all.csv')
+# calculate potential temperature from 1) Absolute Salinity 2) sea pressure,
+# gsw.pt_from_t(SA (absolute salinirty) ,t (in situ temperature),p (sea pressure) ,pr (reference pressure (0))
+
+# calculate absolute salinity
+# df['SA'] = seawater.
+
+df['PotTemp'] = seawater.ptmp(df['SALNTY'], df['CTDTMP'], df['CTDPRS'], 0)
+
+
 
 indexes = np.unique(df['Cat4Index'])
 
@@ -35,7 +46,8 @@ for i in range(0, len(indexes)):
 
     try:
         dlat = 20  # adds a buffer to see around the map
-        map = Basemap(llcrnrlat=minlat-dlat, urcrnrlat=maxlat+dlat, llcrnrlon=minlon-dlat, urcrnrlon=maxlon+dlat, resolution='i')
+        dlon = 45
+        map = Basemap(llcrnrlat=minlat-dlat, urcrnrlat=maxlat+dlat, llcrnrlon=minlon-dlon, urcrnrlon=maxlon+dlon, resolution='i')
     except:  # this exists because sometimes the 20 is too much and it gets out of range and crashes the code
         dlat = 10  # adds a buffer to see around the map
         map = Basemap(llcrnrlat=minlat-dlat, urcrnrlat=maxlat+dlat, llcrnrlon=minlon-dlat, urcrnrlon=maxlon+dlat, resolution='i')
@@ -89,8 +101,45 @@ for i in range(0, len(indexes)):
     except ValueError:
         x = 1
 
+    try:
+        xtr_subsplot = fig.add_subplot(gs[10:19, 0:9])
+        plt.xlabel('Latitude')
+        plt.title('TvS')
+        plt.ylabel('Potential Temperature [Deg C]')
+        plt.xlabel('Salinity [psu]')
+        df1 = thiscruise.loc[(thiscruise['SALNTY'] > -998) & (thiscruise['PotTemp'] > -998) & (thiscruise['CTDPRS'] > -998)]
+        # adapting from https://github.com/larsonjl/earth_data_tools/blob/master/TS%20%20Plot%20Example/TS%20%20Plot%20Example.md
+        # temperature = df['PotTemp']   # Load temperature data
+        # salinity    = df['SALNTY']    # Load salinity data
+        # depth       = df['CTDPRS']    # Load depth information
+        # t_min = temperature.min() - 1
+        # t_max = temperature.max() + 1
+        # s_min = salinity.min() - 1
+        # s_max = salinity.max() + 1
+        # xdim = int(np.ceil(s_max - s_min)/0.1)
+        # ydim = int(np.ceil(t_max-t_min))
+        # dens = np.zeros((int(ydim), int(xdim)))
+        #
+        # # Create temp and salt vectors of appropiate dimensions
+        # ti = np.linspace(0,ydim,ydim)+t_min
+        # si = np.linspace(1,xdim,xdim)*0.1+s_min
+        #
+        # # Loop to fill in grid with densities
+        # for j in range(0,int(ydim)):
+        #     for p in range(0, int(xdim)):
+        #         dens[j,p]= gsw.rho(si[p],ti[j],0)
+        #
+        plt.scatter(df1['SALNTY'], df1['PotTemp'], c=df1['CTDPRS'], cmap='magma')
+        plt.colorbar()
+    except ValueError:
+        x = 1
+
     plt.savefig(f'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/Hydrography/{indexes[i]}',
             dpi=300, bbox_inches="tight")
+    if indexes[i] in [5, 15, 16, 17, 27, 30, 38, 53, 61, 65, 71, 72, 73, 89, 93, 99, 107, 108, 115, 124, 126, 128, 135,
+                      141, 142, 143, 147, 150, 154, 156, 157, 158, 162, 166, 169, 176, 184, 188, 190]:
+        plt.savefig(f'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/Hydrography_chosenplots/{indexes[i]}_selected',
+                    dpi=300, bbox_inches="tight")
     plt.close()
 
 

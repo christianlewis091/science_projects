@@ -13,6 +13,7 @@ import matplotlib.gridspec as gridspec
 import os
 import csv
 import pandas.errors
+import seawater
 
 
 """
@@ -37,7 +38,7 @@ for i in range(0, len1):
     # skipping the first row avoids dealing with the "BOTTLE" row.
     # comment as # gets rid of the commented rows
     df = pd.read_csv(f"H:/Science/Datasets/Hydrographic/BatchSOCeDownload/{name}", comment='#', skiprows=1).dropna(subset='DATE').reset_index(drop=True)
-    desired_cols_14C = ['DATE','LATITUDE','LONGITUDE','CTDPRS','OXYGEN','NITRAT', 'DELC14']
+    desired_cols_14C = ['DATE','LATITUDE','LONGITUDE','CTDPRS','OXYGEN','NITRAT', 'DELC14','CTDTMP','SALNTY']
 
     # define a function to find the overlap between the columns we want, and the columns we have
     def intersection(lst1, lst2):

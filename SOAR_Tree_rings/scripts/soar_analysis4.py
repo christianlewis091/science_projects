@@ -138,7 +138,7 @@ q = 6
 fig, (ax1, ax2, ax3) = plt.subplots(3, figsize=(q, q*1.6180))
 
 # NEXT LINE IS REQUIRED TO HOLD ON LANDSHCUTZER DATA
-ax4, ax5, ax6 = ax1.twinx(), ax2.twinx(), ax3.twinx()
+# ax4, ax5, ax6 = ax1.twinx(), ax2.twinx(), ax3.twinx()
 
 # PLOTS THE ACTUAL DATA (MEANS FOR EACH TIME PERIOD, FOR EACH LATITUDE, SUBPLOTS 1, 2, 3, for AX1, AX2, AX3
 ax1.plot(means_ch1['Decimal_date'], means_ch1['r2_diff_trend'], label='CH 38-45S', color = a1)
@@ -163,12 +163,7 @@ ax2.fill_between(means_nz2['Decimal_date'], (means_nz2['r2_diff_trend']+stds_nz2
 ax2.fill_between(means_nz3['Decimal_date'], (means_nz3['r2_diff_trend']+stds_nz3['r2_diff_trend']), (means_nz3['r2_diff_trend']-stds_nz3['r2_diff_trend']), alpha = 0.3, color = a5)
 ax3.fill_between(means_ant['Decimal_date'], (means_ant['r2_diff_trend']+stds_ant['r2_diff_trend']), (means_ant['r2_diff_trend']-stds_ant['r2_diff_trend']), alpha = 0.3, color = a8)
 
-ax1.set_ylabel('SOAR Residuals', color='black')
-ax2.set_ylabel('SOAR Residuals', color='black')
-ax3.set_ylabel('SOAR Residuals', color='black')
-# ax4.set_ylabel('Lanschutzer Data (--)', color='black')
-# ax5.set_ylabel('Lanschutzer Data (--)', color='black')
-# ax6.set_ylabel('Lanschutzer Data (--)', color='black')
+ax2.set_ylabel('\u0394\u0394$^1$$^4$CO$_2$ (\u2030) [Sample - Reference]', color='black')
 
 ax1.legend(), ax2.legend(), ax3.legend()
 ymin = -10
@@ -212,9 +207,9 @@ ax2.fill_between(nz_band3['Decimal_date'], (nz_band3['Rolling_mean']+nz_band3['R
 ax3.fill_between(ant_band4['Decimal_date'], (ant_band4['Rolling_mean']+ant_band4['Rolling_std']), (ant_band4['Rolling_mean']-ant_band4['Rolling_std']), alpha = 0.3, color = a8)
 
 
-ax1.set_ylabel('SOAR Residuals', color='black')
-ax2.set_ylabel('SOAR Residuals', color='black')
-ax3.set_ylabel('SOAR Residuals', color='black')
+ax2.set_ylabel('\u0394\u0394$^1$$^4$CO$_2$ (\u2030) [Tree Ring - Baring head]', color='black')
+# ax2.set_ylabel('SOAR Residuals', color='black')
+# ax3.set_ylabel('SOAR Residuals', color='black')
 # ax4.set_ylabel('Lanschutzer Data (--)', color='black')
 # ax5.set_ylabel('Lanschutzer Data (--)', color='black')
 # ax6.set_ylabel('Lanschutzer Data (--)', color='black')

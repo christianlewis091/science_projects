@@ -288,10 +288,15 @@ def slope_check(df, max_date, name):
 # Chile max r2_diff_trend is 6.68416 in 2002
 # For NZ, max r2_diff_trend is  1.8781 in 2006.53
 x = slope_check(means_ch1, 2002.000, 'chile_band1')
-x = slope_check(means_ch2, 2006.53000, 'NZ_band1')
-x = slope_check(means_ch3, min(means_ch3['Decimal_date']), 'ch_band2')
-x = slope_check(means_nz1, min(means_nz1['Decimal_date']), 'ch_band3')
+x = slope_check(means_ch2, min(means_ch2['Decimal_date']), 'chile_band2')
+x = slope_check(means_ch3, min(means_ch3['Decimal_date']), 'ch_band3')
+x = slope_check(means_nz1, min(means_nz1['Decimal_date']), 'nz_band1')
 x = slope_check(means_nz2, min(means_nz2['Decimal_date']), 'nz_band2')
 x = slope_check(means_nz3, min(means_nz3['Decimal_date']), 'nz_band3')
 
 print(means_ch1)
+
+slopes_nz, slopes_ch = [0.104, -0.009, 0.126], [0.054, 0.083]
+
+print(f"Average and std of slopes NZ is {np.average(slopes_nz)} +/- {np.std(slopes_nz)}")
+print(f"Average and std of slopes NZ is {np.average(slopes_ch)} +/- {np.std(slopes_ch)}")

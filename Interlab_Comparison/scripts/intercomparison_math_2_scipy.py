@@ -35,6 +35,7 @@ rrl = combine_ANSTO.loc[(combine_ANSTO['Site'] == 'RRL')].reset_index(drop=True)
 NWT3 = combine_SIO.loc[(combine_SIO['standard_type'] == 'NWT3')]
 sio_nwt3 = NWT3.loc[(NWT3['Site'] == 'LLNL')]
 rrl_nwt3 = NWT3.loc[(NWT3['Site'] == 'RRL')]
+
 NWT4 = combine_SIO.loc[(combine_SIO['standard_type'] == 'NWT4')]
 sio_nwt4 = NWT4.loc[(NWT4['Site'] == 'LLNL')]
 rrl_nwt4 = NWT4.loc[(NWT4['Site'] == 'RRL')]
@@ -98,12 +99,12 @@ expand this analysis the entire dataset I have on hand of BHD and see if there i
 # Cape Grim vs BHD intercomparison
 # NaOH v Flask Intercomparison.
 
-"""
-This two lines below show the initial intercomparison.
-"""
-
-flaskvn = pd.read_excel(r'H:\Science\Datasets\FlaskvNaOH.xlsx', skiprows=3).dropna(subset = 'D14C_flask')  # import heidelberg data
-f = intercomparison_ttest(flaskvn['D14C_flask'], flaskvn['D14C_NaOH'], 'Flask v NaOH @ Baring Head', 'paired')
+# """
+# This two lines below show the initial intercomparison.
+# """
+#
+# flaskvn = pd.read_excel(r'H:\Science\Datasets\FlaskvNaOH.xlsx', skiprows=3).dropna(subset = 'D14C_flask')
+# f = intercomparison_ttest(flaskvn['D14C_flask'], flaskvn['D14C_NaOH'], 'Flask v NaOH @ Baring Head', 'paired')
 
 """
 Updated intercomparison

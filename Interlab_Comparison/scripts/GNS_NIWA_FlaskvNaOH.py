@@ -9,6 +9,7 @@ colors = sns.color_palette("rocket", 6)
 colors2 = sns.color_palette("mako", 6)
 seshadri = ['#c3121e', '#0348a1', '#ffb01c', '#027608', '#0193b0', '#9c5300', '#949c01', '#7104b5']
 
+
 """
 For Atmospheric CO2 data collected at Baring Head, using the flask method and the NaoH method over the years, 
 does the collection method make a difference in the data? Does the time between CO2 collection and extraction 
@@ -18,11 +19,18 @@ Also were we able to see a difference between atmospheric CO2 from Cape Grim and
 time in the past ( a very specific test) 
 """
 
-ed = pd.read_excel(r'H:\Science\Datasets\Extraction_Dates.xlsx')              # import Baring Extraction Date Data
+# Import baring head extraction date data
+ed = pd.read_excel(r'H:\Science\Datasets\Extraction_Dates.xlsx')
+
+# Import main Baring Head data
 bhd = pd.read_excel(r'H:\Science\Datasets\BHD_14CO2_datasets_20211013.xlsx')  # import all Baring Head data
+
+# Drop some regions where there is no data
 bhd = bhd.dropna(subset='DATE_ST').reset_index(drop = True)
 bhd = bhd.dropna(subset='DATE_END').reset_index(drop = True)
 ed = ed.dropna(subset='Extract').reset_index(drop = True)
+
+# change some of the date formatting to decimals (I shouldn't have done this but didn't know better at the time)
 x = bhd['DATE_ST']
 x2 = bhd['DATE_END']
 x3 = ed['Extract']
@@ -33,18 +41,25 @@ bhd['DATE_ST_Decimal'] = x
 bhd['DATE_END_Decimal'] = x2
 ed['Extract_decimal'] = x3
 
-#
+# drop some more missing values
 ed = ed.dropna(subset=['NZ'])
 ed = ed.dropna(subset=['Extract'])
-combined = pd.merge(bhd, ed, on = 'NZ')                                           # merge the extraction data with the rest of the data
+
+# merge the extraction data with the rest of the data, so we have one dataset to work with
+combined = pd.merge(bhd, ed, on = 'NZ')
+
+# calculate the time between a flask collection and when the CO2 was extracted
 combined['Waiting_time'] = combined['Extract_decimal'] - combined['DEC_DECAY_CORR']
 
+# break the data up into two dataframes based on their sampling techniques
 naoh = bhd.loc[(bhd['METH_COLL'] == 'NaOH_static')]                              # grab all NaOH data
 flask = combined.loc[(combined['METH_COLL'] == 'Whole_air')]                          # grab all Flask data
 
+
+# Use a for-loop to find only flask data that resieds within NaOH sampling time periods, and save them to an array.
+# This lines up flask sampling data and NaOH sampling data so there are the same number of points to compare.
 flask_dump = []
 naoh_dump = []
-#
 for i in range(0, len(naoh)):
     naoh_row = naoh.iloc[i]
     for k in range(0, len(flask)):
@@ -54,16 +69,18 @@ for i in range(0, len(naoh)):
             naoh_dump.append(naoh_row)
             flask_dump.append(flask_row)
 
-
+# save these two outputs to pandas Dataframes (why?)
 flask_dump = pd.DataFrame(flask_dump).reset_index(drop = True)
-# flask_dump.to_excel('flaskd.xlsx')
 naoh_dump = pd.DataFrame(naoh_dump).reset_index(drop = True)
-# naoh_dump.to_excel('naohd.xlsx')
-# What is the difference between the flask and the NaOH measurements?
+
+# What is the difference between the flask and the NaOH measurements?, and the propogated errors of these differences?
 diff = flask_dump['DELTA14C'] - naoh_dump['DELTA14C']
 diff_err = np.sqrt(flask_dump['DELTA14C_ERR']**2 + naoh_dump['DELTA14C_ERR']**2)
 
-f = intercomparison_ttest(flask_dump['DELTA14C'], naoh_dump['DELTA14C'], 'Flask v NaOH @ Baring Head', 'paired')
+# What can a paired and independent T-test tell us?
+c = stats.ttest_ind(flask_dump['DELTA14C'], naoh_dump['DELTA14C'])
+d = stats.ttest_rel(flask_dump['DELTA14C'], naoh_dump['DELTA14C'])
+print(c, d)
 
 plt.errorbar(naoh_dump['DEC_DECAY_CORR'], diff, label='RRL', yerr=diff_err, fmt='o', color=colors2[2], ecolor=colors2[2], elinewidth=1, capsize=2)
 plt.legend(fontsize=7.5)
@@ -91,10 +108,10 @@ plt.close()
 The test that was done between CGO and Baring Head, how did that turn out? 
 """
 
-df = pd.read_excel(r'H:\Science\Datasets\CGOvBHD.xlsx')
-#
-c = stats.ttest_rel(df['BHD_D14C'], df['CGO_D14C'])
-print(c)
+# df = pd.read_excel(r'H:\Science\Datasets\CGOvBHD.xlsx')
+# #
+# c = stats.ttest_rel(df['BHD_D14C'], df['CGO_D14C'])
+
 # f = intercomparison_ttest(df['BHD_D14C'], df['CGO_D14C'], 'CGOvBHD (Both NaOH)', 'paired')
 # plt.errorbar(df['Date'], df['BHD_D14C'], label='BHD', yerr=df['standard deviation1'], fmt='o', color=colors[2], ecolor=colors[2], elinewidth=1, capsize=2)
 # plt.errorbar(df['Date'], df['CGO_D14C'], label='CGO', yerr=df['standard deviation2'], fmt='o', color=colors2[2], ecolor=colors2[2], elinewidth=1, capsize=2)

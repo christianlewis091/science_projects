@@ -94,38 +94,115 @@ doc = doc.replace('P16N.2', 'P16N')
 Comparing total DOC and SPE-DOC 
 
 """
-print('SPE-DOC')
-print(np.average(df['13C_corr']))
-print(np.std(df['13C_corr']))
-print(len(df))
-print()
-print('Total DOC')
-print(np.average(doc['Value']))
-print(np.std(doc['Value']))
-print(len(doc))
-print()
-print('Difference')
-print(np.average(df['13C_corr']) - (np.average(doc['Value'])))
-print(np.sqrt((np.std(df['13C_corr']))**2 + (np.std(doc['Value']))**2))
-print()
+# print('SPE-DOC')
+# print(np.average(df['13C_corr']))
+# print(np.std(df['13C_corr']))
+# print(len(df))
+# print()
+# print('Total DOC')
+# print(np.average(doc['Value']))
+# print(np.std(doc['Value']))
+# print(len(doc))
+# print()
+# print('Difference')
+# print(np.average(df['13C_corr']) - (np.average(doc['Value'])))
+# print(np.sqrt((np.std(df['13C_corr']))**2 + (np.std(doc['Value']))**2))
+# print()
 
 
 names = ['P18', 'P16N','I7N']
 names2 = ['P18', 'P16','IO7']
+
+# Initialize some arrays to store data later
+bulk_av = []
+bulk_std = []
+SPE_av = []
+SPE_std = []
+descrip_doc = []
+descrip_spe = []
+nonret = []
+nonret_error = []
+ppl_rec = []
+ppl_rec_err = []
 for i in range(0, len(names)):
 
+    # grab the DOC from each cruise
     a = doc.loc[doc['Ocean Region'] == names[i]]
-    print(len(a))
+    # break up into surface and deep
+    a_s = a.loc[(a['Depth'] < 200)]
+    a_d = a.loc[(a['Depth'] < 4000) & (a['Depth'] > 2000)]
+
+    bulk_av.append(np.average(a_s['Value']))
+    bulk_std.append(np.std(a_s['Value']))
+    descrip_doc.append(f'Surface {names[i]}')
+
+    bulk_av.append(np.average(a_d['Value']))
+    bulk_std.append(np.std(a_d['Value']))
+    descrip_doc.append(f'Deep {names[i]}')
+
+    # grab the SPE-DOC from each cruise
     b = df.loc[(df['Cruise'] == names2[i])]
-    print(len(b))
-    c = stats.ttest_ind(a['Value'], b[['13C_corr']])
-    print(f'Independent t-test for {names[i]} result is {c}')
+    # break up into surface and deep
+    b_s = b.loc[b['SorD'] == 'Surface']
+    b_d = b.loc[b['SorD'] == 'Deep']
+
+    SPE_av.append(np.average(b_s['13C_corr']))
+    SPE_std.append(np.std(b_s['13C_corr']))
+    # descrip_spe.append(f'Surface, SPE-DOC {names2[i]}')
+
+    SPE_av.append(np.average(b_d['13C_corr']))
+    SPE_std.append(np.std(b_d['13C_corr']))
+    # descrip_spe.append(f'Deep, SPE-DOC {names2[i]}')
+
+    # calculate non-retained's (surface)
+    rec = np.average(b_s['PPL % Recovery'])
+    rec_err = np.std(b_s['PPL % Recovery'])
+    ppl_rec.append(rec)
+    ppl_rec_err.append(rec_err)
+
+    nonretained_surface = np.average(a_s['Value']) - (np.average(b_s['13C_corr'])*rec) / (1-rec)
+    nonret.append(nonretained_surface)
+    # propogate the error
+    a = np.sqrt((b_s['13C_corr_err']/b_s['13C_corr'])**2 + (b_s['±.12']/b_s['PPL % Recovery'])**2)
+    b = np.sqrt(a**2 + a_s['±']**2)
+    value = a_s['Value'] - (b_s['13C_corr'])*rec
+    nonret_error_fin = nonretained_surface*(np.sqrt((b/value)**2 + (b_s['±.12']/b_s['PPL % Recovery'])**2))
+    nonret_error.append(nonret_error_fin)
+
+    # calculate non-retained's (deep)
+    rec = np.average(b_d['PPL % Recovery'])
+    rec_err = np.std(b_d['PPL % Recovery'])
+    ppl_rec.append(rec)
+    ppl_rec_err.append(rec_err)
+    nonretained_deep = np.average(a_d['Value']) - (np.average(b_d['13C_corr'])*rec) / (1-rec)
+    nonret.append(nonretained_deep)
+    # propogate the error
+    a = np.sqrt((b_d['13C_corr_err']/b_d['13C_corr'])**2 + (b_d['±.12']/b_d['PPL % Recovery'])**2)
+    b = np.sqrt(a**2 + a_d['±']**2)
+    value = a_d['Value'] - (b_d['13C_corr'])*rec
+    nonret_error_fin = nonretained_deep*(np.sqrt((b/value)**2 + (b_d['±.12']/b_d['PPL % Recovery'])**2))
+    nonret_error.append(nonret_error_fin)
+
+results = pd.DataFrame({"Description": descrip_doc, 'DOC 13C': bulk_av, 'error1': bulk_std,
+                        'SPE-DOC 13C': SPE_av, "error2": SPE_std, "PPL % Recovery": ppl_rec, "error3": ppl_rec_err,
+                        "Nonretained 13C": nonret, "error4": nonret_error})
+# results.to_excel(r'C:\Users\clewis\IdeaProjects\GNS\UCI_13C\output\results_table.xlsx')
+print(results)
 
 
+print(ppl_rec)
+    # c = stats.ttest_ind(a['Value'], b[['13C_corr']])
+    # print(f'Independent t-test for {names[i]} result is {c}')
 
 
+# Calculate the mass balance for the discussion:
 
-
+# s = df.loc[df['SorD'] == 'Surface']
+# d = df.loc[df['SorD'] == 'Deep']
+#
+# s_doc = doc.loc[(doc['Depth'] < 200)]
+# d_doc = doc.loc[(doc['Depth'] < 4000) & (doc['Depth'] > 2000)]
+#
 
 
 

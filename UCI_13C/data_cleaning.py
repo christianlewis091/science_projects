@@ -1,12 +1,14 @@
 """
 Lets clean up the 13C data
 """
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+import math
 from scipy import stats
 
 df = pd.read_excel(r'H:\Science\Current_Projects\00_UCI_13C\Cleaned_data.xlsx')
-
+print(df.columns)
 df = df[['SPEDOC split UCID', 'Cruise', 'SorD', 'Latitude',
           'Weighted Average Depth', 'Seawater Volume', 'Seawater Volume PM',
           'Empty mass of round-bottom 60 mL vial (mg) ', '±2',
@@ -21,6 +23,8 @@ df = df[['SPEDOC split UCID', 'Cruise', 'SorD', 'Latitude',
           'Closest DOC depth', 'DOC Concentration from closest depth',
           'PPL % Recovery', '±.12', 'DO13C from closest depth', 'Raw d13C',
           '±.13', 'Corrected 14C with duplicates averaged', 'Unnamed: 52', 'X_sample', 'X_sample_err','X_blank','X_blank_err']].dropna(subset='Raw d13C')
+
+
 
 # write the sheet to excel for later if you want to view it offline
 # df.to_excel(r'C:\Users\clewis\IdeaProjects\GNS\UCI_13C\output\test.xlsx')
@@ -124,6 +128,7 @@ nonret = []
 nonret_error = []
 ppl_rec = []
 ppl_rec_err = []
+count  = []
 for i in range(0, len(names)):
 
     # grab the DOC from each cruise
@@ -140,11 +145,16 @@ for i in range(0, len(names)):
     bulk_std.append(np.std(a_d['Value']))
     descrip_doc.append(f'Deep {names[i]}')
 
+
     # grab the SPE-DOC from each cruise
     b = df.loc[(df['Cruise'] == names2[i])]
     # break up into surface and deep
     b_s = b.loc[b['SorD'] == 'Surface']
+    print(b_s)
+    count.append(len(b_s))
     b_d = b.loc[b['SorD'] == 'Deep']
+    print(b_d)
+    count.append(len(b_d))
 
     SPE_av.append(np.average(b_s['13C_corr']))
     SPE_std.append(np.std(b_s['13C_corr']))
@@ -155,42 +165,67 @@ for i in range(0, len(names)):
     # descrip_spe.append(f'Deep, SPE-DOC {names2[i]}')
 
     # calculate non-retained's (surface)
-    rec = np.average(b_s['PPL % Recovery'])
-    rec_err = np.std(b_s['PPL % Recovery'])
+    rec = (np.nanmean(b_s['PPL % Recovery']))/100
+    rec_err = (np.nanstd(b_s['PPL % Recovery']))/100
     ppl_rec.append(rec)
     ppl_rec_err.append(rec_err)
 
-    nonretained_surface = np.average(a_s['Value']) - (np.average(b_s['13C_corr'])*rec) / (1-rec)
+    nonretained_surface = (np.nanmean(a_s['Value']) - (np.nanmean(b_s['13C_corr'])*rec)) / (1-rec)
     nonret.append(nonretained_surface)
-    # propogate the error
-    a = np.sqrt((b_s['13C_corr_err']/b_s['13C_corr'])**2 + (b_s['±.12']/b_s['PPL % Recovery'])**2)
-    b = np.sqrt(a**2 + a_s['±']**2)
-    value = a_s['Value'] - (b_s['13C_corr'])*rec
-    nonret_error_fin = nonretained_surface*(np.sqrt((b/value)**2 + (b_s['±.12']/b_s['PPL % Recovery'])**2))
-    nonret_error.append(nonret_error_fin)
 
+    # propogate the error
+    a = np.sqrt((np.nanmean(b_s['13C_corr_err'])/np.nanmean(b_s['13C_corr'])**2) + (np.nanmean(b_s['±.12'])/np.nanmean(b_s['PPL % Recovery'])**2))
+    b = np.sqrt(a**2 + np.nanmean(a_s['±']**2))
+    value = np.nanmean(a_s['Value']) - (np.nanmean(b_s['13C_corr'])*rec)
+    nonret_error_fin = -1*nonretained_surface*(np.sqrt((b/value)**2 + (np.nanmean(b_s['±.12'])/np.nanmean(b_s['PPL % Recovery'])**2)))
+    print(nonret_error_fin)
+    nonret_error.append(np.nanmean(nonret_error_fin))
+# #
     # calculate non-retained's (deep)
-    rec = np.average(b_d['PPL % Recovery'])
-    rec_err = np.std(b_d['PPL % Recovery'])
+    rec = (np.nanmean(b_d['PPL % Recovery']))/100
+    rec_err = (np.nanstd(b_d['PPL % Recovery']))/100
     ppl_rec.append(rec)
     ppl_rec_err.append(rec_err)
-    nonretained_deep = np.average(a_d['Value']) - (np.average(b_d['13C_corr'])*rec) / (1-rec)
+    nonretained_deep = (np.nanmean(a_d['Value']) - (np.nanmean(b_d['13C_corr'])*rec)) / (1-rec)
     nonret.append(nonretained_deep)
     # propogate the error
-    a = np.sqrt((b_d['13C_corr_err']/b_d['13C_corr'])**2 + (b_d['±.12']/b_d['PPL % Recovery'])**2)
-    b = np.sqrt(a**2 + a_d['±']**2)
-    value = a_d['Value'] - (b_d['13C_corr'])*rec
-    nonret_error_fin = nonretained_deep*(np.sqrt((b/value)**2 + (b_d['±.12']/b_d['PPL % Recovery'])**2))
-    nonret_error.append(nonret_error_fin)
+    a = np.sqrt((np.nanmean(b_d['13C_corr_err'])/np.nanmean(b_d['13C_corr'])**2) + (np.nanmean(b_d['±.12'])/np.nanmean(b_d['PPL % Recovery'])**2))
+    b = np.sqrt(a**2 + np.nanmean(a_d['±']**2))
+    value = np.nanmean(a_d['Value']) - (np.nanmean(b_d['13C_corr'])*rec)
+    nonret_error_fin = -1*nonretained_deep*(np.sqrt((b/value)**2 + (np.nanmean(b_d['±.12'])/np.nanmean(b_d['PPL % Recovery'])**2)))
+    print(nonret_error_fin)
+    nonret_error.append(np.nanmean(nonret_error_fin))
+
 
 results = pd.DataFrame({"Description": descrip_doc, 'DOC 13C': bulk_av, 'error1': bulk_std,
                         'SPE-DOC 13C': SPE_av, "error2": SPE_std, "PPL % Recovery": ppl_rec, "error3": ppl_rec_err,
-                        "Nonretained 13C": nonret, "error4": nonret_error})
-# results.to_excel(r'C:\Users\clewis\IdeaProjects\GNS\UCI_13C\output\results_table.xlsx')
-print(results)
+                        "Nonretained 13C": nonret, "error4": nonret_error, "N": count})
+#results.to_excel(r'C:\Users\clewis\IdeaProjects\GNS\UCI_13C\output\results_table.xlsx')
+plt.close()
 
 
-print(ppl_rec)
+# plot the new model data
+colors = ['#d73027','#fc8d59','#91bfdb','#4575b4']
+markers = ['o','x','^','D','s']
+
+plt.errorbar(results['Description'], results['DOC 13C'], yerr=results['error1'], fmt=markers[0], color=colors[0], capsize=4)
+plt.scatter(results['Description'], results['DOC 13C'], color=colors[0], marker=markers[0], label='DOC')
+
+plt.errorbar(results['Description'], results['SPE-DOC 13C'], yerr=results['error2'], fmt=markers[1], color=colors[1], capsize=4)
+plt.scatter(results['Description'], results['SPE-DOC 13C'], color=colors[1], marker=markers[1], label='SPE-DOC')
+
+plt.errorbar(results['Description'], results['Nonretained 13C'], yerr=results['error4'], fmt=markers[2], color=colors[2], capsize=4)
+plt.scatter(results['Description'], results['Nonretained 13C'], color=colors[2], marker=markers[2], label='Nonretained')
+plt.legend()
+plt.savefig('C:/Users/clewis/IdeaProjects/GNS/UCI_13C/output/Discussion1.png', dpi=95, bbox_inches="tight")
+
+
+
+
+
+
+
+
     # c = stats.ttest_ind(a['Value'], b[['13C_corr']])
     # print(f'Independent t-test for {names[i]} result is {c}')
 

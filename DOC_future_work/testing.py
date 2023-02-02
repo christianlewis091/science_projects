@@ -29,11 +29,13 @@ def get_sine_wave(frequency, duration, sample_rate=44100, amplitude=4096):
 """
 For the C naturals in octaves 4-5-6, what happens if you add the original signals? 
 """
+notes_of_interest = ['C4','F4','A4']
+
 add_arr = []
-for i in range(4, 7):
+for i in range(0, len(notes_of_interest)):
     note_freqs = get_piano_notes()
     # what note do you want to find
-    frequency = note_freqs[f'C{i}']
+    frequency = note_freqs[notes_of_interest[i]]
 
     # put it onto a sine wave
     sine_wave = get_sine_wave(frequency, duration=2, amplitude=1000)
@@ -45,48 +47,40 @@ for i in range(4, 7):
     wavfile.write('C:/Users/clewis/IdeaProjects/GNS/DOC_future_work/piano_c.wav', rate=44100, data=sine_wave.astype(np.int16))
 
 # add the frequencies that you sampled together, combine the signals as your ear would hear them
-added = add_arr[0] + add_arr[1] + add_arr[2]
 c4 = add_arr[0]
 c5 = add_arr[1]
 c6 = add_arr[2]
+added = c4 + c5 + c6
 
-fig, axs = plt.subplots(4)
+#FFT
+t = np.arange(added.shape[0])
+freq = np.fft.fftfreq(t.shape[-1])*4000
+sp = np.fft.fft(added)
+
+c1, c2, c3 = '#d73027', '#fdae61', '#1c9099'
+fig, axs = plt.subplots(5, sharex=True)
+
+fig.subplots_adjust(hspace=0.5)
 fig.suptitle('C natural superimposed and added')
 # what am I plotting?
-axs[0].plot(added[0:200])
-axs[1].plot(c4[0:200])
-axs[2].plot(c5[0:200])
-axs[3].plot(c6[0:200])
-plt.savefig('C:/Users/clewis/IdeaProjects/GNS/UCI_13C/output/Results2.png', dpi=400, bbox_inches="tight")
+n = 2500
+axs[0].plot(added[0:n], c1)
+axs[1].plot(c4[0:n], c2)
+axs[2].plot(c5[0:n], c3)
+axs[3].plot(c6[0:n])
+# add labels
+axs[0].set_title('Addition of waves')
+axs[1].set_title(notes_of_interest[0])
+axs[2].set_title(notes_of_interest[1])
+axs[3].set_title(notes_of_interest[2])
 
+axs[4].set_title('Fourier Transform')
+axs[4].plot(freq, abs(sp.real))
+axs[4].set_xlim((0, n))
 
+plt.savefig('C:/Users/clewis/IdeaProjects/GNS/xtra/FMaj.png', dpi=400)
 
-
-# fig = plt.figure(4, figsize=(12, 4))
-# gs = gridspec.GridSpec(8, 2)
-# gs.update(wspace=.35, hspace=.25)
-#
-#
-#
-#
-#
-#
-#
-# xtr_subplot = fig.add_subplot(gs[0:2, 0:2])
-# plt.plot(added[0:200])
-# plt.xlabel('Time')
-# plt.ylabel('Amplitude')
-# plt.title('Sound Wave of Middle C on Piano')
-# plt.show()
-#
-# xtr_subplot = fig.add_subplot(gs[0:2, 0:2])
-#
-#
-# xtr_subplot = fig.add_subplot(gs[0:2, 0:2])
-#
-#
-# xtr_subplot = fig.add_subplot(gs[0:2, 0:2])
-#
-#
-#
-# xtr_subplot = fig.add_subplot(gs[0:2, 0:2])
+"""
+Wrap a chord around a polar plot: 
+"""
+# https://www.youtube.com/watch?v=bDrfYFgcn2I

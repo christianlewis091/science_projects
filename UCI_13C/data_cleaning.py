@@ -9,20 +9,7 @@ from scipy import stats
 
 df = pd.read_excel(r'H:\Science\Current_Projects\00_UCI_13C\Cleaned_data.xlsx')
 print(df.columns)
-df = df[['SPEDOC split UCID', 'Cruise', 'SorD', 'Latitude',
-          'Weighted Average Depth', 'Seawater Volume', 'Seawater Volume PM',
-          'Empty mass of round-bottom 60 mL vial (mg) ', '±2',
-          'Mass of round bottom 60 mL vial after elution', '±2.1',
-          'Difference (mg) ', '±', 'Total Methanol Volume (mL) ', '±.1',
-          'SPE-Split Vial Pre-Weight (mg) ', '±.2',
-          'SPE-split vial post-weight (mg) ', '±.3', 'difference (mg) ', '±.4',
-          'Methanol Volume (mL)', '±.5', 'Fraction of whole',
-          '±.6', 'ug C', '±.7',
-          'mass SPE-DOC in full extract (ug) 1', '±.8', '[SPE-DOC] micromols C',
-          '±.9', '[SPE-DOC] uM', '±.10', 'Taking out PPL Split dups', '±.11',
-          'Closest DOC depth', 'DOC Concentration from closest depth',
-          'PPL % Recovery', '±.12', 'DO13C from closest depth', 'Raw d13C',
-          '±.13', 'Corrected 14C with duplicates averaged', 'Unnamed: 52', 'X_sample', 'X_sample_err','X_blank','X_blank_err']].dropna(subset='Raw d13C')
+df = df.dropna(subset='Raw d13C')
 
 
 
@@ -42,7 +29,7 @@ df['13C_corr'] = (df['Raw d13C'] - (cex_13C*df['X_blank']) ) / df['X_sample']
 a = np.sqrt((0.2/cex_13C)**2 + (df['X_blank_err']/df['X_blank'])**2)
 
 # and now the whole numerator
-b = np.sqrt(a**2 + df['±.13']**2)
+b = np.sqrt(a**2 + df['13cerr']**2)
 value = (df['Raw d13C'] - (cex_13C*df['X_blank']) )
 
 # and now the whole thing

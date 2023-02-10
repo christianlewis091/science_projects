@@ -76,7 +76,7 @@ total DOC data
 
 """
 
-doc = pd.read_excel(r'H:\Science\Current_Projects\00_UCI_13C\bulkDOCdatabase.xlsx').dropna(subset='Value')
+doc = pd.read_excel(r'H:\Science\Current_Projects\00_UCI_13C\bulkDOCdatabase.xlsx', sheet_name='New').dropna(subset='Value')
 doc = doc.replace('P16N.2', 'P16N')
 
 
@@ -177,6 +177,7 @@ for i in range(0, len(names)):
     nonret.append(nonretained_deep)
     # propogate the error
     a = np.sqrt((np.nanmean(b_d['13C_corr_err'])/np.nanmean(b_d['13C_corr'])**2) + (np.nanmean(b_d['±.12'])/np.nanmean(b_d['PPL % Recovery'])**2))
+
     b = np.sqrt(a**2 + np.nanmean(a_d['±']**2))
     value = np.nanmean(a_d['Value']) - (np.nanmean(b_d['13C_corr'])*rec)
     nonret_error_fin = -1*nonretained_deep*(np.sqrt((b/value)**2 + (np.nanmean(b_d['±.12'])/np.nanmean(b_d['PPL % Recovery'])**2)))
@@ -278,3 +279,23 @@ plt.savefig('C:/Users/clewis/IdeaProjects/GNS/UCI_13C/output/Discussion1.png', d
 # plt.ylim(-24, -21.75)
 # plt.title('Deep (2-4 km)')
 # plt.show()
+
+
+"""
+Based on my conversation with Ellen and Brett on 9/2/23, how does total DOC change with latitude? Do we see progressive reworking? 
+
+"""
+doc = doc.loc[doc['Flag'] != 'X']
+plt.close()
+# for i in range(0, len(names)):
+#
+#     # grab the DOC from each cruise
+#     a = doc.loc[doc['Ocean Region'] == names[i]]
+#     plt.scatter(a['Lat'],a['Value'])
+#     plt.show()
+
+plt.scatter(doc['corr DEL 14C'], doc['Value'])
+plt.xlabel('14C')
+plt.ylabel('13C')
+plt.show()
+

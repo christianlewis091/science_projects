@@ -172,6 +172,73 @@ plt.legend()
 plt.savefig('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/plot6_point5.png',
             dpi=300, bbox_inches="tight")
 plt.close()
+print(locs1)
+
+
+
+"""another extra plot
+Hi Jocelyn,
+I’m moving this to a smaller group as the discussion bends away from the specifics of MQA and more broadly to SH D14C.
+Do you have a plot of the difference between Campbell and Chile D14C over time, with Heidelberg MQA thrown on for good measure?
+Maybe even better, if you provide the data as a file I could plot DRP, MQA and also Chile and Campbell tree values.
+It would be interesting to see how they line up relative to one another.
+Re intercomparibility, apologies if you shown this already, but could you or Christian share your analysis re INSTAAR minus Heidelberg?
+Thanks,
+John
+
+"""
+
+# Grab the raw data again
+df = pd.read_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/complete_samples.xlsx')
+
+
+
+campbell = df.loc[df['Site'] == 'World\'s Loneliest Tree, Camp Cove, Campbell island']
+chile1 = df.loc[df['Site'] == 'Bahia San Pedro, Chile']
+chile2 = df.loc[df['Site'] == 'Baja Rosales, Isla Navarino']
+chile3 = df.loc[df['Site'] == 'Puerto Navarino, Isla Navarino']
+chile4 = df.loc[df['Site'] == 'Raul Marin Balmaceda']
+chile5 = df.loc[df['Site'] == 'Seno Skyring']
+mcq = df.loc[df['Site'] == 'MCQ']
+
+c1, c2, c3 = '#d73027', '#fdae61', '#1c9099'
+markers = ['o','v','8','s','p','+','x','D']
+
+
+fig, axs = plt.subplots(2, sharex=True, figsize=(8, 8))
+fig.subplots_adjust(hspace=0.25)
+
+# plot the raw data first
+axs[0].set_title('Measurements')
+axs[1].set_title('Measurements subtracted from Southern Hemisphere Background (Baring Head)')
+axs[0].scatter(campbell['Decimal_date'], campbell['D14C'], marker = 'o', label='Cambell Island', color=c1)
+axs[0].scatter(chile2['Decimal_date'], chile2['D14C'], marker = 'D', label='Baja Rosales, Isla Navarino', color=c2)
+axs[0].scatter(mcq['Decimal_date'], mcq['D14C'], marker = 's', label='Macquarie Island', color=c3)
+axs[0].set_xlim(1980, 2022)
+axs[0].set_ylim(0, 300)
+
+
+campbell = nz.loc[nz['Site'] == str(locs2[6])].reset_index(drop=True)
+mcq = nz.loc[nz['Site'] == str(locs2[7])].reset_index(drop=True)
+chile1 = chile.loc[chile['Site'] == str(locs1[7])].reset_index(drop=True)
+
+axs[1].plot(campbell['Decimal_date'], campbell['r2_diff_trend'], color=c1)
+axs[1].errorbar(campbell['Decimal_date'], campbell['r2_diff_trend'], campbell['r2_diff_trend_errprop'], fmt='o', elinewidth=1, capsize=2, alpha=1, color=c1, label=f"-52.5 N N, {str(locs2[6])}")
+
+axs[1].plot(chile1['Decimal_date'], chile1['r2_diff_trend'], color=c2)
+axs[1].errorbar(chile1['Decimal_date'], chile1['r2_diff_trend'], chile1['r2_diff_trend_errprop'], fmt='D', elinewidth=1, capsize=2, alpha=1, color=c2, label=f"-54.6 N N, {str(locs2[7])}")
+
+axs[1].plot(mcq['Decimal_date'], mcq['r2_diff_trend'], color=c3)
+axs[1].errorbar(mcq['Decimal_date'], mcq['r2_diff_trend'], mcq['r2_diff_trend_errprop'], fmt='s', elinewidth=1, capsize=2, alpha=1, color=c3, label=f"-54.6 N N, {str(locs2[7])}")
+
+axs[0].set_ylabel('\u0394$^1$$^4$CO$_2$ (\u2030)')
+axs[0].legend()
+axs[1].set_ylabel('\u0394\u0394$^1$$^4$CO$_2$ (\u2030) [Sample - SHB1]')
+axs[1].set_xlabel('Year')
+axs[1].axhline(0, color='black', alpha=0.5)
+plt.savefig('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/plot_forJohn.png',
+            dpi=300, bbox_inches="tight")
+# plt.close()
 
 
 

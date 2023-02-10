@@ -79,8 +79,28 @@ axs[4].plot(freq, abs(sp.real))
 axs[4].set_xlim((0, n))
 
 plt.savefig('C:/Users/clewis/IdeaProjects/GNS/xtra/FMaj.png', dpi=400)
-
+plt.close()
 """
 Wrap a chord around a polar plot: 
 """
 # https://www.youtube.com/watch?v=bDrfYFgcn2I
+
+# Parameters
+n = 2003
+f = 6
+r = 5
+
+# Data
+
+theta = np.linspace(0, 2.0*np.pi, n)
+
+curve = r*np.sin(f*theta)
+print(len(curve))
+print(len(theta))
+# get the axes handle/object
+ax1 = plt.subplot(111, polar=True)
+
+#plot the figure
+ax1.plot(theta, curve)
+
+plt.show()

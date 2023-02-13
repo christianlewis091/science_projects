@@ -26,22 +26,22 @@ land = 'gray'
 fillcol = 'white'
 lakes = 'white'
 # what do i want the size of the dots to be where the tree rings are from?
-size1 = 20
+size1 = 55
 
 map = Basemap(llcrnrlat=minlat, urcrnrlat=maxlat, llcrnrlon=min_lon, urcrnrlon=max_lon, resolution=res)
 # parameters to make the plot more beautiful
-map.drawcoastlines(linewidth=0.5)
-map.drawmapboundary(fill_color=fillcol, linewidth=0.5)
-map.fillcontinents(color=land, lake_color=lakes)
-map.drawcountries(linewidth=0.5)
+# map.drawcoastlines(linewidth=0.5)
+# map.drawmapboundary(fill_color=fillcol, linewidth=0.5)
+# map.fillcontinents(color=land, lake_color=lakes)
+# map.drawcountries(linewidth=0.5)
+
 map.drawparallels(np.arange(-90, 90, 20), labels=[True, False, False, False], fontsize=7, linewidth=0.5)
 map.drawmeridians(np.arange(-180, 180, 20), labels=[1, 1, 0, 1], fontsize=7, linewidth=0.5)
 lats = df['Latitude']
 lons = df['Longitude']
 
 z, a = map(lons,  lats)
-
-map.scatter(z, a, marker='D',color=c2, s = size1)
-
-plt.savefig('C:/Users/clewis/IdeaProjects/GNS/UCI_13C/output/map.png', dpi=300, bbox_inches="tight")
-plt.close()
+map.etopo()
+map.scatter(z, a, edgecolor='black', marker='o', s = size1, color='yellow')
+plt.savefig('C:/Users/clewis/IdeaProjects/GNS/UCI_13C/output/Full_map.png', dpi=300, bbox_inches="tight")
+# plt.close()

@@ -431,3 +431,37 @@ plt.legend()
 plt.savefig('C:/Users/clewis/IdeaProjects/GNS/UCI_13C/output/Supp2.png', dpi=300, bbox_inches="tight")
 
 
+"""
+I want to plot total DOC and SPE-DOC 13C vs temp, but to do so, I need to associate the weighted average depth with the CTDTMP. I'll
+try to write a quick code to do this, rather than plug them into the data sheets. 
+
+First, I'm going to reimport the bulk DOC data from the DOC database, sheet New, which contains the data from Ellen's lab
+that also resides in my Google Drive from UCI/Field Work/each cruise name/Hydrography
+"""
+
+doc = pd.read_excel(r'H:\Science\Current_Projects\00_UCI_13C\bulkDOCdatabase.xlsx', sheet_name='New').dropna(subset='Value')
+doc = doc.loc[doc['Flag'] != 'X']
+
+#
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

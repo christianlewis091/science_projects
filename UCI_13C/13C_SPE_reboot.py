@@ -40,6 +40,7 @@ go_ship = pd.concat([P18, P16N, IO7N]).reset_index(drop=True)
 
 # And merge the DOC data into it.
 merged1 = pd.merge(go_ship, doc, how='outer')
+merged2 = pd.merge(go_ship, doc)
 
 # I also want to add the SPE-DOC into there, but need the depths are weighted averages.
 # I want to stick the SPE-DOC data in the bottle with the closest depth to the weighted average (for loop required)
@@ -262,10 +263,10 @@ for i in range(0, len(names)):
 results = pd.DataFrame({"Description": descrip_doc, 'DOC 13C': bulk_av, 'error1': bulk_std,
                         'SPE-DOC 13C': SPE_av, "error2": SPE_std, "PPL % Recovery": ppl_rec, "error3": ppl_rec_err,
                         "Nonretained 13C": nonret, "error4": nonret_error, "N": count})
-# with pd.ExcelWriter(r'C:\Users\clewis\IdeaProjects\GNS\UCI_13C\output\output.xlsx') as writer:
-#     cleaned_df.to_excel(writer, sheet_name='Complete_Data')
-#     results.to_excel(writer, sheet_name='Results_Summary')
-
+with pd.ExcelWriter(r'C:\Users\clewis\IdeaProjects\GNS\UCI_13C\output\output.xlsx') as writer:
+    cleaned_df.to_excel(writer, sheet_name='SPE-DOC Summary Data')
+    results.to_excel(writer, sheet_name='Results_Summary')
+    merged2.to_excel(writer, sheet_name='DOC_Summary')
 
 """
 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
@@ -433,6 +434,7 @@ plt.scatter(p18_doc['del13C'], p18_doc['Depth'], marker=markers[2], color=colors
 plt.errorbar(p18_spe['SPE 13C Corrected'], (p18_spe['Weighted Average Depth']), yerr=p18_spe['SPE 13C Corrected Err'], fmt='o', color='black', ecolor='black', elinewidth=1, capsize=2, alpha = 1)
 plt.scatter(p18_spe['SPE 13C Corrected'], (p18_spe['Weighted Average Depth']), marker='s', color='black', label='SPE-DOC')
 plt.ylim(max(cruise['Depth']), min(cruise['Depth']))
+plt.xlim(-24, -20)
 
 
 xtr_subsplot = fig.add_subplot(gs[2:4, 3:5])
@@ -445,11 +447,12 @@ plt.scatter(p18_doc['del13C'], p18_doc['Depth'], marker=markers[1], color=colors
 plt.errorbar(p18_spe['SPE 13C Corrected'], (p18_spe['Weighted Average Depth']), yerr=p18_spe['SPE 13C Corrected Err'], fmt='o', color='black', ecolor='black', elinewidth=1, capsize=2, alpha = 1)
 plt.scatter(p18_spe['SPE 13C Corrected'], (p18_spe['Weighted Average Depth']), marker='s', color='black', label='SPE-DOC')
 plt.ylim(max(cruise['Depth']), min(cruise['Depth']))
+plt.xlim(-24, -20)
 
 xtr_subsplot = fig.add_subplot(gs[4:6, 3:5])
 plt.title('IO7N, 2018')
-p18_doc = doc.loc[doc['Cruise'] == 'P16N']
-p18_spe = cleaned_df.loc[(cleaned_df['Cruise'] == 'P16N')]
+p18_doc = doc.loc[doc['Cruise'] == 'IO7N']
+p18_spe = cleaned_df.loc[(cleaned_df['Cruise'] == 'IO7N')]
 #
 plt.errorbar(p18_doc['del13C'], (p18_doc['Depth']), yerr=p18_doc['del13C_err'], fmt=markers[0], color=colors[0], ecolor=colors[0], elinewidth=1, capsize=2, alpha = 1)
 plt.scatter(p18_doc['del13C'], p18_doc['Depth'], marker=markers[0], color=colors[0], label='Total DOC')
@@ -457,6 +460,7 @@ plt.errorbar(p18_spe['SPE 13C Corrected'], (p18_spe['Weighted Average Depth']), 
 plt.scatter(p18_spe['SPE 13C Corrected'], (p18_spe['Weighted Average Depth']), marker='s', color='black', label='SPE-DOC')
 plt.ylim(max(cruise['Depth']), min(cruise['Depth']))
 plt.xlabel('\u03B4$^1$$^3$C (\u2030)', fontsize=12)
+plt.xlim(-24, -20)
 
 plt.savefig('C:/Users/clewis/IdeaProjects/GNS/UCI_13C/output/Results3.png', dpi=300, bbox_inches="tight")
 plt.close()
@@ -532,7 +536,7 @@ plt.title('P18 Stn. 150-151')
 plt.ylim(4000, 0)
 plt.legend()
 plt.savefig('C:/Users/clewis/IdeaProjects/GNS/UCI_13C/output/Supp2.png', dpi=300, bbox_inches="tight")
-
+plt.close()
 
 """
 Do SPE-DOC and total DOC change with temperature? 
@@ -545,6 +549,6 @@ plt.errorbar(s['CTDTMP'], s['SPE 13C Corrected'], label='Surface SPE-DOC', yerr=
 plt.errorbar(d['CTDTMP'], d['SPE 13C Corrected'], label='Deep SPE-DOC', yerr=d['SPE 13C Corrected Err'],  fmt=markers[1], color=colors[1], ecolor=colors[1], elinewidth=1, capsize=2, alpha = 1)
 plt.legend()
 plt.savefig('C:/Users/clewis/IdeaProjects/GNS/UCI_13C/output/Supp3.png', dpi=300, bbox_inches="tight")
-
+plt.close()
 
 

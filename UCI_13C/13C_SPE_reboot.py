@@ -20,6 +20,7 @@ df = pd.read_excel(r'H:\Science\Current_Projects\00_UCI_13C\Cleaned_data.xlsx').
 # read in the total DOC data, called "doc" for dissloved organic carbon
 doc = pd.read_excel(r'H:\Science\Current_Projects\00_UCI_13C\bulkDOCdatabase.xlsx', sheet_name='ForMerge').dropna(
     subset='del13C')
+doc = doc.loc[doc['Flag'] != 'X']
 
 # make sure all the cruise names are the same for both the DOC and SPE-DOC databases.
 # In SPE-DOC data, its 'P16', 'P18', and 'IO7'.
@@ -125,7 +126,7 @@ new_df = new_df[['SPEDOC split UCID', 'Cruise','SorD','STNNBR','Weighted Average
 new_df = new_df.rename(columns={"SPEDOC split UCID": "SPE_ID",
                                 "Raw d13C": "SPE 13C",
                                 "13cerr": "SPE 13C err",
-                       "Corrected 14C with duplicates averaged": "SPE-14C",
+                                "Corrected 14C with duplicates averaged": "SPE-14C",
                                 "14cerr": "SPE-14C err"})
 
 merged1 = merged1[['EXPOCODE','SECT_ID','STNNBR','SAMPNO','CTDPRS','CTDTMP','Merging_Index','UCID','del13C','del13C_err','LATITUDE','LONGITUDE']]
@@ -134,54 +135,42 @@ new_df['STNNBR'] = new_df['STNNBR'].astype(float)
 merged1['CTDPRS'] = merged1['CTDPRS'].astype(float)
 
 cleaned_df = pd.merge(new_df, merged1, how='outer')
-full_df = cleaned_df
 cleaned_df = cleaned_df.dropna(subset='SPE 13C')
 
-# cleaned_df.to_excel('test1.xlsx')
 
 """
 As of this point the data has been associated with total DOC data, and the GO-SHIP data. We will still add a few changes
 to the data, so we will re-publish the final excel sheet at the end of the file. For now we'll carry on with some analysis,
 using the "cleaned_df" as the data from here on out. 
 
-Next thing I'm going to do is write a function to deal with the mass-balance eqn and error propogation. 
-I need to do these equations all the time for radiocarbon, and I need to finally write a function for it. 
-
 """
 
-def mass_balance_plus_err_prop(M_14C, M14C_err, B_14C, X_blank, X_blank_err, X_sample, X_sample_err, route=None, **kwargs):
-    # where:
-    # M_14C = measured value
-    # M_14C_err = measured value's error
-    # S_14C = sample 14C (what we're usually solving for)
-    # S_14C_err = sample 14C error
-    # B_14C = blank 14C
-    # B_14C_err = blank 14C error
-    # X_sample = fraction of sample
-    # X_blank = fraction of blank
-
-    # mass balance first
-    S_14C = M_14C - (np.nanmean(B_14C)*np.nanmean(X_blank)) / X_sample
-
-    # now the error prop
-    # first the multiplied term in parentheses
-    a = np.sqrt((0.2/B_14C)**2 + (X_blank_err/X_blank)**2)
-
-    # and now the whole numerator
-    b = np.sqrt(a**2 + M14C_err**2)
-    value = (M_14C - (B_14C*X_blank))
-
-    # and now the whole thing
-    S_14C_err = np.sqrt((b/value)**2 + (X_sample_err/X_sample)**2)
-    return S_14C, S_14C_err
-
 """
-Lets apply the mass balance function to the 13C data
+First order of business: do the mass-balance calculation to remove Cex
 """
+# need to calculate the mass-balance corrected 13C value for the small contribution from the PPL cartridge
+# the relative abundances of Cex vs sample is defined from 9 ug Cex contribution from my first paper.
 
-x = mass_balance_plus_err_prop(cleaned_df['SPE 13C'], cleaned_df['SPE 13C err'], -30, cleaned_df['X_blank'], cleaned_df['X_blank_err'], cleaned_df['X_sample'], cleaned_df['X_sample_err'])
-cleaned_df['SPE 13C Corrected'] = x[0]
-cleaned_df['SPE 13C Corrected Err'] = x[1]
+# now the mass balance
+# define a number for the 13C of Cex
+cex_13C = -30  # typical value for petroleum 13C
+cleaned_df['SPE 13C Corrected'] = (cleaned_df['SPE 13C'] - (cex_13C*cleaned_df['X_blank']) ) / cleaned_df['X_sample']
+
+# and now the error propogation for the 13C correction
+# for the multiplied term
+a = np.sqrt((0.2/cex_13C)**2 + (cleaned_df['X_blank_err']/cleaned_df['X_blank'])**2)
+
+# and now the whole numerator
+b = np.sqrt(a**2 + cleaned_df['SPE 13C err']**2)
+value = (cleaned_df['SPE 13C'] - (cex_13C*cleaned_df['X_blank']))
+
+# and now the whole thing
+cleaned_df['SPE 13C Corrected Err'] = np.sqrt((b/value)**2 + (cleaned_df['X_sample_err']/cleaned_df['X_sample'])**2)
+# in the end, the error propogation makes the errors too small, so I'm putting the 0.2 back in
+
+# how much does the mass balance actually change the value? What is the percent change?
+cleaned_df['pct_ch'] = ((cleaned_df['SPE 13C'] - cleaned_df['SPE 13C Corrected']) / cleaned_df['SPE 13C']) * 100
+# print(max(df['pct_ch']))
 
 
 """
@@ -276,8 +265,7 @@ results = pd.DataFrame({"Description": descrip_doc, 'DOC 13C': bulk_av, 'error1'
 # with pd.ExcelWriter(r'C:\Users\clewis\IdeaProjects\GNS\UCI_13C\output\output.xlsx') as writer:
 #     cleaned_df.to_excel(writer, sheet_name='Complete_Data')
 #     results.to_excel(writer, sheet_name='Results_Summary')
-#     full_df.to_excel(writer, sheet_name='WithDOC')
-#
+
 
 """
 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
@@ -412,163 +400,151 @@ plt.close()
 #
 #
 """
-
-SPE v total DOC
-
-# """
-# reading in the sheet that has the P06 data.
+SPE v total DOC 
+"""
 # set up the figure
-
-full_df = full_df.dropna(subset='Total DOC 13C')
 fig = plt.figure(1, figsize=(8, 8))
 gs = gridspec.GridSpec(6, 5)
 gs.update(wspace=1, hspace=1)
 
 # first subplot is all the data together.
 xtr_subsplot = fig.add_subplot(gs[0:6, 0:3])
-names = np.unique(full_df['SECT_ID'])
-colors = ['#d73027','#fc8d59','#91bfdb','#4575b4']
-markers = ['o','x','^','D','s']
-
+names = np.unique(doc['Cruise'])
+colors = ['#d73027','#fc8d59','#4575b4']
+markers = ['o','^','D','s']
+#
 for i in range(0, len(names)):
     cruise = doc.loc[doc['Cruise'] == names[i]]
-    plt.scatter(cruise['Total DOC 13C'], (cruise['CTDPRS']), color=colors[i], marker=markers[i], label=str(names[i] + ' Total DOC'))
-plt.scatter(df[['SPE 13C Corrected']], df['Weighted Average Depth'], color='black', label='SPE-DOC')
-plt.ylim(max(cruise['CTDPRS']), min(cruise['CTDPRS']))
+    plt.scatter(cruise['del13C'], (cruise['Depth']), color=colors[i], marker=markers[i], label=str(names[i] + ' Total DOC'))
+plt.scatter(cleaned_df['SPE 13C Corrected'], cleaned_df['Weighted Average Depth'], color='black', label='SPE-DOC', marker='s')
+plt.ylim(max(cruise['Depth']), min(cruise['Depth']))
 plt.ylabel('Depth (m)', fontsize=12)
-plt.xlabel('SPE-DOC \u03B4$^1$$^3$C (\u2030)', fontsize=12)
+plt.xlabel('\u03B4$^1$$^3$C (\u2030)', fontsize=12)
 plt.legend()
 
-# # next subplot is just the P18 data
-# xtr_subsplot = fig.add_subplot(gs[0:2, 3:5])
-# plt.title('P18, 2016')
-# p18_doc = doc.loc[doc['Cruise'] == 'P18']
-# p18_spe = cleaned_df.loc[(cleaned_df['Cruise'] == 'P18')]
+# next subplot is just the P18 data
+xtr_subsplot = fig.add_subplot(gs[0:2, 3:5])
+plt.title('P18, 2016')
+p18_doc = doc.loc[doc['Cruise'] == 'P18']
+p18_spe = cleaned_df.loc[(cleaned_df['Cruise'] == 'P18')]
 #
-# plt.errorbar(p18_doc['del13C'], (p18_doc['Depth']), yerr=p18_doc['del13C_err'], fmt=markers[3], color=colors[3], ecolor=colors[3], elinewidth=1, capsize=2, alpha = 1)
-# plt.scatter(p18_doc['del13C'], p18_doc['Depth'], marker=markers[3], color=colors[3], label='Total DOC')
-# plt.errorbar(p18_spe['SPE 13C Corrected'], (p18_spe['Weighted Average Depth']), yerr=p18_spe['SPE 13C Corrected Err'], fmt='o', color='black', ecolor='black', elinewidth=1, capsize=2, alpha = 1)
-# plt.scatter(p18_spe['SPE 13C Corrected'], (p18_spe['Weighted Average Depth']), marker='o', color='black', label='SPE-DOC')
-# plt.ylim(max(cruise['Depth']), min(cruise['Depth']))
-#
-#
-# xtr_subsplot = fig.add_subplot(gs[2:4, 3:5])
-# plt.title('P16N, 2015')
-# p18_doc = doc.loc[doc['Cruise'] == 'P16N']
-# p18_spe = cleaned_df.loc[(cleaned_df['Cruise'] == 'P16')]
-#
-# plt.errorbar(p18_doc['del13C'], (p18_doc['Depth']), yerr=p18_doc['del13C_err'], fmt=markers[2], color=colors[2], ecolor=colors[2], elinewidth=1, capsize=2, alpha = 1)
-# plt.scatter(p18_doc['del13C'], p18_doc['Depth'], marker=markers[2], color=colors[2], label='Total DOC')
-# plt.errorbar(p18_spe['SPE 13C Corrected'], (p18_spe['Weighted Average Depth']), yerr=p18_spe['SPE 13C Corrected Err'], fmt='o', color='black', ecolor='black', elinewidth=1, capsize=2, alpha = 1)
-# plt.scatter(p18_spe['SPE 13C Corrected'], (p18_spe['Weighted Average Depth']), marker='o', color='black', label='SPE-DOC')
-# plt.ylim(max(cruise['Depth']), min(cruise['Depth']))
-#
-# xtr_subsplot = fig.add_subplot(gs[4:6, 3:5])
-# plt.title('IO7N, 2018')
-# p18_doc = doc.loc[doc['Cruise'] == 'I7N']
-# p18_spe = cleaned_df.loc[(cleaned_df['Cruise'] == 'IO7')]
-#
-# plt.errorbar(p18_doc['del13C'], (p18_doc['Depth']), yerr=p18_doc['del13C_err'], fmt=markers[0], color=colors[0], ecolor=colors[0], elinewidth=1, capsize=2, alpha = 1)
-# plt.scatter(p18_doc['del13C'], p18_doc['Depth'], marker=markers[0], color=colors[0], label='Total DOC')
-# plt.errorbar(p18_spe['SPE 13C Corrected'], (p18_spe['Weighted Average Depth']), yerr=p18_spe['SPE 13C Corrected Err'], fmt='o', color='black', ecolor='black', elinewidth=1, capsize=2, alpha = 1)
-# plt.scatter(p18_spe['SPE 13C Corrected'], (p18_spe['Weighted Average Depth']), marker='o', color='black', label='SPE-DOC')
-# plt.ylim(max(cruise['Depth']), min(cruise['Depth']))
-# plt.xlabel('SPE-DOC \u03B4$^1$$^3$C (\u2030)', fontsize=12)
-# plt.show()
+plt.errorbar(p18_doc['del13C'], (p18_doc['Depth']), yerr=p18_doc['del13C_err'], fmt=markers[2], color=colors[2], ecolor=colors[2], elinewidth=1, capsize=2, alpha = 1)
+plt.scatter(p18_doc['del13C'], p18_doc['Depth'], marker=markers[2], color=colors[2], label='Total DOC')
+plt.errorbar(p18_spe['SPE 13C Corrected'], (p18_spe['Weighted Average Depth']), yerr=p18_spe['SPE 13C Corrected Err'], fmt='o', color='black', ecolor='black', elinewidth=1, capsize=2, alpha = 1)
+plt.scatter(p18_spe['SPE 13C Corrected'], (p18_spe['Weighted Average Depth']), marker='s', color='black', label='SPE-DOC')
+plt.ylim(max(cruise['Depth']), min(cruise['Depth']))
 
-# plt.savefig('C:/Users/clewis/IdeaProjects/GNS/UCI_13C/output/Results3.png', dpi=300, bbox_inches="tight")
-# plt.close()
+
+xtr_subsplot = fig.add_subplot(gs[2:4, 3:5])
+plt.title('P16N, 2015')
+p18_doc = doc.loc[doc['Cruise'] == 'P16N']
+p18_spe = cleaned_df.loc[(cleaned_df['Cruise'] == 'P16N')]
+#
+plt.errorbar(p18_doc['del13C'], (p18_doc['Depth']), yerr=p18_doc['del13C_err'], fmt=markers[1], color=colors[1], ecolor=colors[1], elinewidth=1, capsize=2, alpha = 1)
+plt.scatter(p18_doc['del13C'], p18_doc['Depth'], marker=markers[1], color=colors[1], label='Total DOC')
+plt.errorbar(p18_spe['SPE 13C Corrected'], (p18_spe['Weighted Average Depth']), yerr=p18_spe['SPE 13C Corrected Err'], fmt='o', color='black', ecolor='black', elinewidth=1, capsize=2, alpha = 1)
+plt.scatter(p18_spe['SPE 13C Corrected'], (p18_spe['Weighted Average Depth']), marker='s', color='black', label='SPE-DOC')
+plt.ylim(max(cruise['Depth']), min(cruise['Depth']))
+
+xtr_subsplot = fig.add_subplot(gs[4:6, 3:5])
+plt.title('IO7N, 2018')
+p18_doc = doc.loc[doc['Cruise'] == 'P16N']
+p18_spe = cleaned_df.loc[(cleaned_df['Cruise'] == 'P16N')]
+#
+plt.errorbar(p18_doc['del13C'], (p18_doc['Depth']), yerr=p18_doc['del13C_err'], fmt=markers[0], color=colors[0], ecolor=colors[0], elinewidth=1, capsize=2, alpha = 1)
+plt.scatter(p18_doc['del13C'], p18_doc['Depth'], marker=markers[0], color=colors[0], label='Total DOC')
+plt.errorbar(p18_spe['SPE 13C Corrected'], (p18_spe['Weighted Average Depth']), yerr=p18_spe['SPE 13C Corrected Err'], fmt='o', color='black', ecolor='black', elinewidth=1, capsize=2, alpha = 1)
+plt.scatter(p18_spe['SPE 13C Corrected'], (p18_spe['Weighted Average Depth']), marker='s', color='black', label='SPE-DOC')
+plt.ylim(max(cruise['Depth']), min(cruise['Depth']))
+plt.xlabel('\u03B4$^1$$^3$C (\u2030)', fontsize=12)
+
+plt.savefig('C:/Users/clewis/IdeaProjects/GNS/UCI_13C/output/Results3.png', dpi=300, bbox_inches="tight")
+plt.close()
+
 
 #
-#
-# """
-# Based on my conversation with Ellen and Brett on 9/2/23, how does total DOC change with latitude? Do we see progressive reworking?
-# """
-#
-# doc2 = doc2.loc[doc2['Flag'] != 'X']
-# plt.close()
-#
-# names = ['I7N', 'P18','P16N']
-#
-# cruise = []
-# means = []
-# stds = []
-# for i in range(0, len(names)):
-#
-#     # grab the DOC from each cruise
-#     a = doc.loc[doc['Ocean Region'] == names[i]]
-#
-#     # grab only the deep ocean
-#     a = a.loc[a['Depth'] >= 1500]
-#     means.append(np.nanmean(a['Value']))
-#     stds.append(np.nanstd(a['Value']))
-#     cruise.append(names[i])
-#
-#     # plt.scatter(a['corr DEL 14C'], a['Value'])
-#     # plt.show()
-#
-# dfnew = pd.DataFrame({"Cruise": cruise, "Mean": means, "STD": stds})
-# plt.errorbar(cruise, means, yerr=stds)
-# plt.plot(cruise, means)
-# plt.scatter(cruise, means)
-# plt.title('Mean DOC 13C <1500 m; progressive reworking of DOM?')
-# plt.savefig('C:/Users/clewis/IdeaProjects/GNS/UCI_13C/output/Results4.png', dpi=300, bbox_inches="tight")
-# plt.close()
+"""
+Based on my conversation with Ellen and Brett on 9/2/23, how does total DOC change with latitude? Do we see progressive reworking?
+"""
 #
 #
-# """
-# Trying to plot individual sites of interest, DOC vs SPE
-# """
-# doc = pd.read_excel(r'H:\Science\Current_Projects\00_UCI_13C\bulkDOCdatabase.xlsx').dropna(subset='Value')
-# doc = doc.replace('P16N.2', 'P16N')
-# # set up the figure
-# fig = plt.figure(1, figsize=(8, 8))
-# gs = gridspec.GridSpec(2, 6)
-# gs.update(wspace=1, hspace=1)
+names = ['IO7N', 'P18','P16N']
+
+cruise = []
+means = []
+stds = []
+for i in range(0, len(names)):
+
+    # grab the DOC from each cruise
+    a = doc.loc[doc['Cruise'] == names[i]]
 #
-# xtr_subsplot = fig.add_subplot(gs[0:2, 0:2])
-# doc2 = df.loc[df['Station'] == 205]
-# plt.scatter(doc2['13C_corr'], doc2['Weighted Average Depth'], color=c2, label='SPE-DOC')
-# doc2 = doc.loc[doc['Station'] == 206]
-# plt.scatter(doc2['Value'], doc2['Depth'], color=c1, label='Total DOC')
-# plt.plot(doc2['Value'], doc2['Depth'], color=c1)
-# plt.title('P18 Stn. 205-206')
-# plt.ylim(4000, 0)
-# plt.ylabel('Depth (m)', fontsize=12)
+    # grab only the deep ocean
+    a = a.loc[a['Depth'] >= 1500]
+    means.append(np.nanmean(a['del13C']))
+    stds.append(np.nanstd(a['del13C']))
+    cruise.append(names[i])
+
 #
-# xtr_subsplot = fig.add_subplot(gs[0:2, 2:4])
-# doc2 = df.loc[df['Station'] == 116]
-# plt.scatter(doc2['13C_corr'], doc2['Weighted Average Depth'], color=c2, label='SPE-DOC')
-# doc2 = doc.loc[doc['Station'] == 117]
-# plt.scatter(doc2['Value'], doc2['Depth'], color=c1, label='Total DOC')
-# plt.plot(doc2['Value'], doc2['Depth'], color=c1)
-# plt.ylim(max(doc2['Depth'])+50, min(doc2['Depth'])-50)
-# plt.title('P18 Stn. 116-117')
-# plt.ylim(4000, 0)
-# plt.xlabel('SPE-DOC \u03B4$^1$$^3$C (\u2030)', fontsize=12)
+dfnew = pd.DataFrame({"Cruise": cruise, "Mean": means, "STD": stds})
+plt.errorbar(cruise, means, yerr=stds)
+plt.plot(cruise, means)
+plt.scatter(cruise, means)
+plt.title('Mean DOC 13C <1500 m; progressive reworking of DOM?')
+plt.savefig('C:/Users/clewis/IdeaProjects/GNS/UCI_13C/output/Results4.png', dpi=300, bbox_inches="tight")
+plt.close()
 #
 #
-# xtr_subsplot = fig.add_subplot(gs[0:2, 4:6])
-# doc2 = df.loc[df['Station'] == 150]
-# plt.scatter(doc2['13C_corr'], doc2['Weighted Average Depth'], color=c2, label='SPE-DOC')
-# doc2 = doc.loc[doc['Station'] == 151]
-# plt.scatter(doc2['Value'], doc2['Depth'], color=c1, label='Total DOC')
-# plt.plot(doc2['Value'], doc2['Depth'], color=c1)
-# plt.title('P18 Stn. 150-151')
-# plt.ylim(4000, 0)
-# plt.legend()
-# plt.savefig('C:/Users/clewis/IdeaProjects/GNS/UCI_13C/output/Supp2.png', dpi=300, bbox_inches="tight")
+"""
+Trying to plot individual sites of interest, DOC vs SPE
+"""
+
+# set up the figure
+fig = plt.figure(1, figsize=(8, 8))
+gs = gridspec.GridSpec(2, 6)
+gs.update(wspace=1, hspace=1)
 #
+xtr_subsplot = fig.add_subplot(gs[0:2, 0:2])
+data = cleaned_df.loc[cleaned_df['STNNBR'] == 205].reset_index(drop=True)
+plt.scatter(data['SPE 13C Corrected'], data['Weighted Average Depth'], color=c2, label='SPE-DOC')
+
+doc2 = doc.loc[doc['STNNBR'] == 206].reset_index(drop=True)
+plt.scatter(doc2['del13C'], doc2['Depth'], color=c1, label='Total DOC')
+plt.title('P18 Stn. 205-206')
+plt.ylim(4000, 0)
+plt.ylabel('Depth (m)', fontsize=12)
+plt.legend()
 #
-# """
-# I want to plot total DOC and SPE-DOC 13C vs temp, but to do so, I need to associate the weighted average depth with the CTDTMP. I'll
-# try to write a quick code to do this, rather than plug them into the data sheets.
-#
-# First, I'm going to reimport the bulk DOC data from the DOC database, sheet New, which contains the data from Ellen's lab
-# that also resides in my Google Drive from UCI/Field Work/each cruise name/Hydrography
-# """
-#
-# doc = pd.read_excel(r'H:\Science\Current_Projects\00_UCI_13C\bulkDOCdatabase.xlsx', sheet_name='New').dropna(subset='Value')
-# doc = doc.loc[doc['Flag'] != 'X']
-#
-# #
+xtr_subsplot = fig.add_subplot(gs[0:2, 2:4])
+data = cleaned_df.loc[cleaned_df['STNNBR'] == 116].reset_index(drop=True)
+plt.scatter(data['SPE 13C Corrected'], data['Weighted Average Depth'], color=c2, label='SPE-DOC')
+
+doc2 = doc.loc[doc['STNNBR'] == 117].reset_index(drop=True)
+plt.scatter(doc2['del13C'], doc2['Depth'], color=c1, label='Total DOC')
+plt.title('P18 Stn. 116-117')
+plt.ylim(4000, 0)
+
+xtr_subsplot = fig.add_subplot(gs[0:2, 4:6])
+data = cleaned_df.loc[cleaned_df['STNNBR'] == 150].reset_index(drop=True)
+plt.scatter(data['SPE 13C Corrected'], data['Weighted Average Depth'], color=c2, label='SPE-DOC')
+doc2 = doc.loc[doc['STNNBR'] == 151].reset_index(drop=True)
+plt.scatter(doc2['del13C'], doc2['Depth'], color=c1, label='Total DOC')
+plt.title('P18 Stn. 150-151')
+plt.ylim(4000, 0)
+plt.legend()
+plt.savefig('C:/Users/clewis/IdeaProjects/GNS/UCI_13C/output/Supp2.png', dpi=300, bbox_inches="tight")
+
+
+"""
+Do SPE-DOC and total DOC change with temperature? 
+"""
+fig = plt.figure(1, figsize=(8, 8))
+s = cleaned_df.loc[cleaned_df['SorD'] == 'Surface']
+d = cleaned_df.loc[cleaned_df['SorD'] == 'Deep']
+
+plt.errorbar(s['CTDTMP'], s['SPE 13C Corrected'], label='Surface SPE-DOC', yerr=s['SPE 13C Corrected Err'],  fmt=markers[0], color=colors[0], ecolor=colors[0], elinewidth=1, capsize=2, alpha = 1)
+plt.errorbar(d['CTDTMP'], d['SPE 13C Corrected'], label='Deep SPE-DOC', yerr=d['SPE 13C Corrected Err'],  fmt=markers[1], color=colors[1], ecolor=colors[1], elinewidth=1, capsize=2, alpha = 1)
+plt.legend()
+plt.savefig('C:/Users/clewis/IdeaProjects/GNS/UCI_13C/output/Supp3.png', dpi=300, bbox_inches="tight")
+
+
+

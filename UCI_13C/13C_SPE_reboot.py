@@ -13,6 +13,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
+import matplotlib.patches as mpatches
 
 # read in the SPE-DOC data, called "df" for DataFrame
 df = pd.read_excel(r'H:\Science\Current_Projects\00_UCI_13C\Cleaned_data.xlsx').dropna(subset='Raw d13C')
@@ -31,6 +32,7 @@ p18 = pd.read_csv('H:\Science\Datasets\Hydrographic\P18_2016.csv', skiprows=174)
 P18 = pd.read_csv('H:\Science\Datasets\Hydrographic\P18_2016.csv', skiprows=174).dropna(subset='DATE')
 P16N = pd.read_csv('H:\Science\Datasets\Hydrographic\P16N_2015.csv', skiprows=119).dropna(subset='DATE')
 IO7N = pd.read_csv('H:\Science\Datasets\Hydrographic\IO7N_2018.csv', skiprows=131).dropna(subset='DATE')
+P18_1994 = pd.read_csv('H:\Science\Datasets\Hydrographic\P18_1994.csv', skiprows=10).dropna(subset='DATE')
 
 # Lets concat all the cruises together into one file...
 P18['Cruise'] = 'P18'
@@ -188,6 +190,8 @@ SPE_av = []
 SPE_std = []
 descrip_doc = []
 descrip_spe = []
+cruise = []
+dep = []
 nonret = []
 nonret_error = []
 ppl_rec = []
@@ -203,10 +207,14 @@ for i in range(0, len(names)):
 
     bulk_av.append(np.average(a_s['del13C']))
     bulk_std.append(np.std(a_s['del13C']))
+    cruise.append(names[i])
+    dep.append('S')
     descrip_doc.append(f'Surface {names[i]}')
 
     bulk_av.append(np.average(a_d['del13C']))
     bulk_std.append(np.std(a_d['del13C']))
+    cruise.append(names[i])
+    dep.append('D')
     descrip_doc.append(f'Deep {names[i]}')
 
     # grab the SPE-DOC from each cruise
@@ -262,11 +270,69 @@ for i in range(0, len(names)):
 
 results = pd.DataFrame({"Description": descrip_doc, 'DOC 13C': bulk_av, 'error1': bulk_std,
                         'SPE-DOC 13C': SPE_av, "error2": SPE_std, "PPL % Recovery": ppl_rec, "error3": ppl_rec_err,
-                        "Nonretained 13C": nonret, "error4": nonret_error, "N": count})
-with pd.ExcelWriter(r'C:\Users\clewis\IdeaProjects\GNS\UCI_13C\output\output.xlsx') as writer:
-    cleaned_df.to_excel(writer, sheet_name='SPE-DOC Summary Data')
-    results.to_excel(writer, sheet_name='Results_Summary')
-    merged2.to_excel(writer, sheet_name='DOC_Summary')
+                        "Nonretained 13C": nonret, "error4": nonret_error, "N": count, "Cruise": cruise, "Dep": dep})
+
+
+"""
+Ellen asked me to recreate her Figure S6 from her 2021 paper, which is a plot of DOC vs He from the 1994 P18 cruise. 
+I'll see if I can associate my SPE data with the closest stations and depths where there is He data from the 1994 P18 cruise
+"""
+
+# we only want to see the P18 data for this section...
+cleaned_df_chop = cleaned_df.loc[cleaned_df['Cruise'] == 'P18']
+
+# grab only where there's real data (remove fillers (-999))
+P18_1994 = P18_1994.loc[P18_1994['DELHE3'] != '-999']
+
+#we'll have to do a similar thing where I create a station index / merge index, based on the closest values.
+station_index = []
+depth_index = []
+final_string = []
+# while looping through the SPE data, what's the closest station from P18 1994 where there's He data?
+for i in range(0, len(cleaned_df_chop)):
+    row = cleaned_df_chop.iloc[i]
+    lat = row['LATITUDE']
+    spe_depth = row['Weighted Average Depth'].astype(float)
+
+
+    # what's the closest station from P18 1994?
+    B = np.asarray(P18_1994['LATITUDE'])
+    idx_station = (np.abs(B - lat)).argmin()
+    # what's the closest depth from this station on the weighted average depth?
+    # first, isolate all data with the latitudes we just found above
+    D = P18_1994.loc[P18_1994['LATITUDE'] == B[idx_station]]
+    # now grab the depth data
+    D_2 = D['CTDPRS'].astype(float)
+    D_2 = np.asarray(D_2)
+    idx_depth = (np.abs(D_2 - spe_depth)).argmin()
+
+    station_index.append(B[idx_station])
+    depth_index.append(D_2[idx_depth])
+    stringies = f"{B[idx_station]}+{D_2[idx_depth]}"
+    final_string.append(stringies)
+
+# Now I'll add these values from the P18 1994 cruise to my SPE-DOC data
+cleaned_df_chop['P18 1994 Latitude'] = station_index
+cleaned_df_chop['P19 1994 Depth'] = depth_index
+cleaned_df_chop['Helium Merge String'] = final_string
+
+# I have to also add a similar merge string onto the P18 1994 data, and then I can merge
+final_string2 = []
+for i in range(0, len(P18_1994)):
+    row = P18_1994.iloc[i]
+    lat = row['LATITUDE']
+    ctdprs = row['CTDPRS']
+    stringies = f"{lat}+{ctdprs}"
+    final_string2.append(stringies)
+
+P18_1994['Helium Merge String'] = final_string2
+HeliumMerge = pd.merge(P18_1994, cleaned_df_chop, on='Helium Merge String')
+# only take data where the difference in depths is less than X
+x = 150
+# HeliumMerge['DeltaDepths'] = np.abs(HeliumMerge['CTDPRS_x'].astype(float) - HeliumMerge['CTDPRS_y'].astype(float))
+# HeliumMerge = HeliumMerge.loc[HeliumMerge['DeltaDepths'] < x]
+
+
 
 """
 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
@@ -375,13 +441,18 @@ for i in range(0, 3):
     color = colors[i]
     symbols = symbol[i]
     plt.errorbar(curr['SPE-14C'], curr['SPE 13C Corrected'], xerr=curr['SPE-14C err'], yerr=0.2, fmt=symbols, color=color, ecolor=color, elinewidth=1, capsize=2, alpha = 1)
-
-
+    plt.scatter(curr['SPE-14C'], curr['SPE 13C Corrected'], color=color, label=str(cruises[i]), marker=symbols)
+# specify the location of (left,bottom),width,height
+rect=mpatches.Rectangle((-620, -23.75), 140, 0.72,
+                        fill = False,
+                        color = "black",
+                        linewidth = 0.5, alpha=0.5)
+plt.gca().add_patch(rect)
 plt.ylim(-24, -21.75)
 plt.ylabel('SPE-DOC \u03B4$^1$$^3$C (\u2030)', fontsize=14)
 plt.title('Surface (0-200 m)', fontsize=14)
 plt.xlabel('SPE-DOC \u0394$^1$$^4$C (\u2030)', fontsize=14)
-
+plt.legend()
 
 xtr_subsplot = fig.add_subplot(gs[0:2, 2:4])
 for i in range(0, 3):
@@ -389,9 +460,18 @@ for i in range(0, 3):
     color = colors[i]
     symbols = symbol[i]
     plt.errorbar(curr['SPE-14C'], curr['SPE 13C Corrected'], xerr=curr['SPE-14C err'], yerr=0.2, fmt=symbols, color=color, ecolor=color, elinewidth=1, capsize=2, alpha = 1)
-    plt.scatter(curr['SPE-14C'], curr['SPE 13C Corrected'], color=color, label=str(cruises[i]), marker=symbols)
+    # plt.scatter(curr['SPE-14C'], curr['SPE 13C Corrected'], color=color, label=str(cruises[i]), marker=symbols)
     # plt.errorbar(curr['Latitude'], curr['Raw d13C'], yerr=0.2, fmt='o', color='black', ecolor='black', elinewidth=1, capsize=2, alpha = 0.25)
-plt.legend()
+rect=mpatches.Rectangle((-610, -24), 72, 0.4,
+                            fill = False,
+                            color = "black",
+                            linewidth = 0.5, alpha=0.5)
+plt.gca().add_patch(rect)
+rect1=mpatches.Rectangle((-680, -23.3), 120, 0.5,
+                        fill = False,
+                        color = "black",
+                        linewidth = 0.5, alpha=0.5)
+plt.gca().add_patch(rect1)
 plt.ylim(-24, -21.75)
 plt.title('Deep (2000-4000 m)', fontsize=14)
 plt.yticks([], [])
@@ -477,24 +557,59 @@ names = ['IO7N', 'P18','P16N']
 cruise = []
 means = []
 stds = []
+depths_int = []
 for i in range(0, len(names)):
 
     # grab the DOC from each cruise
-    a = doc.loc[doc['Cruise'] == names[i]]
-#
+
+    a = merged2.loc[merged2['Cruise'] == names[i]]
+    print(len(a))
+    a['CTDPRS'] = a['CTDPRS'].astype(float)
+
+
     # grab only the deep ocean
-    a = a.loc[a['Depth'] >= 1500]
-    means.append(np.nanmean(a['del13C']))
-    stds.append(np.nanstd(a['del13C']))
+    b = a.loc[(a['CTDPRS'] <= 4000) & (a['CTDPRS'] >= 2000)]
+    print(len(b))
+    means.append(np.nanmean(b['del13C']))
+    stds.append(np.nanstd(b['del13C']))
     cruise.append(names[i])
+    depths_int.append('Deep')
+
+    # grab mid depths ocean
+    c = a.loc[(a['CTDPRS'] <= 2000) & (a['CTDPRS'] >= 500)]
+    print(c)
+    means.append(np.nanmean(c['del13C']))
+    stds.append(np.nanstd(c['del13C']))
+    cruise.append(names[i])
+    depths_int.append('Middepth')
+    #
+    # grab surface
+    d = a.loc[(a['CTDPRS'] <= 500) & (a['CTDPRS'] >= 0)]
+    print(d)
+    means.append(np.nanmean(d['del13C']))
+    stds.append(np.nanstd(d['del13C']))
+    cruise.append(names[i])
+    depths_int.append('Surface')
 
 #
-dfnew = pd.DataFrame({"Cruise": cruise, "Mean": means, "STD": stds})
-plt.errorbar(cruise, means, yerr=stds)
-plt.plot(cruise, means)
-plt.scatter(cruise, means)
+dfnew = pd.DataFrame({"Cruise": cruise, "Mean": means, "STD": stds, "Depth Call": depths_int})
+print(dfnew)
+
+words = ['Surface','Middepth','Deep']
+for word in words:
+    df_inuse = dfnew.loc[dfnew["Depth Call"] == word]
+    cruise = df_inuse['Cruise']
+    means = df_inuse['Mean']
+    stds = df_inuse['STD']
+    name1 = df_inuse['Depth Call']
+    for i in range(0, 3):
+        plt.errorbar(cruise, means, yerr=stds)
+        plt.scatter(cruise, means, label=name1)
+
+
 plt.title('Mean DOC 13C <1500 m; progressive reworking of DOM?')
 plt.savefig('C:/Users/clewis/IdeaProjects/GNS/UCI_13C/output/Results4.png', dpi=300, bbox_inches="tight")
+# plt.show()
 plt.close()
 #
 #
@@ -541,14 +656,93 @@ plt.close()
 """
 Do SPE-DOC and total DOC change with temperature? 
 """
-fig = plt.figure(1, figsize=(8, 8))
+
 s = cleaned_df.loc[cleaned_df['SorD'] == 'Surface']
 d = cleaned_df.loc[cleaned_df['SorD'] == 'Deep']
 
 plt.errorbar(s['CTDTMP'], s['SPE 13C Corrected'], label='Surface SPE-DOC', yerr=s['SPE 13C Corrected Err'],  fmt=markers[0], color=colors[0], ecolor=colors[0], elinewidth=1, capsize=2, alpha = 1)
 plt.errorbar(d['CTDTMP'], d['SPE 13C Corrected'], label='Deep SPE-DOC', yerr=d['SPE 13C Corrected Err'],  fmt=markers[1], color=colors[1], ecolor=colors[1], elinewidth=1, capsize=2, alpha = 1)
 plt.legend()
+plt.xlabel('CTD Temperature (C)')
+plt.ylabel('SPE-DOC \u03B4$^1$$^3$C (\u2030)')
 plt.savefig('C:/Users/clewis/IdeaProjects/GNS/UCI_13C/output/Supp3.png', dpi=300, bbox_inches="tight")
 plt.close()
+
+
+"""
+Does Helium data track with SPE? 
+"""
+
+# # fig = plt.figure(1, figsize=(8, 8))
+s = HeliumMerge.loc[HeliumMerge['SorD'] == 'Surface']
+d = HeliumMerge.loc[HeliumMerge['SorD'] == 'Deep']
+# plt.errorbar(s['DELHE3'].astype(float), s['SPE 13C Corrected'].astype(float))
+# plt.errorbar(d['DELHE3'].astype(float), d['SPE 13C Corrected'].astype(float))
+
+plt.xlabel('CTD Temperature (C)')
+plt.ylabel('SPE-DOC 13C')
+plt.errorbar(s['DELHE3'].astype(float), s['SPE 13C Corrected'].astype(float), label='Surface SPE-DOC',yerr=s['SPE 13C Corrected Err'],  fmt=markers[0], color=colors[0], ecolor=colors[0], elinewidth=1, capsize=2, alpha = 1)
+plt.errorbar(d['DELHE3'].astype(float), d['SPE 13C Corrected'].astype(float), label='Deep SPE-DOC', yerr=d['SPE 13C Corrected Err'],  fmt=markers[1], color=colors[2], ecolor=colors[2], elinewidth=1, capsize=2, alpha = 1)
+plt.legend()
+plt.xlabel('\u03B4He3')
+# plt.xticks(s['DELHE3'], s['SPE 13C Corrected'], rotation='vertical')
+plt.ylabel('SPE-DOC \u03B4$^1$$^3$C (\u2030)')
+plt.savefig('C:/Users/clewis/IdeaProjects/GNS/UCI_13C/output/Supp4.png', dpi=300, bbox_inches="tight")
+plt.close()
+
+
+"""
+Does Bulk DOC13C also increase toward the OMZ?  
+"""
+
+df_1 = merged2.loc[merged2['SECT_ID'] == 'IO7N']
+df_1 = df_1.loc[df_1['CTDPRS'].astype(float) < 200]
+
+cleaned_df_1 = cleaned_df.loc[cleaned_df['Cruise'] == 'IO7N']
+cleaned_df_1 = cleaned_df_1.loc[cleaned_df_1['SorD'] == 'Surface']
+
+plt.errorbar(cleaned_df_1['LATITUDE'], cleaned_df_1['SPE 13C Corrected'], label='Surface SPE-DOC', yerr=0.2,  fmt=markers[0], color=colors[0], ecolor=colors[0], elinewidth=1, capsize=2, alpha = 1)
+plt.errorbar(df_1['LATITUDE'], df_1['del13C'], label='Total DOC', yerr=df_1['del13C_err'],  fmt=markers[1], color='black', ecolor='black', elinewidth=1, capsize=2, alpha = 1)
+plt.legend()
+plt.xlabel('Latitude')
+plt.ylabel('\u03B4$^1$$^3$C (\u2030)')
+
+plt.title('Does total DOC 13C increase toward the Indian Ocean OMZ as well/')
+plt.savefig('C:/Users/clewis/IdeaProjects/GNS/UCI_13C/output/Supp5.png', dpi=300, bbox_inches="tight")
+plt.close()
+
+
+"""
+testing a new plot
+"""
+letter = ['S','D']
+x = ['Surface','Deep']
+a = [1, 0.5]
+
+for i in range(0, len(letter)):
+    mp1 = results.loc[results['Dep'] == letter[i]]
+    plt.errorbar(mp1['Cruise'], mp1['SPE-DOC 13C'], yerr=mp1['error2'], alpha=a[i], fmt='s', color='black', ecolor='black', elinewidth=1, capsize=2)
+    plt.scatter(mp1['Cruise'], mp1['SPE-DOC 13C'], alpha=a[i], color='black', label=f'SPE-DOC {x[i]}', marker='s')
+    plt.plot(mp1['Cruise'], mp1['SPE-DOC 13C'], alpha=a[i], color='black')
+
+    plt.errorbar(mp1['Cruise'], mp1['DOC 13C'], yerr=mp1['error2'], alpha = a[i], fmt='D', color='black', ecolor='black', elinewidth=1, capsize=2)
+    plt.scatter(mp1['Cruise'], mp1['DOC 13C'], alpha = a[i], color='black', label=f'Total DOC {x[i]}', marker='D')
+    plt.plot(mp1['Cruise'], mp1['DOC 13C'], alpha=a[i], color='black')
+plt.xlabel('GO-SHIP Transect')
+plt.ylabel('Mean \u03B4$^1$$^3$C (\u2030)')
+plt.title('')
+plt.legend()
+plt.title('Mean \u03B4$^1$$^3$C (\u2030) by Basin')
+plt.savefig('C:/Users/clewis/IdeaProjects/GNS/UCI_13C/output/Supp6.png', dpi=300, bbox_inches="tight")
+plt.close()
+#
+# with pd.ExcelWriter(r'C:\Users\clewis\IdeaProjects\GNS\UCI_13C\output\output.xlsx') as writer:
+#     cleaned_df.to_excel(writer, sheet_name='SPE Data')
+#     results.to_excel(writer, sheet_name='SPE Results Summary')
+#     HeliumMerge.to_excel(writer, sheet_name='SPEvP18 1994 He')
+#     merged2.to_excel(writer, sheet_name='DOC Data')
+#     dfnew.to_excel(writer, sheet_name='DOC Results')
+#
+
 
 

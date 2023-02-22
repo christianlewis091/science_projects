@@ -3,7 +3,15 @@ import numpy as np
 import warnings
 from blank_corr_functions import long_date_to_decimal_date
 warnings.simplefilter("ignore")
+
+
 """
+February 23, 2023
+
+This file works, and I'm trying to implement it into the GUI
+
+
+
 October 10, 2022
 
 This script calculates MCC values for different data types for XCAMS blank correction. This is a copy of the file in 
@@ -209,33 +217,33 @@ with pd.ExcelWriter(r'I:/C14Data/C14_blank_corrections_dev/PythonOutput/TW{}_res
     refs.to_excel(writer, sheet_name="Current MCCs", index=False)
     stds_dataframe.to_excel(writer, sheet_name="Current MCC Details", index=False)
     df.to_excel(writer, sheet_name="TW{}_results".format(input_name), index=False)
-"""
-This next line will write the details of all the stds used for MCC calculation, but I need to clean it up slightly first. 
-"""
-
-# </editor-fold>
-
-
-print('TW{} measurement:'.format(input_name), file = f)  # writes title
-print("", file = f)
-print('This wheel contains the following types of graphite: {}'.format(sample_type_list), file = f)  # writes title
-print("", file = f)
-print('CalAMS error adjustments: ', file = f)
-print('*None Needed', file = f)
-
-print("", file = f)
-print('Primaries:', file = f)
-print('* OX-1 Cathodes', file = f)
-print('_______{} cathodes used'.format(len(primary_standards['TP'])
-                                       ), file = f)
-print('_______All accepted', file = f)
-print("", file = f)
-print('Secondaries:', file = f)
-print("", file = f)
-print("", file = f)
-print('Blanks', file = f)
-print("", file = f)
-print("", file = f)
-print('Unknowns', file = f)
-print("", file = f)
-print("", file = f)
+# """
+# This next line will write the details of all the stds used for MCC calculation, but I need to clean it up slightly first.
+# """
+#
+# # </editor-fold>
+#
+#
+# print('TW{} measurement:'.format(input_name), file = f)  # writes title
+# print("", file = f)
+# print('This wheel contains the following types of graphite: {}'.format(sample_type_list), file = f)  # writes title
+# print("", file = f)
+# print('CalAMS error adjustments: ', file = f)
+# print('*None Needed', file = f)
+#
+# print("", file = f)
+# print('Primaries:', file = f)
+# print('* OX-1 Cathodes', file = f)
+# print('_______{} cathodes used'.format(len(primary_standards['TP'])
+#                                        ), file = f)
+# print('_______All accepted', file = f)
+# print("", file = f)
+# print('Secondaries:', file = f)
+# print("", file = f)
+# print("", file = f)
+# print('Blanks', file = f)
+# print("", file = f)
+# print("", file = f)
+# print('Unknowns', file = f)
+# print("", file = f)
+# print("", file = f)

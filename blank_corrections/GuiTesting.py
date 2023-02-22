@@ -2,9 +2,14 @@
 # # https://www.youtube.com/watch?v=YXPyB4XeYLA&t=2640s&ab_channel=freeCodeCamp.org
 from tkinter import *
 from tkinter import ttk
-from blank_corr_functions import blank_corr_101922
+from blank_corr_functions import blank_corr_022323
 
 """
+Update: Febraury 23, 2023
+We're ready to implement. I've double checked the code that it works and that I'm happy with it. 
+We use the GUI with function "blank_corr_022323"
+
+
 Update: October 19, 2022
 I've begun building the second iteration of the blank correction code. 
 This next iteration of the blank correction function was initiated after a conversation with Margaret, Cathy, and Jenny, 
@@ -46,7 +51,7 @@ entry1_box = ttk.Entry(root,textvariable = entry1)  # This creates the input box
 entry1_box.grid(row=4, column=1)                    # This tells the input box where to sit.
 
 # If some standards wish to be exluded, I will have a new box pop up where they can be input
-stds_exclude = Label(root, text="List here any standards you'd like to exclude from blank correction:")
+stds_exclude = Label(root, text="List here any standards you'd like to exclude from blank correction: Write without separators (11111 11112 ....)")
 stds_exclude.grid(row=6, column=0)
 entry2 = StringVar()                                  # initialize a variable where the input will be stored
 entry2_box = ttk.Entry(root,textvariable = entry2)  # This creates the input box
@@ -65,12 +70,15 @@ This block of code defines how, when the Submit button is pressed, it executes t
 def execute():
     value1 = str(entry1.get())    # this grabs the data in TW entry box when button is pressed
     value2 = str(entry2.get())    # List of TP #'s to exclude from standards used.
-    value3 = str(entry3.get())    # This grabs the data in Time duration box when button is pressed
 
+
+    value3 = str(entry3.get())    # This grabs the data in Time duration box when button is pressed
     value2 = value2.split()  # This line takes the input from the "Standards you don't want" box and splits it into a list, but a string-list
+    print(value2)
+
     value2 = list(value2)   # this takes it from a string list to a list
 
-    x = blank_corr_101922(value1, value3, value2)  # This calls the function written in Iteration4 which actually runs the script.
+    x = blank_corr_022323(value1, value3, value2)  # This calls the function written in Iteration4 which actually runs the script.
     print(x)
 
     end_message = Label(root, text="Done! Please check I:\C14Data\C14_blank_corrections_dev\PythonOutput for your data. ")

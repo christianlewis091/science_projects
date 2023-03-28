@@ -184,3 +184,28 @@ plt.xlabel('Date', fontsize=14)
 plt.ylabel('\u0394$^1$$^4$CO$_2$ (\u2030)', fontsize=14)  # label the y axis
 plt.savefig('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/Harmonized_dataset.png', dpi=300, bbox_inches="tight")
 plt.close()
+
+"""
+Figure 1 (again). All the data together
+"""
+farbe_bhd = '#4575b4'
+farbe_bhd_bkgd = '#74add1'
+
+farbe_sio = '#f46d43'
+farbe_sio_bkgd ='#fdae61'
+
+farbe_ansto = '#d73027'
+farbe_maga = '#d73027'
+farbe_heid = '#d73027'
+
+fig = plt.figure(1)
+plt.scatter(x_bars, y_bars, marker='o', label='Data from Baring Head (RRL)', color=farbe_bhd, s=size1, alpha = 0.5)
+plt.scatter(x_heids, y_heids, marker='o', label='Data from CGO (Heidelberg)', color=farbe_heid, s=size1, alpha = 0.5)
+plt.legend()
+# plt.title('All available data after 1980')
+plt.xlim([1980, 2020])
+plt.ylim([0, 300])
+plt.xlabel('Date', fontsize=14)
+plt.ylabel('\u0394$^1$$^4$CO$_2$ (\u2030)', fontsize=14)  # label the y axis
+plt.savefig('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/Harmonized_dataset2.png', dpi=300, bbox_inches="tight")
+plt.close()

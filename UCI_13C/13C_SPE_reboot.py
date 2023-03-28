@@ -403,10 +403,10 @@ for i in range(0, 3):
     # plt.errorbar(curr['Latitude'], curr['Raw d13C'], yerr=0.2, fmt='o', color='black', ecolor='black', elinewidth=1, capsize=2, alpha = 0.25)
 plt.legend()
 plt.ylim(-24, -21.75)
-plt.title('Deep (2000-4000 m)', fontsize=12)
+plt.title('Deep (2000-4000 m)', fontsize=14)
 plt.xticks([], [])
 plt.yticks([], [])
-plt.xlabel('Latitude (N)', fontsize=12)
+plt.xlabel('Latitude (N)', fontsize=14)
 plt.xlim(-70, 60)
 
 
@@ -415,8 +415,8 @@ xtr_subsplot = fig.add_subplot(gs[2:3, 2:4])
 plt.plot(p18['LATITUDE'], p18['DEPTH'], color=c1, label='P18 Bottom Depth')
 plt.legend()
 plt.xlim(-70, 60)
-plt.xlabel('Latitude (N)', fontsize=12)
-plt.ylabel('Bottom Depth (m)', fontsize=12)
+plt.xlabel('Latitude (N)', fontsize=14)
+plt.ylabel('Bottom Depth (m)', fontsize=14)
 plt.ylim(max(p18['DEPTH']), min(p18['DEPTH']))
 plt.savefig('C:/Users/clewis/IdeaProjects/GNS/UCI_13C/output/Results1.png', dpi=300, bbox_inches="tight")
 plt.close()
@@ -718,7 +718,7 @@ testing a new plot
 letter = ['S','D']
 x = ['Surface','Deep']
 a = [1, 0.5]
-
+fig = plt.figure(1, figsize=(8, 6))
 for i in range(0, len(letter)):
     mp1 = results.loc[results['Dep'] == letter[i]]
     plt.errorbar(mp1['Cruise'], mp1['SPE-DOC 13C'], yerr=mp1['error2'], alpha=a[i], fmt='s', color='black', ecolor='black', elinewidth=1, capsize=2)
@@ -736,13 +736,40 @@ plt.title('Mean \u03B4$^1$$^3$C (\u2030) by Basin')
 plt.savefig('C:/Users/clewis/IdeaProjects/GNS/UCI_13C/output/Supp6.png', dpi=300, bbox_inches="tight")
 plt.close()
 #
-# with pd.ExcelWriter(r'C:\Users\clewis\IdeaProjects\GNS\UCI_13C\output\output.xlsx') as writer:
-#     cleaned_df.to_excel(writer, sheet_name='SPE Data')
-#     results.to_excel(writer, sheet_name='SPE Results Summary')
-#     HeliumMerge.to_excel(writer, sheet_name='SPEvP18 1994 He')
-#     merged2.to_excel(writer, sheet_name='DOC Data')
-#     dfnew.to_excel(writer, sheet_name='DOC Results')
-#
+with pd.ExcelWriter(r'C:\Users\clewis\IdeaProjects\GNS\UCI_13C\output\output.xlsx') as writer:
+    cleaned_df.to_excel(writer, sheet_name='SPE Data')
+    results.to_excel(writer, sheet_name='SPE Results Summary')
+    HeliumMerge.to_excel(writer, sheet_name='SPEvP18 1994 He')
+    merged2.to_excel(writer, sheet_name='DOC Data')
+    dfnew.to_excel(writer, sheet_name='DOC Results')
 
 
+fig = plt.figure(1, figsize=(10, 5))
+gs = gridspec.GridSpec(2, 4)
+gs.update(wspace=.5, hspace=.5)
 
+xtr_subsplot = fig.add_subplot(gs[0:2, 0:2])
+results1 = results.loc[results['Dep'] == 'S']
+plt.title('Surface')
+plt.errorbar(results1['Cruise'], results1['DOC 13C'], label='Total DOC', yerr=results1['error1'],  fmt=markers[0], color=colors[0], ecolor=colors[0], elinewidth=1, capsize=2, alpha = 1)
+plt.errorbar(results1['Cruise'], results1['SPE-DOC 13C'], label='SPE-DOC', yerr=results1['error2'],  fmt=markers[1], color=colors[1], ecolor=colors[1], elinewidth=1, capsize=2, alpha = 1)
+plt.errorbar(results1['Cruise'], results1["Nonretained 13C"], label='Non-retained', yerr=results1['error4'],  fmt=markers[2], color=colors[2], ecolor=colors[2], elinewidth=1, capsize=2, alpha = 1)
+plt.xlabel('Cruise', fontsize=14)
+plt.ylabel('\u03B4$^1$$^3$C (\u2030)', fontsize=14)
+plt.ylim(-24, -19)
+
+
+xtr_subsplot = fig.add_subplot(gs[0:2, 2:4])
+results1 = results.loc[results['Dep'] == 'D']
+plt.title('Deep')
+plt.errorbar(results1['Cruise'], results1['DOC 13C'], label='Total DOC', yerr=results1['error1'],  fmt=markers[0], color=colors[0], ecolor=colors[0], elinewidth=1, capsize=2, alpha = 1)
+plt.errorbar(results1['Cruise'], results1['SPE-DOC 13C'], label='SPE-DOC', yerr=results1['error2'],  fmt=markers[1], color=colors[1], ecolor=colors[1], elinewidth=1, capsize=2, alpha = 1)
+plt.errorbar(results1['Cruise'], results1["Nonretained 13C"], label='Non-retained', yerr=results1['error4'],  fmt=markers[2], color=colors[2], ecolor=colors[2], elinewidth=1, capsize=2, alpha = 1)
+plt.legend()
+plt.xlabel('Cruise', fontsize=14)
+plt.ylim(-24, -19)
+plt.savefig('C:/Users/clewis/IdeaProjects/GNS/UCI_13C/output/Disc1.png', dpi=300, bbox_inches="tight")
+plt.close()
+# results = pd.DataFrame({"Description": descrip_doc, 'DOC 13C': bulk_av, 'error1': bulk_std,
+#                         'SPE-DOC 13C': SPE_av, "error2": SPE_std, "PPL % Recovery": ppl_rec, "error3": ppl_rec_err,
+#                         "Nonretained 13C": nonret, "error4": nonret_error, "N": count, "Cruise": cruise, "Dep": dep})

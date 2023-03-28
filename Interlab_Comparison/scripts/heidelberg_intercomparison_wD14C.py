@@ -37,6 +37,7 @@ from colors_set import farbe_bhd, farbe_heid
 # general plot parameters
 colors = sns.color_palette("rocket", 6)
 colors2 = sns.color_palette("mako", 6)
+colors2 = sns.color_palette("mako", 6)
 mpl.rcParams['pdf.fonttype'] = 42
 mpl.rcParams['font.size'] = 10
 size1 = 5

@@ -1,4 +1,8 @@
 """
+Updated: March 28, 2023
+
+1. Adding a new time-axis to compare with Landschutzer data ('seconds since 2000-01-01' (dont ask me why))
+
 Updated: 29 November 2022
 
 This file does the following:
@@ -9,18 +13,27 @@ This file does the following:
 4. Creates plots 7 (decadal averages) and 8 (rolling mean).
 """
 
-
+import datetime as dt  # Python standard library datetime  module
+import numpy as np
+from netCDF4 import Dataset  # http://code.google.com/p/netcdf4-python/
+from mpl_toolkits.basemap import Basemap, addcyclic, shiftgrid
 import pandas as pd
 import numpy as np
 from soar_analysis1 import df_2
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
 pd.set_option('mode.chained_assignment', None)
+from netcdf_example import ncdump
+
 
 """
 In this file we want to explore how the data looks in terms of decadal means, 5 year means, and so on...
 And try to compare our findings to the landschutzer plot...
 """
+
+#update as of March 28, 2023 - adding a new time axis, see notes above.
+conversion = 31540000
+df_2['Landschutzer_time'] = (df_2['Decimal_date'] - 2000) * conversion
 
 # break up the data by country based on previously existing flags from analysis2
 chile = df_2.loc[df_2['Country'] == 0]
@@ -226,32 +239,51 @@ plt.savefig('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/plot8.png',
 plt.close()
 
 
+"""
+I want to plot my data vs Landschutzer
 
+As its written now I'm plotting the WHOLE dataset (my data) and just a chunk of Landies (see indexing below) 
+"""
 
+nc_f = 'H:/Science/Datasets/spco2_1982-2015_MPI_SOM-FFN_v2016.nc'
+nc_fid = Dataset(nc_f, 'r')  # Dataset is the class behavior to open the file
+# and create an instance of the ncCDF4 class
 
+#tells you the info in the file
+nc_attrs, nc_dims, nc_vars = ncdump(nc_fid) # Extract data from NetCDF file
 
+# have a look at the variable of interest
+fgc02_smooth = nc_fid['fgco2_smoothed']
+lats = nc_fid.variables['lat'][:]  # extract/copy the data
+lons = nc_fid.variables['lon'][:]
+time = nc_fid.variables['time_bnds'][:]
+# print(fgc02_smooth)
 
+# X, lat, lon
+test = fgc02_smooth[:,30,1]
+# only grab the second column of the time_bands (the end of each time - chunk)
+time = time[:,1]
 
-
-
-
-
-
-
-# fig, ax1 = plt.subplots()
-#
-# ax2 = ax1.twinx()
-# ax1.plot(means_nz1['Decimal_date'], means_nz1['r2_diff_trend'], label='NZ 38-45S')
-# ax1.plot(means_nz2['Decimal_date'], means_nz2['r2_diff_trend'], label='NZ 45-50S')
-# ax1.plot(means_nz3['Decimal_date'], means_nz3['r2_diff_trend'], label='NZ 50-55S')
-# ax2.plot(schutz_x, schutz_y, label='Landschutzer', alpha = 0.3, linestyle='-')
-# ax1.legend()
-# ax1.set_xlabel('X data')
-# ax1.set_ylabel('SOAR Residuals', color='g')
-# ax2.set_ylabel('Lanschutzer Data', color='b')
-#
+# plt.scatter(time, test)
+# plt.scatter(df_2['Landschutzer_time'], df_2['r2_diff_trend'])
 # plt.show()
-# plt.close()
+
+fig = plt.figure(figsize=(12, 6))
+gs = gridspec.GridSpec(3, 6)
+gs.update(wspace=.35, hspace=.6)
+xtr_subsplot = fig.add_subplot(gs[0:3, 0:3])
+plt.title('Landschutzer Data (only 1 latitude, only 1 longitude)')
+plt.scatter(time, test)
+
+xtr_subsplot = fig.add_subplot(gs[0:3, 3:6])
+plt.title('Tree Ring Data (All Sites, All Times)')
+plt.scatter(df_2['Landschutzer_time'], df_2['r2_diff_trend'])
+plt.savefig('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/plot_x1.png',
+            dpi=300, bbox_inches="tight")
+
+
+
+
 
 
 

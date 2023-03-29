@@ -238,49 +238,49 @@ plt.savefig('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/plot8.png',
             dpi=300, bbox_inches="tight")
 plt.close()
 
-
-"""
-I want to plot my data vs Landschutzer
-
-As its written now I'm plotting the WHOLE dataset (my data) and just a chunk of Landies (see indexing below) 
-"""
-
-nc_f = 'H:/Science/Datasets/spco2_1982-2015_MPI_SOM-FFN_v2016.nc'
-nc_fid = Dataset(nc_f, 'r')  # Dataset is the class behavior to open the file
-# and create an instance of the ncCDF4 class
-
-#tells you the info in the file
-nc_attrs, nc_dims, nc_vars = ncdump(nc_fid) # Extract data from NetCDF file
-
-# have a look at the variable of interest
-fgc02_smooth = nc_fid['fgco2_smoothed']
-lats = nc_fid.variables['lat'][:]  # extract/copy the data
-lons = nc_fid.variables['lon'][:]
-time = nc_fid.variables['time_bnds'][:]
-# print(fgc02_smooth)
-
-# X, lat, lon
-test = fgc02_smooth[:,30,1]
-# only grab the second column of the time_bands (the end of each time - chunk)
-time = time[:,1]
-
+# SEE SOAR ANALYSIS 6
+# """
+# I want to plot my data vs Landschutzer
+#
+# As its written now I'm plotting the WHOLE dataset (my data) and just a chunk of Landies (see indexing below)
+# """
+#
+# nc_f = 'H:/Science/Datasets/spco2_1982-2015_MPI_SOM-FFN_v2016.nc'
+# nc_fid = Dataset(nc_f, 'r')  # Dataset is the class behavior to open the file
+# # and create an instance of the ncCDF4 class
+#
+# #tells you the info in the file
+# nc_attrs, nc_dims, nc_vars = ncdump(nc_fid) # Extract data from NetCDF file
+#
+# # have a look at the variable of interest
+# fgc02_smooth = nc_fid['fgco2_smoothed']
+# lats = nc_fid.variables['lat'][:]  # extract/copy the data
+# lons = nc_fid.variables['lon'][:]
+# time = nc_fid.variables['time_bnds'][:]
+# # print(fgc02_smooth)
+#
+# # X, lat, lon
+# test = fgc02_smooth[:,30,1]
+# # only grab the second column of the time_bands (the end of each time - chunk)
+# time = time[:,1]
+#
+# # plt.scatter(time, test)
+# # plt.scatter(df_2['Landschutzer_time'], df_2['r2_diff_trend'])
+# # plt.show()
+#
+# fig = plt.figure(figsize=(12, 6))
+# gs = gridspec.GridSpec(3, 6)
+# gs.update(wspace=.35, hspace=.6)
+# xtr_subsplot = fig.add_subplot(gs[0:3, 0:3])
+# plt.title('Landschutzer Data (only 1 latitude, only 1 longitude)')
 # plt.scatter(time, test)
+#
+# xtr_subsplot = fig.add_subplot(gs[0:3, 3:6])
+# plt.title('Tree Ring Data (All Sites, All Times)')
 # plt.scatter(df_2['Landschutzer_time'], df_2['r2_diff_trend'])
-# plt.show()
-
-fig = plt.figure(figsize=(12, 6))
-gs = gridspec.GridSpec(3, 6)
-gs.update(wspace=.35, hspace=.6)
-xtr_subsplot = fig.add_subplot(gs[0:3, 0:3])
-plt.title('Landschutzer Data (only 1 latitude, only 1 longitude)')
-plt.scatter(time, test)
-
-xtr_subsplot = fig.add_subplot(gs[0:3, 3:6])
-plt.title('Tree Ring Data (All Sites, All Times)')
-plt.scatter(df_2['Landschutzer_time'], df_2['r2_diff_trend'])
-plt.savefig('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/plot_x1.png',
-            dpi=300, bbox_inches="tight")
-
+# plt.savefig('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/plot_x1.png',
+#             dpi=300, bbox_inches="tight")
+#
 
 
 

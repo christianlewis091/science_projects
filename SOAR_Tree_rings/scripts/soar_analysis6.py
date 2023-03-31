@@ -75,20 +75,24 @@ b4_min = -80.5
 b4_index_max = lats.index(b4_max)
 b4_index_min = lats.index(b4_min)
 
-# indexing for Indian Ocean - feed for New Zealand
-lon_max = 120.5
-lon_min = 60.5
-lon_index_max = lons.index(lon_max)
-lon_index_min = lons.index(lon_min)
 
-# indeixing for Pacific - feeds to Chile
-lon_min2 = -160.5
-lon_max2 = -100.5
-# lon_max2 = 120.5
-# lon_min2 = -30.5
-lon_index_max2 = lons.index(lon_max2)
-lon_index_min2 = lons.index(lon_min2)
+
+# # indexing for Indian Ocean - feed for New Zealand
+# lon_max = 120.5
+# lon_min = 60.5
+# lon_index_max = lons.index(lon_max)
+# lon_index_min = lons.index(lon_min)
 #
+#
+#
+# # indeixing for Pacific - feeds to Chile
+# # lon_min2 = -160.5
+# # lon_max2 = -100.5
+# # lon_max2 = 120.5
+# # lon_min2 = -30.5
+# lon_index_max2 = lons.index(lon_max2)
+# lon_index_min2 = lons.index(lon_min2)
+# #
 # # Now I want to index the netCDF data within these bands, and average them, and find their STD, and make a plot similar
 # # to plot 7.
 # # first I need to identify the indeces where these latitudes are...should I put the lats and lons into a dataframe? No.
@@ -260,11 +264,15 @@ for i in range(0, len(items)):
     std_arr.append(std_err)
 
 lolz = pd.DataFrame({"Label": label_arr,
-              "Slope": slope_arr,
-              "Intercept": intercept_arr,
-              "R2": r_arr,
-              "Pvalue": p_arr,
-              "Std_err": std_arr})
+                     "CHile Lon Min": lon_min2,
+                     "CHile Lon Max": lon_max2,
+                     "NZ Lon Min": lon_min,
+                     "NZ Lon Max": lon_max,
+                     "Slope": slope_arr,
+                    "Intercept": intercept_arr,
+                    "R2": r_arr,
+                    "Pvalue": p_arr,
+                    "Std_err": std_arr})
 lolz.to_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/stats.xlsx')
 
 """

@@ -75,23 +75,17 @@ b4_min = -80.5
 b4_index_max = lats.index(b4_max)
 b4_index_min = lats.index(b4_min)
 
-
-
 # # indexing for Indian Ocean - feed for New Zealand
-# lon_max = 120.5
-# lon_min = 60.5
-# lon_index_max = lons.index(lon_max)
-# lon_index_min = lons.index(lon_min)
-#
-#
-#
+lon_max = 120.5
+lon_min = 60.5
 # # indeixing for Pacific - feeds to Chile
-# # lon_min2 = -160.5
-# # lon_max2 = -100.5
-# # lon_max2 = 120.5
-# # lon_min2 = -30.5
-# lon_index_max2 = lons.index(lon_max2)
-# lon_index_min2 = lons.index(lon_min2)
+lon_max2 = 120.5
+lon_min2 = -30.5
+lon_index_max = lons.index(lon_max)
+lon_index_min = lons.index(lon_min)
+lon_index_max2 = lons.index(lon_max2)
+lon_index_min2 = lons.index(lon_min2)
+
 # #
 # # Now I want to index the netCDF data within these bands, and average them, and find their STD, and make a plot similar
 # # to plot 7.
@@ -171,7 +165,7 @@ The old favorite - CCGCRV curve smoothing
 The function needs the following: 
 def monte_carlo_randomization_trend(x_init, fake_x, y_init, y_error, cutoff, n):  # explanation of arguments above
 """
-n = 10000  # set the amount of times the code will iterate (set to 10,000 once everything is final)
+n = 10  # set the amount of times the code will iterate (set to 10,000 once everything is final)
 cutoff = 667  # FFT filter cutoff
 
 output_xs = np.linspace(1980, 2020, num=8)
@@ -269,10 +263,10 @@ lolz = pd.DataFrame({"Label": label_arr,
                      "NZ Lon Min": lon_min,
                      "NZ Lon Max": lon_max,
                      "Slope": slope_arr,
-                    "Intercept": intercept_arr,
-                    "R2": r_arr,
-                    "Pvalue": p_arr,
-                    "Std_err": std_arr})
+                     "Intercept": intercept_arr,
+                     "R2": r_arr,
+                     "Pvalue": p_arr,
+                     "Std_err": std_arr})
 lolz.to_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/stats.xlsx')
 
 """

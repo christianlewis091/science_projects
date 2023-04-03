@@ -34,7 +34,7 @@ nc_f = 'H:/Science/Datasets/spco2_1982-2015_MPI_SOM-FFN_v2016.nc'
 nc_fid = Dataset(nc_f, 'r')
 
 # function pulled from import statement; tells you the info in the file
-# nc_attrs, nc_dims, nc_vars = ncdump(nc_fid)
+nc_attrs, nc_dims, nc_vars = ncdump(nc_fid)
 
 # have a look at the variable of interest
 fgc02_smooth = nc_fid['fgco2_smoothed']
@@ -76,14 +76,20 @@ b4_index_max = lats.index(b4_max)
 b4_index_min = lats.index(b4_min)
 
 # # indexing for Indian Ocean - feed for New Zealand
-a = 120.5
-b = 60.5
-c = -30.5
-lon_max = [a, a+20, a+40]
-lon_min = [b, b+20, b+40]
+b = -179.5  # min lon
+a = b+30  # max lon
+
+d = -179.5  # min lon
+c = d+30  # max lon
+
+
+#
+#editing lon maxs and mins after doing some analyis and realizing that for NZ data, the best links are -140 to -110;
+lon_max = [a, a+30, a+60, a+90, a+120, a+150]
+lon_min = [b, b+30, b+60, b+90, b+120, b+150]
 # # indeixing for Pacific - feeds to Chile
-lon_max2 = [a, a+20, a+40]
-lon_min2 = [c, c+20, c+40]
+lon_max2 = [c, c+30, c+60, c+90, c+120, c+150]
+lon_min2 = [d, d+30, d+60, d+90, d+120, d+150]
 
 # arrays for later
 slope_arr = []
@@ -97,7 +103,7 @@ lonlab2 = []
 lonlab3 = []
 lonlab4=[]
 
-for k in range(0, 3):
+for k in range(0, len(lon_max)):
     lon_index_max = lons.index(lon_max[k])
     lon_index_min = lons.index(lon_min[k])
     lon_index_max2 = lons.index(lon_max2[k])
@@ -160,6 +166,7 @@ for k in range(0, 3):
                       "Band3_CH": band3_ls2,
                       "Band4_CH": band4_ls2})
 
+
     # add the time back into years
     conversion = 31540000
     df_2['Landschutzer_time'] = (df_2['Decimal_date'] - 2000) * conversion
@@ -187,41 +194,41 @@ for k in range(0, 3):
 
     output_xs = np.linspace(1980, 2020, num=8)
 
-
-    landschutz_band1_ch = monte_carlo_randomization_trend(landschutz_means['Decimal_date'], output_xs, landschutz_means['Band1_CH'], landschutz_std['Band1_CH'], cutoff, n)
+# need absolute value to get error approximation; assigning 5% error to the landies data
+    landschutz_band1_ch = monte_carlo_randomization_trend(x['Decimal_date'], output_xs, x['Band1_CH'], np.abs((x['Band1_CH']*.05)), cutoff, n)
     landschutz_band1_ch = landschutz_band1_ch[2]
 
-    landschutz_band2_ch = monte_carlo_randomization_trend(landschutz_means['Decimal_date'], output_xs, landschutz_means['Band2_CH'], landschutz_std['Band2_CH'], cutoff, n)
+    landschutz_band2_ch = monte_carlo_randomization_trend(x['Decimal_date'], output_xs, x['Band2_CH'],  np.abs((x['Band2_CH']*.05)), cutoff, n)
     landschutz_band2_ch = landschutz_band2_ch[2]
 
-    landschutz_band3_ch = monte_carlo_randomization_trend(landschutz_means['Decimal_date'], output_xs, landschutz_means['Band1_CH'], landschutz_std['Band1_CH'], cutoff, n)
+    landschutz_band3_ch = monte_carlo_randomization_trend(x['Decimal_date'], output_xs, x['Band3_CH'],  np.abs((x['Band3_CH']*.05)), cutoff, n)
     landschutz_band3_ch = landschutz_band3_ch[2]
 
-    landschutz_band1_nz = monte_carlo_randomization_trend(landschutz_means['Decimal_date'], output_xs, landschutz_means['Band1_NZ'], landschutz_std['Band1_NZ'], cutoff, n)
+    landschutz_band1_nz = monte_carlo_randomization_trend(x['Decimal_date'], output_xs, x['Band1_NZ'],  np.abs((x['Band1_NZ']*.05)), cutoff, n)
     landschutz_band1_nz = landschutz_band1_nz[2]
 
-    landschutz_band2_nz = monte_carlo_randomization_trend(landschutz_means['Decimal_date'], output_xs, landschutz_means['Band2_NZ'], landschutz_std['Band2_NZ'], cutoff, n)
+    landschutz_band2_nz = monte_carlo_randomization_trend(x['Decimal_date'], output_xs, x['Band2_NZ'], np.abs((x['Band2_NZ']*.05)), cutoff, n)
     landschutz_band2_nz = landschutz_band2_nz[2]
 
-    landschutz_band3_nz = monte_carlo_randomization_trend(landschutz_means['Decimal_date'], output_xs, landschutz_means['Band1_NZ'], landschutz_std['Band1_NZ'], cutoff, n)
+    landschutz_band3_nz = monte_carlo_randomization_trend(x['Decimal_date'], output_xs, x['Band3_NZ'],  np.abs((x['Band3_NZ']*.05)), cutoff, n)
     landschutz_band3_nz = landschutz_band3_nz[2]
 
-    trees_band1_ch = monte_carlo_randomization_trend(means_ch1['Decimal_date'], output_xs, means_ch1['r2_diff_trend'], means_ch1['r2_diff_trend_errprop'], cutoff, n)
+    trees_band1_ch = monte_carlo_randomization_trend(chile_band1['Decimal_date'], output_xs, chile_band1['r2_diff_trend'], chile_band1['r2_diff_trend_errprop'], cutoff, n)
     trees_band1_ch = trees_band1_ch[2]
 
-    trees_band2_ch = monte_carlo_randomization_trend(means_ch2['Decimal_date'], output_xs, means_ch2['r2_diff_trend'], means_ch2['r2_diff_trend_errprop'], cutoff, n)
+    trees_band2_ch = monte_carlo_randomization_trend(chile_band2['Decimal_date'], output_xs, chile_band2['r2_diff_trend'], chile_band2['r2_diff_trend_errprop'], cutoff, n)
     trees_band2_ch = trees_band2_ch[2]
 
-    trees_band3_ch = monte_carlo_randomization_trend(means_ch3['Decimal_date'], output_xs, means_ch3['r2_diff_trend'], means_ch3['r2_diff_trend_errprop'], cutoff, n)
+    trees_band3_ch = monte_carlo_randomization_trend(chile_band3['Decimal_date'], output_xs, chile_band3['r2_diff_trend'], chile_band3['r2_diff_trend_errprop'], cutoff, n)
     trees_band3_ch = trees_band3_ch[2]
 
-    trees_band1_nz = monte_carlo_randomization_trend(means_nz1['Decimal_date'], output_xs, means_nz1['r2_diff_trend'], means_nz1['r2_diff_trend_errprop'], cutoff, n)
+    trees_band1_nz = monte_carlo_randomization_trend(nz_band1['Decimal_date'], output_xs, nz_band1['r2_diff_trend'], nz_band1['r2_diff_trend_errprop'], cutoff, n)
     trees_band1_nz = trees_band1_nz[2]
 
-    trees_band2_nz = monte_carlo_randomization_trend(means_nz2['Decimal_date'], output_xs, means_nz2['r2_diff_trend'], means_nz2['r2_diff_trend_errprop'], cutoff, n)
+    trees_band2_nz = monte_carlo_randomization_trend(nz_band2['Decimal_date'], output_xs, nz_band2['r2_diff_trend'], nz_band2['r2_diff_trend_errprop'], cutoff, n)
     trees_band2_nz = trees_band2_nz[2]
 
-    trees_band3_nz = monte_carlo_randomization_trend(means_nz3['Decimal_date'], output_xs, means_nz3['r2_diff_trend'], means_nz3['r2_diff_trend_errprop'], cutoff, n)
+    trees_band3_nz = monte_carlo_randomization_trend(nz_band3['Decimal_date'], output_xs, nz_band3['r2_diff_trend'], nz_band3['r2_diff_trend_errprop'], cutoff, n)
     trees_band3_nz = trees_band3_nz[2]
 
     output_xs = pd.DataFrame({"output_xs": output_xs})
@@ -285,7 +292,8 @@ lolz = pd.DataFrame({ "Label": label_arr,
                      "Std_err": std_arr})
 #
 print(lolz)
-lolz.to_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/stats2.xlsx')
+lolz.to_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/stats_final.xlsx')
+
 
 """
 The following two plots are the result of SOAR_ANALYSIS4 (see plot7) AND the landschutzer data indexed by latitude
@@ -328,7 +336,7 @@ plt.plot(landschutz_means['Decimal_date'], landschutz_means['Band3_CH'], label='
 plt.fill_between(landschutz_means['Decimal_date'], (landschutz_means['Band3_CH']+landschutz_std['Band3_CH']), (landschutz_means['Band3_CH']-landschutz_std['Band3_CH']), alpha = 0.3, color = a5)
 plt.savefig('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/analysis6_chile.png',
             dpi=300, bbox_inches="tight")
-
+plt.close()
 
 # """
 # NZ data vs model
@@ -369,6 +377,7 @@ plt.plot(landschutz_means['Decimal_date'], landschutz_means['Band3_NZ'], label='
 plt.fill_between(landschutz_means['Decimal_date'], (landschutz_means['Band3_NZ']+landschutz_std['Band3_NZ']), (landschutz_means['Band3_NZ']-landschutz_std['Band3_NZ']), alpha = 0.3, color = a5)
 plt.savefig('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/analysis6_newzealand.png',
             dpi=300, bbox_inches="tight")
+plt.close()
 
 """
 Whats the result/comparability of my results and landschutzers after I relate them in time (using CCGCRV)
@@ -409,6 +418,27 @@ plt.ylabel('Tree Data')
 
 plt.savefig('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/analysis6_scatter.png',
             dpi=300, bbox_inches="tight")
+plt.close()
+
+"""
+Depending on which longitude I'm indexing for the landschutzer data, how does the R2 compare 
+with our tree ring data? i.e., which sector is most linked to our tree ring data? 
+"""
+names = np.unique(lolz['Label'])
+for j in range(0, len(names)):
+    current_band = lolz.loc[lolz['Label'] == names[j]]
+
+    plt.plot(current_band['CHile Lon Min'], current_band['R2'], label=names[j])
+    plt.fill_between(current_band['CHile Lon Min'], (current_band['R2']+current_band['Std_err']), (current_band['R2']-current_band['Std_err']), alpha = 0.3, color = a1)
+    plt.xlabel('Chosen Longitude Min+30degrees')
+    plt.ylabel('R2 value (b/w Tree and Landschutzer 5year averages)')
+    plt.legend()
+    plt.savefig(f'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/analysis6_longitudes_{names[j]}.png',
+                dpi=300, bbox_inches="tight")
+    plt.close()
+
+
+
 
 
 

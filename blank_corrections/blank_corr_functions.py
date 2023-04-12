@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 import warnings
-from PyAstronomy import pyasl
+from PyAstronomy.pyasl.asl import decimalYear
 
 from openpyxl import Workbook
 
@@ -12,7 +12,7 @@ def long_date_to_decimal_date(x):
     array = []  # define an empty array in which the data will be stored
     for i in range(0, len(x)):  # initialize the for loop to run the length of our dataset (x)
         j = x[i]  # assign j: grab the i'th value from our dataset (x)
-        decy = pyasl.decimalYear(j)  # The heavy lifting is done via this Py-astronomy package
+        decy = decimalYear(j)  # The heavy lifting is done via this Py-astronomy package
         decy = float(decy)  # change to a float - this may be required for appending data to the array
         array.append(decy)  # append it all together into a useful column of data
     return array  # return the new data
@@ -171,6 +171,7 @@ def blank_corr_022323(input_name, date_bound_input, num_list):
     df = df.loc[(df['Description from Sample'] != 'Kapuni CO2 cylinder')]  # remove the Kapuni and the sucrose
     df = df.loc[(df['Description from Sample'] != 'ANU Sucrose - IAEA C6')]
     df = df.loc[(df['Category In Calculation'] != 'Background Test')]
+    df = df.loc[(df['Category In Calculation'] != 'Background Inorganic')]
     df = df.loc[(df['Job::Sample Type From Sample Table'] != 'other organic material')]
 
     for k in range(0, len(df)):

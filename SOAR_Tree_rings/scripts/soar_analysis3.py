@@ -51,10 +51,6 @@ locs2 = temp2['ind']
 u3, locs3 = np.unique(ant['Site'], return_index=True)
 temp3 = pd.DataFrame({"ind": u3, "locs":locs3}).sort_values(by=['locs'], ascending=True).reset_index(drop=True)
 locs3 = temp3['ind']
-# print(locs1)
-# print(locs2)
-# print(locs3)
-
 
 
 a1, a2, a3, a4, a5, a6, a7, a8 = '#d73027', '#f46d43', '#fdae61', '#fee090', '#e0f3f8', '#abd9e9', '#74add1', '#4575b4'

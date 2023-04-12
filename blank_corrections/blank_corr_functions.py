@@ -172,6 +172,7 @@ def blank_corr_022323(input_name, date_bound_input, num_list):
     df = df.loc[(df['Description from Sample'] != 'ANU Sucrose - IAEA C6')]
     df = df.loc[(df['Category In Calculation'] != 'Background Test')]
     df = df.loc[(df['Category In Calculation'] != 'Background Inorganic')]
+    df = df.loc[(df['Category In Calculation'] != 'Background Organic')]
     df = df.loc[(df['Job::Sample Type From Sample Table'] != 'other organic material')]
 
     for k in range(0, len(df)):
@@ -332,7 +333,7 @@ def blank_corr_old(input_name, date_bound_input, num_list):
     x = stds_hist['Date Run']
     stds_hist['Date Run'] = long_date_to_decimal_date(x)                     # This line converts the dates to "Decimal Date" so that I can find only dates that are 0.5 years max before most recent date
     date_bound_input = input("How far back do you want the standards to go? Type 0.5 for 1/2 year, and 1 for 1 year")
-    date_bound = max(stds_hist['Date Run']) - np.float(date_bound_input)
+    date_bound = max(stds_hist['Date Run']) - float(date_bound_input)
     stds_hist = stds_hist.loc[(stds_hist['Date Run'] > date_bound)]      # Index: find ONLY dates that are more recent than 1/2 year
 
     stds_hist = stds_hist.loc[(stds_hist['Quality Flag'] == '...')]  # Index: drop everything that contains a quality flag

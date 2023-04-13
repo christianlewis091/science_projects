@@ -1,8 +1,7 @@
-
 # # https://www.youtube.com/watch?v=YXPyB4XeYLA&t=2640s&ab_channel=freeCodeCamp.org
 from tkinter import *
 from tkinter import ttk
-from blank_corr_functions import blank_corr_022323
+from blank_corr_functions import blank_corr_022323, plot_seconds
 
 """
 Update: Febraury 23, 2023
@@ -40,54 +39,111 @@ is a literal copy of Iteration3. I only wanted to make a GUI so I can make an ex
 """
 root = Tk()
 
-hello_message = Label(root, text="Blank Correction GUI: Last Updated October 13, 2022 (Author: Christian B. Lewis)")
+goldenrat = 1.618
+x = 1000
+y = int(x / goldenrat)
+# root.geometry(f'{x}x{y}+50+50')
+# root.configure(bg='brown')
+
+# add hello message at top
+hello_message = Label(root, text="Blank Correction GUI: Last Updated 13, April 2023  (Author: Christian B. Lewis)",
+                      font=('Helvetica', 13, 'bold'), bd=1, background="brown", foreground="white")
 hello_message.grid(row=0, rowspan=1, column=0, columnspan=5)
 
+# add a buffer space
+blank_1 = Label(root, text="")
+blank_1.grid(row=1, column=0)
 
-tw = Label(root, text="Please enter wheel TW #:")
+hello_message = Label(root, text="Blank Correction", font=('Helvetica', 12, 'bold'), bd=1, background="brown",
+                      foreground="white")
+hello_message.grid(row=2, column=0, columnspan=5)
+
+blank_1 = Label(root, text="")
+blank_1.grid(row=3, column=0)
+
+tw = Label(root, text="Please enter wheel TW #:", font=("Helvetica", 11), bd=1, relief="sunken")
 tw.grid(row=4, column=0)
-entry1 = StringVar()                                # initialize a variable where the input will be stored
-entry1_box = ttk.Entry(root,textvariable = entry1)  # This creates the input box
-entry1_box.grid(row=4, column=1)                    # This tells the input box where to sit.
+entry1 = StringVar()  # initialize a variable where the input will be stored
+entry1_box = ttk.Entry(root, textvariable=entry1)  # This creates the input box
+entry1_box.grid(row=4, column=1)  # This tells the input box where to sit.
+
+blank_1 = Label(root, text="")
+blank_1.grid(row=5, column=0)
 
 # If some standards wish to be exluded, I will have a new box pop up where they can be input
-stds_exclude = Label(root, text="List here any standards you'd like to exclude from blank correction: Write without separators (11111 11112 ....)")
+stds_exclude = Label(root,
+                     text="List here any standards you'd like to exclude from blank correction:\n Write without separators (11111 11112 ....)",
+                     font=("Helvetica", 11), bd=1, relief="sunken")
 stds_exclude.grid(row=6, column=0)
-entry2 = StringVar()                                  # initialize a variable where the input will be stored
-entry2_box = ttk.Entry(root,textvariable = entry2)  # This creates the input box
-entry2_box.grid(row=6, column=1)                    # This tells the input box where to sit.
+entry2 = StringVar()  # initialize a variable where the input will be stored
+entry2_box = ttk.Entry(root, textvariable=entry2)  # This creates the input box
+entry2_box.grid(row=6, column=1)  # This tells the input box where to sit.
 
-duration = Label(root, text="How far back do you want the std's to go? Type 0.5 for 1/2 year, and 1 for 1 year.")
+blank_1 = Label(root, text="")
+blank_1.grid(row=7, column=0)
+
+duration = Label(root, text="How far back do you want the std's to go? \n Type 0.5 for 1/2 year, and 1 for 1 year.",
+                 font=("Helvetica", 11), bd=1, relief="sunken")
 duration.grid(row=8, column=0)
-entry3 = StringVar()                                # initialize a variable where the input will be stored
-entry3_box = ttk.Entry(root,textvariable = entry3)  # This creates the input box
-entry3_box.grid(row=8, column=1)                    # This tells the input box where to sit.
+entry3 = StringVar()  # initialize a variable where the input will be stored
+entry3_box = ttk.Entry(root, textvariable=entry3)  # This creates the input box
+entry3_box.grid(row=8, column=1)  # This tells the input box where to sit.
+
+blank_1 = Label(root, text="")
+blank_1.grid(row=9, column=0)
+
+blank_1 = Label(root, text="")
+blank_1.grid(row=11, column=0)
+
+hello_message = Label(root, text="Create Data Quality Plots", font=('Helvetica', 12, 'bold'), bd=1, background="brown",
+                      foreground="white")
+hello_message.grid(row=12, column=0, columnspan=5)
 
 """
 This block of code defines how, when the Submit button is pressed, it executes the code in Iteration3.
 """
 
+
 def execute():
-    value1 = str(entry1.get())    # this grabs the data in TW entry box when button is pressed
-    value2 = str(entry2.get())    # List of TP #'s to exclude from standards used.
-
-
-    value3 = str(entry3.get())    # This grabs the data in Time duration box when button is pressed
+    value1 = str(entry1.get())  # this grabs the data in TW entry box when button is pressed
+    value2 = str(entry2.get())  # List of TP #'s to exclude from standards used.
+    value3 = str(entry3.get())  # This grabs the data in Time duration box when button is pressed
+    # next two lines deal with formatting stds we want to exclude
     value2 = value2.split()  # This line takes the input from the "Standards you don't want" box and splits it into a list, but a string-list
-    print(value2)
+    value2 = list(value2)  # this takes it from a string list to a list
 
-    value2 = list(value2)   # this takes it from a string list to a list
-
-    x = blank_corr_022323(value1, value3, value2)  # This calls the function written in Iteration4 which actually runs the script.
+    x = blank_corr_022323(value1, value3,
+                          value2)  # This calls the function written in Iteration4 which actually runs the script.
     print(x)
 
-    end_message = Label(root, text="Done! Please check I:\C14Data\C14_blank_corrections_dev\PythonOutput for your data. ")
-    end_message.grid(row=14, rowspan=1, column=0, columnspan=5)
+    end_message = Label(root,
+                        text="Output data created for RLIMS Import! \nPlease check I:\C14Data\C14_blank_corrections_dev\PythonOutput for your data. ",
+                        anchor="e", justify=LEFT)
+    end_message.grid(row=16, rowspan=1, column=0, columnspan=5)
+
+
+def makeplots():
+    value1 = str(entry1.get())
+    x2 = plot_seconds(value1)
+    end_message2 = Label(root,
+                        text="Plots have been written and saved to \n I:\C14Data\C14_blank_corrections_dev\Quality_Assurance_Plots folder ",
+                        anchor="e", justify=LEFT)
+    end_message2.grid(row=18, rowspan=1, column=0, columnspan=5)
 
 
 myButton = Button(root, text="Execute MCC Calculation", command=execute, fg='blue')
-myButton.grid(row=12, column=0, columnspan=5)
+myButton.grid(row=10, column=0, columnspan=5)
 
+blank_1 = Label(root, text="")
+blank_1.grid(row=13, column=0)
 
+blank_1 = Label(root, text="")
+blank_1.grid(row=15, column=0)
+
+blank_1 = Label(root, text="")
+blank_1.grid(row=17, column=0)
+
+myButton2 = Button(root, text="Create Data Quality Plots", command=makeplots, fg='blue')
+myButton2.grid(row=14, column=0, columnspan=5)
 
 root.mainloop()

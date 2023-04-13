@@ -125,9 +125,7 @@ def execute():
 def makeplots():
     value1 = str(entry1.get())
     x2 = plot_seconds(value1)
-    end_message2 = Label(root,
-                        text="Plots have been written and saved to \n I:\C14Data\C14_blank_corrections_dev\Quality_Assurance_Plots folder ",
-                        anchor="e", justify=LEFT)
+    end_message2 = Label(root, text="Plots have been written and saved to \n I:\C14Data\C14_blank_corrections_dev\Quality_Assurance_Plots folder ",anchor="e", justify=LEFT)
     end_message2.grid(row=18, rowspan=1, column=0, columnspan=5)
 
 

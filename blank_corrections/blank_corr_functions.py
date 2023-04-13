@@ -91,8 +91,8 @@ def blank_corr_022323(input_name, date_bound_input, num_list):
 
     if len(result) > 0:
         print((
-                  "The following standards are outside the selected range of {}\u2030 difference between IRMS and AMS 13C".format(
-                      C13_threshold)), file=f)
+            "The following standards are outside the selected range of {}\u2030 difference between IRMS and AMS 13C".format(
+                C13_threshold)), file=f)
         print((result), file=f)
     else:
         print(("No OX-1's 13C values deviate from IRMS 13C values more than {}\u2030 ".format(C13_threshold)), file=f)
@@ -149,7 +149,7 @@ def blank_corr_022323(input_name, date_bound_input, num_list):
                               'Sample Type From Sample Table'])):  # run through the list of "Sample Type from Sample Table" in the Pretreatement Reference list
         ref_row = refs.iloc[i]  # grab the first row of Pretreatment Reference list
         this_R = (
-        ref_row['R number to correct from'])  # find the R number associated with that blank correction reference
+            ref_row['R number to correct from'])  # find the R number associated with that blank correction reference
         current_standards = stds_hist.loc[(stds_hist[
                                                'R_number'] == this_R)]  # find all standards that match the current R number I'm interetsed in from the reference table
         stds_dataframe = pd.concat([stds_dataframe, current_standards])
@@ -259,8 +259,6 @@ def blank_corr_022323(input_name, date_bound_input, num_list):
         df.to_excel(writer, sheet_name="TW{}_results".format(input_name), index=False)
 
 
-
-
 """
 The next function will create the secondaries plots that we're interested in...
 
@@ -271,6 +269,109 @@ This data INCLUDES the wheel of interest
 
 """
 
+#
+# def plot_seconds(input_name):
+#     # READ in the standards/the last 1 year of data that was exported from RLIMS
+#     stds_hist = pd.read_excel(r'I:\C14Data\C14_blank_corrections_dev\TW{}standards.xlsx'.format(input_name)).dropna(subset='Date Run').reset_index(drop=True)
+#
+#     # find the max and min wheel # in the historical data - using later
+#     twmin = int(min(stds_hist['TW']))
+#     twmax = int(max(stds_hist['TW']))
+#     # Index: drop everything that contains a quality flag
+#     stds_hist = stds_hist.loc[(stds_hist['Quality Flag'] == '...')]
+#
+#     # find only categories that are our Large and Small standards.
+#     stds_hist = stds_hist.loc[stds_hist['Category Field'].isin(['RRL-UNSt-LG', 'RRL-UNSt-SM'])]
+#
+#     # have a look - whats the secondaries in this wheel only?
+#     this_wheel_list = stds_hist.loc[stds_hist['TW'] == input_name]
+#     this_wheel_list = this_wheel_list['Description from Sample'].reset_index(drop=True)
+#
+#     # focus on ONLY the stds that are in the wheel of interest
+#     # stds_hist = stds_hist.loc({'Description from Sample': this_wheel_list})
+#     stds_hist = stds_hist[stds_hist['Description from Sample'].isin(this_wheel_list)].reset_index(drop=True)
+#     names = np.unique(stds_hist['Description from Sample'])
+#     # print(stds_hist)
+#     # create arrays to store data in later
+#     a_1 = []
+#     a_2 = []
+#     a_3 = []
+#     a_4 = []
+#     a_5 = []
+#     a_6 = []
+#     for i in range(0, len(names)):
+#         # grab the first standard type.
+#         this_one = stds_hist.loc[stds_hist['Description from Sample'] == names[i]]
+#
+#         # filter by size.
+#         smalls = this_one.loc[this_one['wtgraph'] <= 0.3]
+#         x = int(len(smalls))
+#
+#         large = this_one.loc[this_one['wtgraph'] >= 0.3]
+#
+#         small_mean_rts = np.nanmean(smalls['Ratio to standard'])
+#         small_std_rts = np.nanstd(smalls['Ratio to standard'])
+#         large_mean_rts = np.nanmean(large['Ratio to standard'])
+#         large_std_rts = np.nanstd(large['Ratio to standard'])
+#
+#         small_mean_13 = np.nanmean(smalls['delta13C_In_Calculation'])
+#         small_std_13 = np.nanstd(smalls['delta13C_In_Calculation'])
+#         large_mean_13 = np.nanmean(large['delta13C_In_Calculation'])
+#         large_std_13 = np.nanstd(large['delta13C_In_Calculation'])
+#
+#         # make the figure
+#
+#         fig1 = plt.figure(constrained_layout=True, figsize=(10, 8))
+#         fig1.suptitle(f'{names[i]}: TW{twmin} to TW{twmax}')
+#         spec2 = gridspec.GridSpec(ncols=2, nrows=2, figure=fig1)
+#         f1_ax1 = fig1.add_subplot(spec2[0, 0])
+#         f1_ax2 = fig1.add_subplot(spec2[0, 1])
+#         f1_ax3 = fig1.add_subplot(spec2[1, 0])
+#         f1_ax4 = fig1.add_subplot(spec2[1, 1])
+#
+#         f1_ax1.set_ylabel("14C: Ratio to OX1")
+#         f1_ax3.set_ylabel("delta13C_In_Calculation")
+#
+#         f1_ax3.set_xlabel("Wheel #")
+#         f1_ax4.set_xlabel("Wheel #")
+#
+#         f1_ax1.set_title("Large (>.3 mg)")
+#         f1_ax2.set_title("Small (<.3 mg)")
+#
+#         # plot the data
+#         f1_ax1.errorbar(large['TW'], large['Ratio to standard'], large['Ratio to standard error'], fmt='o', capsize=3,
+#                         color='black')
+#         f1_ax3.scatter(large['TW'], large['delta13C_In_Calculation'], color='black')
+#         f1_ax2.errorbar(smalls['TW'], smalls['Ratio to standard'], smalls['Ratio to standard error'], fmt='o',
+#                         capsize=3, color='black')
+#         f1_ax4.scatter(smalls['TW'], smalls['delta13C_In_Calculation'], color='black')
+#
+#         # add the mean in a horizontal line
+#         f1_ax1.axhline(large_mean_rts, color='black')
+#         f1_ax3.axhline(large_mean_13, color='black')
+#         f1_ax2.axhline(small_mean_rts, color='black')
+#         f1_ax4.axhline(small_mean_13, color='black')
+#
+#         # add the 1-sigma
+#         f1_ax1.fill_between(large['TW'], (large_mean_rts + large_std_rts), (large_mean_rts - large_std_rts), alpha=0.3, color='brown')
+#         f1_ax3.fill_between(large['TW'], (large_mean_13 + large_std_13), (large_mean_13 - large_std_13), alpha=0.3, color='brown')
+#         if x != 0:
+#             f1_ax2.fill_between(smalls['TW'], (small_mean_rts + large_std_rts), (small_mean_rts - large_std_rts),
+#                                 alpha=0.3, color='brown')
+#             f1_ax4.fill_between(smalls['TW'], (small_mean_13 + large_std_13), (small_mean_13 - large_std_13), alpha=0.3,
+#                                 color='brown')
+#
+# # #       # remove a colon if it's there (png's won't save with these separators)
+# #         newname = names[i].replace(":","")
+# #
+# #         # save the figure
+# #         plt.show()
+#         plt.savefig(f'I:/C14Data/C14_blank_corrections_dev/Quality_Assurance_Plots/TW{input_name}+{names[i]}.png')
+#         print('i got to line 370')
+#         plt.close()
+#
+
+# THE OLD ONE!
 def plot_seconds(input_name):
 
     # READ in the standards/the last 1 year of data that was exported from RLIMS
@@ -283,104 +384,74 @@ def plot_seconds(input_name):
     twmax = int(max(stds_hist['TW']))
 
     # have a look - whats the secondaries in this wheel only?
-    this_wheel_list = stds_hist.loc[stds_hist['TW'] == input_name]
+    this_wheel_list = stds_hist.loc[stds_hist['TW'] == int(input_name)]
     this_wheel_list = this_wheel_list['Description from Sample'].reset_index(drop=True)
-    print(this_wheel_list)
-    # create arrays to store data in later
-    a_1 = []
-    a_2 = []
-    a_3 = []
-    a_4 = []
-    a_5 = []
-    a_6 = []
 
-    for i in range(0, len(names)):
-        print(names[i])
-        # grab the first standard type.
-        this_one = stds_hist.loc[stds_hist['Description from Sample'] == names[i]]
+    # focus on ONLY the stds that are in the wheel of interest
+    for i in range(0, len(this_wheel_list)):
+        for j in range(0, len(names)):
+            if this_wheel_list[i] == names[j]:
+                print(f'hello, {this_wheel_list[i]} = {names[j]}')
+                print("I made it 395")
+                # grab the first standard type.
+                this_one = stds_hist.loc[stds_hist['Description from Sample'] == this_wheel_list[i]]
 
-        # filter by size.
-        smalls = this_one.loc[this_one['wtgraph'] <= 0.3]
-        x = int(len(smalls))
+                # filter by size.
+                smalls = this_one.loc[this_one['wtgraph'] <= 0.3]
+                x = int(len(smalls))
 
-        large = this_one.loc[this_one['wtgraph'] >= 0.3]
+                large = this_one.loc[this_one['wtgraph'] >= 0.3]
 
-        small_mean_rts = np.nanmean(smalls['Ratio to standard'])
-        small_std_rts = np.nanstd(smalls['Ratio to standard'])
-        large_mean_rts = np.nanmean(large['Ratio to standard'])
-        large_std_rts = np.nanstd(large['Ratio to standard'])
+                small_mean_rts = np.nanmean(smalls['Ratio to standard'])
+                small_std_rts = np.nanstd(smalls['Ratio to standard'])
+                large_mean_rts = np.nanmean(large['Ratio to standard'])
+                large_std_rts = np.nanstd(large['Ratio to standard'])
 
-        small_mean_13 = np.nanmean(smalls['delta13C_In_Calculation'])
-        small_std_13 = np.nanstd(smalls['delta13C_In_Calculation'])
-        large_mean_13 = np.nanmean(large['delta13C_In_Calculation'])
-        large_std_13 = np.nanstd(large['delta13C_In_Calculation'])
+                small_mean_13 = np.nanmean(smalls['delta13C_In_Calculation'])
+                small_std_13 = np.nanstd(smalls['delta13C_In_Calculation'])
+                large_mean_13 = np.nanmean(large['delta13C_In_Calculation'])
+                large_std_13 = np.nanstd(large['delta13C_In_Calculation'])
 
-        # make the figure
+                # make the figure
 
-        fig1 = plt.figure(constrained_layout=True, figsize=(10,8))
-        fig1.suptitle(f'{names[i]}: TW{twmin} to TW{twmax}')
-        spec2 = gridspec.GridSpec(ncols=2, nrows=2, figure=fig1)
-        f1_ax1 = fig1.add_subplot(spec2[0, 0])
-        f1_ax2 = fig1.add_subplot(spec2[0, 1])
-        f1_ax3 = fig1.add_subplot(spec2[1, 0])
-        f1_ax4 = fig1.add_subplot(spec2[1, 1])
+                fig1 = plt.figure(constrained_layout=True, figsize=(10,8))
+                fig1.suptitle(f'{names[i]}: TW{twmin} to TW{twmax}')
+                spec2 = gridspec.GridSpec(ncols=2, nrows=2, figure=fig1)
+                f1_ax1 = fig1.add_subplot(spec2[0, 0])
+                f1_ax2 = fig1.add_subplot(spec2[0, 1])
+                f1_ax3 = fig1.add_subplot(spec2[1, 0])
+                f1_ax4 = fig1.add_subplot(spec2[1, 1])
 
-        f1_ax1.set_ylabel("14C: Ratio to OX1")
-        f1_ax3.set_ylabel("delta13C_In_Calculation")
+                f1_ax1.set_ylabel("14C: Ratio to OX1")
+                f1_ax3.set_ylabel("delta13C_In_Calculation")
 
-        f1_ax3.set_xlabel("Wheel #")
-        f1_ax4.set_xlabel("Wheel #")
+                f1_ax3.set_xlabel("Wheel #")
+                f1_ax4.set_xlabel("Wheel #")
 
-        f1_ax1.set_title("Large (>.3 mg)")
-        f1_ax2.set_title("Small (<.3 mg)")
+                f1_ax1.set_title("Large (>.3 mg)")
+                f1_ax2.set_title("Small (<.3 mg)")
 
-        # plot the data
-        f1_ax1.errorbar(large['TW'], large['Ratio to standard'], large['Ratio to standard error'], fmt='o', capsize=3, color='black')
-        f1_ax3.scatter(large['TW'], large['delta13C_In_Calculation'], color='black')
-        f1_ax2.errorbar(smalls['TW'], smalls['Ratio to standard'], smalls['Ratio to standard error'], fmt='o', capsize=3, color='black')
-        f1_ax4.scatter(smalls['TW'], smalls['delta13C_In_Calculation'], color='black')
+                # plot the data
+                f1_ax1.errorbar(large['TW'], large['Ratio to standard'], large['Ratio to standard error'], fmt='o', capsize=3, color='black')
+                f1_ax3.scatter(large['TW'], large['delta13C_In_Calculation'], color='black')
+                f1_ax2.errorbar(smalls['TW'], smalls['Ratio to standard'], smalls['Ratio to standard error'], fmt='o', capsize=3, color='black')
+                f1_ax4.scatter(smalls['TW'], smalls['delta13C_In_Calculation'], color='black')
 
-        # add the mean in a horizontal line
-        f1_ax1.axhline(large_mean_rts, color='black')
-        f1_ax3.axhline(large_mean_13, color='black')
-        f1_ax2.axhline(small_mean_rts, color='black')
-        f1_ax4.axhline(small_mean_13, color='black')
+                # add the mean in a horizontal line
+                f1_ax1.axhline(large_mean_rts, color='black')
+                f1_ax3.axhline(large_mean_13, color='black')
+                f1_ax2.axhline(small_mean_rts, color='black')
+                f1_ax4.axhline(small_mean_13, color='black')
 
-        # add the 1-sigma
-        f1_ax1.fill_between(large['TW'], (large_mean_rts+large_std_rts), (large_mean_rts-large_std_rts), alpha = 0.3, color='brown')
-        f1_ax3.fill_between(large['TW'], (large_mean_13+large_std_13), (large_mean_13-large_std_13), alpha = 0.3, color='brown')
-        if x != 0:
-            f1_ax2.fill_between(smalls['TW'], (small_mean_rts+large_std_rts), (small_mean_rts-large_std_rts), alpha = 0.3, color='brown')
-            f1_ax4.fill_between(smalls['TW'], (small_mean_13+large_std_13), (small_mean_13-large_std_13), alpha = 0.3, color='brown')
+                # add the 1-sigma
+                f1_ax1.fill_between(large['TW'], (large_mean_rts+large_std_rts), (large_mean_rts-large_std_rts), alpha = 0.3, color='brown')
+                f1_ax3.fill_between(large['TW'], (large_mean_13+large_std_13), (large_mean_13-large_std_13), alpha = 0.3, color='brown')
+                if x != 0:
+                    f1_ax2.fill_between(smalls['TW'], (small_mean_rts+large_std_rts), (small_mean_rts-large_std_rts), alpha = 0.3, color='brown')
+                    f1_ax4.fill_between(smalls['TW'], (small_mean_13+large_std_13), (small_mean_13-large_std_13), alpha = 0.3, color='brown')
 
-        for j in range(0, len(this_wheel_list)):
-            if names[i] == this_wheel_list[j]:
-
-                # remove a colon if it's there (png's won't save with these separators)
-                newname = names[i].replace(":","")
-
-                # save the figure
+                newname = this_wheel_list[i].replace(":","")
                 plt.savefig(f'I:/C14Data/C14_blank_corrections_dev/Quality_Assurance_Plots/TW{input_name}+{newname}.png')
-                plt.close()
-
-            else:
-                plt.close()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+                print('imade it!')
+#
+# x = plot_seconds(3461)

@@ -281,6 +281,11 @@ def plot_seconds(input_name):
     names = np.unique(stds_hist['Description from Sample'])
     twmin = int(min(stds_hist['TW']))
     twmax = int(max(stds_hist['TW']))
+
+    # have a look - whats the secondaries in this wheel only?
+    this_wheel_list = stds_hist.loc[stds_hist['TW'] == input_name]
+    this_wheel_list = this_wheel_list['Description from Sample'].reset_index(drop=True)
+    print(this_wheel_list)
     # create arrays to store data in later
     a_1 = []
     a_2 = []
@@ -290,7 +295,7 @@ def plot_seconds(input_name):
     a_6 = []
 
     for i in range(0, len(names)):
-
+        print(names[i])
         # grab the first standard type.
         this_one = stds_hist.loc[stds_hist['Description from Sample'] == names[i]]
 
@@ -348,11 +353,18 @@ def plot_seconds(input_name):
             f1_ax2.fill_between(smalls['TW'], (small_mean_rts+large_std_rts), (small_mean_rts-large_std_rts), alpha = 0.3, color='brown')
             f1_ax4.fill_between(smalls['TW'], (small_mean_13+large_std_13), (small_mean_13-large_std_13), alpha = 0.3, color='brown')
 
-        plt.savefig(f'I:/C14Data/C14_blank_corrections_dev/Quality_Assurance_Plots/TW{input_name}+{names[i]}.png')
+        for j in range(0, len(this_wheel_list)):
+            if names[i] == this_wheel_list[j]:
 
+                # remove a colon if it's there (png's won't save with these separators)
+                newname = names[i].replace(":","")
 
+                # save the figure
+                plt.savefig(f'I:/C14Data/C14_blank_corrections_dev/Quality_Assurance_Plots/TW{input_name}+{newname}.png')
+                plt.close()
 
-
+            else:
+                plt.close()
 
 
 

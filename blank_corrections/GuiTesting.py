@@ -1,7 +1,7 @@
 # # https://www.youtube.com/watch?v=YXPyB4XeYLA&t=2640s&ab_channel=freeCodeCamp.org
 from tkinter import *
 from tkinter import ttk
-from blank_corr_functions import blank_corr_022323, plot_seconds
+from blank_corr_functions import blank_corr_022323, plot_seconds_thiswheel, plot_seconds_all
 
 """
 Update: Febraury 23, 2023
@@ -122,11 +122,18 @@ def execute():
     end_message.grid(row=16, rowspan=1, column=0, columnspan=5)
 
 
-def makeplots():
+def makesomeplots():
     value1 = str(entry1.get())
-    x2 = plot_seconds(value1)
+    x2 = plot_seconds_thiswheel(value1)
     end_message2 = Label(root, text="Plots have been written and saved to \n I:\C14Data\C14_blank_corrections_dev\Quality_Assurance_Plots folder ",anchor="e", justify=LEFT)
     end_message2.grid(row=18, rowspan=1, column=0, columnspan=5)
+
+def makeallplots():
+    value1 = str(entry1.get())
+    x2 = plot_seconds_all(value1)
+    end_message2 = Label(root, text="Plots have been written and saved to \n I:\C14Data\C14_blank_corrections_dev\Quality_Assurance_Plots folder ",anchor="e", justify=LEFT)
+    end_message2.grid(row=18, rowspan=1, column=0, columnspan=5)
+
 
 
 myButton = Button(root, text="Execute MCC Calculation", command=execute, fg='blue')
@@ -141,7 +148,15 @@ blank_1.grid(row=15, column=0)
 blank_1 = Label(root, text="")
 blank_1.grid(row=17, column=0)
 
-myButton2 = Button(root, text="Create Data Quality Plots", command=makeplots, fg='blue')
+myButton2 = Button(root, text="Create Data Quality Plots and Summary Data from Selected TW #", command=makesomeplots, fg='blue')
 myButton2.grid(row=14, column=0, columnspan=5)
+
+blank_1 = Label(root, text="")
+blank_1.grid(row=18, column=0)
+
+myButton2 = Button(root, text="Create Data Quality Plots and Summary Data for All Secondaries", command=makeallplots, fg='blue')
+myButton2.grid(row=19, column=0, columnspan=5)
+
+
 
 root.mainloop()

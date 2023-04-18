@@ -745,11 +745,11 @@ for i in range(0, 3):
     plt.errorbar(curr['SPE-14C'], curr['SPE 13C Corrected'], xerr=curr['SPE-14C err'], yerr=0.2, fmt=symbols, color=color, ecolor=color, elinewidth=1, capsize=2, alpha = 1)
     plt.scatter(curr['SPE-14C'], curr['SPE 13C Corrected'], color=color, label=f"SPE-DOC {str(cruises[i])}", marker=symbols)
     plt.scatter(curr_doc['corrDel14C'], curr_doc['del13C'], facecolors='none', edgecolors='black', marker=markers[i], label=f"Total DOC {str(cruises[i])}")
-    # plt.errorbar(curr_doc['corrDel14C'], curr_doc['del13C'], xerr=curr_doc['corrDel14Cerr'], yerr=0.2)
+    # plt.errorbar(curr_doc['corrDel14C'], curr_doc['del13C'], xerr=curr_doc['corrDel14Cerr'], yerr=0.2, fmt=symbols, markeredgecolor='black', ecolor='black', markerfacecolor='none')
 
 
-plt.text(-600, -21.5+.07, 'A)', horizontalalignment='center', verticalalignment='center', fontsize=14)
-# plt.ylim(-24, -21.5)
+plt.text(-600, -20+.13, 'A)', horizontalalignment='center', verticalalignment='center', fontsize=14)
+plt.ylim(-24, -20.0)
 plt.ylabel('SPE-DOC \u03B4$^1$$^3$C (\u2030)', fontsize=14)
 plt.title('Surface (0-200 m)', fontsize=14)
 plt.xlabel('SPE-DOC \u0394$^1$$^4$C (\u2030)', fontsize=14)
@@ -767,10 +767,10 @@ for i in range(0, 3):
     plt.errorbar(curr['SPE-14C'], curr['SPE 13C Corrected'], xerr=curr['SPE-14C err'], yerr=0.2, fmt=symbols, color=color, ecolor=color, elinewidth=1, capsize=2, alpha = 1)
     plt.scatter(curr['SPE-14C'], curr['SPE 13C Corrected'], color=color, label=str(cruises[i]), marker=symbols)
     plt.scatter(curr_doc['corrDel14C'], curr_doc['del13C'], facecolors='none', edgecolors='black', marker=markers[i], label=f"Total DOC {str(cruises[i])}")
-    # plt.errorbar(curr_doc['corrDel14C'], curr_doc['del13C'], xerr=curr_doc['corrDel14Cerr'], yerr=0.2, fmt=symbols, markerfacecolor='none', ecolor='black', elinewi
+    # plt.errorbar(curr_doc['corrDel14C'], curr_doc['del13C'], xerr=curr_doc['corrDel14Cerr'], yerr=0.2, fmt=symbols, markeredgecolor='black', ecolor='black', markerfacecolor='none')
 
-plt.text(-700, -21.5+.07, 'B)', horizontalalignment='center', verticalalignment='center', fontsize=14)
-# plt.ylim(-24, -21.5)
+plt.text(-700, -20+0.13, 'B)', horizontalalignment='center', verticalalignment='center', fontsize=14)
+plt.ylim(-24, -20.0)
 plt.title('Deep (2000-4000 m)', fontsize=14)
 plt.yticks([], [])
 plt.xlabel('SPE-DOC \u0394$^1$$^4$C (\u2030)', fontsize=14)
@@ -778,7 +778,7 @@ plt.xlabel('SPE-DOC \u0394$^1$$^4$C (\u2030)', fontsize=14)
 plt.savefig('C:/Users/clewis/IdeaProjects/GNS/UCI_13C/output/Version3/Results2_wtotalDOC.png', dpi=300, bbox_inches="tight")
 plt.close()
 
-
+#
 
 
 

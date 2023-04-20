@@ -604,7 +604,7 @@ plt.plot(results1['Cruise'], results1['SPE-DOC 13C'], color='black')
 
 plt.errorbar(results1['Cruise'], results1["Nonretained 13C"], markersize = size, label='Non-retained', yerr=results1['error4'],  markerfacecolor='none', fmt='h', color='black', ecolor='black', elinewidth=1, capsize=2, alpha = 1)
 plt.plot(results1['Cruise'], results1['Nonretained 13C'], color='black')
-
+plt.text(0, -19+.13, 'A)', horizontalalignment='center', verticalalignment='center', fontsize=14)
 plt.xlabel('Cruise', fontsize=14)
 plt.ylabel('\u03B4$^1$$^3$C (\u2030)', fontsize=14)
 plt.ylim(-24, -19)
@@ -621,7 +621,7 @@ plt.plot(results1['Cruise'], results1['SPE-DOC 13C'], color='black')
 
 plt.errorbar(results1['Cruise'], results1["Nonretained 13C"], markersize = size, label='Non-retained', yerr=results1['error4'],  markerfacecolor='none', fmt='h', color='black', ecolor='black', elinewidth=1, capsize=2, alpha = 1)
 # plt.plot(results1['Cruise'], results1['Nonretained 13C'], color='black')
-
+plt.text(0, -19+.13, 'B)', horizontalalignment='center', verticalalignment='center', fontsize=14)
 plt.xlabel('Cruise', fontsize=14)
 plt.ylim(-24, -19)
 plt.yticks([], [])
@@ -649,10 +649,12 @@ data = cleaned_df.loc[cleaned_df['STNNBR'] == 205].reset_index(drop=True)
 plt.scatter(data['SPE 13C Corrected'], data['Weighted Average Depth'], color=colors[2], label='SPE-DOC', marker=markers[2])
 doc2 = doc.loc[doc['STNNBR'] == 206].reset_index(drop=True)
 plt.scatter(doc2['del13C'], doc2['Depth'], facecolors='none', edgecolors='black', marker=markers[2], label='Total DOC')
-plt.title('P18 Stn. 205-206')
+plt.title('A) P18 Stn. 205-206')
 plt.ylim(4000, 0)
+
 plt.ylabel('Depth (m)', fontsize=12)
 plt.legend()
+plt.xlim(-24, -19)
 
 
 xtr_subsplot = fig.add_subplot(gs[0:2, 2:4])
@@ -661,21 +663,24 @@ plt.scatter(data['SPE 13C Corrected'], data['Weighted Average Depth'], color=col
 
 doc2 = doc.loc[doc['STNNBR'] == 117].reset_index(drop=True)
 plt.scatter(doc2['del13C'], doc2['Depth'], facecolors='none', edgecolors='black', marker=markers[2], label='Total DOC')
-plt.title('P18 Stn. 116-117')
+plt.title('B) P18 Stn. 116-117')
 plt.ylim(4000, 0)
 plt.yticks([], [])
+plt.xlim(-24, -19)
+plt.xlabel('SPE-DOC \u03B4$^1$$^3$C (\u2030)')
 
 xtr_subsplot = fig.add_subplot(gs[0:2, 4:6])
 data = cleaned_df.loc[cleaned_df['STNNBR'] == 150].reset_index(drop=True)
 plt.scatter(data['SPE 13C Corrected'], data['Weighted Average Depth'], color=colors[2], label='SPE-DOC', marker=markers[2])
 doc2 = doc.loc[doc['STNNBR'] == 151].reset_index(drop=True)
 plt.scatter(doc2['del13C'], doc2['Depth'], facecolors='none', edgecolors='black', marker=markers[2], label='Total DOC')
-plt.title('P18 Stn. 150-151')
+plt.title('C) P18 Stn. 150-151')
 plt.ylim(4000, 0)
+plt.xlim(-24, -19)
 plt.yticks([], [])
-# plt.savefig('C:/Users/clewis/IdeaProjects/GNS/UCI_13C/output/Supp2.png', dpi=300, bbox_inches="tight")
-# plt.close()
 
+
+#
 plt.savefig('C:/Users/clewis/IdeaProjects/GNS/UCI_13C/output/Version3/Supp1.png', dpi=300, bbox_inches="tight")
 plt.close()
 
@@ -757,6 +762,8 @@ plt.ylabel('\u03B4$^1$$^3$C (\u2030)', fontsize=14)
 plt.title('Surface (0-200 m)', fontsize=14)
 plt.xlabel('\u0394$^1$$^4$C (\u2030)', fontsize=14)
 plt.legend()
+plt.text(-580, -22.3, '69\u00B0S', horizontalalignment='center', verticalalignment='center', fontsize=10)
+plt.text(-510, -23.5, '20\u00B0N', horizontalalignment='center', verticalalignment='center', fontsize=10)
 
 # grab deeper DOC samples
 doc_s = doc.loc[(doc['Depth'] > 2000) & (doc['Depth'] < 4000)]
@@ -773,15 +780,210 @@ for i in range(0, 3):
     # plt.errorbar(curr_doc['corrDel14C'], curr_doc['del13C'], xerr=curr_doc['corrDel14Cerr'], yerr=0.2, fmt=symbols, markeredgecolor='black', ecolor='black', markerfacecolor='none')
 
 plt.text(-700, -20+0.13, 'B)', horizontalalignment='center', verticalalignment='center', fontsize=14)
+
+plt.text(-530, -23.8, '6.7\u00B0S, A', horizontalalignment='center', verticalalignment='center', fontsize=10)
+plt.text(-645, -22.9, '15\u00B0S', horizontalalignment='center', verticalalignment='center', fontsize=10)
+plt.text(-600, -23.3, '20\u00B0N', horizontalalignment='center', verticalalignment='center', fontsize=10)
+
 plt.ylim(-24, -20.0)
 plt.title('Deep (2000-4000 m)', fontsize=14)
 plt.yticks([], [])
 plt.xlabel('\u0394$^1$$^4$C (\u2030)', fontsize=14)
 
+
+
 plt.savefig('C:/Users/clewis/IdeaProjects/GNS/UCI_13C/output/Version3/Results2_wtotalDOC.png', dpi=300, bbox_inches="tight")
 plt.close()
 
 #
+
+
+"""
+RESULTS 1 with depths
+"""
+
+
+s = cleaned_df.loc[cleaned_df['SorD'] == 'Surface']
+d = cleaned_df.loc[cleaned_df['SorD'] == 'Deep']
+
+fig = plt.figure(1, figsize=(10, 5))
+gs = gridspec.GridSpec(2, 6)
+gs.update(wspace=.15, hspace = .4)
+
+cruises = ['IO7N','P16N', 'P18']
+colors = ['#d73027','#fc8d59','#4575b4']
+symbol = ['o','^','D','s']
+cm = plt.cm.get_cmap('RdYlBu')
+
+
+xtr_subsplot = fig.add_subplot(gs[0:1, 0:2])
+curr = s.loc[s['Cruise'] == cruises[0]]
+sc = plt.scatter(curr['LATITUDE'], curr['SPE 13C Corrected'], label=str(cruises[0]), marker=symbol[0], c=curr['Weighted Average Depth'], cmap=cm)
+plt.ylim(-23.5, -21.5)
+plt.legend()
+plt.ylabel('SPE-DOC \u03B4$^1$$^3$C (\u2030)', fontsize=14)
+plt.text(-30, -21.5+.13, 'A)', horizontalalignment='center', verticalalignment='center', fontsize=14)
+
+xtr_subsplot = fig.add_subplot(gs[0:1, 2:4])
+curr = s.loc[s['Cruise'] == cruises[1]]
+sc = plt.scatter(curr['LATITUDE'],curr['SPE 13C Corrected'], label=str(cruises[1]), marker=symbol[1], c=curr['Weighted Average Depth'], cmap=cm)
+plt.yticks([], [])
+plt.ylim(-23.5, -21.5)
+plt.legend()
+plt.xlabel('Latitude \u00B0N', fontsize=14)
+plt.text(-10, -21.5+.13, 'B)', horizontalalignment='center', verticalalignment='center', fontsize=14)
+
+
+xtr_subsplot = fig.add_subplot(gs[0:1, 4:6])
+curr = s.loc[s['Cruise'] == cruises[2]]
+sc = plt.scatter(curr['LATITUDE'],curr['SPE 13C Corrected'], label=str(cruises[2]), marker=symbol[2], c=curr['Weighted Average Depth'], cmap=cm)
+plt.yticks([], [])
+plt.colorbar(sc)
+plt.legend()
+plt.ylim(-23.5, -21.5)
+plt.text(-60, -21.5+.13, 'C)', horizontalalignment='center', verticalalignment='center', fontsize=14)
+
+xtr_subsplot = fig.add_subplot(gs[1:2, 0:2])
+curr = s.loc[s['Cruise'] == cruises[0]]
+plt.scatter(curr['Weighted Average Depth'], curr['SPE 13C Corrected'], label=str(cruises[0]), marker=symbol[0], color=colors[0])
+plt.ylabel('SPE-DOC \u03B4$^1$$^3$C (\u2030)', fontsize=14)
+plt.ylim(-23.5, -21.5)
+plt.xlim(0, 200)
+plt.legend()
+plt.text(10, -21.5+.13, 'D)', horizontalalignment='center', verticalalignment='center', fontsize=14)
+
+xtr_subsplot = fig.add_subplot(gs[1:2, 2:4])
+curr = s.loc[s['Cruise'] == cruises[1]]
+plt.scatter(curr['Weighted Average Depth'], curr['SPE 13C Corrected'], label=str(cruises[1]), marker=symbol[1], color=colors[1])
+plt.yticks([], [])
+plt.xlabel('Weighted Average Depth (m)', fontsize=14)
+plt.ylim(-23.5, -21.5)
+plt.xlim(0, 200)
+plt.legend()
+plt.text(10, -21.5+.13, 'E)', horizontalalignment='center', verticalalignment='center', fontsize=14)
+
+xtr_subsplot = fig.add_subplot(gs[1:2, 4:6])
+curr = s.loc[s['Cruise'] == cruises[2]]
+plt.scatter(curr['Weighted Average Depth'], curr['SPE 13C Corrected'], label=str(cruises[2]), marker=symbol[2], color=colors[2])
+plt.yticks([], [])
+plt.ylim(-23.5, -21.5)
+plt.xlim(0, 200)
+plt.legend()
+plt.text(10, -21.5+.13, 'F)', horizontalalignment='center', verticalalignment='center', fontsize=14)
+
+plt.savefig('C:/Users/clewis/IdeaProjects/GNS/UCI_13C/output/Version3/Results1_surfaceanddepths.png', dpi=300, bbox_inches="tight")
+plt.close()
+
+
+
+"""
+Dissolved oxygen on IO7
+
+Section plot
+"""
+
+thiscruise = pd.read_csv(r'H:\Science\Current_Projects\00_UCI_13C\io7n.csv', skiprows=131).dropna(subset='OXYGEN')
+x = df.loc[(df['Cruise'] == 'IO7')]
+
+df1 = thiscruise.loc[(thiscruise['OXYGEN'] > -998) & (thiscruise['CTDPRS'] > -998) & (thiscruise['LATITUDE'] > -998)]
+# df1 = df1.loc[(df1['CTDPRS'] < 200) & (df1['CTDPRS'] > 0)]
+
+plt.scatter(df1['LATITUDE'], df1['CTDPRS'], c=df1['OXYGEN'], cmap='magma')
+plt.title('Dissolved Oxygen [umol/kg]')
+plt.colorbar(), plt.ylim(max(df1['CTDPRS']), min(df1['CTDPRS']))
+plt.ylim(200,0)
+pltname = 'Dissolved Oxygen (UMOL/KG)'
+plt.xlabel('Latitude')
+plt.ylabel('Depth (CTD Pressure)')
+# plt.savefig('C:/Users/clewis/IdeaProjects/GNS/UCI_13C/output/Supp1.png', dpi=300, bbox_inches="tight")
+# plt.scatter(x['Latitude'], p18_spe['Weighted Average Depth'],c =  x['13C_corr'], cmap='magma', s=100)
+plt.close()
+
+"""
+Dissolved oxygen on IO7
+
+TvS plots
+"""
+
+thiscruise = pd.read_csv(r'H:\Science\Current_Projects\00_UCI_13C\io7n.csv', skiprows=131).dropna(subset='OXYGEN')
+thiscruise = thiscruise.loc[(thiscruise['OXYGEN'] > 0)]
+
+symbol = ['o','^','D','s','X','*']
+
+
+stationlist = [2, 22, 46, 71, 96, 119]
+# thiscruise = thiscruise.loc[thiscruise['STNNBR'].isin(stationlist)]
+
+fig = plt.figure(1, figsize=(10, 5))
+gs = gridspec.GridSpec(2, 4)
+gs.update(wspace=.5, hspace = .4)
+
+xtr_subsplot = fig.add_subplot(gs[0:2, 0:2])
+for i in range(0, len(stationlist)):
+    thisstn = thiscruise.loc[thiscruise['STNNBR'] == stationlist[i]]
+    plt.plot(thisstn ['OXYGEN'], thisstn ['CTDPRS'])
+    plt.scatter(thisstn ['OXYGEN'], thisstn ['CTDPRS'], label=f'Stn {stationlist[i]}', marker = symbol[i])
+    plt.ylim(5000,0)
+    plt.xlabel('Dissolved Oxygen (UMOL/KG)')
+    plt.ylabel('Depth (m)')
+    plt.text(0, -100, 'A)', horizontalalignment='center', verticalalignment='center', fontsize=14)
+
+xtr_subsplot = fig.add_subplot(gs[0:2, 2:4])
+for i in range(0, len(stationlist)):
+    thisstn = thiscruise.loc[thiscruise['STNNBR'] == stationlist[i]]
+    plt.plot(thisstn['OXYGEN'], thisstn ['CTDPRS'])
+    plt.scatter(thisstn['OXYGEN'], thisstn ['CTDPRS'], label=f'Stn {stationlist[i]}', marker = symbol[i])
+    plt.fill_between([0, 300], 100, 150, color='black', alpha=0.05)
+    plt.ylim(500,0)
+    plt.xlim(0,250)
+    plt.xlabel('Dissolved Oxygen (UMOL/KG)')
+    plt.text(0, -10, 'B)', horizontalalignment='center', verticalalignment='center', fontsize=14)
+
+plt.legend()
+
+
+
+plt.savefig('C:/Users/clewis/IdeaProjects/GNS/UCI_13C/output/Version3/io7_oxyplot.png', dpi=300, bbox_inches="tight")
+plt.close()
+
+
+
+plt.show()
+
+
+
+"""
+A quick test
+Dose DOC increase toward OMZ in this depth range? 
+"""
+
+doc = pd.read_excel(r'H:\Science\Current_Projects\00_UCI_13C\bulkDOCdatabase.xlsx', sheet_name='ForMerge').dropna(
+    subset='del13C')
+
+doc = doc.loc[doc['Flag'] != 'X']
+doc = doc.loc[(doc['Depth'] > 0) & (doc['Depth'] < 250)]
+
+plt.scatter(doc['STNNBR'], doc['del13C'])
+plt.xlabel('Station Number (increasing to north)')
+plt.ylabel('Total DOC \u03B4$^1$$^3$C (\u2030)', fontsize=14)
+plt.savefig('C:/Users/clewis/IdeaProjects/GNS/UCI_13C/output/Version3/totalDOC_13C_IO7.png', dpi=300, bbox_inches="tight")
+plt.close()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

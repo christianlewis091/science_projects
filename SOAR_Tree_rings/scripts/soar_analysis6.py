@@ -441,7 +441,19 @@ for j in range(0, len(names)):
 
 
 
+"""
+Our idea is that the D14C influences can be seperated into upwelling driven changes, and temperature/solubility driven 
+changes. 
 
+To deconstruct these; I can either:
+Split the tree ring D14C into two components, OR 
+
+Split the Landschutzer into two components, and see how it compares to the tree rings. 
+
+
+
+
+"""
 
 
 

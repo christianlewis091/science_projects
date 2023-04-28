@@ -1,4 +1,8 @@
 """
+Updated: April 28, 2023
+I want to change the plots, now that I'm getting serious about preparing this work for the Radiocarbon Journal. I'm
+going to rewrite the plot so that Plot6.png is side-by-side the map.
+
 Updated: 29 November 2022
 
 This file does the following:
@@ -119,6 +123,7 @@ plt.title('New Zealand')
 plt.legend(bbox_to_anchor=(1.02, 1), loc='upper left', borderaxespad=0)
 plt.axhline(0, color='black')
 plt.ylabel('\u0394\u0394$^1$$^4$CO$_2$ (\u2030) [Sample - SHB1]')
+
 xtr_subsplot = fig.add_subplot(gs[4:6, 0:2])
 
 for i in range(0, len(locs3)):
@@ -234,13 +239,176 @@ axs[1].set_xlabel('Year')
 axs[1].axhline(0, color='black', alpha=0.5)
 plt.savefig('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/plot_forJohn.png',
             dpi=300, bbox_inches="tight")
+plt.close()
+
+"""
+Re-drawing plot 6 so that it's side-by-side the map. 
+"""
+
+
+
+fig = plt.figure(figsize=(12, 12))
+gs = gridspec.GridSpec(4, 6)
+gs.update(wspace=1, hspace=.6)
+
+
+
+# first plot
+xtr_subsplot = fig.add_subplot(gs[0:2, 2:6])
+plt.ylabel('\u0394\u0394$^1$$^4$CO$_2$ (\u2030)')
+for i in range(0, len(locs1)):
+
+    slice = chile.loc[chile['Site'] == str(locs1[i])].reset_index(drop=True)  # grab the first data to plot, based on location
+    latitude = slice['NewLat']
+    latitude = latitude[0]
+    latitude = round(latitude, 1)
+
+    x = stats.ttest_rel(slice['r2_diff_trend'], slice['r3_diff_trend'])
+    result_array.append(x[1])
+    lat_array.append(latitude)
+    site_array.append(str(locs1[i]))
+
+    col = colors[i]
+    mark = markers[i]
+
+
+    plt.plot(slice['Decimal_date'], slice['r2_diff_trend'], color=col)
+    plt.errorbar(slice['Decimal_date'], slice['r2_diff_trend'], slice['r2_diff_trend_errprop'], fmt=mark, elinewidth=1, capsize=2, alpha=1, color=col, label=f"{str(latitude)} N, {str(locs1[i])}")
+plt.ylim(-10, 10)
+plt.xlim(1980, 2020)
+plt.title('Chile')
+plt.text(1983, (0.9*10), '[A]', fontsize=12)
+plt.legend(bbox_to_anchor=(1.02, 1), loc='upper left', borderaxespad=0)
+plt.axhline(0, color='black')
+plt.ylabel('\u0394\u0394$^1$$^4$CO$_2$ (\u2030) [Sample - SHB1]')
+
+# second plot
+xtr_subsplot = fig.add_subplot(gs[2:4, 2:6])
+plt.ylabel('\u0394\u0394$^1$$^4$CO$_2$ (\u2030)')
+
+
+from PLOT_sampling_sites_map import *
+
+# first map
+xtr_subsplot = fig.add_subplot(gs[0:2, 0:2])
+map = Basemap(llcrnrlat=minlat, urcrnrlat=maxlat, llcrnrlon=chile_min_lon, urcrnrlon=chile_max_lon, resolution=res)
+# parameters to make the plot more beautiful
+map.drawcoastlines(linewidth=0.5)
+map.drawmapboundary(fill_color=fillcol, linewidth=0.5)
+map.fillcontinents(color=land, lake_color=lakes)
+map.drawcountries(linewidth=0.5)
+map.drawparallels(np.arange(-90, 90, 10), labels=[True, False, False, False], fontsize=12, linewidth=0.5)
+map.drawmeridians(np.arange(-180, 180, 10), labels=[1, 1, 0, 1], fontsize=12, linewidth=0.5)
+chile_lat = chile['Lat']
+chile_lon = chile['new_Lon']
+z, a = map(chile_lon, chile_lat)
+map.scatter(z, a, marker='D',color=c2, s = size1)
+
+
+# second map
+xtr_subsplot = fig.add_subplot(gs[2:4, 0:2])
+map = Basemap(llcrnrlat=minlat, urcrnrlat=maxlat, llcrnrlon=nz_min_lon, urcrnrlon=nz_max_lon, resolution=res)
+# parameters to make the plot more beautiful
+map.drawcoastlines(linewidth=0.5)
+map.drawmapboundary(fill_color=fillcol, linewidth=0.5)
+map.fillcontinents(color=land, lake_color=lakes)
+map.drawcountries()
+map.drawparallels(np.arange(-90, 90, 10), labels=[False, False, False, False], fontsize=12, linewidth=0.5)
+map.drawmeridians(np.arange(-180, 180, 10), labels=[1, 1, 0, 1], fontsize=12, linewidth=0.5)
+nz_lat = nz['Lat']
+nz_lon = nz['Lon']
+x, y = map(nz_lon, nz_lat)
+map.scatter(x, y, marker='D',color=c2, s= size1)
+
+
+
+# fig = plt.figure(figsize=(12, 12))
+# gs = gridspec.GridSpec(6, 3)
+# gs.update(wspace=.35, hspace=.6)
+# xtr_subsplot = fig.add_subplot(gs[0:2, 0:2])
+#
+#
+# site_array = []
+# lat_array = []
+# result_array = []
+# for i in range(0, len(locs1)):
+#
+#     slice = chile.loc[chile['Site'] == str(locs1[i])].reset_index(drop=True)  # grab the first data to plot, based on location
+#     latitude = slice['NewLat']
+#     latitude = latitude[0]
+#     latitude = round(latitude, 1)
+#
+#     x = stats.ttest_rel(slice['r2_diff_trend'], slice['r3_diff_trend'])
+#     result_array.append(x[1])
+#     lat_array.append(latitude)
+#     site_array.append(str(locs1[i]))
+#
+#     col = colors[i]
+#     mark = markers[i]
+#
+#
+#     plt.plot(slice['Decimal_date'], slice['r2_diff_trend'], color=col)
+#     plt.errorbar(slice['Decimal_date'], slice['r2_diff_trend'], slice['r2_diff_trend_errprop'], fmt=mark, elinewidth=1, capsize=2, alpha=1, color=col, label=f"{str(latitude)} N, {str(locs1[i])}")
+# plt.ylim(-10, 10)
+# plt.xlim(1980, 2020)
+# plt.title('Chile')
+# plt.text(1983, (0.9*10), '[A]', fontsize=12)
+# plt.legend(bbox_to_anchor=(1.02, 1), loc='upper left', borderaxespad=0)
+# plt.axhline(0, color='black')
+# plt.ylabel('\u0394\u0394$^1$$^4$CO$_2$ (\u2030) [Sample - SHB1]')
+#
+#
+# xtr_subsplot = fig.add_subplot(gs[2:4, 0:2])
+# for i in range(0, len(locs2)):
+#     col = colors[i]
+#     mark = markers[i]
+#     slice = nz.loc[nz['Site'] == str(locs2[i])].reset_index(drop=True)  # grab the first data to plot, based on location
+#
+#     latitude = slice['NewLat']
+#     latitude = latitude[0]
+#     latitude = round(latitude, 1)
+#
+#     x = stats.ttest_rel(slice['r2_diff_trend'], slice['r3_diff_trend'])
+#     result_array.append(x[1])
+#     lat_array.append(latitude)
+#     site_array.append(str(locs2[i]))
+#
+#     plt.plot(slice['Decimal_date'], slice['r2_diff_trend'], color=col)
+#     plt.errorbar(slice['Decimal_date'], slice['r2_diff_trend'], slice['r2_diff_trend_errprop'], fmt=mark, elinewidth=1, capsize=2, alpha=1, color=col, label=f"{str(latitude)} N, {str(locs2[i])}")
+# plt.ylim(-15, 15)
+# plt.xlim(1980, 2020)
+# plt.text(1983, (0.9*15), '[B]', fontsize=12)
+# plt.title('New Zealand')
+# plt.legend(bbox_to_anchor=(1.02, 1), loc='upper left', borderaxespad=0)
+# plt.axhline(0, color='black')
+# plt.ylabel('\u0394\u0394$^1$$^4$CO$_2$ (\u2030) [Sample - SHB1]')
+# xtr_subsplot = fig.add_subplot(gs[4:6, 0:2])
+#
+# for i in range(0, len(locs3)):
+#     col = colors[i]
+#     mark = markers[i]
+#     slice = ant.loc[ant['Site'] == str(locs3[i])].reset_index(drop=True)  # grab the first data to plot, based on location
+#     latitude = slice['NewLat']
+#     latitude = latitude[0]
+#     latitude = round(latitude, 1)
+#
+#     x = stats.ttest_rel(slice['r2_diff_trend'], slice['r3_diff_trend'])
+#     result_array.append(x[1])
+#     lat_array.append(latitude)
+#     site_array.append(str(locs3[i]))
+#
+#     plt.plot(slice['Decimal_date'], slice['r2_diff_trend'], color='#4575b4')
+#     plt.errorbar(slice['Decimal_date'], slice['r2_diff_trend'], slice['r2_diff_trend_errprop'], fmt=mark, elinewidth=1, capsize=2, alpha=1, color='#4575b4', label=f"{str(latitude)} N, {str(locs3[i])}")
+# plt.ylim(-25, 15)
+# plt.xlim(1980, 2020)
+# plt.text(1983, (0.9*15), '[C]', fontsize=12)
+# plt.title('Antarctic')
+# plt.ylabel('\u0394\u0394$^1$$^4$CO$_2$ (\u2030) [Sample - SHB1]')
+# plt.legend(bbox_to_anchor=(1.02, 1), loc='upper left', borderaxespad=0)
+# plt.axhline(0, color='black')
+# plt.savefig('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/plot6.png',
+#             dpi=300, bbox_inches="tight")
+# # plt.show()
 # plt.close()
-
-
-
-
-
-
-
-
+#
 

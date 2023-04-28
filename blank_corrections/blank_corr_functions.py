@@ -321,39 +321,41 @@ def plot_seconds_thiswheel(input_name):
                 large_mean_rts = np.nanmean(large['Ratio to standard'])
                 large_std_rts = np.nanstd(large['Ratio to standard'])
 
-                # get rid of any missing data for the 13C values.
-                smalls13C_IRMS = smalls.dropna(subset='delta13C_IRMS').reset_index(drop=True)
-                large13C_IRMS = large.dropna(subset='delta13C_IRMS').reset_index(drop=True)
-                smalls13C_AMS = smalls.dropna(subset='delta13C_AMS').reset_index(drop=True)
-                large13C_AMS = large.dropna(subset='delta13C_AMS').reset_index(drop=True)
+                try:
+                    # get rid of any missing data for the 13C values.
+                    smalls13C_IRMS = smalls.dropna(subset='delta13C_IRMS').reset_index(drop=True)
+                    large13C_IRMS = large.dropna(subset='delta13C_IRMS').reset_index(drop=True)
+                    smalls13C_AMS = smalls.dropna(subset='delta13C_AMS').reset_index(drop=True)
+                    large13C_AMS = large.dropna(subset='delta13C_AMS').reset_index(drop=True)
 
-                small_mean_13_IRMS = np.nanmean(smalls['delta13C_IRMS'])
-                small_std_13_IRMS = np.nanstd(smalls['delta13C_IRMS'])
-                large_mean_13_IRMS = np.nanmean(large['delta13C_IRMS'])
-                large_std_13_IRMS = np.nanstd(large['delta13C_IRMS'])
+                    small_mean_13_IRMS = np.nanmean(smalls['delta13C_IRMS'])
+                    small_std_13_IRMS = np.nanstd(smalls['delta13C_IRMS'])
+                    large_mean_13_IRMS = np.nanmean(large['delta13C_IRMS'])
+                    large_std_13_IRMS = np.nanstd(large['delta13C_IRMS'])
 
-                small_mean_13_AMS = np.nanmean(smalls['delta13C_AMS'])
-                small_std_13_AMS = np.nanstd(smalls['delta13C_AMS'])
-                large_mean_13_AMS = np.nanmean(large['delta13C_AMS'])
-                large_std_13_AMS = np.nanstd(large['delta13C_AMS'])
+                    small_mean_13_AMS = np.nanmean(smalls['delta13C_AMS'])
+                    small_std_13_AMS = np.nanstd(smalls['delta13C_AMS'])
+                    large_mean_13_AMS = np.nanmean(large['delta13C_AMS'])
+                    large_std_13_AMS = np.nanstd(large['delta13C_AMS'])
 
-                aa.append(this_wheel_list[i])
-                aaa.append(descrip)
-                a.append(small_mean_rts)
-                b.append(small_std_rts)
-                c.append(large_mean_rts)
-                d.append(large_std_rts)
+                    aa.append(this_wheel_list[i])
+                    aaa.append(descrip)
+                    a.append(small_mean_rts)
+                    b.append(small_std_rts)
+                    c.append(large_mean_rts)
+                    d.append(large_std_rts)
 
-                e.append(small_mean_13_AMS)
-                f.append(small_std_13_AMS)
-                g.append(large_mean_13_AMS)
-                h.append(large_std_13_AMS)
+                    e.append(small_mean_13_AMS)
+                    f.append(small_std_13_AMS)
+                    g.append(large_mean_13_AMS)
+                    h.append(large_std_13_AMS)
 
-                z.append(small_mean_13_IRMS)
-                p.append(small_std_13_IRMS)
-                k.append(large_mean_13_IRMS)
-                l.append(large_std_13_IRMS)
-
+                    z.append(small_mean_13_IRMS)
+                    p.append(small_std_13_IRMS)
+                    k.append(large_mean_13_IRMS)
+                    l.append(large_std_13_IRMS)
+                except ZeroDivisionError:
+                    dummyvar = 0
 
                 # make the figure
                 fig1 = plt.figure(constrained_layout=True, figsize=(10,8))
@@ -409,7 +411,7 @@ def plot_seconds_thiswheel(input_name):
                 newname = this_wheel_list[i].replace("/","_")
                 newdesk = descrip.replace(":","")
                 plt.savefig(f'I:/C14Data/C14_blank_corrections_dev/Quality_Assurance/Plots/TW{input_name}+{newdesk}+{newname}.png')
-#
+    #
     # save these data to a table
     results = pd.DataFrame({"R_number": aa,
                             "Description": aaa,
@@ -574,7 +576,7 @@ def plot_seconds_all(input_name):
         newname = names[i].replace("/","_")
         newdesk = descrip.replace(":","")
         plt.savefig(f'I:/C14Data/C14_blank_corrections_dev/Quality_Assurance/Plots/TW{input_name}+{newdesk}+{newname}.png')
-#
+    #
     # save these data to a table
     results = pd.DataFrame({"R_number": aa,
                             "Description": aaa,

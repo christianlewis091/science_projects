@@ -974,7 +974,11 @@ plt.close()
 
 
 
-
+with pd.ExcelWriter(r'C:\Users\clewis\IdeaProjects\GNS\UCI_13C\output\Version3\outputv3.xlsx') as writer:
+    cleaned_df.to_excel(writer, sheet_name='SPE Data')
+    results.to_excel(writer, sheet_name='SPE Results Summary')
+    HeliumMerge.to_excel(writer, sheet_name='SPEvP18 1994 He')
+    merged2.to_excel(writer, sheet_name='DOC Data')
 
 
 

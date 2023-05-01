@@ -276,41 +276,6 @@ results_array = pd.DataFrame({"Site": site_array, "Region": region_array, "Lat":
 
 
 """
-Averaged across time, what does the data look like via latitude
-"""
-
-fig = plt.figure(figsize=(8, 8))
-gs = gridspec.GridSpec(4, 4)
-gs.update(wspace=1, hspace=0.5)
-
-xtr_subsplot = fig.add_subplot(gs[0:2, 0:4])
-
-slice = results_array.loc[results_array['Region'] == 'Chile']
-plt.errorbar(slice['Lat'], slice['Mean'], slice['Std'], markersize = size1, elinewidth=1, capsize=2, alpha=1, label="Chile", ls='none', fmt='o', color='black', ecolor='black', markeredgecolor='black')
-plt.xlim(-60, -35)
-plt.ylim(-8, 8)
-plt.xticks([], [])
-plt.axhline(0, color='black', linewidth = 0.5)
-plt.ylabel('\u0394\u0394$^1$$^4$CO$_2$ (\u2030)')
-plt.text(-60+2, 7, '[A] Chile', horizontalalignment='center', verticalalignment='center', fontweight="bold")
-
-xtr_subsplot = fig.add_subplot(gs[2:4, 0:4])
-
-slice = results_array.loc[results_array['Region'] == 'NZ']
-plt.errorbar(slice['Lat'], slice['Mean'], slice['Std'], markersize = size1, elinewidth=1, capsize=2, alpha=1, label="New Zealand", ls='none', fmt='o', color='black', ecolor='black', markeredgecolor='black')
-plt.xlim(-60, -35)
-plt.ylim(-8, 8)
-plt.axhline(0, color='black', linewidth = 0.5)
-plt.ylabel('\u0394\u0394$^1$$^4$CO$_2$ (\u2030)')
-plt.xlabel('Latitude \u00B0N')
-plt.text(-60+3, 7, '[B] New Zealand', horizontalalignment='center', fontweight="bold")
-
-
-plt.savefig('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/MainFig2.png',
-            dpi=300, bbox_inches="tight")
-plt.close()
-
-"""
 Trying to get the symbols to match first figure
 """
 
@@ -327,7 +292,7 @@ plt.xlim(-60, -35)
 plt.ylim(-8, 8)
 plt.xticks([], [])
 plt.axhline(0, color='black', linewidth = 0.5)
-plt.ylabel('\u0394\u0394$^1$$^4$CO$_2$ (\u2030)')
+plt.ylabel('Mean \u0394\u0394$^1$$^4$CO$_2$ (\u2030)')
 plt.text(-60+2, 7, '[A] Chile', horizontalalignment='center', verticalalignment='center', fontweight="bold")
 
 xtr_subsplot = fig.add_subplot(gs[2:4, 0:4])
@@ -339,7 +304,8 @@ for i in range(0, len(chile)):
 plt.xlim(-60, -35)
 plt.ylim(-8, 8)
 plt.axhline(0, color='black', linewidth = 0.5)
-plt.ylabel('\u0394\u0394$^1$$^4$CO$_2$ (\u2030)')
+plt.ylabel('Mean \u0394\u0394$^1$$^4$CO$_2$ (\u2030)')
+plt.xlabel('Latitude (N)')
 plt.text(-60+3.5, 7, '[B] New Zealand', horizontalalignment='center', verticalalignment='center', fontweight="bold")
 
 plt.savefig('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/MainFig2.5.png',

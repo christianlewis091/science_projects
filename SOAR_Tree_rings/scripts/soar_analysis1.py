@@ -1,4 +1,12 @@
 """
+Updated: 28 April 2023
+
+This file essentially has everything we need for the first paper. It has the data in the right format, and the
+latitudinial average. JT wants us to wait in terms of temporal gradients for the next paper, so we'll do that.
+For this paper, we want what's currently written as Plot2, and plot6, from soar_analysis3.py which I'll migrate over
+to here, as well as the map.
+
+
 Updated: 29 November 2022
 
 This file does the following:

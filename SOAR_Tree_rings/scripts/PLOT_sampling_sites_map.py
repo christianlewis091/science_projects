@@ -104,7 +104,7 @@ nz_lon = nz['Lon']
 x, y = map(nz_lon, nz_lat)
 map.scatter(x, y, marker='D',color=c2, s= size1)
 
-
+plt.show()
 plt.savefig('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/maptest.png',
             dpi=300, bbox_inches="tight")
 # plt.close()

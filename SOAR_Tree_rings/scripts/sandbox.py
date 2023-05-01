@@ -106,19 +106,12 @@ quaderr = np.sqrt(df['weightedstderr_D14C_1']**2 + df['D14C_ref2t_std']**2)
 df['r2_diff_trend'] = df['D14C_1'] - df['D14C_ref2t_mean']
 df['r2_diff_trend_errprop'] = np.sqrt(df['weightedstderr_D14C_1'] ** 2 + df['D14C_ref2t_std'] ** 2)
 
-
 # The difference between the raw samples, and REFERENCE 3, BHD with CGO in the gaps (WEIGHTED RESIDUAL)
 df['r3_diff_trend'] = df['D14C'] - df['D14C_ref3t_mean']
 df['r3_diff_trend_errprop'] = np.sqrt(df['D14Cerr'] ** 2 + df['D14C_ref3t_std'] ** 2)
 
 # And the difference between the two differences...
 df['deltadelta'] = df['r2_diff_trend'] - df['r3_diff_trend']
-# print(len(df['deltadelta']))
-# print(max(df['deltadelta']))
-#
-#
-# print(np.average(df['deltadelta']))
-# print(np.std(df['deltadelta']))
 
 df['deltadelta_err'] = np.sqrt(df['r2_diff_trend_errprop'] ** 2 + df['r3_diff_trend_errprop'] ** 2)
 df_2 = df  # renaming for import into second analytical file
@@ -155,19 +148,23 @@ c1, c2, c3, c4, c5, c6, c7, c8 = '#b2182b','#d6604d','#f4a582','#fddbc7','#d1e5f
 colors = [c1, c2, c3, c4, c5, c6, c7, c8]
 markers = ['o', '^', '8', 's', 'p', '*', 'X', 'D']
 size1 = 8
+
 fig = plt.figure(figsize=(12, 12))
 gs = gridspec.GridSpec(4, 6)
-gs.update(wspace=1, hspace=.6)
+gs.update(wspace=1, hspace=0.1)
 
 site_array = []
 lat_array = []
 stat_array = []
 mean_array = []
 std_array = []
+region_array = []
 xtr_subsplot = fig.add_subplot(gs[0:2, 2:6])
-for i in range(0, len(locs1)):
 
+# Hard coding it to get rid of a bug - a few sites aren't appearing for some reason..
+for i in range(0, len(locs1)):
     slice = chile.loc[chile['Site'] == str(locs1[i])].reset_index(drop=True)  # grab the first data to plot, based on location
+    print(slice)
     latitude = slice['NewLat']
     latitude = latitude[0]
     latitude = round(latitude, 1)
@@ -178,19 +175,22 @@ for i in range(0, len(locs1)):
     std_array.append(np.nanstd(slice['r2_diff_trend']))
     lat_array.append(latitude)
     site_array.append(str(locs1[i]))
-    plt.errorbar(slice['Decimal_date'], slice['r2_diff_trend'], slice['r2_diff_trend_errprop'], markersize = size1, elinewidth=1, capsize=2, alpha=1, label=f"{str(latitude)} N, {str(locs1[i])}", ls='none', fmt=markers[i], color=colors[i], ecolor=colors[i], markeredgecolor='black')
+    region_array.append("Chile")
+    plt.errorbar(slice['Decimal_date'], slice['r2_diff_trend'], slice['r2_diff_trend_errprop'], markersize = size1, elinewidth=1, capsize=2, alpha=1, label=f"{str(latitude)} N", ls='none', fmt=markers[i], color=colors[i], ecolor=colors[i], markeredgecolor='black')
 
+plt.text(1981.5, 14, '[B]', horizontalalignment='center', verticalalignment='center', fontsize=14, fontweight="bold")
+plt.text(1976.5-20, 14, '[A]', horizontalalignment='center', verticalalignment='center', fontsize=14, fontweight="bold")
 plt.ylim(-15, 15)
+plt.legend(bbox_to_anchor=(1.02, 1), loc='upper left', borderaxespad=0)
 plt.xticks([], [])
 plt.xlim(1980, 2020)
 plt.axhline(0, color='black')
-plt.ylabel('\u0394\u0394$^1$$^4$CO$_2$ (\u2030) [Sample - SHB1]')
+plt.ylabel('\u0394\u0394$^1$$^4$CO$_2$ (\u2030)')
 
 
 xtr_subsplot = fig.add_subplot(gs[2:4, 2:6])
 for i in range(0, len(locs2)):
     slice = nz.loc[nz['Site'] == str(locs2[i])].reset_index(drop=True)  # grab the first data to plot, based on location
-
     latitude = slice['NewLat']
     latitude = latitude[0]
     latitude = round(latitude, 1)
@@ -201,28 +201,38 @@ for i in range(0, len(locs2)):
     std_array.append(np.nanstd(slice['r2_diff_trend']))
     lat_array.append(latitude)
     site_array.append(str(locs2[i]))
-    plt.errorbar(slice['Decimal_date'], slice['r2_diff_trend'], slice['r2_diff_trend_errprop'], markersize = size1, elinewidth=1, capsize=2, alpha=1, label=f"{str(latitude)} N, {str(locs2[i])}", ls='none', fmt=markers[i], color=colors[i], ecolor=colors[i], markeredgecolor='black')
+    region_array.append("NZ")
+    plt.errorbar(slice['Decimal_date'], slice['r2_diff_trend'], slice['r2_diff_trend_errprop'], markersize = size1, elinewidth=1, capsize=2, alpha=1, label=f"{str(latitude)} N", ls='none', fmt=markers[i], color=colors[i], ecolor=colors[i], markeredgecolor='black')
+
 plt.ylim(-15, 15)
+plt.text(1981.5, 14, '[D]', horizontalalignment='center', verticalalignment='center', fontsize=14, fontweight="bold")
+plt.text(1976.5-20, 14, '[C]', horizontalalignment='center', verticalalignment='center', fontsize=14, fontweight="bold")
 plt.xlim(1980, 2020)
 plt.axhline(0, color='black')
-plt.ylabel('\u0394\u0394$^1$$^4$CO$_2$ (\u2030) [Sample - SHB1]')
+plt.legend(bbox_to_anchor=(1.02, 1), loc='upper left', borderaxespad=0)
+plt.ylabel('\u0394\u0394$^1$$^4$CO$_2$ (\u2030)')
+plt.xlabel('Year of Growth')
 
 # NOW DRAW THE MAPS
 # SET MAP BOUNDARIES
 maxlat = -30
 minlat = -60
-nz_max_lon = 180
-nz_min_lon = 160
-chile_max_lon = -60
-chile_min_lon = -80
+nz_max_lon = 185
+nz_min_lon = 155
+chile_max_lon = -55
+chile_min_lon = -85
 res = 'l'
+
+
+"""
+ADD THE MAPS TO THE PLOT
+"""
 
 xtr_subsplot = fig.add_subplot(gs[0:2, 0:2])
 map = Basemap(llcrnrlat=minlat, urcrnrlat=maxlat, llcrnrlon=chile_min_lon, urcrnrlon=chile_max_lon, resolution=res)
 map.drawmapboundary(fill_color='lightgrey')
 map.fillcontinents(color='darkgrey')
 map.drawcoastlines(linewidth=0.1)
-
 for i in range(0, len(locs1)):
 
     slice = chile.loc[chile['Site'] == str(locs1[i])].reset_index(drop=True)  # grab the first data to plot, based on location
@@ -231,7 +241,11 @@ for i in range(0, len(locs1)):
     lon = slice['new_Lon']
     lon = lon[0]
     x, y = map(lon, lat)
+    print(x, y)
     map.scatter(x, y, marker=markers[i],color=colors[i], s=size1*10, edgecolor='black')
+plt.legend()
+map.drawparallels(np.arange(-90, 90, 10), labels=[True, False, False, False], linewidth=0.5)
+map.drawmeridians(np.arange(-180, 180, 10), labels=[1, 1, 0, 1], linewidth=0.5)
 
 xtr_subsplot = fig.add_subplot(gs[2:4, 0:2])
 map = Basemap(llcrnrlat=minlat, urcrnrlat=maxlat, llcrnrlon=nz_min_lon, urcrnrlon=nz_max_lon, resolution=res)
@@ -239,7 +253,8 @@ map.drawmapboundary(fill_color='lightgrey')
 map.fillcontinents(color='darkgrey')
 map.drawcoastlines(linewidth=0.1)
 
-for i in range(0, len(locs1)):
+
+for i in range(0, len(locs2)):
 
     slice = nz.loc[nz['Site'] == str(locs2[i])].reset_index(drop=True)  # grab the first data to plot, based on location
     lat = slice['NewLat']
@@ -247,168 +262,87 @@ for i in range(0, len(locs1)):
     lon = slice['NewLon']
     lon = lon[0]
     x, y = map(lon, lat)
-    map.scatter(x, y)
+    print(x, y)
+    map.scatter(x, y, marker=markers[i],color=colors[i], s=size1*10, edgecolor='black')
+map.drawparallels(np.arange(-90, 90, 10), labels=[True, False, False, False], linewidth=0.5)
+map.drawmeridians(np.arange(-180, 180, 10), labels=[1, 1, 0, 1], linewidth=0.5)
 
-plt.show()
+plt.savefig('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/newmap.png',
+            dpi=300, bbox_inches="tight")
+plt.close()
 
-
-
-results_array = pd.DataFrame({"Site": site_array, "Lat": lat_array, "Mean": mean_array, "Std": std_array, "Paired T-test p-value": stat_array})
+results_array = pd.DataFrame({"Site": site_array, "Region": region_array, "Lat": lat_array, "Mean": mean_array, "Std": std_array, "Paired T-test p-value": stat_array})
 # results_array.to_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/site_ttest.xlsx')
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-df_2 = df  # renaming for import into second analytical file
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+"""
+Averaged across time, what does the data look like via latitude
+"""
+
+fig = plt.figure(figsize=(8, 8))
+gs = gridspec.GridSpec(4, 4)
+gs.update(wspace=1, hspace=0.5)
+
+xtr_subsplot = fig.add_subplot(gs[0:2, 0:4])
+
+slice = results_array.loc[results_array['Region'] == 'Chile']
+plt.errorbar(slice['Lat'], slice['Mean'], slice['Std'], markersize = size1, elinewidth=1, capsize=2, alpha=1, label="Chile", ls='none', fmt='o', color='black', ecolor='black', markeredgecolor='black')
+plt.xlim(-60, -35)
+plt.ylim(-8, 8)
+plt.xticks([], [])
+plt.axhline(0, color='black', linewidth = 0.5)
+plt.ylabel('\u0394\u0394$^1$$^4$CO$_2$ (\u2030)')
+plt.text(-60+2, 7, '[A] Chile', horizontalalignment='center', verticalalignment='center', fontweight="bold")
+
+xtr_subsplot = fig.add_subplot(gs[2:4, 0:4])
+
+slice = results_array.loc[results_array['Region'] == 'NZ']
+plt.errorbar(slice['Lat'], slice['Mean'], slice['Std'], markersize = size1, elinewidth=1, capsize=2, alpha=1, label="New Zealand", ls='none', fmt='o', color='black', ecolor='black', markeredgecolor='black')
+plt.xlim(-60, -35)
+plt.ylim(-8, 8)
+plt.axhline(0, color='black', linewidth = 0.5)
+plt.ylabel('\u0394\u0394$^1$$^4$CO$_2$ (\u2030)')
+plt.xlabel('Latitude \u00B0N')
+plt.text(-60+3, 7, '[B] New Zealand', horizontalalignment='center', fontweight="bold")
+
+
+plt.savefig('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/MainFig2.png',
+            dpi=300, bbox_inches="tight")
+plt.close()
 
 """
-Break up the data by general latitude bands 
+Trying to get the symbols to match first figure
 """
-# you can easily see the different latitude bands where the data falls in the 3D plot, see 3d3.png, or you can recreate
-# it below and actually play around with moving the plot. I determined where to draw the bands based on this visual cue
 
-b1 = df.loc[(df['NewLat'] > - 40) & (df['NewLat'] <= - 39)]
-b2 = df.loc[(df['NewLat'] > - 42) & (df['NewLat'] < - 40)]
-b3 = df.loc[(df['NewLat'] > - 44.25) & (df['NewLat'] < - 43)]
-b4 = df.loc[(df['NewLat'] > - 47) & (df['NewLat'] < - 46)]
-b5 = df.loc[(df['NewLat'] > - 48) & (df['NewLat'] < - 47)]
-b6 = df.loc[(df['NewLat'] > - 53) & (df['NewLat'] < - 52)]
-b7 = df.loc[(df['NewLat'] > - 54) & (df['NewLat'] < - 53)]
-b8 = df.loc[(df['NewLat'] > - 55.5) & (df['NewLat'] < - 54)]
-b9 = df.loc[(df['NewLat'] > - 60) & (df['NewLat'] < -55.5)]
-b10 = df.loc[(df['NewLat'] > - 75) & (df['NewLat'] < -60)]
+fig = plt.figure(figsize=(8, 8))
+gs = gridspec.GridSpec(4, 4)
+gs.update(wspace=1, hspace=0.25)
 
-# See Plot 2 for the data based on the indexing above
-# now we find the summary data based on each
-# (This loop finds the mean and standard deviation of the b1-b9 above, and links it to a lat lon
-datas = [b1, b2, b3, b4, b5, b6, b7, b8, b9, b10]
-lats = [-40, -42, -44, -47, -48, -53, -54, -55, -60, -75] # The MAX LAT
-mean_array_ref2 = []
-std_error_array_ref2 = []
-mean_array_ref3 = []
-std_error_array_ref3 = []
-stdev1 = []
-stdev2 = []
-for i in range(0, len(datas)):
-    data = datas[i]  # grab first dataset
-    mean1 = np.mean(data['r2_diff_trend'])
-    mean2 = np.mean(data['r3_diff_trend'])
-    stdevr1 = (np.std(data['r2_diff_trend']))
-    stdevr2 = (np.std(data['r3_diff_trend']))
-    mean_array_ref2.append(mean1)
-    mean_array_ref3.append(mean2)
-    stdev1.append(stdevr1)
-    stdev2.append(stdevr2)
+xtr_subsplot = fig.add_subplot(gs[0:2, 0:4])
+chile = results_array.loc[results_array['Region'] == 'Chile']
+for i in range(0, len(chile)):
+    slice = chile.loc[chile['Site'] == str(locs1[i])].reset_index(drop=True)  # grab the first data to plot, based on location
+    plt.errorbar(slice['Lat'], slice['Mean'], slice['Std'], markersize = size1, elinewidth=1, capsize=2, alpha=1, label=f"{str(slice['Site'])}", ls='none', fmt=markers[i], color=colors[i], ecolor=colors[i], markeredgecolor='black')
+plt.xlim(-60, -35)
+plt.ylim(-8, 8)
+plt.xticks([], [])
+plt.axhline(0, color='black', linewidth = 0.5)
+plt.ylabel('\u0394\u0394$^1$$^4$CO$_2$ (\u2030)')
+plt.text(-60+2, 7, '[A] Chile', horizontalalignment='center', verticalalignment='center', fontweight="bold")
 
+xtr_subsplot = fig.add_subplot(gs[2:4, 0:4])
+chile = results_array.loc[results_array['Region'] == 'NZ']
+for i in range(0, len(chile)):
+    slice = chile.loc[chile['Site'] == str(locs2[i])].reset_index(drop=True)  # grab the first data to plot, based on location
+    label = slice['Site']
+    plt.errorbar(slice['Lat'], slice['Mean'], slice['Std'], markersize = size1, elinewidth=1, capsize=2, alpha=1, label=label, ls='none', fmt=markers[i], color=colors[i], ecolor=colors[i], markeredgecolor='black')
+plt.xlim(-60, -35)
+plt.ylim(-8, 8)
+plt.axhline(0, color='black', linewidth = 0.5)
+plt.ylabel('\u0394\u0394$^1$$^4$CO$_2$ (\u2030)')
+plt.text(-60+3.5, 7, '[B] New Zealand', horizontalalignment='center', verticalalignment='center', fontweight="bold")
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+plt.savefig('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/MainFig2.5.png',
+            dpi=300, bbox_inches="tight")
+plt.close()
 

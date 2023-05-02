@@ -1,7 +1,7 @@
 # # https://www.youtube.com/watch?v=YXPyB4XeYLA&t=2640s&ab_channel=freeCodeCamp.org
 from tkinter import *
 from tkinter import ttk
-from blank_corr_functions import blank_corr_022323, plot_seconds_thiswheel, plot_seconds_all
+from blank_corr_functions import blank_corr_050223, plot_seconds_thiswheel
 
 """
 Update: Febraury 23, 2023
@@ -112,9 +112,9 @@ def execute():
     value2 = value2.split()  # This line takes the input from the "Standards you don't want" box and splits it into a list, but a string-list
     value2 = list(value2)  # this takes it from a string list to a list
 
-    x = blank_corr_022323(value1, value3,
+    x = blank_corr_050223(value1, value3,
                           value2)  # This calls the function written in Iteration4 which actually runs the script.
-    print(x)
+
 
     end_message = Label(root,
                         text="Output data created for RLIMS Import! \nPlease check I:\C14Data\C14_blank_corrections_dev\PythonOutput for your data. ",
@@ -127,13 +127,6 @@ def makesomeplots():
     x2 = plot_seconds_thiswheel(value1)
     end_message2 = Label(root, text="Plots have been written and saved to \n I:\C14Data\C14_blank_corrections_dev\Quality_Assurance_Plots folder ",anchor="e", justify=LEFT)
     end_message2.grid(row=18, rowspan=1, column=0, columnspan=5)
-
-def makeallplots():
-    value1 = str(entry1.get())
-    x2 = plot_seconds_all(value1)
-    end_message2 = Label(root, text="Plots have been written and saved to \n I:\C14Data\C14_blank_corrections_dev\Quality_Assurance_Plots folder ",anchor="e", justify=LEFT)
-    end_message2.grid(row=18, rowspan=1, column=0, columnspan=5)
-
 
 
 myButton = Button(root, text="Execute MCC Calculation", command=execute, fg='blue')
@@ -153,10 +146,6 @@ myButton2.grid(row=14, column=0, columnspan=5)
 
 blank_1 = Label(root, text="")
 blank_1.grid(row=18, column=0)
-
-myButton2 = Button(root, text="Create Data Quality Plots and Summary Data for All Secondaries", command=makeallplots, fg='blue')
-myButton2.grid(row=19, column=0, columnspan=5)
-
 
 
 root.mainloop()

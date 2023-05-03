@@ -1,7 +1,7 @@
 # # https://www.youtube.com/watch?v=YXPyB4XeYLA&t=2640s&ab_channel=freeCodeCamp.org
 from tkinter import *
 from tkinter import ttk
-from blank_corr_functions import blank_corr_050223, plot_seconds_thiswheel
+from blank_corr_functions import blank_corr_050223, plot_seconds_thiswheel_new
 
 """
 Update: Febraury 23, 2023
@@ -99,6 +99,15 @@ hello_message = Label(root, text="Create Data Quality Plots", font=('Helvetica',
                       foreground="white")
 hello_message.grid(row=12, column=0, columnspan=5)
 
+tw_min = Label(root, text="Enter Minimum TW you want (min = 2855)",
+                 font=("Helvetica", 11), bd=1, relief="sunken")
+
+tw_min.grid(row=13, column=0)
+entry_x = StringVar()  # initialize a variable where the input will be stored
+entryx_box = ttk.Entry(root, textvariable=entry_x)  # This creates the input box
+entryx_box.grid(row=13, column=1)  # This tells the input box where to sit.
+
+
 """
 This block of code defines how, when the Submit button is pressed, it executes the code in Iteration3.
 """
@@ -124,7 +133,8 @@ def execute():
 
 def makesomeplots():
     value1 = str(entry1.get())
-    x2 = plot_seconds_thiswheel(value1)
+    value_x = str(entry_x.get())  # This grabs the data in Time duration box when button is pressed
+    x2 = plot_seconds_thiswheel_new(value1, value_x)
     end_message2 = Label(root, text="Plots have been written and saved to \n I:\C14Data\C14_blank_corrections_dev\Quality_Assurance_Plots folder ",anchor="e", justify=LEFT)
     end_message2.grid(row=18, rowspan=1, column=0, columnspan=5)
 
@@ -132,8 +142,8 @@ def makesomeplots():
 myButton = Button(root, text="Execute MCC Calculation", command=execute, fg='blue')
 myButton.grid(row=10, column=0, columnspan=5)
 
-blank_1 = Label(root, text="")
-blank_1.grid(row=13, column=0)
+# blank_1 = Label(root, text="")
+# blank_1.grid(row=13, column=0)
 
 blank_1 = Label(root, text="")
 blank_1.grid(row=15, column=0)

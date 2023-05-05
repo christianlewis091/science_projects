@@ -1,22 +1,91 @@
+"""
+UPDATES:
+5/5/23
+Since we decided to split the paper into two sections during our April meeting with Erik and Sarah, the paper
+has become significantly simpler. All analyses/plots will be contained in one TRUTH file, which is this one.
+For best future reference, the sheet will follow the format of the paper.
+"""
+
 import numpy
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-from mpl_toolkits import mplot3d
-from X_my_functions import plotfunc_line, plotfunc_scat, plotfunc_2line, plotfunc_error
 import matplotlib.gridspec as gridspec
 from scipy import stats
 from mpl_toolkits.basemap import Basemap
+from X_my_functions import long_date_to_decimal_date
 
 # read in the data from the previous .py files
 df = pd.read_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/samples_with_references10000.xlsx')
 ref2 = pd.read_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/harmonized_dataset.xlsx')
-ref3 = pd.read_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/reference3.xlsx')
-
+ref1 = pd.read_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/reference3.xlsx')
+bhdcgo = pd.read_excel(r'H:\Science\Datasets\CGOvBHD.xlsx')
 # ensure all data are sliced for after 1980.
 df = df.loc[df['Decimal_date'] > 1980].reset_index(drop=True)
 ref2 = ref2.loc[ref2['Decimal_date'] > 1980].reset_index(drop=True)
-ref3 = ref3.loc[ref3['Decimal_date'] > 1980].reset_index(drop=True)
+ref1 = ref1.loc[ref1['Decimal_date'] > 1980].reset_index(drop=True)
+
+# I DON"T WANT TO PRESENT MCQ as a TREE RING SITE!
+df = df.loc[df['Site'] != 'MCQ']
+"""
+FOR METHODS SECTION: DEVELOPMENT OF BACKGROUND REFERENCE: 
+WE WANT TO SHOW THE DEVELOPMENT OF REFERENCE, WITH A MAP, AND PLOT OF THE DATA TOGETHER
+"""
+
+fig = plt.figure(figsize=(16, 4))
+gs = gridspec.GridSpec(1, 3)
+gs.update(wspace=.25, hspace=0.1)
+
+# BHD MAP
+xtr_subsplot = fig.add_subplot(gs[0:1, 0:1])
+maxlat = -40+20
+minlat = -40-20
+nz_max_lon = 180
+nz_min_lon = 140
+map = Basemap(llcrnrlat=minlat, urcrnrlat=maxlat, llcrnrlon=nz_min_lon, urcrnrlon=nz_max_lon, resolution='l')
+map.drawmapboundary(fill_color='lightgrey')
+map.fillcontinents(color='darkgrey')
+map.drawcoastlines(linewidth=0.1)
+x, y = map(174.866, -41.4)  # BARING HEAD
+x2, y2 = map(144.6883, -40.6822)
+map.scatter(x, y, marker='o', edgecolor='black', facecolors='black')
+map.scatter(x2, y2, marker='D', edgecolor='black', facecolors='gray')
+plt.legend()
+map.drawparallels(np.arange(-90, 90, 10), labels=[True, False, False, False], linewidth=0.5)
+map.drawmeridians(np.arange(-180, 180, 10), labels=[1, 1, 0, 1], linewidth=0.5)
+
+
+xtr_subsplot = fig.add_subplot(gs[0:1, 1:2])
+plt.text(1979, 322, '[B]', horizontalalignment='center', verticalalignment='center', fontsize=14, fontweight="bold")
+plt.text(1925, 322,  '[A]', horizontalalignment='center', verticalalignment='center', fontsize=14, fontweight="bold")
+plt.text(2035, 322,  '[C]', horizontalalignment='center', verticalalignment='center', fontsize=14, fontweight="bold")
+plt.title('Data used for Background Reference')
+plt.ylabel('\u0394$^1$$^4$C (\u2030)')  # label the y axis
+plt.xlabel('Year')
+cgo = ref1.loc[ref1['#location'] == 'CGO']
+bhd = ref1.loc[ref1['#location'] != 'CGO']
+plt.errorbar(cgo['Decimal_date'], cgo['D14C'], yerr=cgo['weightedstderr_D14C'], fmt='D',  elinewidth=1, capsize=2, label='Heidelberg Uni. Cape Grim Record', color='gray',  markersize = 2)
+plt.errorbar(bhd['Decimal_date'], bhd['D14C'], yerr=bhd['weightedstderr_D14C'], fmt='o',  elinewidth=1, capsize=2, label='RRL/NIWA Wellington Record', color='black',  markersize =2)
+plt.legend()
+
+xtr_subsplot = fig.add_subplot(gs[0:1, 2:3])
+
+x = bhdcgo['Date']
+x = long_date_to_decimal_date(x)
+bhdcgo['Date'] = x
+c = stats.ttest_rel(bhdcgo['BHD_D14C'], bhdcgo['CGO_D14C'])
+plt.errorbar(bhdcgo['Date'], bhdcgo['BHD_D14C'], yerr=bhdcgo['standard deviation1'], fmt='o',  elinewidth=1, capsize=2, label='Baring Head measured by RRL/NIWA', color='black',  markersize = 4)
+plt.errorbar(bhdcgo['Date'], bhdcgo['CGO_D14C'], yerr=bhdcgo['standard deviation2'], fmt='o',  elinewidth=1, capsize=2, label='Cape Grim measured by RRL/NIWA', color='gray',  markersize = 4)
+plt.title('Site Intercomparison')
+plt.ylabel('\u0394$^1$$^4$C (\u2030)')  # label the y axis
+plt.xlabel('Year')
+plt.legend()
+plt.locator_params(axis='x', nbins=4)
+plt.xlim(2017, 2019)
+# plt.close()
+plt.savefig('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/NewFig1.png',
+            dpi=300, bbox_inches="tight")
+plt.close()
 
 
 """ 
@@ -115,10 +184,36 @@ df['deltadelta'] = df['r2_diff_trend'] - df['r3_diff_trend']
 
 df['deltadelta_err'] = np.sqrt(df['r2_diff_trend_errprop'] ** 2 + df['r3_diff_trend_errprop'] ** 2)
 df_2 = df  # renaming for import into second analytical file
-# df.to_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/testing.xlsx')
 
+df.to_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/final_results.xlsx')
 
 """
+Lets test the difference between the two sites
+"""
+df_testing = df.loc[(df['Decimal_date'] >1987) & (df['Decimal_date'] <1994)]
+#df_testing.to_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/achecks.xlsx')
+
+stat=[]
+pval=[]
+site=[]
+blahs = np.unique(df_testing['Site'])
+
+for i in range(0, len(blahs)):
+    blah_data = df_testing.loc[df_testing['Site'] == blahs[i]]
+    if len(blah_data) > 1:
+        a = blah_data['r2_diff_trend'].dropna()
+        b = blah_data['r3_diff_trend'].dropna()
+        x = stats.ttest_ind(a,b)
+        stat.append(x[0])
+        pval.append(x[1])
+        site.append(blahs[i])
+p_resultsss = pd.DataFrame({"Site": site, "Stat": stat, "P-value": pval})
+print(p_resultsss)
+p_resultsss.to_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/p_results.xlsx')
+
+"""
+AT THIS POINT I WRITE THAT REF 1 will be USED FROM NOW ON!
+
 At a high-level, how does the raw data look? This will be the first plot to go into our paper...
 
 """
@@ -140,6 +235,7 @@ locs1 = temp['ind']
 u2, locs2 = np.unique(nz['Site'], return_index=True)
 temp2 = pd.DataFrame({"ind": u2, "locs":locs2}).sort_values(by=['locs'], ascending=True).reset_index(drop=True)
 locs2 = temp2['ind']
+
 
 
 # PREPARE THE FIGURE
@@ -171,12 +267,12 @@ for i in range(0, len(locs1)):
 
     x = stats.ttest_rel(slice['r2_diff_trend'], slice['r3_diff_trend'])
     stat_array.append(x[1])
-    mean_array.append(np.nanmean(slice['r2_diff_trend']))
-    std_array.append(np.nanstd(slice['r2_diff_trend']))
+    mean_array.append(np.nanmean(slice['r3_diff_trend']))
+    std_array.append(np.nanstd(slice['r3_diff_trend']))
     lat_array.append(latitude)
     site_array.append(str(locs1[i]))
     region_array.append("Chile")
-    plt.errorbar(slice['Decimal_date'], slice['r2_diff_trend'], slice['r2_diff_trend_errprop'], markersize = size1, elinewidth=1, capsize=2, alpha=1, label=f"{str(latitude)} N", ls='none', fmt=markers[i], color=colors[i], ecolor=colors[i], markeredgecolor='black')
+    plt.errorbar(slice['Decimal_date'], slice['r3_diff_trend'], slice['r3_diff_trend_errprop'], markersize = size1, elinewidth=1, capsize=2, alpha=1, label=f"{str(latitude)} N", ls='none', fmt=markers[i], color=colors[i], ecolor=colors[i], markeredgecolor='black')
 
 plt.text(1981.5, 14, '[B]', horizontalalignment='center', verticalalignment='center', fontsize=14, fontweight="bold")
 plt.text(1976.5-20, 14, '[A]', horizontalalignment='center', verticalalignment='center', fontsize=14, fontweight="bold")
@@ -197,12 +293,12 @@ for i in range(0, len(locs2)):
 
     x = stats.ttest_rel(slice['r2_diff_trend'], slice['r3_diff_trend'])
     stat_array.append(x[1])
-    mean_array.append(np.nanmean(slice['r2_diff_trend']))
-    std_array.append(np.nanstd(slice['r2_diff_trend']))
+    mean_array.append(np.nanmean(slice['r3_diff_trend']))
+    std_array.append(np.nanstd(slice['r3_diff_trend']))
     lat_array.append(latitude)
     site_array.append(str(locs2[i]))
     region_array.append("NZ")
-    plt.errorbar(slice['Decimal_date'], slice['r2_diff_trend'], slice['r2_diff_trend_errprop'], markersize = size1, elinewidth=1, capsize=2, alpha=1, label=f"{str(latitude)} N", ls='none', fmt=markers[i], color=colors[i], ecolor=colors[i], markeredgecolor='black')
+    plt.errorbar(slice['Decimal_date'], slice['r3_diff_trend'], slice['r3_diff_trend_errprop'], markersize = size1, elinewidth=1, capsize=2, alpha=1, label=f"{str(latitude)} N", ls='none', fmt=markers[i], color=colors[i], ecolor=colors[i], markeredgecolor='black')
 
 plt.ylim(-15, 15)
 plt.text(1981.5, 14, '[D]', horizontalalignment='center', verticalalignment='center', fontsize=14, fontweight="bold")
@@ -271,8 +367,8 @@ plt.savefig('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/newmap.png'
             dpi=300, bbox_inches="tight")
 plt.close()
 
-results_array = pd.DataFrame({"Site": site_array, "Region": region_array, "Lat": lat_array, "Mean": mean_array, "Std": std_array, "Paired T-test p-value": stat_array})
-# results_array.to_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/site_ttest.xlsx')
+results_array = pd.DataFrame({"Site": site_array, "Region": region_array, "Lat": lat_array, "Mean": mean_array, "Std": std_array})
+results_array.to_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/site_ttest.xlsx')
 
 
 """

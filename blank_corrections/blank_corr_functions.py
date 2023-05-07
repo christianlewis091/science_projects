@@ -257,7 +257,7 @@ def plot_seconds_thiswheel_new(input_name, minimum_tw):
 
         # make the figure
         fig1 = plt.figure(constrained_layout=True, figsize=(10, 8))
-        fig1.suptitle(f'{descrip}_{this_wheel_list_r[i]}: TW{twmin} to TW{twmax}')
+        fig1.suptitle(f'{descrip}_{this_wheel_list_r[i]}: TW{minimum_tw} to TW{twmax}')
         spec2 = gridspec.GridSpec(ncols=2, nrows=2, figure=fig1)
         f1_ax1 = fig1.add_subplot(spec2[0, 0])
         f1_ax2 = fig1.add_subplot(spec2[0, 1])

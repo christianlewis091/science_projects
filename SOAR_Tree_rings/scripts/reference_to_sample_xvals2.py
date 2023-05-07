@@ -1,7 +1,7 @@
 import pandas as pd
 
 samples = pd.read_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/complete_samples.xlsx')
-montes = pd.read_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/monte_output10000.xlsx') # from References_to_samples_xvals
+montes = pd.read_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/monte_output10000_050523.xlsx') # from References_to_samples_xvals
 
 D14C_ref2s_mean = []  # initialize an empty array
 D14C_ref2s_std = []  # initialize an empty array

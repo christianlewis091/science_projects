@@ -21,6 +21,7 @@ mpl.rcParams['font.size'] = 10
 
 df = pd.read_excel(r'H:\Science\Datasets'
                    r'\SOARTreeRingData2022-02-01.xlsx')  # read in the Tree Ring data.
+df = df.drop_duplicates(subset='Ring code')
 df = df.dropna(subset='∆14C').reset_index(drop=True)  # drop any data rows that doesn't have 14C data.
 df = df.loc[(df['C14Flag']) != 'A..']
 

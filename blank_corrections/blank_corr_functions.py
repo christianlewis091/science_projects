@@ -100,7 +100,13 @@ def blank_corr_050223(input_name, date_bound_input, num_list):
         (stds_hist['Quality Flag'] == '...')]  # Index: drop everything that contains a quality flag
     stds_hist = stds_hist.loc[(stds_hist['wtgraph'] > 0.3)]  # Drop everything that is smaller than 0.3 mg.
     stds_hist = stds_hist.loc[(stds_hist['Ratio to standard'] < 0.1)]  # Drop all blanks that are clearly WAY too high
-    stds_hist = stds_hist.loc[(stds_hist['Category In Calculation'] != 'Background Test')]  # Drop all background tests
+
+    df = df.loc[(df['Category In Calculation'] != 'Background Test')]  # Drop all background tests from the sample data
+    df = df.loc[(df['Category In Calculation'] != 'Background Organic')]  # Drop all background organics from the sample data
+
+
+
+
 
     # THIS BLOCK REMOVES ANY STANDARDS YOU DON"T WANT
     for i in range(len(num_list)):
@@ -207,7 +213,7 @@ def plot_seconds_thiswheel_new(input_name, minimum_tw):
     twmax = int(max(stds_hist['TW']))
 
     # FILTER TO FIND ONLY SECONDARY STANDARDS IN HISTORICAL DATA
-    stds_hist = stds_hist.loc[stds_hist['Category Field'].isin(['RRL-UNSt-LG', 'RRL-UNSt-SM','RRL-UNSt-LG', 'RRL-UNSt-TY'])]
+    stds_hist = stds_hist.loc[stds_hist['Category Field'].isin(['RRL-UNSt-LG', 'RRL-UNSt-SM','RRL-UNSt-LG', 'RRL-UNSt-TY','RRL-CBOr-LG','RRL-GB-LG'])]
     print(minimum_tw)
     stds_hist = stds_hist.loc[stds_hist['TW'] > int(minimum_tw)]
     # CREATE A LIST OF UNIQUE R NUMBERS
@@ -402,7 +408,7 @@ def plot_seconds_thiswheel_new(input_name, minimum_tw):
         plt.savefig(f'I:/C14Data/C14_blank_corrections_dev/Quality_Assurance/Plots/TW{input_name}+{newdesk}.png')
 
 
-plot_seconds_thiswheel_new(3462, 3400)
+# plot_seconds_thiswheel_new(3462, 3400)
 
     #             # grab the description for the plot title.
     #             descrip = this_one['Description from Sample'].reset_index(drop=True)

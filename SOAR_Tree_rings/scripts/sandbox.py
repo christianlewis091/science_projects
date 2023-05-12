@@ -14,6 +14,7 @@ import matplotlib.gridspec as gridspec
 from scipy import stats
 from mpl_toolkits.basemap import Basemap
 from X_my_functions import long_date_to_decimal_date
+from sklearn.linear_model import LinearRegression
 
 # read in the data from the previous .py files
 df = pd.read_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/samples_with_references10000.xlsx')
@@ -134,7 +135,8 @@ for i in range(0, len(df)):
     elif current_row['NewLon'] < 0:
         country_array.append(2)
     else:
-        print(current_row)
+        x = 1
+        # print(current_row)
 df['Country'] = country_array
 
 
@@ -185,6 +187,25 @@ df['deltadelta'] = df['r2_diff_trend'] - df['r3_diff_trend']
 df['deltadelta_err'] = np.sqrt(df['r2_diff_trend_errprop'] ** 2 + df['r3_diff_trend_errprop'] ** 2)
 df_2 = df  # renaming for import into second analytical file
 
+# see DiscEqn 9
+D_ocean = -150
+D_err = 30
+
+df['testrat'] = (df['D14C'] - D_ocean) / (df['D14C_ref3t_mean'] - D_ocean)
+
+testrat_e1 = np.sqrt(df['D14C']**2 + D_err**2)
+testrat_e2 = np.sqrt(df['D14C_ref3t_mean']**2 + D_err**2)
+
+step1 = ((testrat_e1)/ (df['D14C'] - D_ocean))**2
+step2 = ((testrat_e2)/ (df['D14C_ref3t_mean'] - D_ocean))**2
+step3 = (df['D14C'] - D_ocean) / (df['D14C_ref3t_mean'] - D_ocean) *  np.sqrt(step1 + step2)
+df['testrat_err'] = step3
+
+# df['testrat_err'] = df['testrat'] * [np.sqrt(testrat_e1**2 / (df['D14C'] - D_ocean)) +  np.sqrt( testrat_e2**2 /(df['D14C_ref3t_mean'] - D_ocean))]
+
+
+
+
 df.to_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/final_results.xlsx')
 
 """
@@ -208,7 +229,7 @@ for i in range(0, len(blahs)):
         pval.append(x[1])
         site.append(blahs[i])
 p_resultsss = pd.DataFrame({"Site": site, "Stat": stat, "P-value": pval})
-print(p_resultsss)
+# print(p_resultsss)
 p_resultsss.to_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/p_results.xlsx')
 
 """
@@ -255,12 +276,13 @@ stat_array = []
 mean_array = []
 std_array = []
 region_array = []
+testrat_arr = []
+testrat_err_arr = []
 xtr_subsplot = fig.add_subplot(gs[0:2, 2:6])
 
-# Hard coding it to get rid of a bug - a few sites aren't appearing for some reason..
 for i in range(0, len(locs1)):
     slice = chile.loc[chile['Site'] == str(locs1[i])].reset_index(drop=True)  # grab the first data to plot, based on location
-    print(slice)
+    # print(slice)
     latitude = slice['NewLat']
     latitude = latitude[0]
     latitude = round(latitude, 1)
@@ -269,6 +291,8 @@ for i in range(0, len(locs1)):
     stat_array.append(x[1])
     mean_array.append(np.nanmean(slice['r3_diff_trend']))
     std_array.append(np.nanstd(slice['r3_diff_trend']))
+    testrat_arr.append(np.nanmean(slice['testrat']))
+    testrat_err_arr.append(np.nanmean(slice['testrat_err']))
     lat_array.append(latitude)
     site_array.append(str(locs1[i]))
     region_array.append("Chile")
@@ -295,6 +319,8 @@ for i in range(0, len(locs2)):
     stat_array.append(x[1])
     mean_array.append(np.nanmean(slice['r3_diff_trend']))
     std_array.append(np.nanstd(slice['r3_diff_trend']))
+    testrat_arr.append(np.nanmean(slice['testrat']))
+    testrat_err_arr.append(np.nanmean(slice['testrat_err']))
     lat_array.append(latitude)
     site_array.append(str(locs2[i]))
     region_array.append("NZ")
@@ -337,7 +363,7 @@ for i in range(0, len(locs1)):
     lon = slice['new_Lon']
     lon = lon[0]
     x, y = map(lon, lat)
-    print(x, y)
+    # print(x, y)
     map.scatter(x, y, marker=markers[i],color=colors[i], s=size1*10, edgecolor='black')
 plt.legend()
 map.drawparallels(np.arange(-90, 90, 10), labels=[True, False, False, False], linewidth=0.5)
@@ -358,7 +384,7 @@ for i in range(0, len(locs2)):
     lon = slice['NewLon']
     lon = lon[0]
     x, y = map(lon, lat)
-    print(x, y)
+    # print(x, y)
     map.scatter(x, y, marker=markers[i],color=colors[i], s=size1*10, edgecolor='black')
 map.drawparallels(np.arange(-90, 90, 10), labels=[True, False, False, False], linewidth=0.5)
 map.drawmeridians(np.arange(-180, 180, 10), labels=[1, 1, 0, 1], linewidth=0.5)
@@ -367,12 +393,12 @@ plt.savefig('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/newmap.png'
             dpi=300, bbox_inches="tight")
 plt.close()
 
-results_array = pd.DataFrame({"Site": site_array, "Region": region_array, "Lat": lat_array, "Mean": mean_array, "Std": std_array})
+results_array = pd.DataFrame({"Site": site_array, "Region": region_array, "Lat": lat_array, "Mean": mean_array, "Std": std_array, "F_B": testrat_arr, "F_B_error": testrat_err_arr})
 results_array.to_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/site_ttest.xlsx')
 
 
 """
-Trying to get the symbols to match first figure
+PLOTTING THE AVERAGES> Trying to get the symbols to match first figure
 """
 
 fig = plt.figure(figsize=(8, 8))
@@ -380,9 +406,9 @@ gs = gridspec.GridSpec(4, 4)
 gs.update(wspace=1, hspace=0.25)
 
 xtr_subsplot = fig.add_subplot(gs[0:2, 0:4])
-chile = results_array.loc[results_array['Region'] == 'Chile']
-for i in range(0, len(chile)):
-    slice = chile.loc[chile['Site'] == str(locs1[i])].reset_index(drop=True)  # grab the first data to plot, based on location
+chile1 = results_array.loc[results_array['Region'] == 'Chile']
+for i in range(0, len(chile1)):
+    slice = chile1.loc[chile1['Site'] == str(locs1[i])].reset_index(drop=True)  # grab the first data to plot, based on location
     plt.errorbar(slice['Lat'], slice['Mean'], slice['Std'], markersize = size1, elinewidth=1, capsize=2, alpha=1, label=f"{str(slice['Site'])}", ls='none', fmt=markers[i], color=colors[i], ecolor=colors[i], markeredgecolor='black')
 plt.xlim(-60, -35)
 plt.ylim(-8, 8)
@@ -392,9 +418,9 @@ plt.ylabel('Mean \u0394\u0394$^1$$^4$CO$_2$ (\u2030)')
 plt.text(-60+2, 7, '[A] Chile', horizontalalignment='center', verticalalignment='center', fontweight="bold")
 
 xtr_subsplot = fig.add_subplot(gs[2:4, 0:4])
-chile = results_array.loc[results_array['Region'] == 'NZ']
-for i in range(0, len(chile)):
-    slice = chile.loc[chile['Site'] == str(locs2[i])].reset_index(drop=True)  # grab the first data to plot, based on location
+chile1 = results_array.loc[results_array['Region'] == 'NZ']
+for i in range(0, len(chile1)):
+    slice = chile1.loc[chile1['Site'] == str(locs2[i])].reset_index(drop=True)  # grab the first data to plot, based on location
     label = slice['Site']
     plt.errorbar(slice['Lat'], slice['Mean'], slice['Std'], markersize = size1, elinewidth=1, capsize=2, alpha=1, label=label, ls='none', fmt=markers[i], color=colors[i], ecolor=colors[i], markeredgecolor='black')
 plt.xlim(-60, -35)
@@ -407,4 +433,152 @@ plt.text(-60+3.5, 7, '[B] New Zealand', horizontalalignment='center', verticalal
 plt.savefig('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/MainFig2.5.png',
             dpi=300, bbox_inches="tight")
 plt.close()
+
+
+"""
+Compare the two navarino's
+"""
+
+
+
+maxlat = -54
+minlat = -56
+chile_max_lon = -66
+chile_min_lon = -70
+res = 'i'
+x = 5
+fig = plt.figure(figsize=(8, 8))
+gs = gridspec.GridSpec(4, 4)
+gs.update(wspace=1, hspace=0.35)
+
+xtr_subsplot = fig.add_subplot(gs[0:2, 0:4])
+map = Basemap(llcrnrlat=minlat, urcrnrlat=maxlat, llcrnrlon=chile_min_lon, urcrnrlon=chile_max_lon, resolution=res)
+map.drawmapboundary(fill_color='lightgrey')
+map.fillcontinents(color='darkgrey')
+map.drawcoastlines(linewidth=0.1)
+
+
+x, y = map(-68.32, -54.92472)
+map.scatter(x, y,  marker='X', color='#4393c3', s=60, edgecolor='black',label="Puerto Navarino")
+
+x2, y2 = map(-67.43917, -54.92639)
+map.scatter(x2, y2,  marker='D', color='#2166ac', s=60, edgecolor='black',label="Baja Rosales")
+
+x3, y3 = map(-68.3030, -54.8019)
+map.scatter(x3, y3,  marker='o', color='goldenrod', s=60, edgecolor='black', label='Ushuaia, Argentina')
+# plt.text(x3, y3+0.15, 'Ushuaia', fontsize=14, fontweight="bold")
+plt.legend()
+
+map.drawparallels(np.arange(-90, 90, 10), labels=[True, False, False, False], linewidth=0.5)
+map.drawmeridians(np.arange(-180, 180, 10), labels=[1, 1, 0, 1], linewidth=0.5)
+# map.shadedrelief()
+# map.drawcoastlines()
+map.drawparallels(np.arange(-90, 90, 0.5), labels=[True, False, False, False], linewidth=0.5)
+map.drawmeridians(np.arange(-180, 180, 1), labels=[1, 1, 0, 1], linewidth=0.5)
+
+
+xtr_subsplot = fig.add_subplot(gs[2:4, 0:4])
+slice1 = chile.loc[chile['Site'] == 'Puerto Navarino, Isla Navarino'].reset_index(drop=True)  # grab the first data to plot, based on location
+
+plt.errorbar(slice1['Decimal_date'], slice1['r3_diff_trend'], slice1['r3_diff_trend_errprop'], markersize = size1, elinewidth=1, capsize=2, alpha=1, label=f"-54.9N; Puerto Navarino, Isla Navarino; n={len(slice1)}", ls='none', fmt='X', color='#4393c3', ecolor='#4393c3', markeredgecolor='black')
+
+slice2 = chile.loc[chile['Site'] == 'Baja Rosales, Isla Navarino'].reset_index(drop=True)  # grab the first data to plot, based on location
+
+plt.errorbar(slice2['Decimal_date'], slice2['r3_diff_trend'], slice2['r3_diff_trend_errprop'], markersize = size1, elinewidth=1, capsize=2, alpha=1, label=f"-54.9N; Baja Rosales, Isla Navarino; n={len(slice2)}", ls='none', fmt='D', color='#2166ac', ecolor='#2166ac', markeredgecolor='black')
+
+c = stats.ttest_ind(slice1['r3_diff_trend'], slice2['r3_diff_trend'])
+print(c)
+
+
+
+plt.ylim(-10, 10)
+plt.xlim(1980, 2020)
+plt.axhline(0, color='black')
+plt.ylabel('\u0394\u0394$^1$$^4$CO$_2$ (\u2030)')
+plt.text(1982, 11, '[B]', horizontalalignment='center', verticalalignment='center', fontsize=14, fontweight="bold")
+plt.text(1982, 34,  '[A]', horizontalalignment='center', verticalalignment='center', fontsize=14, fontweight="bold")
+
+# plt.show()
+plt.savefig('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/Navarino.png',
+            dpi=300, bbox_inches="tight")
+plt.close()
+
+
+"""
+I'm working on the results section and want to plot the Chile average data with a linear regression and fill-between the 1-sigma. I want to do this if I also remove the two driving sites. 
+"""
+# c1, c2, c3, c4, c5, c6, c7, c8 = '#b2182b','#d6604d','#f4a582','#fddbc7','#d1e5f0','#92c5de','#4393c3','#2166ac'
+# colors = [c1, c2, c3, c4, c5, c6, c7, c8]
+# markers = ['o', '^', '8', 's', 'p', '*', 'X', 'D']
+maxlat = -42
+minlat = -46
+nz_max_lon = 185
+nz_min_lon = 155
+chile_max_lon = -72
+chile_min_lon = -75
+res = 'i'
+x = 5
+fig = plt.figure()
+
+map = Basemap(llcrnrlat=minlat, urcrnrlat=maxlat, llcrnrlon=chile_min_lon, urcrnrlon=chile_max_lon, resolution=res)
+
+x, y = map(-72.94694, -43.79)
+map.scatter(x, y,  marker='^', color='#d6604d', s=180, edgecolor='black', alpha=1)
+
+map.drawparallels(np.arange(-90, 90, 1), labels=[True, False, False, False], linewidth=0.5)
+map.drawmeridians(np.arange(-180, 180, 1), labels=[1, 1, 0, 1], linewidth=0.5)
+map.shadedrelief()
+map.drawcoastlines()
+map.drawparallels(np.arange(-90, 90, 1), labels=[True, False, False, False], linewidth=0.5)
+map.drawmeridians(np.arange(-180, 180, 1), labels=[1, 1, 0, 1], linewidth=0.5)
+
+plt.savefig('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/RaulMarin.png',
+            dpi=300, bbox_inches="tight")
+plt.close()
+
+
+maxlat = -53.7+2
+minlat = -53.7-2
+nz_max_lon = -70.97+2
+nz_min_lon = -70.97-2
+chile_max_lon = -70.97+2
+chile_min_lon = -70.97-2
+res = 'i'
+x = 5
+fig = plt.figure()
+
+map = Basemap(llcrnrlat=minlat, urcrnrlat=maxlat, llcrnrlon=chile_min_lon, urcrnrlon=chile_max_lon, resolution=res)
+
+x, y = map(-70.97, -53.7)
+map.scatter(x, y,  marker='*', color='#4393c3', s=180, edgecolor='black', alpha=1)
+
+map.drawparallels(np.arange(-90, 90, 1), labels=[True, False, False, False], linewidth=0.5)
+map.drawmeridians(np.arange(-180, 180, 1), labels=[1, 1, 0, 1], linewidth=0.5)
+map.shadedrelief()
+map.drawcoastlines()
+map.drawparallels(np.arange(-90, 90, 1), labels=[True, False, False, False], linewidth=0.5)
+map.drawmeridians(np.arange(-180, 180, 1), labels=[1, 1, 0, 1], linewidth=0.5)
+
+plt.savefig('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/MonteTarn.png',
+            dpi=300, bbox_inches="tight")
+plt.close()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

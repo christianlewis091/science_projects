@@ -105,9 +105,6 @@ def blank_corr_050223(input_name, date_bound_input, num_list):
     df = df.loc[(df['Category In Calculation'] != 'Background Organic')]  # Drop all background organics from the sample data
 
 
-
-
-
     # THIS BLOCK REMOVES ANY STANDARDS YOU DON"T WANT
     for i in range(len(num_list)):
         x = num_list[i]

@@ -9,8 +9,11 @@ from os import listdir
 from os.path import isfile, join
 import pandas as pd
 import numpy as np
+import matplotlib.gridspec as gridspec
 import matplotlib.pyplot as plt
-
+import warnings
+warnings.filterwarnings("ignore")
+#
 # # wmc for water mass characteristics
 # wmc = pd.read_csv(f'H:\Science\Datasets\Water_Mass_Characteristics.csv', skiprows=2, comment='#')
 # # directory with my files
@@ -75,8 +78,13 @@ import matplotlib.pyplot as plt
 #         wmc_row = wmc.iloc[k]
 #         name = wmc_row['Name']
 #
-#
-#         if wmc_row['Ocean'] == row['Ocean_Label'] and float(wmc_row['CTDPRS MIN']) < float(row['CTDPRS']) < float(wmc_row['CTDPRS MAX']) and float(wmc_row['CTDTMP MIN']) < float(row['CTDTMP']) < float(wmc_row['CTDTMP MAX']) and float(wmc_row['SALNTY MIN']) < float(row['CTDSAL']) < float(wmc_row['SALNTY MAX']):
+# # including depth filtering
+#         # if wmc_row['Ocean'] == row['Ocean_Label'] and float(wmc_row['CTDPRS MIN']) < float(row['CTDPRS']) < float(wmc_row['CTDPRS MAX']) and float(wmc_row['CTDTMP MIN']) < float(row['CTDTMP']) < float(wmc_row['CTDTMP MAX']) and float(wmc_row['SALNTY MIN']) < float(row['CTDSAL']) < float(wmc_row['SALNTY MAX']):
+#         #     water_masses.append(name)
+#         #     escapeflag = 'Y'
+#         #     break
+#  # not including CTDPRS filter
+#         if wmc_row['Ocean'] == row['Ocean_Label'] and float(wmc_row['CTDTMP MIN']) < float(row['CTDTMP']) < float(wmc_row['CTDTMP MAX']) and float(wmc_row['SALNTY MIN']) < float(row['CTDSAL']) < float(wmc_row['SALNTY MAX']):
 #             water_masses.append(name)
 #             escapeflag = 'Y'
 #             break
@@ -87,96 +95,103 @@ import matplotlib.pyplot as plt
 # database['Water Mass'] = water_masses
 # database.to_csv('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/water_mass_database_full.csv')
 
+
+
+"""
+UNCOMMENT ABOVE IF YOU NEED TO EDIT OR REBUILD THE DATABASE. CONTINUE DOWN IF YOU WANT PLOTS
+"""
+
+
 df = pd.read_csv('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/water_mass_database_full.csv')
 df = df.loc[df['DELC14'] > -999]
+df = df.loc[df['SALNTY'] > -999]
 df = df.loc[df['Water Mass'] != 'Error: No Water Mass Assigned']
+df.to_csv('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/water_mass_database_cleaned.csv')
 
-# df.to_csv('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/water_mass_database_cleaned.csv')
+df = df.dropna(subset='DELC14')
+
 pacific = df.loc[df['Ocean_Label'] == 'Pacific']
 names = np.unique(pacific['Water Mass'])
 
 for i in range(0, len(names)):
     this_wm = pacific.loc[pacific['Water Mass'] == names[i]]
 
+    fig = plt.figure(figsize=(12,6))
+    gs = gridspec.GridSpec(2, 4)
+    gs.update(wspace=.6, hspace=.6)
+    xtr_subsplot = fig.add_subplot(gs[0:2, 0:2])
+
     plt.scatter(this_wm['LATITUDE'], this_wm['CTDPRS'], c=this_wm['DELC14'], cmap='magma')
-    plt.colorbar(),
     plt.ylim(4000, 0)
     plt.xlim(-70, 70)
-    plt.title(str(names[i]))
+    plt.title(f"Pacific -  {str(names[i])}")
     plt.ylabel('Depth (CTD Pressure)')
     plt.xlabel('Latitude')
-    plt.savefig(f'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/Hydrography/WaterMasses/{names[i]}+Pacifc.png')
+
+    xtr_subsplot = fig.add_subplot(gs[0:2, 2:4])
+    plt.scatter(this_wm['SALNTY'], this_wm['CTDTMP'], c=this_wm['DELC14'], cmap='magma')
+    plt.colorbar().set_label('\u0394$^1$$^4$CO$_2$ (\u2030)', rotation=270)
+    plt.title(f"Pacific -  {str(names[i])}")
+    plt.ylabel('CTD Temperature')
+    plt.xlabel('Salinity (PSU)')
+    plt.savefig(f'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/Hydrography/WaterMasses/Pacific_Ocean_{names[i]}.png')
     plt.close()
+
 
 pacific = df.loc[df['Ocean_Label'] == 'Indian']
 names = np.unique(pacific['Water Mass'])
 
-
 for i in range(0, len(names)):
     this_wm = pacific.loc[pacific['Water Mass'] == names[i]]
 
+    fig = plt.figure(figsize=(12,6))
+    gs = gridspec.GridSpec(2, 4)
+    gs.update(wspace=.6, hspace=.6)
+    xtr_subsplot = fig.add_subplot(gs[0:2, 0:2])
+
     plt.scatter(this_wm['LATITUDE'], this_wm['CTDPRS'], c=this_wm['DELC14'], cmap='magma')
-    plt.colorbar(),
     plt.ylim(4000, 0)
     plt.xlim(-70, 70)
-    plt.title(str(names[i]))
+    plt.title(f"Pacific -  {str(names[i])}")
     plt.ylabel('Depth (CTD Pressure)')
     plt.xlabel('Latitude')
-    plt.savefig(f'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/Hydrography/WaterMasses/{names[i]}+Indian.png')
+
+    xtr_subsplot = fig.add_subplot(gs[0:2, 2:4])
+    plt.scatter(this_wm['SALNTY'], this_wm['CTDTMP'], c=this_wm['DELC14'], cmap='magma')
+    plt.colorbar().set_label('\u0394$^1$$^4$CO$_2$ (\u2030)', rotation=270)
+    plt.title(f"Pacific -  {str(names[i])}")
+    plt.ylabel('CTD Temperature')
+    plt.xlabel('Salinity (PSU)')
+    plt.savefig(f'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/Hydrography/WaterMasses/Indian_Ocean_{names[i]}.png')
     plt.close()
+
+
 pacific = df.loc[df['Ocean_Label'] == 'Atlantic']
 names = np.unique(pacific['Water Mass'])
 
-
 for i in range(0, len(names)):
     this_wm = pacific.loc[pacific['Water Mass'] == names[i]]
 
+    fig = plt.figure(figsize=(12,6))
+    plt.title('Test')
+    gs = gridspec.GridSpec(2, 4)
+    gs.update(wspace=.6, hspace=.6)
+    xtr_subsplot = fig.add_subplot(gs[0:2, 0:2])
+
     plt.scatter(this_wm['LATITUDE'], this_wm['CTDPRS'], c=this_wm['DELC14'], cmap='magma')
-    plt.colorbar(),
     plt.ylim(4000, 0)
     plt.xlim(-70, 70)
-    plt.title(str(names[i]))
+    plt.title(f"Pacific -  {str(names[i])}")
     plt.ylabel('Depth (CTD Pressure)')
     plt.xlabel('Latitude')
-    plt.savefig(f'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/Hydrography/WaterMasses/{names[i]}+Atlantic.png')
+
+    xtr_subsplot = fig.add_subplot(gs[0:2, 2:4])
+    plt.scatter(this_wm['SALNTY'], this_wm['CTDTMP'], c=this_wm['DELC14'], cmap='magma')
+    plt.colorbar().set_label('\u0394$^1$$^4$CO$_2$ (\u2030)', rotation=270)
+    plt.title(f"Pacific -  {str(names[i])}")
+    plt.ylabel('CTD Temperature')
+    plt.xlabel('Salinity (PSU)')
+    plt.savefig(f'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/Hydrography/WaterMasses/Atlantic_Ocean_{names[i]}.png')
     plt.close()
-
-
-
-
-# plt.ylim(max(df1['CTDPRS']), min(df1['CTDPRS']))
-
-
-
-
-
-
-# xtr_subsplot = fig.add_subplot(gs[5:9, 10:19])
-# plt.xlabel('Latitude')
-# plt.title('NITRATE')
-# plt.ylabel('Depth (CTD Pressure)')
-# df1 = thiscruise.loc[(thiscruise['NITRAT'] > -998) & (thiscruise['CTDPRS'] > -998) & (thiscruise['LATITUDE'] > -998)]
-#
-# plt.scatter(df1['LATITUDE'], df1['CTDPRS'], c=df1['NITRAT'], cmap='magma')
-# plt.colorbar(), plt.ylim(max(df1['CTDPRS']), min(df1['CTDPRS']))
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 

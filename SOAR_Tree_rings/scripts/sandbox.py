@@ -60,13 +60,14 @@ xtr_subsplot = fig.add_subplot(gs[0:1, 1:2])
 plt.text(1979, 322, '[B]', horizontalalignment='center', verticalalignment='center', fontsize=14, fontweight="bold")
 plt.text(1925, 322,  '[A]', horizontalalignment='center', verticalalignment='center', fontsize=14, fontweight="bold")
 plt.text(2035, 322,  '[C]', horizontalalignment='center', verticalalignment='center', fontsize=14, fontweight="bold")
-plt.title('Data used for Background Reference')
+plt.title('Background Reference')
 plt.ylabel('\u0394$^1$$^4$C (\u2030)')  # label the y axis
 plt.xlabel('Year')
 cgo = ref1.loc[ref1['#location'] == 'CGO']
 bhd = ref1.loc[ref1['#location'] != 'CGO']
-plt.errorbar(cgo['Decimal_date'], cgo['D14C'], yerr=cgo['weightedstderr_D14C'], fmt='D',  elinewidth=1, capsize=2, label='Heidelberg Uni. Cape Grim Record', color='gray',  markersize = 2)
-plt.errorbar(bhd['Decimal_date'], bhd['D14C'], yerr=bhd['weightedstderr_D14C'], fmt='o',  elinewidth=1, capsize=2, label='RRL/NIWA Wellington Record', color='black',  markersize =2)
+plt.plot(df['Decimal_date'], df['D14C_ref3t_mean'], zorder=10, label='CCGCRV Trend Reference', color='black')
+plt.errorbar(cgo['Decimal_date'], cgo['D14C'], yerr=cgo['weightedstderr_D14C'], fmt='D',  elinewidth=1, capsize=2, label='Heidelberg Uni. Cape Grim Record', color='dimgray',  markersize = 2, alpha=0.75)
+plt.errorbar(bhd['Decimal_date'], bhd['D14C'], yerr=bhd['weightedstderr_D14C'], fmt='o',  elinewidth=1, capsize=2, label='RRL/NIWA Wellington Record', color='darkgray',  markersize =2, alpha=0.75)
 plt.legend()
 
 xtr_subsplot = fig.add_subplot(gs[0:1, 2:3])
@@ -296,7 +297,9 @@ for i in range(0, len(locs1)):
     lat_array.append(latitude)
     site_array.append(str(locs1[i]))
     region_array.append("Chile")
-    plt.errorbar(slice['Decimal_date'], slice['r3_diff_trend'], slice['r3_diff_trend_errprop'], markersize = size1, elinewidth=1, capsize=2, alpha=1, label=f"{str(latitude)} N", ls='none', fmt=markers[i], color=colors[i], ecolor=colors[i], markeredgecolor='black')
+    # Errorbars removed after meeting with JT ap[ril 23
+    # plt.errorbar(slice['Decimal_date'], slice['r3_diff_trend'], slice['r3_diff_trend_errprop'], markersize = size1, elinewidth=1, capsize=2, alpha=1, label=f"{str(latitude)} N", ls='none', fmt=markers[i], color=colors[i], ecolor=colors[i], markeredgecolor='black')
+    plt.errorbar(slice['Decimal_date'], slice['r3_diff_trend'], 0.01, markersize = size1, elinewidth=1, capsize=2, alpha=1, label=f"{str(latitude)} N", ls='none', fmt=markers[i], color=colors[i], ecolor=colors[i], markeredgecolor='black')
 
 plt.text(1981.5, 14, '[B]', horizontalalignment='center', verticalalignment='center', fontsize=14, fontweight="bold")
 plt.text(1976.5-20, 14, '[A]', horizontalalignment='center', verticalalignment='center', fontsize=14, fontweight="bold")
@@ -324,7 +327,10 @@ for i in range(0, len(locs2)):
     lat_array.append(latitude)
     site_array.append(str(locs2[i]))
     region_array.append("NZ")
-    plt.errorbar(slice['Decimal_date'], slice['r3_diff_trend'], slice['r3_diff_trend_errprop'], markersize = size1, elinewidth=1, capsize=2, alpha=1, label=f"{str(latitude)} N", ls='none', fmt=markers[i], color=colors[i], ecolor=colors[i], markeredgecolor='black')
+    # Removed errorbars May 23 after meeting with JT
+    # plt.errorbar(slice['Decimal_date'], slice['r3_diff_trend'], slice['r3_diff_trend_errprop'], markersize = size1, elinewidth=1, capsize=2, alpha=1, label=f"{str(latitude)} N", ls='none', fmt=markers[i], color=colors[i], ecolor=colors[i], markeredgecolor='black')
+    plt.errorbar(slice['Decimal_date'], slice['r3_diff_trend'], 0.01, markersize = size1, elinewidth=1, capsize=2, alpha=1, label=f"{str(latitude)} N", ls='none', fmt=markers[i], color=colors[i], ecolor=colors[i], markeredgecolor='black')
+
 
 plt.ylim(-15, 15)
 plt.text(1981.5, 14, '[D]', horizontalalignment='center', verticalalignment='center', fontsize=14, fontweight="bold")
@@ -563,9 +569,113 @@ plt.savefig('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/MonteTarn.p
             dpi=300, bbox_inches="tight")
 plt.close()
 
+"""
+At the NIWA meeting on May 25, they discussed doing 5 year averages of the data to smooth inconsistent sampling rates
+"""
+labels = []
+num_labels=[]
+for i in range(0, len(df)):
+    row = df.iloc[i]
+    dd = row['Decimal_date']
+    site = str(row['Site'])
+    if 1980 < dd <= 1985:
+        labels.append(f'Interval1_{site}')
+    elif 1985 < dd <= 1990:
+        labels.append(f'Interval2_{site}')
+    elif 1990 < dd <= 1995:
+        labels.append(f'Interval3_{site}')
+    elif 1995 < dd <= 2000:
+        labels.append(f'Interval4_{site}')
+    elif 2000 < dd <= 2005:
+        labels.append(f'Interval5_{site}')
+    elif 2005 < dd <= 2010:
+        labels.append(f'Interval6_{site}')
+    elif 2010 < dd <= 2015:
+        labels.append(f'Interval7_{site}')
+    elif 2015 < dd <= 2021:
+        labels.append(f'Interval7_{site}')
+    else:
+        labels.append('Error')
+
+df['Interval_labels'] = labels
+five_year_means = df.groupby('Interval_labels').mean('r3_diff_trend').reset_index()
+five_year_means.to_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/five_year_means.xlsx')
+
+# From the above code, we have 5-year averages for each site. But now we want the WHOLE temporal average
+# What do we use to index, since the groupby.mean removes the sites, since they're strings? We can use the unique
+# latitudes from each site.
+full_temporal_means = df.groupby('Lat').mean('r3_diff_trend').reset_index()
+full_temporal_means.to_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/full_temporal_5_year_means.xlsx')
+
+# and now we'll re-make plot Main2.5
+
+"""
+PLOTTING THE AVERAGES> Trying to get the symbols to match first figure
+"""
+
+fig = plt.figure(figsize=(8, 8))
+gs = gridspec.GridSpec(4, 4)
+gs.update(wspace=1, hspace=0.25)
+
+xtr_subsplot = fig.add_subplot(gs[0:2, 0:4])
+chile1 = results_array.loc[results_array['Region'] == 'Chile']
+chile2 = full_temporal_means.loc[full_temporal_means['Country'] == 0]
+nz2 = full_temporal_means.loc[full_temporal_means['Country'] == 1]
+for i in range(0, len(chile1)):
+    slice = chile1.loc[chile1['Site'] == str(locs1[i])].reset_index(drop=True)  # grab the first data to plot, based on location
+    plt.errorbar(slice['Lat'], slice['Mean'], slice['Std'], markersize = size1, elinewidth=1, capsize=2, alpha=1, label=f"{str(slice['Site'])}", ls='none', fmt=markers[i], color=colors[i], ecolor=colors[i], markeredgecolor='black')
+
+plt.scatter(chile2['Lat'], chile2['r3_diff_trend'], color='black', s=100, alpha=0.5)
+plt.xlim(-60, -35)
+plt.ylim(-8, 8)
+plt.xticks([], [])
+plt.axhline(0, color='black', linewidth = 0.5)
+plt.ylabel('Mean \u0394\u0394$^1$$^4$CO$_2$ (\u2030)')
+plt.text(-60+2, 7, '[A] Chile', horizontalalignment='center', verticalalignment='center', fontweight="bold")
+
+xtr_subsplot = fig.add_subplot(gs[2:4, 0:4])
+chile1 = results_array.loc[results_array['Region'] == 'NZ']
+for i in range(0, len(chile1)):
+    slice = chile1.loc[chile1['Site'] == str(locs2[i])].reset_index(drop=True)  # grab the first data to plot, based on location
+    label = slice['Site']
+    plt.errorbar(slice['Lat'], slice['Mean'], slice['Std'], markersize = size1, elinewidth=1, capsize=2, alpha=1, label=label, ls='none', fmt=markers[i], color=colors[i], ecolor=colors[i], markeredgecolor='black')
+plt.scatter(nz2['Lat'], nz2['r3_diff_trend'], color='black', s=100, alpha=0.5)
+plt.xlim(-60, -35)
+plt.ylim(-8, 8)
+plt.axhline(0, color='black', linewidth = 0.5)
+plt.ylabel('Mean \u0394\u0394$^1$$^4$CO$_2$ (\u2030)')
+plt.xlabel('Latitude (N)')
+plt.text(-60+3.5, 7, '[B] New Zealand', horizontalalignment='center', verticalalignment='center', fontweight="bold")
+plt.savefig('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/MainFig2.5_w_bkgd_averages.png',
+            dpi=300, bbox_inches="tight")
+plt.close()
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# neu['season_category'] = growing_season(neu)
+#
+# means = neu.groupby('season_category').mean().reset_index()
+# means = means.loc[means['season_category'] != 'non-growing']
+# means['Site'] = 'NMY'
+# means.to_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/NEU_offset.xlsx')
+#
 
 
 

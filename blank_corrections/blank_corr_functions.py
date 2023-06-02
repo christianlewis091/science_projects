@@ -103,7 +103,7 @@ def blank_corr_050223(input_name, date_bound_input, num_list):
 
     df = df.loc[(df['Category In Calculation'] != 'Background Test')]  # Drop all background tests from the sample data
     df = df.loc[(df['Category In Calculation'] != 'Background Organic')]  # Drop all background organics from the sample data
-
+    df = df.loc[(df['Category In Calculation'] != 'Background Inorganic')]  # Drop all background organics from the sample data
 
     # THIS BLOCK REMOVES ANY STANDARDS YOU DON"T WANT
     for i in range(len(num_list)):
@@ -111,6 +111,7 @@ def blank_corr_050223(input_name, date_bound_input, num_list):
         x = int(x)
 
         stds_hist = stds_hist.loc[(stds_hist['TP'] != x)]
+
     """
     This next block of code will search through all the R numbers in my pretreatment reference file.
     It will calculate the MCC and 1-sigms std of all acceptable standards and attach that MCC to that R number. Later,
@@ -132,9 +133,6 @@ def blank_corr_050223(input_name, date_bound_input, num_list):
 
         # SEARCH HISTORICAL STANDARDS FOR THIS R#
         current_standards = stds_hist.loc[(stds_hist['R_number'] == this_R)]
-
-        # TURN INTO DATAFRAME? Not sure why this line is here...
-        stds_dataframe = pd.concat([stds_dataframe, current_standards])
 
         # CALCULATE AVERAGE MCC (RTS)
         mcc = np.average(current_standards[
@@ -161,10 +159,10 @@ def blank_corr_050223(input_name, date_bound_input, num_list):
     refs['Stds_used'] = stringarray
     refs = refs.drop_duplicates(subset='R number to correct from')
     refs = refs.rename(columns={"Pre-treatment Type": "Process Name"})
-    # refs.to_excel(r'I:\C14Data\C14_blank_corrections_dev\Refscheck2.xlsx')
+    refs.to_excel(f'I:\C14Data\C14_blank_corrections_dev\PythonOutput\TW{input_name}_Refscheck.xlsx')
 
     results = pd.merge(df, refs, on='Process Name')
-    # test.to_excel(r'I:\C14Data\C14_blank_corrections_dev\woops.xlsx')
+    results.to_excel(r'I:\C14Data\C14_blank_corrections_dev\results_test.xlsx')
 
     df_condensed = results[['TP', 'MCC', 'MCC_1sigma', 'Stds_used']]
 
@@ -175,6 +173,8 @@ def blank_corr_050223(input_name, date_bound_input, num_list):
     results.to_csv(r'I:\C14Data\C14_blank_corrections_dev\PythonOutput\TW{}_results.csv'.format(input_name))
     df_condensed.to_csv(r'I:/C14Data/C14_blank_corrections_dev/RLIMS_import/TW{}_reimport.csv'.format(input_name))
 
+
+# blank_corr_050223(3470,0.5,'')
 
 
 """

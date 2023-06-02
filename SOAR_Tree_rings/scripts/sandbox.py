@@ -28,6 +28,7 @@ ref1 = ref1.loc[ref1['Decimal_date'] > 1980].reset_index(drop=True)
 
 # I DON"T WANT TO PRESENT MCQ as a TREE RING SITE!
 df = df.loc[df['Site'] != 'MCQ']
+
 """
 FOR METHODS SECTION: DEVELOPMENT OF BACKGROUND REFERENCE: 
 WE WANT TO SHOW THE DEVELOPMENT OF REFERENCE, WITH A MAP, AND PLOT OF THE DATA TOGETHER
@@ -139,8 +140,6 @@ for i in range(0, len(df)):
         x = 1
         # print(current_row)
 df['Country'] = country_array
-
-
 df = df.drop_duplicates().reset_index(drop=True)
 
 """
@@ -165,8 +164,8 @@ for i in range(0, len(df)):
 
 df['D14C_1'] = mtarray
 df['weightedstderr_D14C_1'] = mtarray2
-# df.to_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/test.xlsx')
-# Checked, it works!
+df.to_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/test.xlsx')
+# ?
 
 
 """
@@ -204,10 +203,9 @@ df['testrat_err'] = step3
 
 # df['testrat_err'] = df['testrat'] * [np.sqrt(testrat_e1**2 / (df['D14C'] - D_ocean)) +  np.sqrt( testrat_e2**2 /(df['D14C_ref3t_mean'] - D_ocean))]
 
-
-
-
+df = df.loc[df['Site'] != 'NMY']
 df.to_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/final_results.xlsx')
+
 
 """
 Lets test the difference between the two sites

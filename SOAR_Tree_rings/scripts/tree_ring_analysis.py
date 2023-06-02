@@ -6,6 +6,7 @@ and tries to find where the bad ring counts are. At the end, two files are creat
 and labels why they are flagged. The second removes all the flagged data, leaving only the "cleaned" data.
 
 """
+from scipy import stats
 import matplotlib as mpl
 import pandas as pd
 pd.options.mode.chained_assignment = None  # default='warn'
@@ -389,9 +390,9 @@ size = 50
 plt.errorbar(CH_54_S_core1['DecimalDate'], CH_54_S_core1['∆14C'], label='Tree 6, Core 2', yerr=CH_54_S_core1['∆14Cerr'], fmt='o', color=colors2[1], ecolor=colors2[1], elinewidth=1, capsize=2)
 plt.errorbar(CH_54_S_core2['DecimalDate'], CH_54_S_core2['∆14C'], label='Tree 3, Core 1', yerr=CH_54_S_core2['∆14Cerr'], fmt='D', color=colors2[3], ecolor=colors2[3], elinewidth=1, capsize=2)
 plt.errorbar(CH_54_S_core3['DecimalDate'], CH_54_S_core3['∆14C'], label='Tree 5, Core 1', yerr=CH_54_S_core3['∆14Cerr'], fmt='*', color=colors2[5], ecolor=colors2[5], elinewidth=1, capsize=2)
-plt.errorbar(df2_1['Year of Growth'], df2_1['D14C'], label='De Pol Holz: Polylepis tarapacana', yerr=df2_1['D14Cerr'], fmt='o', color=colors[1], ecolor=colors[1], elinewidth=1, capsize=2)
-plt.errorbar(df2_2['Year of Growth'], df2_2['D14C'], label='De Pol Holz: Asutrocedrus chilensis', yerr=df2_2['D14Cerr'], fmt='D', color=colors[2], ecolor=colors[2], elinewidth=1, capsize=2)
-plt.errorbar(df2_3['Year of Growth'], df2_3['D14C'], label='De Pol Holz: Fitzroya cupressoides', yerr=df2_3['D14Cerr'], fmt='*', color=colors[3], ecolor=colors[3], elinewidth=1, capsize=2)
+# plt.errorbar(df2_1['Year of Growth'], df2_1['D14C'], label='De Pol Holz: Polylepis tarapacana', yerr=df2_1['D14Cerr'], fmt='o', color=colors[1], ecolor=colors[1], elinewidth=1, capsize=2)
+# plt.errorbar(df2_2['Year of Growth'], df2_2['D14C'], label='De Pol Holz: Asutrocedrus chilensis', yerr=df2_2['D14Cerr'], fmt='D', color=colors[2], ecolor=colors[2], elinewidth=1, capsize=2)
+# plt.errorbar(df2_3['Year of Growth'], df2_3['D14C'], label='De Pol Holz: Fitzroya cupressoides', yerr=df2_3['D14Cerr'], fmt='*', color=colors[3], ecolor=colors[3], elinewidth=1, capsize=2)
 plt.errorbar(df2_4['Year of Growth'], df2_4['D14C'], label='De Pol Holz: Pilgerodendron uviferum', yerr=df2_4['D14Cerr'], fmt='^', color=colors[4], ecolor=colors[4], elinewidth=1, capsize=2)
 plt.plot(harm_xs, harm_ys, label='SH Atmosphere \u0394$^1$$^4$CO$_2$ (\u2030)', color='black', alpha=0.2)
 plt.legend()
@@ -404,6 +405,10 @@ plt.savefig(
     'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/MonteTarn_dePol Holz.png',
     dpi=300, bbox_inches="tight")
 plt.close()
+
+# c = stats.ttest_rel(bhdcgo['BHD_D14C'], bhdcgo['CGO_D14C'])
+# print(c)
+
 
 size = 50
 plt.errorbar(CH_55_S_core1['DecimalDate'], CH_55_S_core1['∆14C'], label='Tree 4, Core 1 (Baja Rosales)', yerr=CH_55_S_core1['∆14Cerr'], fmt='o', color=colors2[1], ecolor=colors2[1], elinewidth=1, capsize=2)

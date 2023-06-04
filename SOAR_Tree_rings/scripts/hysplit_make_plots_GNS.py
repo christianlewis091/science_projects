@@ -21,180 +21,425 @@ code = easy_access['Code']
 lat = easy_access['NewLat']
 lon = easy_access['ChileFixLon']
 
-# Read in the sheet that was made from the prvious script (hysplit_prepare_output.py)
-means_dataframe_10 = pd.read_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/means_dataframe_10.xlsx')
-means_dataframe_100 = pd.read_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/means_dataframe_100.xlsx')
-means_dataframe_200 = pd.read_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/means_dataframe_200.xlsx')
+from matplotlib import cbook
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+import seaborn as sns
+from mpl_toolkits.basemap import Basemap
+import matplotlib.gridspec as gridspec
+from mpl_toolkits.axes_grid.inset_locator import inset_axes
 
-# Read in the sheet that was made from the prvious script (hysplit_prepare_output.py)
-points = pd.read_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/points.xlsx')
 
+colors = sns.color_palette("Paired")
+
+"""
+6/1/23: version 2 of this file that prepares the Hysplit output for plotting: 
+Needs updating to do trajectories for everty site. Old version commented out below
+"""
+# We're still going to loop through each site using the codenames listed in the previous scripts as well
+easy_access = pd.read_excel(r'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/easy_access2.xlsx')
+codenames = easy_access['Codename']
+code = easy_access['Code']
+lat = easy_access['NewLat']
+lon = easy_access['ChileFixLon']
+#
+# # Read in the sheet that was made from the prvious script (hysplit_prepare_output.py)
+year = ['2005_2006', '2010_2011','2015_2016','2020_2021']
+# means_dataframe_10_2005 = pd.read_excel(f'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/means_dataframe_10_{year[0]}.xlsx')
+# means_dataframe_100_2005 = pd.read_excel(f'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/means_dataframe_100_{year[0]}.xlsx')
+# means_dataframe_200_2005 = pd.read_excel(f'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/means_dataframe_200_{year[0]}.xlsx')
+# points_2005 = pd.read_excel(f'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/points_{year[0]}.xlsx')
+#
+# means_dataframe_10_2010 = pd.read_excel(f'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/means_dataframe_10_{year[1]}.xlsx')
+# means_dataframe_100_2010 = pd.read_excel(f'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/means_dataframe_100_{year[1]}.xlsx')
+# means_dataframe_200_2010 = pd.read_excel(f'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/means_dataframe_200_{year[1]}.xlsx')
+# points_2010 = pd.read_excel(f'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/points_{year[1]}.xlsx')
+#
+# means_dataframe_10_2015 = pd.read_excel(f'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/means_dataframe_10_{year[2]}.xlsx')
+# means_dataframe_100_2015 = pd.read_excel(f'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/means_dataframe_100_{year[2]}.xlsx')
+# means_dataframe_200_2015 = pd.read_excel(f'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/means_dataframe_200_{year[2]}.xlsx')
+# points_2015 = pd.read_excel(f'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/points_{year[2]}.xlsx')
+#
+# means_dataframe_10_2020 = pd.read_excel(f'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/means_dataframe_10_{year[3]}.xlsx')
+# means_dataframe_100_2020 = pd.read_excel(f'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/means_dataframe_100_{year[3]}.xlsx')
+# means_dataframe_200_2020 = pd.read_excel(f'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/means_dataframe_200_{year[3]}.xlsx')
+# points_2020 = pd.read_excel(f'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/points_{year[3]}.xlsx')
+
+
+u = ['2005','2010','2015','2020']
 w = 1
 a = 0.5
 sizess = 10
 # Loop through the codenames
-for i in range(0, len(codenames)):
-    # which region are we looking at?
-    country_code = code[i]
-    lat_i = lat[i]
-    lon_i = lon[i]
+for k in range(0, len(year)):
+    points = pd.read_excel(f'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/hysplit/output_data/points_{year[k]}.xlsx')
+    means_dataframe_10 = pd.read_excel(f'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/hysplit/output_data/means_dataframe_10_{year[k]}.xlsx')
+    means_dataframe_100 = pd.read_excel(f'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/hysplit/output_data/means_dataframe_100_{year[k]}.xlsx')
+    means_dataframe_200 = pd.read_excel(f'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/hysplit/output_data/means_dataframe_200_{year[k]}.xlsx')
 
-    # here are the POINTS that we'll be plotting
-    site_points = points.loc[points['location'] == codenames[i]]
+    for i in range(0, len(codenames)):
+        # which region are we looking at?
+        country_code = code[i]
+        lat_i = lat[i]
+        lon_i = lon[i]
 
-    # isolate the different starting altitudes
-    # only plot every 5th traj
-    heights = np.unique(site_points['starting_height'])
-    h1 = site_points.loc[site_points['starting_height'] == heights[0]][::w].reset_index(drop=True)
-    h2 = site_points.loc[site_points['starting_height'] == heights[1]][::w].reset_index(drop=True)
-    h3 = site_points.loc[site_points['starting_height'] == heights[2]][::w].reset_index(drop=True)
+        # here are the POINTS that we'll be plotting
+        site_points = points.loc[points['location'] == codenames[i]]
 
-    # here are the means that we'll be plotting:
-    site_mean_10 = means_dataframe_10.loc[means_dataframe_10['Codename'] == codenames[i]].reset_index(drop=True)
-    site_mean_100 = means_dataframe_100.loc[means_dataframe_100['Codename'] == codenames[i]].reset_index(drop=True)
-    site_mean_200 = means_dataframe_200.loc[means_dataframe_200['Codename'] == codenames[i]].reset_index(drop=True)
+        # isolate the different starting altitudes
+        # only plot every 5th traj
+        heights = np.unique(site_points['starting_height'])
+        h1 = site_points.loc[site_points['starting_height'] == heights[0]][::w].reset_index(drop=True)
+        h2 = site_points.loc[site_points['starting_height'] == heights[1]][::w].reset_index(drop=True)
+        h3 = site_points.loc[site_points['starting_height'] == heights[2]][::w].reset_index(drop=True)
 
-    fig = plt.figure(figsize=(6, 8))
-    gs = gridspec.GridSpec(6, 4)
-    gs.update(wspace=.25, hspace=0.35)
-
-    # SUBPLOT 1
-    xtr_subsplot = fig.add_subplot(gs[0:4, 0:4])
-    plt.title(f'{codenames[i]}')
-    mapcorners = [lon_i-60, -70, lon_i+20, -10]
-    # mapcorners = [-0, -70, 360, -10]
-    maxlat = mapcorners[3]
-    minlat = mapcorners[1]
-    maxlon = mapcorners[2]
-    minlon = mapcorners[0]
-
-    # build the map
-    map = Basemap(llcrnrlat=minlat, urcrnrlat=maxlat, llcrnrlon=minlon, urcrnrlon=maxlon, resolution='l', lon_0=-180)
-    map.drawmapboundary(fill_color='lightgrey')
-    map.fillcontinents(color='darkgrey')
-    map.drawcoastlines(linewidth=0.1)
-
-    # PLOT TRAJECTORIES: NEED TO LOOP INTO OLD FILE NAMES
-    old_filenames = np.unique(h1['filename'])
-    for z in range(0, len(old_filenames)):
-        this_file = h1.loc[h1['filename'] == old_filenames[z]]
-
-        # plot only data within the map-range to remove crappy extra annoying lines on plot
-        this_file = this_file.loc[(this_file['x'] > minlon) & (this_file['x'] < maxlon)]
-
-        y, x = (this_file['y'], this_file['x'])
-        map.plot(x, y, color=colors[0],label=str(heights[0]), alpha =a)
-
-    old_filenames = np.unique(h2['filename'])
-    for z in range(0, len(old_filenames)):
-        this_file = h2.loc[h2['filename'] == old_filenames[z]]
-
-        # plot only data within the map-range to remove crappy extra annoying lines on plot
-        this_file = this_file.loc[(this_file['x'] > minlon) & (this_file['x'] < maxlon)]
-
-        y, x = (this_file['y'], this_file['x'])
-        map.plot(x, y, color=colors[2],label=str(heights[0]), alpha =a)
-
-    old_filenames = np.unique(h3['filename'])
-    for z in range(0, len(old_filenames)):
-        this_file = h3.loc[h3['filename'] == old_filenames[z]]
-
-        # plot only data within the map-range to remove crappy extra annoying lines on plot
-        this_file = this_file.loc[(this_file['x'] > minlon) & (this_file['x'] < maxlon)]
-
-        y, x = (this_file['y'], this_file['x'])
-        map.plot(x, y, color=colors[4],label=str(heights[0]), alpha =a)
-
-    # add the means
-    y_mean, x_mean = (site_mean_10['y'], site_mean_10['x'])
-    map.plot(x_mean, y_mean, color=colors[1], alpha=1)
-    y_mean, x_mean = (site_mean_100['y'], site_mean_100['x'])
-    map.plot(x_mean, y_mean, color=colors[3], alpha=1)
-    y_mean, x_mean = (site_mean_200['y'], site_mean_200['x'])
-    map.plot(x_mean, y_mean, color=colors[5], alpha=1)
-
-    map.drawparallels(np.arange(-90, 90, 20), labels=[True, False, False, False], linewidth=0.5)
-    map.drawmeridians(np.arange(-180, 180, 20), labels=[1, 1, 0, 1], linewidth=0.5)
-
-    # THE INNER PLOT!
-    # inset_axes = inset_axes(xtr_subsplot,
-    #                         width="45%", # width = 30% of parent_bbox
-    #                         height=1, # height : 1 inch
-    #                         loc=1)
-    ax_ins = inset_axes(xtr_subsplot, width="45%",  height="45%", loc=2)
-    x = 2
-    mapcorners = [lon_i-x, lat_i-x, lon_i+x, lat_i+x]
-    maxlat = mapcorners[3]
-    minlat = mapcorners[1]
-    maxlon = mapcorners[2]
-    minlon = mapcorners[0]
-
-    # build the map
-    map = Basemap(llcrnrlat=minlat, urcrnrlat=maxlat, llcrnrlon=minlon, urcrnrlon=maxlon, resolution='l', lon_0=-180)
-    map.drawmapboundary(fill_color='white')
-    map.fillcontinents(color='darkgrey')
-    map.drawcoastlines(linewidth=0.1)
-
-    # PLOT TRAJECTORIES: NEED TO LOOP INTO OLD FILE NAMES
-    old_filenames = np.unique(h1['filename'])
-    for z in range(0, len(old_filenames)):
-        this_file = h1.loc[h1['filename'] == old_filenames[z]]
-
-        # plot only data within the map-range to remove crappy extra annoying lines on plot
-        this_file = this_file.loc[(this_file['x'] > minlon) & (this_file['x'] < maxlon)]
-
-        y, x = (this_file['y'], this_file['x'])
-        map.plot(x, y, color=colors[0],label=str(heights[0]), alpha =a)
-
-    old_filenames = np.unique(h2['filename'])
-    for z in range(0, len(old_filenames)):
-        this_file = h2.loc[h2['filename'] == old_filenames[z]]
-
-        # plot only data within the map-range to remove crappy extra annoying lines on plot
-        this_file = this_file.loc[(this_file['x'] > minlon) & (this_file['x'] < maxlon)]
-
-        y, x = (this_file['y'], this_file['x'])
-        map.plot(x, y, color=colors[2],label=str(heights[0]), alpha =a)
-
-    old_filenames = np.unique(h3['filename'])
-    for z in range(0, len(old_filenames)):
-        this_file = h3.loc[h3['filename'] == old_filenames[z]]
-
-        # plot only data within the map-range to remove crappy extra annoying lines on plot
-        this_file = this_file.loc[(this_file['x'] > minlon) & (this_file['x'] < maxlon)]
-
-        y, x = (this_file['y'], this_file['x'])
-        map.plot(x, y, color=colors[4],label=str(heights[0]), alpha =a)
-
-    # add the means
-    y_mean, x_mean = (site_mean_10['y'], site_mean_10['x'])
-    map.plot(x_mean, y_mean, color=colors[1], alpha=1)
-    y_mean, x_mean = (site_mean_100['y'], site_mean_100['x'])
-    map.plot(x_mean, y_mean, color=colors[3], alpha=1)
-    y_mean, x_mean = (site_mean_200['y'], site_mean_200['x'])
-    map.plot(x_mean, y_mean, color=colors[5], alpha=1)
+        # here are the means that we'll be plotting:
+        site_mean_10 = means_dataframe_10.loc[means_dataframe_10['Codename'] == codenames[i]].reset_index(drop=True)
+        site_mean_100 = means_dataframe_100.loc[means_dataframe_100['Codename'] == codenames[i]].reset_index(drop=True)
+        site_mean_200 = means_dataframe_200.loc[means_dataframe_200['Codename'] == codenames[i]].reset_index(drop=True)
 
 
-    map.drawparallels(np.arange(-90, 90, 2), labels=[True, False, False, False], linewidth=0.5)
-    map.drawmeridians(np.arange(-180, 180, 2), labels=[1, 1, 0, 1], linewidth=0.5)
+        fig = plt.figure(figsize=(6, 8))
+        gs = gridspec.GridSpec(6, 4)
+        gs.update(wspace=.25, hspace=0.35)
+
+        # SUBPLOT 1
+        xtr_subsplot = fig.add_subplot(gs[0:4, 0:4])
+        plt.title(f'{codenames[i]}_{year[k]}')
+        mapcorners = [lon_i-60, -70, lon_i+20, -10]
+        # mapcorners = [-0, -70, 360, -10]
+        maxlat = mapcorners[3]
+        minlat = mapcorners[1]
+        maxlon = mapcorners[2]
+        minlon = mapcorners[0]
+
+        # build the map
+        map = Basemap(llcrnrlat=minlat, urcrnrlat=maxlat, llcrnrlon=minlon, urcrnrlon=maxlon, resolution='l', lon_0=-180)
+        map.drawmapboundary(fill_color='lightgrey')
+        map.fillcontinents(color='darkgrey')
+        map.drawcoastlines(linewidth=0.1)
+
+        # PLOT TRAJECTORIES: NEED TO LOOP INTO OLD FILE NAMES
+        old_filenames = np.unique(h1['filename'])
+        for z in range(0, len(old_filenames)):
+            this_file = h1.loc[h1['filename'] == old_filenames[z]]
+
+            # plot only data within the map-range to remove crappy extra annoying lines on plot
+            this_file = this_file.loc[(this_file['x'] > minlon) & (this_file['x'] < maxlon)]
+
+            y, x = (this_file['y'], this_file['x'])
+            map.plot(x, y, color=colors[0],label=str(heights[0]), alpha =a)
+
+        old_filenames = np.unique(h2['filename'])
+        for z in range(0, len(old_filenames)):
+            this_file = h2.loc[h2['filename'] == old_filenames[z]]
+
+            # plot only data within the map-range to remove crappy extra annoying lines on plot
+            this_file = this_file.loc[(this_file['x'] > minlon) & (this_file['x'] < maxlon)]
+
+            y, x = (this_file['y'], this_file['x'])
+            map.plot(x, y, color=colors[2],label=str(heights[0]), alpha =a)
+
+        old_filenames = np.unique(h3['filename'])
+        for z in range(0, len(old_filenames)):
+            this_file = h3.loc[h3['filename'] == old_filenames[z]]
+
+            # plot only data within the map-range to remove crappy extra annoying lines on plot
+            this_file = this_file.loc[(this_file['x'] > minlon) & (this_file['x'] < maxlon)]
+
+            y, x = (this_file['y'], this_file['x'])
+            map.plot(x, y, color=colors[4],label=str(heights[0]), alpha =a)
+
+        # add the means
+        y_mean, x_mean = (site_mean_10['y'], site_mean_10['x'])
+        map.plot(x_mean, y_mean, color=colors[1], alpha=1)
+        y_mean, x_mean = (site_mean_100['y'], site_mean_100['x'])
+        map.plot(x_mean, y_mean, color=colors[3], alpha=1)
+        y_mean, x_mean = (site_mean_200['y'], site_mean_200['x'])
+        map.plot(x_mean, y_mean, color=colors[5], alpha=1)
+
+        map.drawparallels(np.arange(-90, 90, 20), labels=[True, False, False, False], linewidth=0.5)
+        map.drawmeridians(np.arange(-180, 180, 20), labels=[1, 1, 0, 1], linewidth=0.5)
+
+        # THE INNER PLOT!
+        # inset_axes = inset_axes(xtr_subsplot,
+        #                         width="45%", # width = 30% of parent_bbox
+        #                         height=1, # height : 1 inch
+        #                         loc=1)
+        ax_ins = inset_axes(xtr_subsplot, width="45%",  height="45%", loc=2)
+        x = 2
+        mapcorners = [lon_i-x, lat_i-x, lon_i+x, lat_i+x]
+        maxlat = mapcorners[3]
+        minlat = mapcorners[1]
+        maxlon = mapcorners[2]
+        minlon = mapcorners[0]
+
+        # build the map
+        map = Basemap(llcrnrlat=minlat, urcrnrlat=maxlat, llcrnrlon=minlon, urcrnrlon=maxlon, resolution='l', lon_0=-180)
+        map.drawmapboundary(fill_color='white')
+        map.fillcontinents(color='darkgrey')
+        map.drawcoastlines(linewidth=0.1)
+
+        # PLOT TRAJECTORIES: NEED TO LOOP INTO OLD FILE NAMES
+        old_filenames = np.unique(h1['filename'])
+        for z in range(0, len(old_filenames)):
+            this_file = h1.loc[h1['filename'] == old_filenames[z]]
+
+            # plot only data within the map-range to remove crappy extra annoying lines on plot
+            this_file = this_file.loc[(this_file['x'] > minlon) & (this_file['x'] < maxlon)]
+
+            y, x = (this_file['y'], this_file['x'])
+            map.plot(x, y, color=colors[0],label=str(heights[0]), alpha =a)
+
+        old_filenames = np.unique(h2['filename'])
+        for z in range(0, len(old_filenames)):
+            this_file = h2.loc[h2['filename'] == old_filenames[z]]
+
+            # plot only data within the map-range to remove crappy extra annoying lines on plot
+            this_file = this_file.loc[(this_file['x'] > minlon) & (this_file['x'] < maxlon)]
+
+            y, x = (this_file['y'], this_file['x'])
+            map.plot(x, y, color=colors[2],label=str(heights[0]), alpha =a)
+
+        old_filenames = np.unique(h3['filename'])
+        for z in range(0, len(old_filenames)):
+            this_file = h3.loc[h3['filename'] == old_filenames[z]]
+
+            # plot only data within the map-range to remove crappy extra annoying lines on plot
+            this_file = this_file.loc[(this_file['x'] > minlon) & (this_file['x'] < maxlon)]
+
+            y, x = (this_file['y'], this_file['x'])
+            map.plot(x, y, color=colors[4],label=str(heights[0]), alpha =a)
+
+        # add the means
+        y_mean, x_mean = (site_mean_10['y'], site_mean_10['x'])
+        map.plot(x_mean, y_mean, color=colors[1], alpha=1)
+        y_mean, x_mean = (site_mean_100['y'], site_mean_100['x'])
+        map.plot(x_mean, y_mean, color=colors[3], alpha=1)
+        y_mean, x_mean = (site_mean_200['y'], site_mean_200['x'])
+        map.plot(x_mean, y_mean, color=colors[5], alpha=1)
 
 
-    # SECOND PLOT!
-    xtr_subsplot = fig.add_subplot(gs[4:6, 0:4])
-    plt.plot(site_mean_10['timestep'], site_mean_10['z'] , color=colors[1], label=str(heights[0]))
-    plt.plot(site_mean_100['timestep'], site_mean_100['z'] , color=colors[3], label=str(heights[1]))
-    plt.plot(site_mean_200['timestep'], site_mean_200['z'] , color=colors[5], label=str(heights[2]))
-    plt.legend()
+        map.drawparallels(np.arange(-90, 90, 2), labels=[True, False, False, False], linewidth=0.5)
+        map.drawmeridians(np.arange(-180, 180, 2), labels=[1, 1, 0, 1], linewidth=0.5)
 
-    plt.savefig(f'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/hysplit/{codenames[i]}.png',
-                dpi=300, bbox_inches="tight")
 
-    plt.close()
+        # SECOND PLOT!
+        xtr_subsplot = fig.add_subplot(gs[4:6, 0:4])
+        plt.plot(site_mean_10['timestep'], site_mean_10['z'] , color=colors[1], label=str(heights[0]))
+        plt.plot(site_mean_100['timestep'], site_mean_100['z'] , color=colors[3], label=str(heights[1]))
+        plt.plot(site_mean_200['timestep'], site_mean_200['z'] , color=colors[5], label=str(heights[2]))
+        plt.legend()
+
+        plt.savefig(f'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/hysplit/output_plots/{codenames[i]}_{year[k]}_Dec_to_Feb.png',
+                    dpi=300, bbox_inches="tight")
+
+        plt.close()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 #
-
-
-
-
+#
+#
+#
+#
+#
+# # Read in the sheet that was made from the prvious script (hysplit_prepare_output.py)
+# means_dataframe_10 = pd.read_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/means_dataframe_10.xlsx')
+# means_dataframe_100 = pd.read_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/means_dataframe_100.xlsx')
+# means_dataframe_200 = pd.read_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/means_dataframe_200.xlsx')
+#
+# # Read in the sheet that was made from the prvious script (hysplit_prepare_output.py)
+# points = pd.read_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/points.xlsx')
+#
+# w = 1
+# a = 0.5
+# sizess = 10
+# # Loop through the codenames
+# for i in range(0, len(codenames)):
+#     # which region are we looking at?
+#     country_code = code[i]
+#     lat_i = lat[i]
+#     lon_i = lon[i]
+#
+#     # here are the POINTS that we'll be plotting
+#     site_points = points.loc[points['location'] == codenames[i]]
+#
+#     # isolate the different starting altitudes
+#     # only plot every 5th traj
+#     heights = np.unique(site_points['starting_height'])
+#     h1 = site_points.loc[site_points['starting_height'] == heights[0]][::w].reset_index(drop=True)
+#     h2 = site_points.loc[site_points['starting_height'] == heights[1]][::w].reset_index(drop=True)
+#     h3 = site_points.loc[site_points['starting_height'] == heights[2]][::w].reset_index(drop=True)
+#
+#     # here are the means that we'll be plotting:
+#     site_mean_10 = means_dataframe_10.loc[means_dataframe_10['Codename'] == codenames[i]].reset_index(drop=True)
+#     site_mean_100 = means_dataframe_100.loc[means_dataframe_100['Codename'] == codenames[i]].reset_index(drop=True)
+#     site_mean_200 = means_dataframe_200.loc[means_dataframe_200['Codename'] == codenames[i]].reset_index(drop=True)
+#
+#     fig = plt.figure(figsize=(6, 8))
+#     gs = gridspec.GridSpec(6, 4)
+#     gs.update(wspace=.25, hspace=0.35)
+#
+#     # SUBPLOT 1
+#     xtr_subsplot = fig.add_subplot(gs[0:4, 0:4])
+#     plt.title(f'{codenames[i]}')
+#     mapcorners = [lon_i-60, -70, lon_i+20, -10]
+#     # mapcorners = [-0, -70, 360, -10]
+#     maxlat = mapcorners[3]
+#     minlat = mapcorners[1]
+#     maxlon = mapcorners[2]
+#     minlon = mapcorners[0]
+#
+#     # build the map
+#     map = Basemap(llcrnrlat=minlat, urcrnrlat=maxlat, llcrnrlon=minlon, urcrnrlon=maxlon, resolution='l', lon_0=-180)
+#     map.drawmapboundary(fill_color='lightgrey')
+#     map.fillcontinents(color='darkgrey')
+#     map.drawcoastlines(linewidth=0.1)
+#
+#     # PLOT TRAJECTORIES: NEED TO LOOP INTO OLD FILE NAMES
+#     old_filenames = np.unique(h1['filename'])
+#     for z in range(0, len(old_filenames)):
+#         this_file = h1.loc[h1['filename'] == old_filenames[z]]
+#
+#         # plot only data within the map-range to remove crappy extra annoying lines on plot
+#         this_file = this_file.loc[(this_file['x'] > minlon) & (this_file['x'] < maxlon)]
+#
+#         y, x = (this_file['y'], this_file['x'])
+#         map.plot(x, y, color=colors[0],label=str(heights[0]), alpha =a)
+#
+#     old_filenames = np.unique(h2['filename'])
+#     for z in range(0, len(old_filenames)):
+#         this_file = h2.loc[h2['filename'] == old_filenames[z]]
+#
+#         # plot only data within the map-range to remove crappy extra annoying lines on plot
+#         this_file = this_file.loc[(this_file['x'] > minlon) & (this_file['x'] < maxlon)]
+#
+#         y, x = (this_file['y'], this_file['x'])
+#         map.plot(x, y, color=colors[2],label=str(heights[0]), alpha =a)
+#
+#     old_filenames = np.unique(h3['filename'])
+#     for z in range(0, len(old_filenames)):
+#         this_file = h3.loc[h3['filename'] == old_filenames[z]]
+#
+#         # plot only data within the map-range to remove crappy extra annoying lines on plot
+#         this_file = this_file.loc[(this_file['x'] > minlon) & (this_file['x'] < maxlon)]
+#
+#         y, x = (this_file['y'], this_file['x'])
+#         map.plot(x, y, color=colors[4],label=str(heights[0]), alpha =a)
+#
+#     # add the means
+#     y_mean, x_mean = (site_mean_10['y'], site_mean_10['x'])
+#     map.plot(x_mean, y_mean, color=colors[1], alpha=1)
+#     y_mean, x_mean = (site_mean_100['y'], site_mean_100['x'])
+#     map.plot(x_mean, y_mean, color=colors[3], alpha=1)
+#     y_mean, x_mean = (site_mean_200['y'], site_mean_200['x'])
+#     map.plot(x_mean, y_mean, color=colors[5], alpha=1)
+#
+#     map.drawparallels(np.arange(-90, 90, 20), labels=[True, False, False, False], linewidth=0.5)
+#     map.drawmeridians(np.arange(-180, 180, 20), labels=[1, 1, 0, 1], linewidth=0.5)
+#
+#     # THE INNER PLOT!
+#     # inset_axes = inset_axes(xtr_subsplot,
+#     #                         width="45%", # width = 30% of parent_bbox
+#     #                         height=1, # height : 1 inch
+#     #                         loc=1)
+#     ax_ins = inset_axes(xtr_subsplot, width="45%",  height="45%", loc=2)
+#     x = 2
+#     mapcorners = [lon_i-x, lat_i-x, lon_i+x, lat_i+x]
+#     maxlat = mapcorners[3]
+#     minlat = mapcorners[1]
+#     maxlon = mapcorners[2]
+#     minlon = mapcorners[0]
+#
+#     # build the map
+#     map = Basemap(llcrnrlat=minlat, urcrnrlat=maxlat, llcrnrlon=minlon, urcrnrlon=maxlon, resolution='l', lon_0=-180)
+#     map.drawmapboundary(fill_color='white')
+#     map.fillcontinents(color='darkgrey')
+#     map.drawcoastlines(linewidth=0.1)
+#
+#     # PLOT TRAJECTORIES: NEED TO LOOP INTO OLD FILE NAMES
+#     old_filenames = np.unique(h1['filename'])
+#     for z in range(0, len(old_filenames)):
+#         this_file = h1.loc[h1['filename'] == old_filenames[z]]
+#
+#         # plot only data within the map-range to remove crappy extra annoying lines on plot
+#         this_file = this_file.loc[(this_file['x'] > minlon) & (this_file['x'] < maxlon)]
+#
+#         y, x = (this_file['y'], this_file['x'])
+#         map.plot(x, y, color=colors[0],label=str(heights[0]), alpha =a)
+#
+#     old_filenames = np.unique(h2['filename'])
+#     for z in range(0, len(old_filenames)):
+#         this_file = h2.loc[h2['filename'] == old_filenames[z]]
+#
+#         # plot only data within the map-range to remove crappy extra annoying lines on plot
+#         this_file = this_file.loc[(this_file['x'] > minlon) & (this_file['x'] < maxlon)]
+#
+#         y, x = (this_file['y'], this_file['x'])
+#         map.plot(x, y, color=colors[2],label=str(heights[0]), alpha =a)
+#
+#     old_filenames = np.unique(h3['filename'])
+#     for z in range(0, len(old_filenames)):
+#         this_file = h3.loc[h3['filename'] == old_filenames[z]]
+#
+#         # plot only data within the map-range to remove crappy extra annoying lines on plot
+#         this_file = this_file.loc[(this_file['x'] > minlon) & (this_file['x'] < maxlon)]
+#
+#         y, x = (this_file['y'], this_file['x'])
+#         map.plot(x, y, color=colors[4],label=str(heights[0]), alpha =a)
+#
+#     # add the means
+#     y_mean, x_mean = (site_mean_10['y'], site_mean_10['x'])
+#     map.plot(x_mean, y_mean, color=colors[1], alpha=1)
+#     y_mean, x_mean = (site_mean_100['y'], site_mean_100['x'])
+#     map.plot(x_mean, y_mean, color=colors[3], alpha=1)
+#     y_mean, x_mean = (site_mean_200['y'], site_mean_200['x'])
+#     map.plot(x_mean, y_mean, color=colors[5], alpha=1)
+#
+#
+#     map.drawparallels(np.arange(-90, 90, 2), labels=[True, False, False, False], linewidth=0.5)
+#     map.drawmeridians(np.arange(-180, 180, 2), labels=[1, 1, 0, 1], linewidth=0.5)
+#
+#
+#     # SECOND PLOT!
+#     xtr_subsplot = fig.add_subplot(gs[4:6, 0:4])
+#     plt.plot(site_mean_10['timestep'], site_mean_10['z'] , color=colors[1], label=str(heights[0]))
+#     plt.plot(site_mean_100['timestep'], site_mean_100['z'] , color=colors[3], label=str(heights[1]))
+#     plt.plot(site_mean_200['timestep'], site_mean_200['z'] , color=colors[5], label=str(heights[2]))
+#     plt.legend()
+#
+#     plt.savefig(f'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/hysplit/{codenames[i]}.png',
+#                 dpi=300, bbox_inches="tight")
+#
+#     plt.close()
+# #
+#
+#
+#
+#
 
 
 

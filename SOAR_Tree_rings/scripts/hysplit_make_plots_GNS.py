@@ -43,23 +43,27 @@ codenames = easy_access['Codename']
 code = easy_access['Code']
 lat = easy_access['NewLat']
 lon = easy_access['ChileFixLon']
-#
+
+landfrac = pd.read_excel(r'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/hysplit/output_data//landfracresults.xlsx')
+
 # # Read in the sheet that was made from the prvious script (hysplit_prepare_output.py)
 year = ['2005_2006', '2010_2011','2015_2016','2020_2021']
 w = 1
 a = 0.5
 sizess = 10
+timemin = -5*24
 # Loop through the codenames
 for k in range(0, len(year)):
     points = pd.read_excel(f'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/hysplit/output_data/points_{year[k]}.xlsx')
-    points = points.loc[points['timestep'] > -24]
+    points = points.loc[points['timestep'] > timemin]
 
+    # grab the means
     means_dataframe_10 = pd.read_excel(f'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/hysplit/output_data/means_dataframe_10_{year[k]}.xlsx')
     means_dataframe_100 = pd.read_excel(f'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/hysplit/output_data/means_dataframe_100_{year[k]}.xlsx')
     means_dataframe_200 = pd.read_excel(f'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/hysplit/output_data/means_dataframe_200_{year[k]}.xlsx')
-    means_dataframe_10 = means_dataframe_10.loc[means_dataframe_10['timestep'] > -72]
-    means_dataframe_100 = means_dataframe_100.loc[means_dataframe_100['timestep'] > -72]
-    means_dataframe_200 = means_dataframe_200.loc[means_dataframe_200['timestep'] > -72]
+    means_dataframe_10 = means_dataframe_10.loc[means_dataframe_10['timestep'] > timemin]
+    means_dataframe_100 = means_dataframe_100.loc[means_dataframe_100['timestep'] > timemin]
+    means_dataframe_200 = means_dataframe_200.loc[means_dataframe_200['timestep'] > timemin]
 
 
     for i in range(0, len(codenames)):
@@ -71,6 +75,7 @@ for k in range(0, len(year)):
 
         # here are the POINTS that we'll be plotting
         site_points = points.loc[points['location'] == codenames[i]]
+        landfrac_site = landfrac.loc[landfrac['Codenames'] == codenames[i]]
 
         # isolate the different starting altitudes
         # only plot every 5th traj
@@ -222,7 +227,7 @@ for k in range(0, len(year)):
         # map.drawmeridians(np.arange(-180, 180, 2), labels=[1, 1, 0, 1], linewidth=0.5)
 
         # SECOND PLOT!
-        xtr_subsplot = fig.add_subplot(gs[4:6, 0:4])
+        xtr_subsplot = fig.add_subplot(gs[4:6, 2:4])
         plt.plot(site_mean_10['timestep'], site_mean_10['z'] , color=colors[1], label=str(heights[0]))
         plt.plot(site_mean_100['timestep'], site_mean_100['z'] , color=colors[3], label=str(heights[1]))
         plt.plot(site_mean_200['timestep'], site_mean_200['z'] , color=colors[5], label=str(heights[2]))
@@ -231,24 +236,9 @@ for k in range(0, len(year)):
 
         # Third plot!
         # Percentage of time OVER LAND?
-        # xtr_subsplot = fig.add_subplot(gs[4:6, 0:2])
-        # plt.title('Percentage of time over land')
-        #
-        # # for each site, I want to calculate the amount of time the air spent over land, at each time interval.
-        # # this can be done using an extra column created in a seperate file, currently called "test.py" later
-        # # to be renamed.
-        # # lets focus only on doing this for altitude of 100 for now (h2)
-        # times = np.unique(h2['timestep'])
-        # for p in range(0, len(h2['timestep'])):
-        #
-        #     # find all values for each specific timestep
-        #     thistime = h2.loc[h2['timestep'] == times[p]]
-        #     av = np.average(thistime['island'])
-        #
-        #     plt.scatter(times[p], av)
-
-
-
+        xtr_subsplot = fig.add_subplot(gs[4:6, 0:2])
+        plt.title('Percentage of time over land')
+        plt.bar(landfrac_site['timestep'], landfrac_site['LandFrac'])
 
         plt.savefig(f'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/hysplit/output_plots/OneDay_{codenames[i]}_{year[k]}_Dec_to_Feb.png',
                     dpi=300, bbox_inches="tight")

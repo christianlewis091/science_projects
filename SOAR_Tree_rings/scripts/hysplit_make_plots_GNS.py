@@ -46,43 +46,28 @@ lon = easy_access['ChileFixLon']
 #
 # # Read in the sheet that was made from the prvious script (hysplit_prepare_output.py)
 year = ['2005_2006', '2010_2011','2015_2016','2020_2021']
-# means_dataframe_10_2005 = pd.read_excel(f'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/means_dataframe_10_{year[0]}.xlsx')
-# means_dataframe_100_2005 = pd.read_excel(f'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/means_dataframe_100_{year[0]}.xlsx')
-# means_dataframe_200_2005 = pd.read_excel(f'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/means_dataframe_200_{year[0]}.xlsx')
-# points_2005 = pd.read_excel(f'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/points_{year[0]}.xlsx')
-#
-# means_dataframe_10_2010 = pd.read_excel(f'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/means_dataframe_10_{year[1]}.xlsx')
-# means_dataframe_100_2010 = pd.read_excel(f'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/means_dataframe_100_{year[1]}.xlsx')
-# means_dataframe_200_2010 = pd.read_excel(f'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/means_dataframe_200_{year[1]}.xlsx')
-# points_2010 = pd.read_excel(f'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/points_{year[1]}.xlsx')
-#
-# means_dataframe_10_2015 = pd.read_excel(f'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/means_dataframe_10_{year[2]}.xlsx')
-# means_dataframe_100_2015 = pd.read_excel(f'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/means_dataframe_100_{year[2]}.xlsx')
-# means_dataframe_200_2015 = pd.read_excel(f'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/means_dataframe_200_{year[2]}.xlsx')
-# points_2015 = pd.read_excel(f'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/points_{year[2]}.xlsx')
-#
-# means_dataframe_10_2020 = pd.read_excel(f'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/means_dataframe_10_{year[3]}.xlsx')
-# means_dataframe_100_2020 = pd.read_excel(f'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/means_dataframe_100_{year[3]}.xlsx')
-# means_dataframe_200_2020 = pd.read_excel(f'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/means_dataframe_200_{year[3]}.xlsx')
-# points_2020 = pd.read_excel(f'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/points_{year[3]}.xlsx')
-
-
-u = ['2005','2010','2015','2020']
 w = 1
 a = 0.5
 sizess = 10
 # Loop through the codenames
 for k in range(0, len(year)):
     points = pd.read_excel(f'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/hysplit/output_data/points_{year[k]}.xlsx')
+    points = points.loc[points['timestep'] > -24]
+
     means_dataframe_10 = pd.read_excel(f'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/hysplit/output_data/means_dataframe_10_{year[k]}.xlsx')
     means_dataframe_100 = pd.read_excel(f'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/hysplit/output_data/means_dataframe_100_{year[k]}.xlsx')
     means_dataframe_200 = pd.read_excel(f'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/hysplit/output_data/means_dataframe_200_{year[k]}.xlsx')
+    means_dataframe_10 = means_dataframe_10.loc[means_dataframe_10['timestep'] > -72]
+    means_dataframe_100 = means_dataframe_100.loc[means_dataframe_100['timestep'] > -72]
+    means_dataframe_200 = means_dataframe_200.loc[means_dataframe_200['timestep'] > -72]
+
 
     for i in range(0, len(codenames)):
         # which region are we looking at?
         country_code = code[i]
         lat_i = lat[i]
         lon_i = lon[i]
+
 
         # here are the POINTS that we'll be plotting
         site_points = points.loc[points['location'] == codenames[i]]
@@ -100,22 +85,33 @@ for k in range(0, len(year)):
         site_mean_200 = means_dataframe_200.loc[means_dataframe_200['Codename'] == codenames[i]].reset_index(drop=True)
 
 
-        fig = plt.figure(figsize=(6, 8))
+        fig = plt.figure(figsize=(6, 5))
         gs = gridspec.GridSpec(6, 4)
-        gs.update(wspace=.25, hspace=0.35)
+        gs.update(wspace=.25, hspace=0.1)
 
         # SUBPLOT 1
         xtr_subsplot = fig.add_subplot(gs[0:4, 0:4])
         plt.title(f'{codenames[i]}_{year[k]}')
-        mapcorners = [lon_i-60, -70, lon_i+20, -10]
-        # mapcorners = [-0, -70, 360, -10]
-        maxlat = mapcorners[3]
-        minlat = mapcorners[1]
-        maxlon = mapcorners[2]
-        minlon = mapcorners[0]
+
+        c = 60
+        if country_code == 'NZ':
+            mapcorners = [170-150, -90, 170+150, 30]
+            maxlat = mapcorners[3]
+            minlat = mapcorners[1]
+            maxlon = mapcorners[2]
+            minlon = mapcorners[0]
+        else:
+            mapcorners = [-70-150, -90, -70+150, 30]
+            maxlat = mapcorners[3]
+            minlat = mapcorners[1]
+            maxlon = mapcorners[2]
+            minlon = mapcorners[0]
+
 
         # build the map
-        map = Basemap(llcrnrlat=minlat, urcrnrlat=maxlat, llcrnrlon=minlon, urcrnrlon=maxlon, resolution='l', lon_0=-180)
+        map = Basemap(llcrnrlat=minlat, urcrnrlat=maxlat, llcrnrlon=minlon, urcrnrlon=maxlon, resolution='l')
+        # map = Basemap(projection='ortho',lat_0=-90,lon_0=170,resolution='l')
+        # map = Basemap(projection='spstere',boundinglat=-10,lon_0=90,resolution='l')
         map.drawmapboundary(fill_color='lightgrey')
         map.fillcontinents(color='darkgrey')
         map.drawcoastlines(linewidth=0.1)
@@ -129,7 +125,7 @@ for k in range(0, len(year)):
             this_file = this_file.loc[(this_file['x'] > minlon) & (this_file['x'] < maxlon)]
 
             y, x = (this_file['y'], this_file['x'])
-            map.plot(x, y, color=colors[0],label=str(heights[0]), alpha =a)
+            map.plot(x, y, color=colors[0],label=str(heights[0]), alpha =a, linewidth=.1)
 
         old_filenames = np.unique(h2['filename'])
         for z in range(0, len(old_filenames)):
@@ -139,7 +135,7 @@ for k in range(0, len(year)):
             this_file = this_file.loc[(this_file['x'] > minlon) & (this_file['x'] < maxlon)]
 
             y, x = (this_file['y'], this_file['x'])
-            map.plot(x, y, color=colors[2],label=str(heights[0]), alpha =a)
+            map.plot(x, y, color=colors[2],label=str(heights[1]), alpha =a, linewidth=.1)
 
         old_filenames = np.unique(h3['filename'])
         for z in range(0, len(old_filenames)):
@@ -149,7 +145,7 @@ for k in range(0, len(year)):
             this_file = this_file.loc[(this_file['x'] > minlon) & (this_file['x'] < maxlon)]
 
             y, x = (this_file['y'], this_file['x'])
-            map.plot(x, y, color=colors[4],label=str(heights[0]), alpha =a)
+            map.plot(x, y, color=colors[4],label=str(heights[2]), alpha =a, linewidth=.1)
 
         # add the means
         y_mean, x_mean = (site_mean_10['y'], site_mean_10['x'])
@@ -160,15 +156,16 @@ for k in range(0, len(year)):
         map.plot(x_mean, y_mean, color=colors[5], alpha=1)
 
         map.drawparallels(np.arange(-90, 90, 20), labels=[True, False, False, False], linewidth=0.5)
-        map.drawmeridians(np.arange(-180, 180, 20), labels=[1, 1, 0, 1], linewidth=0.5)
+        map.drawmeridians(np.arange(-180, 180, 40), labels=[1, 1, 0, 1], linewidth=0.5)
 
         # THE INNER PLOT!
         # inset_axes = inset_axes(xtr_subsplot,
         #                         width="45%", # width = 30% of parent_bbox
         #                         height=1, # height : 1 inch
         #                         loc=1)
-        ax_ins = inset_axes(xtr_subsplot, width="45%",  height="45%", loc=2)
-        x = 2
+        ax_ins = inset_axes(xtr_subsplot, width="45%",  height="45%", loc=1)
+        # xtr_subsplot = fig.add_subplot(gs[0:2, 0:4])
+        x = 4
         mapcorners = [lon_i-x, lat_i-x, lon_i+x, lat_i+x]
         maxlat = mapcorners[3]
         minlat = mapcorners[1]
@@ -190,7 +187,7 @@ for k in range(0, len(year)):
             this_file = this_file.loc[(this_file['x'] > minlon) & (this_file['x'] < maxlon)]
 
             y, x = (this_file['y'], this_file['x'])
-            map.plot(x, y, color=colors[0],label=str(heights[0]), alpha =a)
+            map.plot(x, y, color=colors[0],label=str(heights[0]), alpha =a, linewidth=.1)
 
         old_filenames = np.unique(h2['filename'])
         for z in range(0, len(old_filenames)):
@@ -200,7 +197,7 @@ for k in range(0, len(year)):
             this_file = this_file.loc[(this_file['x'] > minlon) & (this_file['x'] < maxlon)]
 
             y, x = (this_file['y'], this_file['x'])
-            map.plot(x, y, color=colors[2],label=str(heights[0]), alpha =a)
+            map.plot(x, y, color=colors[2],label=str(heights[0]), alpha =a, linewidth=.1)
 
         old_filenames = np.unique(h3['filename'])
         for z in range(0, len(old_filenames)):
@@ -210,7 +207,7 @@ for k in range(0, len(year)):
             this_file = this_file.loc[(this_file['x'] > minlon) & (this_file['x'] < maxlon)]
 
             y, x = (this_file['y'], this_file['x'])
-            map.plot(x, y, color=colors[4],label=str(heights[0]), alpha =a)
+            map.plot(x, y, color=colors[4],label=str(heights[0]), alpha =a, linewidth=.1)
 
         # add the means
         y_mean, x_mean = (site_mean_10['y'], site_mean_10['x'])
@@ -221,20 +218,40 @@ for k in range(0, len(year)):
         map.plot(x_mean, y_mean, color=colors[5], alpha=1)
 
 
-        map.drawparallels(np.arange(-90, 90, 2), labels=[True, False, False, False], linewidth=0.5)
-        map.drawmeridians(np.arange(-180, 180, 2), labels=[1, 1, 0, 1], linewidth=0.5)
-
+        # map.drawparallels(np.arange(-90, 90, 2), labels=[True, False, False, False], linewidth=0.5)
+        # map.drawmeridians(np.arange(-180, 180, 2), labels=[1, 1, 0, 1], linewidth=0.5)
 
         # SECOND PLOT!
         xtr_subsplot = fig.add_subplot(gs[4:6, 0:4])
         plt.plot(site_mean_10['timestep'], site_mean_10['z'] , color=colors[1], label=str(heights[0]))
         plt.plot(site_mean_100['timestep'], site_mean_100['z'] , color=colors[3], label=str(heights[1]))
         plt.plot(site_mean_200['timestep'], site_mean_200['z'] , color=colors[5], label=str(heights[2]))
+        plt.ylim(0, 2000)
         plt.legend()
 
-        plt.savefig(f'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/hysplit/output_plots/{codenames[i]}_{year[k]}_Dec_to_Feb.png',
-                    dpi=300, bbox_inches="tight")
+        # Third plot!
+        # Percentage of time OVER LAND?
+        # xtr_subsplot = fig.add_subplot(gs[4:6, 0:2])
+        # plt.title('Percentage of time over land')
+        #
+        # # for each site, I want to calculate the amount of time the air spent over land, at each time interval.
+        # # this can be done using an extra column created in a seperate file, currently called "test.py" later
+        # # to be renamed.
+        # # lets focus only on doing this for altitude of 100 for now (h2)
+        # times = np.unique(h2['timestep'])
+        # for p in range(0, len(h2['timestep'])):
+        #
+        #     # find all values for each specific timestep
+        #     thistime = h2.loc[h2['timestep'] == times[p]]
+        #     av = np.average(thistime['island'])
+        #
+        #     plt.scatter(times[p], av)
 
+
+
+
+        plt.savefig(f'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/hysplit/output_plots/OneDay_{codenames[i]}_{year[k]}_Dec_to_Feb.png',
+                    dpi=300, bbox_inches="tight")
         plt.close()
 
 

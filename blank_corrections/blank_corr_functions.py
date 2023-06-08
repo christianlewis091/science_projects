@@ -66,12 +66,10 @@ def blank_corr_050223(input_name, date_bound_input, num_list):
         drop=True)  # grab the file that has been exported from RLIMS, thanks to Valerie's new button.
 
     # READ IN HISTORICAL DATA FILE FROM RLIMS
-    stds_hist = pd.read_excel(r'I:\C14Data\C14_blank_corrections_dev\TW{}standards.xlsx'.format(input_name)).dropna(
-        subset='Date Run').reset_index(drop=True)  # Read in the standards associated with it.
+    stds_hist = pd.read_excel(r'I:\C14Data\C14_blank_corrections_dev\TW{}standards.xlsx'.format(input_name)).dropna(subset='Date Run').reset_index(drop=True)  # Read in the standards associated with it.
     stds_hist = stds_hist.dropna(subset='Ratio to standard').reset_index(drop=True)
     # READ IN R NUMBER REFERENCE
-    refs = pd.read_excel(r'I:\C14Data\C14_blank_corrections_dev\Pretreatment_reference2.xlsx',
-                         skiprows=6)  # Grab a small file I made that associates samples types to R numbers for correction
+    refs = pd.read_excel(r'I:\C14Data\C14_blank_corrections_dev\Pretreatment_reference2.xlsx', skiprows=6)  # Grab a small file I made that associates samples types to R numbers for correction
 
     # READ IN THIS WHEEL'S PRETREATMENTS
     pretreats = pd.read_excel(r'I:\C14Data\C14_blank_corrections_dev\TW{}_PreTreatments.xlsx'.format(
@@ -87,8 +85,7 @@ def blank_corr_050223(input_name, date_bound_input, num_list):
     """
     # CONVERT STANDARDS DATE FORMAT
     x = stds_hist['Date Run']
-    stds_hist['Date Run'] = long_date_to_decimal_date(
-        x)  # This line converts the dates to "Decimal Date" so that I can find only dates that are 0.5 years max before most recent date
+    stds_hist['Date Run'] = long_date_to_decimal_date(x)  # This line converts the dates to "Decimal Date" so that I can find only dates that are 0.5 years max before most recent date
 
     # SET DATE BOUNDARIES
     date_bound = max(stds_hist['Date Run']) - float(date_bound_input)
@@ -174,7 +171,27 @@ def blank_corr_050223(input_name, date_bound_input, num_list):
     df_condensed.to_csv(r'I:/C14Data/C14_blank_corrections_dev/RLIMS_import/TW{}_reimport.csv'.format(input_name))
 
 
-# blank_corr_050223(3470,0.5,'')
+blank_corr_050223(3470,0.5,'')
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 """

@@ -31,7 +31,7 @@ for k in range(0, len(year)):
     # downsampling in altitudes (only taking 100m)
     points = points.loc[points['starting_height'] == 100]
 
-    # downsampling in general: take every 4th point
+    # downsampling in general: take every 4th point (took ~5 hours to run with these parameters
     points = points[::4].reset_index(drop=True)
 
     # print(len(points))

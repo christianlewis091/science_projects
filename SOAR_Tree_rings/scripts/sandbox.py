@@ -650,6 +650,49 @@ plt.close()
 
 
 
+"""
+Plotting the main figures against the LandFrac
+"""
+# IMPORT LANDFRAC DATA FROM HYSPLIT WORK
+landfrac = pd.read_excel(r'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/hysplit/output_data//landfracresults_edited.xlsx').reset_index(drop=True)
+times = [0, -4, -8, -12, -16, -20]
+timelabel = ['zero','four','eight','twelve','sixteen','twenty']
+
+
+for m in range(0, len(times)):
+    landfrac_slice = landfrac.loc[landfrac['timestep'] == int(times[m])]
+
+
+    fig = plt.figure(figsize=(8, 8))
+    gs = gridspec.GridSpec(4, 4)
+    gs.update(wspace=1, hspace=0.35)
+
+    xtr_subsplot = fig.add_subplot(gs[0:2, 0:4])
+    plt.title('Chile')
+    chile1 = results_array.loc[results_array['Region'] == 'Chile']
+    for i in range(0, len(chile1)):
+        slice = chile1.loc[chile1['Site'] == str(locs1[i])].reset_index(drop=True)  # grab the first data to plot, based on location
+        landfrac_slice2 = landfrac_slice.loc[landfrac_slice['location'] == str(locs1[i])]
+        plt.errorbar(landfrac_slice2['LandFrac'], slice['Mean'], slice['Std'], markersize = size1, elinewidth=1, capsize=2, alpha=1, label=f"{str(slice['Site'])}", ls='none', fmt=markers[i], color=colors[i], ecolor=colors[i], markeredgecolor='black')
+
+    plt.xlim(0, 1)
+    plt.xticks([], [])
+    plt.ylabel('Mean \u0394\u0394$^1$$^4$CO$_2$ (\u2030)')
+
+    xtr_subsplot = fig.add_subplot(gs[2:4, 0:4])
+    plt.title('New Zealand')
+    chile1 = results_array.loc[results_array['Region'] == 'NZ']
+    for i in range(0, len(chile1)):
+        slice = chile1.loc[chile1['Site'] == str(locs2[i])].reset_index(drop=True)  # grab the first data to plot, based on location
+        landfrac_slice3 = landfrac_slice.loc[landfrac_slice['location'] == str(locs2[i])]
+        label = slice['Site']
+        plt.errorbar(landfrac_slice3['LandFrac'], slice['Mean'], slice['Std'], markersize = size1, elinewidth=1, capsize=2, alpha=1, label=label, ls='none', fmt=markers[i], color=colors[i], ecolor=colors[i], markeredgecolor='black')
+    plt.xlabel(f'Fraction of trajectory over land, {timelabel[m]} hours')
+    plt.xlim(0, 1)
+    plt.ylabel('Mean \u0394\u0394$^1$$^4$CO$_2$ (\u2030)')
+    plt.savefig(f'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/MainFig2_wLandFRac_{timelabel[m]}.png',
+                dpi=300, bbox_inches="tight")
+    plt.close()
 
 
 
@@ -657,23 +700,6 @@ plt.close()
 
 
 
-
-
-
-
-
-
-
-
-
-
-# neu['season_category'] = growing_season(neu)
-#
-# means = neu.groupby('season_category').mean().reset_index()
-# means = means.loc[means['season_category'] != 'non-growing']
-# means['Site'] = 'NMY'
-# means.to_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/NEU_offset.xlsx')
-#
 
 
 

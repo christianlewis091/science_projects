@@ -29,6 +29,7 @@ import seaborn as sns
 from mpl_toolkits.basemap import Basemap
 import matplotlib.gridspec as gridspec
 from mpl_toolkits.axes_grid.inset_locator import inset_axes
+plt.rcParams.update({'font.size': 10})
 
 
 colors = sns.color_palette("Paired")
@@ -51,7 +52,8 @@ year = ['2005_2006', '2010_2011','2015_2016','2020_2021']
 w = 1
 a = 0.5
 sizess = 10
-timemin = -5*24
+# Should match the time that is in the is_land assignments or won't make sense. Currently that goes back to timestep -20.
+timemin = -20
 # Loop through the codenames
 for k in range(0, len(year)):
     points = pd.read_excel(f'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/hysplit/output_data/points_{year[k]}.xlsx')
@@ -90,23 +92,24 @@ for k in range(0, len(year)):
         site_mean_200 = means_dataframe_200.loc[means_dataframe_200['Codename'] == codenames[i]].reset_index(drop=True)
 
 
-        fig = plt.figure(figsize=(6, 5))
-        gs = gridspec.GridSpec(6, 4)
-        gs.update(wspace=.25, hspace=0.1)
+        fig = plt.figure(figsize=(4, 8))
+        gs = gridspec.GridSpec(8, 4)
+        gs.update(wspace=.25, hspace=0.6)
 
         # SUBPLOT 1
         xtr_subsplot = fig.add_subplot(gs[0:4, 0:4])
-        plt.title(f'{codenames[i]}_{year[k]}')
+        plt.title(f'{codenames[i]}, {year[k]}, 20 hours')
 
         c = 60
+        spread = 40
         if country_code == 'NZ':
-            mapcorners = [170-150, -90, 170+150, 30]
+            mapcorners = [170-spread, -70, 170+spread, 0]
             maxlat = mapcorners[3]
             minlat = mapcorners[1]
             maxlon = mapcorners[2]
             minlon = mapcorners[0]
         else:
-            mapcorners = [-70-150, -90, -70+150, 30]
+            mapcorners = [-70-spread, -70, -70+spread, 0]
             maxlat = mapcorners[3]
             minlat = mapcorners[1]
             maxlon = mapcorners[2]
@@ -122,15 +125,15 @@ for k in range(0, len(year)):
         map.drawcoastlines(linewidth=0.1)
 
         # PLOT TRAJECTORIES: NEED TO LOOP INTO OLD FILE NAMES
-        old_filenames = np.unique(h1['filename'])
-        for z in range(0, len(old_filenames)):
-            this_file = h1.loc[h1['filename'] == old_filenames[z]]
-
-            # plot only data within the map-range to remove crappy extra annoying lines on plot
-            this_file = this_file.loc[(this_file['x'] > minlon) & (this_file['x'] < maxlon)]
-
-            y, x = (this_file['y'], this_file['x'])
-            map.plot(x, y, color=colors[0],label=str(heights[0]), alpha =a, linewidth=.1)
+        # old_filenames = np.unique(h1['filename'])
+        # for z in range(0, len(old_filenames)):
+        #     this_file = h1.loc[h1['filename'] == old_filenames[z]]
+        #
+        #     # plot only data within the map-range to remove crappy extra annoying lines on plot
+        #     this_file = this_file.loc[(this_file['x'] > minlon) & (this_file['x'] < maxlon)]
+        #
+        #     y, x = (this_file['y'], this_file['x'])
+        #     map.plot(x, y, color=colors[0],label=str(heights[0]), alpha =a, linewidth=1)
 
         old_filenames = np.unique(h2['filename'])
         for z in range(0, len(old_filenames)):
@@ -140,25 +143,25 @@ for k in range(0, len(year)):
             this_file = this_file.loc[(this_file['x'] > minlon) & (this_file['x'] < maxlon)]
 
             y, x = (this_file['y'], this_file['x'])
-            map.plot(x, y, color=colors[2],label=str(heights[1]), alpha =a, linewidth=.1)
-
-        old_filenames = np.unique(h3['filename'])
-        for z in range(0, len(old_filenames)):
-            this_file = h3.loc[h3['filename'] == old_filenames[z]]
-
-            # plot only data within the map-range to remove crappy extra annoying lines on plot
-            this_file = this_file.loc[(this_file['x'] > minlon) & (this_file['x'] < maxlon)]
-
-            y, x = (this_file['y'], this_file['x'])
-            map.plot(x, y, color=colors[4],label=str(heights[2]), alpha =a, linewidth=.1)
+            map.plot(x, y, color=colors[1],label=str(heights[1]), alpha =a, linewidth=1)
+        #
+        # old_filenames = np.unique(h3['filename'])
+        # for z in range(0, len(old_filenames)):
+        #     this_file = h3.loc[h3['filename'] == old_filenames[z]]
+        #
+        #     # plot only data within the map-range to remove crappy extra annoying lines on plot
+        #     this_file = this_file.loc[(this_file['x'] > minlon) & (this_file['x'] < maxlon)]
+        #
+        #     y, x = (this_file['y'], this_file['x'])
+        #     map.plot(x, y, color=colors[4],label=str(heights[2]), alpha =a, linewidth=1)
 
         # add the means
-        y_mean, x_mean = (site_mean_10['y'], site_mean_10['x'])
-        map.plot(x_mean, y_mean, color=colors[1], alpha=1)
+        # y_mean, x_mean = (site_mean_10['y'], site_mean_10['x'])
+        # map.plot(x_mean, y_mean, color=colors[1], alpha=1)
         y_mean, x_mean = (site_mean_100['y'], site_mean_100['x'])
-        map.plot(x_mean, y_mean, color=colors[3], alpha=1)
-        y_mean, x_mean = (site_mean_200['y'], site_mean_200['x'])
-        map.plot(x_mean, y_mean, color=colors[5], alpha=1)
+        map.plot(x_mean, y_mean, color='darkred', alpha=1)
+        # y_mean, x_mean = (site_mean_200['y'], site_mean_200['x'])
+        # map.plot(x_mean, y_mean, color=colors[5], alpha=1)
 
         map.drawparallels(np.arange(-90, 90, 20), labels=[True, False, False, False], linewidth=0.5)
         map.drawmeridians(np.arange(-180, 180, 40), labels=[1, 1, 0, 1], linewidth=0.5)
@@ -184,15 +187,15 @@ for k in range(0, len(year)):
         map.drawcoastlines(linewidth=0.1)
 
         # PLOT TRAJECTORIES: NEED TO LOOP INTO OLD FILE NAMES
-        old_filenames = np.unique(h1['filename'])
-        for z in range(0, len(old_filenames)):
-            this_file = h1.loc[h1['filename'] == old_filenames[z]]
-
-            # plot only data within the map-range to remove crappy extra annoying lines on plot
-            this_file = this_file.loc[(this_file['x'] > minlon) & (this_file['x'] < maxlon)]
-
-            y, x = (this_file['y'], this_file['x'])
-            map.plot(x, y, color=colors[0],label=str(heights[0]), alpha =a, linewidth=.1)
+        # old_filenames = np.unique(h1['filename'])
+        # for z in range(0, len(old_filenames)):
+        #     this_file = h1.loc[h1['filename'] == old_filenames[z]]
+        #
+        #     # plot only data within the map-range to remove crappy extra annoying lines on plot
+        #     this_file = this_file.loc[(this_file['x'] > minlon) & (this_file['x'] < maxlon)]
+        #
+        #     y, x = (this_file['y'], this_file['x'])
+        #     map.plot(x, y, color=colors[0],label=str(heights[0]), alpha =a, linewidth=.1)
 
         old_filenames = np.unique(h2['filename'])
         for z in range(0, len(old_filenames)):
@@ -202,45 +205,53 @@ for k in range(0, len(year)):
             this_file = this_file.loc[(this_file['x'] > minlon) & (this_file['x'] < maxlon)]
 
             y, x = (this_file['y'], this_file['x'])
-            map.plot(x, y, color=colors[2],label=str(heights[0]), alpha =a, linewidth=.1)
+            map.plot(x, y, color=colors[1],label=str(heights[0]), alpha =a, linewidth=1)
 
-        old_filenames = np.unique(h3['filename'])
-        for z in range(0, len(old_filenames)):
-            this_file = h3.loc[h3['filename'] == old_filenames[z]]
-
-            # plot only data within the map-range to remove crappy extra annoying lines on plot
-            this_file = this_file.loc[(this_file['x'] > minlon) & (this_file['x'] < maxlon)]
-
-            y, x = (this_file['y'], this_file['x'])
-            map.plot(x, y, color=colors[4],label=str(heights[0]), alpha =a, linewidth=.1)
+        # old_filenames = np.unique(h3['filename'])
+        # for z in range(0, len(old_filenames)):
+        #     this_file = h3.loc[h3['filename'] == old_filenames[z]]
+        #
+        #     # plot only data within the map-range to remove crappy extra annoying lines on plot
+        #     this_file = this_file.loc[(this_file['x'] > minlon) & (this_file['x'] < maxlon)]
+        #
+        #     y, x = (this_file['y'], this_file['x'])
+        #     map.plot(x, y, color=colors[4],label=str(heights[0]), alpha =a, linewidth=.1)
 
         # add the means
-        y_mean, x_mean = (site_mean_10['y'], site_mean_10['x'])
-        map.plot(x_mean, y_mean, color=colors[1], alpha=1)
+        # y_mean, x_mean = (site_mean_10['y'], site_mean_10['x'])
+        # map.plot(x_mean, y_mean, color=colors[1], alpha=1)
         y_mean, x_mean = (site_mean_100['y'], site_mean_100['x'])
-        map.plot(x_mean, y_mean, color=colors[3], alpha=1)
-        y_mean, x_mean = (site_mean_200['y'], site_mean_200['x'])
-        map.plot(x_mean, y_mean, color=colors[5], alpha=1)
+        map.plot(x_mean, y_mean, color='darkred', alpha=1)
+        # y_mean, x_mean = (site_mean_200['y'], site_mean_200['x'])
+        # map.plot(x_mean, y_mean, color=colors[5], alpha=1)
 
 
         # map.drawparallels(np.arange(-90, 90, 2), labels=[True, False, False, False], linewidth=0.5)
         # map.drawmeridians(np.arange(-180, 180, 2), labels=[1, 1, 0, 1], linewidth=0.5)
 
         # SECOND PLOT!
-        xtr_subsplot = fig.add_subplot(gs[4:6, 2:4])
-        plt.plot(site_mean_10['timestep'], site_mean_10['z'] , color=colors[1], label=str(heights[0]))
-        plt.plot(site_mean_100['timestep'], site_mean_100['z'] , color=colors[3], label=str(heights[1]))
-        plt.plot(site_mean_200['timestep'], site_mean_200['z'] , color=colors[5], label=str(heights[2]))
+        xtr_subsplot = fig.add_subplot(gs[4:6, 0:4])
+        plt.title('Altitude')
+        # plt.plot(site_mean_10['timestep'], site_mean_10['z'] , color=colors[1], label=str(heights[0]))
+        plt.plot(site_mean_100['timestep'], site_mean_100['z'] , color=colors[1], label=str(heights[1]))
+        # plt.plot(site_mean_200['timestep'], site_mean_200['z'] , color=colors[5], label=str(heights[2]))
         plt.ylim(0, 2000)
+        plt.xlim(-20,0)
+        plt.xticks([], [])
         plt.legend()
 
         # Third plot!
         # Percentage of time OVER LAND?
-        xtr_subsplot = fig.add_subplot(gs[4:6, 0:2])
-        plt.title('Percentage of time over land')
+        xtr_subsplot = fig.add_subplot(gs[6:8, 0:4])
+        plt.title('Fraction on land')
+        # plt.title('Percentage of time over land')
         plt.bar(landfrac_site['timestep'], landfrac_site['LandFrac'])
+        plt.xlabel('Timestep')
+        plt.xlim(-20,0)
 
-        plt.savefig(f'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/hysplit/output_plots/OneDay_{codenames[i]}_{year[k]}_Dec_to_Feb.png',
+        # plt.text(-19, 0.9, '[C]', fontweight="bold")
+        # plt.text(-19.5, 2.1, '[B]', fontweight="bold")
+        plt.savefig(f'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/hysplit/output_plots/hrs20_{codenames[i]}_{year[k]}_Dec_to_Feb.png',
                     dpi=300, bbox_inches="tight")
         plt.close()
 

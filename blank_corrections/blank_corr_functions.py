@@ -77,7 +77,7 @@ def blank_corr_050223(input_name, date_bound_input, num_list):
 
     # MERGE PRETREATMENTS AND DATA:
     df = pd.merge(df, pretreats, on='Job')
-    df.to_excel(r'I:\C14Data\C14_blank_corrections_dev\Refscheck.xlsx', sheet_name='Sheet_name_1')
+    df.to_excel(r'I:\C14Data\C14_blank_corrections_dev\Refscheckwooo.xlsx', sheet_name='Sheet_name_1')
 
     """
     This next block of code searches the standards extracted from the database, and find the MCC related to each of the items on my "Pretreatment_reference" excel sheet
@@ -101,6 +101,7 @@ def blank_corr_050223(input_name, date_bound_input, num_list):
     df = df.loc[(df['Category In Calculation'] != 'Background Test')]  # Drop all background tests from the sample data
     df = df.loc[(df['Category In Calculation'] != 'Background Organic')]  # Drop all background organics from the sample data
     df = df.loc[(df['Category In Calculation'] != 'Background Inorganic')]  # Drop all background organics from the sample data
+    df = df.loc[(df['Category In Calculation'] != 'Background Air')]  # Drop all background organics from the sample data
 
     # THIS BLOCK REMOVES ANY STANDARDS YOU DON"T WANT
     for i in range(len(num_list)):
@@ -157,7 +158,7 @@ def blank_corr_050223(input_name, date_bound_input, num_list):
     refs = refs.drop_duplicates(subset='R number to correct from')
     refs = refs.rename(columns={"Pre-treatment Type": "Process Name"})
     refs.to_excel(f'I:\C14Data\C14_blank_corrections_dev\PythonOutput\TW{input_name}_Refscheck.xlsx')
-
+    df.to_excel(f'I:\C14Data\C14_blank_corrections_dev\PythonOutput\TW{input_name}_testair.xlsx')
     results = pd.merge(df, refs, on='Process Name')
     results.to_excel(r'I:\C14Data\C14_blank_corrections_dev\results_test.xlsx')
 
@@ -171,8 +172,8 @@ def blank_corr_050223(input_name, date_bound_input, num_list):
     df_condensed.to_csv(r'I:/C14Data/C14_blank_corrections_dev/RLIMS_import/TW{}_reimport.csv'.format(input_name))
 
 
-blank_corr_050223(3470,0.5,'')
-
+# blank_corr_050223(3470,0.5,'')
+# blank_corr_050223(3472,1,'')
 
 
 

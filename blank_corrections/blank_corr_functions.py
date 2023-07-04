@@ -119,6 +119,7 @@ def blank_corr_050223(input_name, date_bound_input, num_list):
     mcc_array = []
     mcc_1sigma_array = []
     stringarray = []
+    TWarray = []
     stds_dataframe = pd.DataFrame({})
 
     # ITERATE THROUGH PRETREATMENT_REFERENCE2
@@ -146,15 +147,24 @@ def blank_corr_050223(input_name, date_bound_input, num_list):
 
         # now I need to add the tilda's to tell which standards were used in each case
         strings = ""
+        TW_strings = ""
+
         TPs = current_standards['TP'].reset_index(drop=True)
+        TWs = current_standards['TW'].reset_index(drop=True)
+
         for m in range(len(TPs)):
             q_o = TPs[m]
+            tw = TWs[m]
             strings = strings + str(int(q_o)) + str("\u007e")
+            TW_strings = TW_strings + str(int(tw)) + str("\u007e")
         stringarray.append(strings)
+        TWarray.append(TW_strings)
+
 
     refs['MCC'] = mcc_array
     refs['MCC_1sigma'] = mcc_1sigma_array
     refs['Stds_used'] = stringarray
+    refs['TW_used'] = TWarray
     refs = refs.drop_duplicates(subset='R number to correct from')
     refs = refs.rename(columns={"Pre-treatment Type": "Process Name"})
     refs.to_excel(f'I:\C14Data\C14_blank_corrections_dev\PythonOutput\TW{input_name}_Refscheck.xlsx')
@@ -162,11 +172,12 @@ def blank_corr_050223(input_name, date_bound_input, num_list):
     results = pd.merge(df, refs, on='Process Name')
     results.to_excel(r'I:\C14Data\C14_blank_corrections_dev\results_test.xlsx')
 
-    df_condensed = results[['TP', 'MCC', 'MCC_1sigma', 'Stds_used']]
+    df_condensed = results[['TW_used','TP', 'MCC', 'MCC_1sigma', 'Stds_used']]
 
     df_condensed = df_condensed.rename(columns={'MCC': 'rts_bl_av',
                                                 'MCC_1sigma': 'rts_bl_av_error',
-                                                'Standards used': 'TPs Blanks'})
+                                                'Stds used': 'TPs Blanks',
+                                                'TW_used': 'TWs_blanks'})
 
     results.to_csv(r'I:\C14Data\C14_blank_corrections_dev\PythonOutput\TW{}_results.csv'.format(input_name))
     df_condensed.to_csv(r'I:/C14Data/C14_blank_corrections_dev/RLIMS_import/TW{}_reimport.csv'.format(input_name))

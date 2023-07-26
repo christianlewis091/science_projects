@@ -10,6 +10,7 @@ EVERYTHING IS THE SAME UP TO THE PLOTS
 
 
 import matplotlib.pyplot as plt
+from pylr2 import regress2
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -44,6 +45,7 @@ go_ship = pd.concat([P18, P16N, IO7N]).reset_index(drop=True)
 
 # And merge the DOC data into it.
 merged1 = pd.merge(go_ship, doc, how='outer')
+merged1.to_excel('C:/Users/clewis/IdeaProjects/GNS/UCI_13C/output/Version3/testtest.xlsx')
 merged2 = pd.merge(go_ship, doc)
 
 # I also want to add the SPE-DOC into there, but need the depths are weighted averages.
@@ -688,19 +690,21 @@ plt.close()
 """
 Does Helium data track with SPE? 
 """
+HeliumMerge['dx'] = np.abs(HeliumMerge['P18 1994 Latitude'] - HeliumMerge['LATITUDE_y'])
+HeliumMerge['dy'] = np.abs(HeliumMerge['P19 1994 Depth'] - HeliumMerge['CTDPRS_y'])
 
-fig = plt.figure(1, figsize=(5, 5))
-s = HeliumMerge.loc[HeliumMerge['SorD'] == 'Surface']
-d = HeliumMerge.loc[HeliumMerge['SorD'] == 'Deep']
+HeliumMerge2 = HeliumMerge.loc[HeliumMerge['dy'] < 250]
+
+fig = plt.figure(1, figsize=(10, 5))
+s = HeliumMerge2.loc[HeliumMerge2['SorD'] == 'Surface']
+d = HeliumMerge2.loc[HeliumMerge2['SorD'] == 'Deep']
 size = 8
-plt.xlabel('CTD Temperature (C)')
 plt.ylabel('SPE-DOC 13C')
 plt.errorbar(s['DELHE3'].astype(float), s['SPE 13C Corrected'].astype(float), markersize = size, label='Surface SPE-DOC',yerr=s['SPE 13C Corrected Err'],  markerfacecolor='none', fmt='o', color='black', ecolor='black', elinewidth=1, capsize=2, alpha = 1)
-plt.errorbar(d['DELHE3'].astype(float), d['SPE 13C Corrected'].astype(float), markersize = size, label='Deep SPE-DOC', yerr=d['SPE 13C Corrected Err'],  markerfacecolor='black', fmt='o', color='black', ecolor='black', elinewidth=1, capsize=2, alpha = 1)
+plt.errorbar(d['DELHE3'].astype(float), d['SPE 13C Corrected'].astype(float),markersize = size, label='Deep SPE-DOC', yerr=d['SPE 13C Corrected Err'],  markerfacecolor='black', fmt='o', color='black', ecolor='black', elinewidth=1, capsize=2, alpha = 1)
 plt.legend()
 plt.xlabel('\u03B4$^3$He (\u2030)')
 plt.ylabel('SPE-DOC \u03B4$^1$$^3$C (\u2030)')
-
 plt.savefig('C:/Users/clewis/IdeaProjects/GNS/UCI_13C/output/Version3/Supp2.png', dpi=300, bbox_inches="tight")
 plt.close()
 
@@ -716,7 +720,7 @@ d = cleaned_df.loc[cleaned_df['SorD'] == 'Deep']
 plt.errorbar(s['CTDTMP'], s['SPE 13C Corrected'], markersize = size, label='Surface SPE-DOC',yerr=s['SPE 13C Corrected Err'],  markerfacecolor='none', fmt='o', color='black', ecolor='black', elinewidth=1, capsize=2, alpha = 1)
 plt.errorbar(d['CTDTMP'], d['SPE 13C Corrected'], markersize = size, label='Deep SPE-DOC', yerr=d['SPE 13C Corrected Err'],  markerfacecolor='black', fmt='o', color='black', ecolor='black', elinewidth=1, capsize=2, alpha = 1)
 plt.legend()
-plt.xlabel('CTD Temperature (\u00B0C)', fontsize=14)
+plt.xlabel('CTD Temperature (\u00B0C)')
 plt.ylabel('SPE-DOC \u03B4$^1$$^3$C (\u2030)')
 plt.ylim(-24.5, -24.5+3)
 plt.savefig('C:/Users/clewis/IdeaProjects/GNS/UCI_13C/output/Version3/Supp3.png', dpi=300, bbox_inches="tight")
@@ -969,25 +973,140 @@ plt.ylabel('Total DOC \u03B4$^1$$^3$C (\u2030)', fontsize=14)
 plt.savefig('C:/Users/clewis/IdeaProjects/GNS/UCI_13C/output/Version3/totalDOC_13C_IO7.png', dpi=300, bbox_inches="tight")
 plt.close()
 
-
-
-
-
-
 with pd.ExcelWriter(r'C:\Users\clewis\IdeaProjects\GNS\UCI_13C\output\Version3\outputv3.xlsx') as writer:
     cleaned_df.to_excel(writer, sheet_name='SPE Data')
     results.to_excel(writer, sheet_name='SPE Results Summary')
     HeliumMerge.to_excel(writer, sheet_name='SPEvP18 1994 He')
     merged2.to_excel(writer, sheet_name='DOC Data')
 
-
-
-
-
-
-
-
-
-
+#
+# # ADDING THE FOLLOWING BELOW AFTER BRETT"S V5 COMments
+# """
+#
+# SPE 13C vs 14C PLUS TOTAL DOC PLUS REGRESSION
+#
+# """
+#
+# # xtr_subsplot = fig.add_subplot(gs[0:2, 0:1])
+# # p18_doc = doc.loc[doc['Cruise'] == 'IO7N']
+# # p18_spe = cleaned_df.loc[(cleaned_df['Cruise'] == 'IO7N')]
+#
+# fig = plt.figure(1, figsize=(10, 5))
+# gs = gridspec.GridSpec(2, 4)
+# gs.update(wspace=.1, hspace=.35)
+#
+# cruises = ['IO7N','P16N', 'P18']
+# colors = ['#d73027','#fc8d59','#4575b4']
+# markers = ['o','^','D','s']
+#
+# # grab DOC samples in range of surface SPE-DOC samples
+# doc_s = doc.loc[doc['Depth'] < 200]
+#
+# label = []
+# label2 = []
+# depths = []
+# slope_arr = []
+# intercept_arr = []
+# r_arr = []
+# std_slope = []
+# std_intercept = []
+#
+# s = s.dropna()
+# d = d.dropna()
+#
+# xtr_subsplot = fig.add_subplot(gs[0:2, 0:2])
+# for i in range(0, 3):
+#     curr = s.loc[s['Cruise'] == cruises[i]]
+#     curr_doc = doc_s[doc_s['Cruise'] == cruises[i]]
+#     color = colors[i]
+#     symbols = symbol[i]
+#     plt.errorbar(curr['SPE-14C'], curr['SPE 13C Corrected'], xerr=curr['SPE-14C err'], yerr=0.2, fmt=symbols, color=color, ecolor=color, elinewidth=1, capsize=2, alpha = 1)
+#     plt.scatter(curr['SPE-14C'], curr['SPE 13C Corrected'], color=color, label=f"SPE-DOC {str(cruises[i])}", marker=symbols)
+#     plt.scatter(curr_doc['corrDel14C'], curr_doc['del13C'], facecolors='none', edgecolors='black', marker=markers[i], label=f"Total DOC {str(cruises[i])}")
+#     # plt.errorbar(curr_doc['corrDel14C'], curr_doc['del13C'], xerr=curr_doc['corrDel14Cerr'], yerr=0.2, fmt=symbols, markeredgecolor='black', ecolor='black', markerfacecolor='none')
+#
+#     results = regress2(curr['SPE-14C'], curr['SPE 13C Corrected'], _method_type_2="reduced major axis")
+#     label.append(cruises[i])
+#     label2.append('SPE-DOC 13C V 14C')
+#     depths.append('surface')
+#     slope_arr.append(results['slope'])
+#     intercept_arr.append(results['intercept'])
+#     r_arr.append(results['r'])
+#     std_slope.append(results['std_slope'])
+#     std_intercept.append(results['std_intercept'])
+#
+#     results = regress2(curr_doc['corrDel14C'], curr_doc['del13C'], _method_type_2="reduced major axis")
+#     label.append(cruises[i])
+#     label2.append('DOC 13C V 14C')
+#     depths.append('surface')
+#     slope_arr.append(results['slope'])
+#     intercept_arr.append(results['intercept'])
+#     r_arr.append(results['r'])
+#     std_slope.append(results['std_slope'])
+#     std_intercept.append(results['std_intercept'])
+#
+#
+# plt.text(-600, -20+.13, 'A)', horizontalalignment='center', verticalalignment='center', fontsize=14)
+# plt.ylim(-24, -20.0)
+# plt.ylabel('\u03B4$^1$$^3$C (\u2030)', fontsize=14)
+# plt.title('Surface (0-200 m)', fontsize=14)
+# plt.xlabel('\u0394$^1$$^4$C (\u2030)', fontsize=14)
+# plt.legend()
+# plt.text(-580, -22.3, '69\u00B0S', horizontalalignment='center', verticalalignment='center', fontsize=10)
+# plt.text(-510, -23.5, '20\u00B0N', horizontalalignment='center', verticalalignment='center', fontsize=10)
+#
+# # grab deeper DOC samples
+# doc_s = doc.loc[(doc['Depth'] > 2000) & (doc['Depth'] < 4000)]
+#
+# xtr_subsplot = fig.add_subplot(gs[0:2, 2:4])
+# for i in range(0, 3):
+#     curr = d.loc[d['Cruise'] == cruises[i]]
+#     curr_doc = doc_s[doc_s['Cruise'] == cruises[i]]
+#     color = colors[i]
+#     symbols = symbol[i]
+#     plt.errorbar(curr['SPE-14C'], curr['SPE 13C Corrected'], xerr=curr['SPE-14C err'], yerr=0.2, fmt=symbols, color=color, ecolor=color, elinewidth=1, capsize=2, alpha = 1)
+#     plt.scatter(curr['SPE-14C'], curr['SPE 13C Corrected'], color=color, label=str(cruises[i]), marker=symbols)
+#     plt.scatter(curr_doc['corrDel14C'], curr_doc['del13C'], facecolors='none', edgecolors='black', marker=markers[i], label=f"Total DOC {str(cruises[i])}")
+#     # plt.errorbar(curr_doc['corrDel14C'], curr_doc['del13C'], xerr=curr_doc['corrDel14Cerr'], yerr=0.2, fmt=symbols, markeredgecolor='black', ecolor='black', markerfacecolor='none')
+#
+#     results = regress2(curr['SPE-14C'], curr['SPE 13C Corrected'], _method_type_2="reduced major axis")
+#     label.append(cruises[i])
+#     label2.append('SPE-DOC 13C V 14C')
+#     depths.append('deep')
+#     slope_arr.append(results['slope'])
+#     intercept_arr.append(results['intercept'])
+#     r_arr.append(results['r'])
+#     std_slope.append(results['std_slope'])
+#     std_intercept.append(results['std_intercept'])
+#
+#     results = regress2(curr_doc['corrDel14C'], curr_doc['del13C'], _method_type_2="reduced major axis")
+#     label.append(cruises[i])
+#     label2.append('DOC 13C V 14C')
+#     depths.append('deep')
+#     slope_arr.append(results['slope'])
+#     intercept_arr.append(results['intercept'])
+#     r_arr.append(results['r'])
+#     std_slope.append(results['std_slope'])
+#     std_intercept.append(results['std_intercept'])
+#
+# plt.text(-700, -20+0.13, 'B)', horizontalalignment='center', verticalalignment='center', fontsize=14)
+#
+# plt.text(-530, -23.8, '6.7\u00B0S, A', horizontalalignment='center', verticalalignment='center', fontsize=10)
+# plt.text(-645, -22.9, '15\u00B0S', horizontalalignment='center', verticalalignment='center', fontsize=10)
+# plt.text(-600, -23.3, '20\u00B0N', horizontalalignment='center', verticalalignment='center', fontsize=10)
+#
+# plt.ylim(-24, -20.0)
+# plt.title('Deep (2000-4000 m)', fontsize=14)
+# plt.yticks([], [])
+# plt.xlabel('\u0394$^1$$^4$C (\u2030)', fontsize=14)
+#
+# plt.savefig('C:/Users/clewis/IdeaProjects/GNS/UCI_13C/output/Version3/Results2_wtotalDOC_plusregression.png', dpi=300, bbox_inches="tight")
+# plt.close()
+#
+# regressed_data = pd.DataFrame({"Label":label, "Compared":label2, "Depth": depths, "Slope": slope_arr, "STD_Slope": std_slope, "Intercept": intercept_arr, "STD_Intercept": std_intercept})
+# regressed_data.to_excel('C:/Users/clewis/IdeaProjects/GNS/UCI_13C/output/Version3/regressed_data.xlsx')
+#
+#
+#
 
 

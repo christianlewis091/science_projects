@@ -50,6 +50,8 @@ for i in range(0, len(depths)):
         std_intercept.append(results['std_intercept'])
 
 
+
+
 df = pd.read_excel(r'C:\Users\clewis\IdeaProjects\GNS\UCI_13C\output\Version3\OPEN_ACCESS_DATA_FILE_columntitleschangedforregression.xlsx',sheet_name='DOC Data')
 
 # remove rows where data reads "LOST"
@@ -100,10 +102,39 @@ for i in range(0, len(depths)):
         std_intercept.append(results['std_intercept'])
 
 
-#
+extra_surf = df.loc[df['Surface/Deep'] == 'Surface']
+extra_deep = df.loc[df['Surface/Deep'] == 'Deep']
+
+results = regress2(extra_surf['del13C'], extra_surf['corrDel14C'], _method_type_2="reduced major axis")
+
+label.append(cruises[j])
+label2.append('DOC 13C V 14C, all cruises!')
+depths_arr.append('Surface')
+slope_arr.append(results['slope'])
+intercept_arr.append(results['intercept'])
+r_arr.append(results['r'])
+std_slope.append(results['std_slope'])
+std_intercept.append(results['std_intercept'])
+
+results = regress2(extra_deep['del13C'], extra_deep['corrDel14C'], _method_type_2="reduced major axis")
+
+label.append(cruises[j])
+label2.append('DOC 13C V 14C, all cruises!')
+depths_arr.append('Deep')
+slope_arr.append(results['slope'])
+intercept_arr.append(results['intercept'])
+r_arr.append(results['r'])
+std_slope.append(results['std_slope'])
+std_intercept.append(results['std_intercept'])
+
+
+
+
+
+
 regressed_data = pd.DataFrame({"Label":label, "Compared":label2, "Depth": depths_arr, "Slope": slope_arr, "STD_Slope": std_slope, "Intercept": intercept_arr, "STD_Intercept": std_intercept, "R": r_arr})
-# regressed_data.to_excel('C:/Users/clewis/IdeaProjects/GNS/UCI_13C/output/Version3/regressed_data.xlsx')
-# #
+regressed_data.to_excel('C:/Users/clewis/IdeaProjects/GNS/UCI_13C/output/Version3/regressed_data.xlsx')
+
 
 """
 I lost my ttests so I'm redoing them here...

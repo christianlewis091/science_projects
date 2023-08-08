@@ -61,19 +61,17 @@ of certain types of metadata (see binder)
 
 def blank_corr_050223(input_name, date_bound_input, num_list):
     # READ IN DATA EXCEL FILE OUTPUT FROM RLIMS
-    df = pd.read_excel(r'I:\C14Data\C14_blank_corrections_dev\TW{}.xlsx'.format(input_name)).dropna(
-        subset='Job::Sample Type From Sample Table').reset_index(
-        drop=True)  # grab the file that has been exported from RLIMS, thanks to Valerie's new button.
+    df = pd.read_excel(r'I:\C14Data\C14_blank_corrections_dev\TW{}.xlsx'.format(input_name)).dropna(subset='Job::Sample Type From Sample Table').reset_index(drop=True)  # grab the file that has been exported from RLIMS, thanks to Valerie's new button.
 
     # READ IN HISTORICAL DATA FILE FROM RLIMS
     stds_hist = pd.read_excel(r'I:\C14Data\C14_blank_corrections_dev\TW{}standards.xlsx'.format(input_name)).dropna(subset='Date Run').reset_index(drop=True)  # Read in the standards associated with it.
     stds_hist = stds_hist.dropna(subset='Ratio to standard').reset_index(drop=True)
+
     # READ IN R NUMBER REFERENCE
     refs = pd.read_excel(r'I:\C14Data\C14_blank_corrections_dev\Pretreatment_reference2.xlsx', skiprows=6)  # Grab a small file I made that associates samples types to R numbers for correction
 
     # READ IN THIS WHEEL'S PRETREATMENTS
-    pretreats = pd.read_excel(r'I:\C14Data\C14_blank_corrections_dev\TW{}_PreTreatments.xlsx'.format(
-        input_name))  # Grab a small file I made that associates samples types to R numbers for correction
+    pretreats = pd.read_excel(r'I:\C14Data\C14_blank_corrections_dev\TW{}_PreTreatments.xlsx'.format(input_name))  # Grab a small file I made that associates samples types to R numbers for correction
 
     # MERGE PRETREATMENTS AND DATA:
     df = pd.merge(df, pretreats, on='Job')
@@ -91,10 +89,8 @@ def blank_corr_050223(input_name, date_bound_input, num_list):
     date_bound = max(stds_hist['Date Run']) - float(date_bound_input)
 
     # INDEX ONLY TO ABOVE THE STDS BOUNDARY, REMOVE QUALITY FLAGS, FIND LARGE SAMPLES, AND NO BACKGROUNDS
-    stds_hist = stds_hist.loc[
-        (stds_hist['Date Run'] > date_bound)]  # Index: find ONLY dates that are more recent than 1/2 year
-    stds_hist = stds_hist.loc[
-        (stds_hist['Quality Flag'] == '...')]  # Index: drop everything that contains a quality flag
+    stds_hist = stds_hist.loc[(stds_hist['Date Run'] > date_bound)]  # Index: find ONLY dates that are more recent than 1/2 year
+    stds_hist = stds_hist.loc[(stds_hist['Quality Flag'] == '...')]  # Index: drop everything that contains a quality flag
     stds_hist = stds_hist.loc[(stds_hist['wtgraph'] > 0.3)]  # Drop everything that is smaller than 0.3 mg.
     stds_hist = stds_hist.loc[(stds_hist['Ratio to standard'] < 0.1)]  # Drop all blanks that are clearly WAY too high
 
@@ -137,7 +133,8 @@ def blank_corr_050223(input_name, date_bound_input, num_list):
                              'Ratio to standard'])  # Calculate the average RTS of these specific standards in this sub-loop, and its standard deviation
 
         # CALCULATE STDDEV (RTS)
-        mcc_1sigma = np.std(current_standards['Ratio to standard'])
+        # add ddof = 1 to match EXCEL STDEV formula
+        mcc_1sigma = np.std(current_standards['Ratio to standard'], ddof=1)
 
         # APPEND THESE TO AN ARRAY
         mcc_array.append(
@@ -172,7 +169,7 @@ def blank_corr_050223(input_name, date_bound_input, num_list):
     df_condensed.to_csv(r'I:/C14Data/C14_blank_corrections_dev/RLIMS_import/TW{}_reimport.csv'.format(input_name))
 
 
-# blank_corr_050223(3470,0.5,'')
+blank_corr_050223(3481,0.5,'')
 # blank_corr_050223(3472,1,'')
 
 

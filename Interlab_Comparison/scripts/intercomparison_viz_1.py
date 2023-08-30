@@ -190,13 +190,17 @@ from heidelberg_intercomparison_wD14C import means, my_x_2006_2009_trimmed, my_x
 Figure 1. All the data together
 """
 fig = plt.figure(1)
-plt.scatter(xtot_bhd, ytot_bhd, marker='o', label='Rafter Radiocarbon Lab' + '\n' ' - Baring Head, New Zealand [BHD]', color=farbe_bhd, s=size1)
-plt.scatter(xtot_heid, ytot_heid, marker='x', label='Heidelberg University' + '\n' ' - Cape Grim, Tasmania [CGO]', color=farbe_heid, s=size1)
+# plt.scatter(xtot_bhd, ytot_bhd, marker='o', label='Rafter Radiocarbon Lab' + '\n' ' - Baring Head, New Zealand [BHD]', color=farbe_bhd, s=size1)
+# plt.scatter(xtot_heid, ytot_heid, marker='x', label='Heidelberg University' + '\n' ' - Cape Grim, Tasmania [CGO]', color=farbe_heid, s=size1)
+plt.scatter(xtot_bhd, ytot_bhd, marker='o', label='RRL/NIWA', color=farbe_bhd, s=size1)
+plt.scatter(xtot_heid, ytot_heid, marker='x', label='Heidelberg University', color=farbe_heid, s=size1)
+
 plt.legend()
 plt.title('Available Data for Uni Heidelberg and Rafter Radiocarbon Lab Intercomparison')
 plt.xlim([1985, 2020])
 plt.ylim([0, 220])
 plt.xlabel('Date', fontsize=14)
+plt.legend()
 plt.ylabel('\u0394$^1$$^4$CO$_2$ (\u2030)', fontsize=14)  # label the y axis
 plt.savefig('C:/Users/clewis/IdeaProjects/GNS/Interlab_Comparison/output/DEV_FirstDraft_figure1.png',
             dpi=300, bbox_inches="tight")
@@ -460,7 +464,6 @@ plt.plot(np.array(my_x_2012_2016_trimmed), bhd_2012_2016_mean_trend, color=farbe
 plt.plot(np.array(my_x_2012_2016_trimmed), heidelberg_2012_2016_mean_trend, color=farbe_heid, linestyle = 'dashed')
 plt.xlim([min(np.array(my_x_2012_2016_trimmed)), max(np.array(my_x_2012_2016_trimmed))])
 plt.ylim([min(bhd_2012_2016_mean_smooth), max(bhd_2012_2016_mean_smooth)])
-# plt.legend()
 plt.savefig('C:/Users/clewis/IdeaProjects/GNS/Interlab_Comparison/output/DEV_FirstDraft_figure3b_D14C.png',
             dpi=300, bbox_inches="tight")
 # plt.show()

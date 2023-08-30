@@ -24,7 +24,6 @@ x = x.loc[x['Ratio to standard'] < 3]
 plt.scatter(x['TW'], x['Ratio to standard'])
 plt.title('Variability of OX-1 STD over time; red line = TW3460')
 
-
 plt.xlabel('TW Wheel Number')
 plt.ylabel('OX-1 Variability (\u2030)')
 
@@ -35,6 +34,10 @@ plt.axhline(y=np.mean(x['Ratio to standard']), color="black", linestyle="--")
 font = {'color':  'darkred', 'weight': 'normal', 'size': 12}
 plt.axhline(y=(np.std([.99955, 1.00157, 1.00127, .99802, .99958, 1.00014])*1000), color="darkred", linestyle="-")
 plt.text(3360, 1.0, '3460', fontdict=font)
+
+font = {'color':  'darkviolet', 'weight': 'normal', 'size': 12}
+plt.text(3360, 1.37, '3472', fontdict=font)
+plt.axhline(1.37, color="darkviolet", linestyle="-")
 
 plt.savefig('H:/Science/Current_Projects/04_ams_data_quality/OX1_analyses/oxs.png',
             dpi=300, bbox_inches="tight")

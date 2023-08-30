@@ -12,7 +12,7 @@ colors = sns.color_palette("Paired")
 
 """
 6/1/23: version 2 of this file that prepares the Hysplit output for plotting: 
-Needs updating to do trajectories for everty site. Old version commented out below
+Needs updating to do trajectories for every site. Old version commented out below
 """
 # We're still going to loop through each site using the codenames listed in the previous scripts as well
 easy_access = pd.read_excel(r'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/easy_access2.xlsx')

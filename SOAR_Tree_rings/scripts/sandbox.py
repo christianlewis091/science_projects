@@ -1,5 +1,8 @@
 """
 UPDATES:
+8/30/23
+Adding a "better" hysplit plot for vizualization of the data around the ACC fronts
+
 5/5/23
 Since we decided to split the paper into two sections during our April meeting with Erik and Sarah, the paper
 has become significantly simpler. All analyses/plots will be contained in one TRUTH file, which is this one.
@@ -694,6 +697,89 @@ for m in range(0, len(times)):
                 dpi=300, bbox_inches="tight")
     plt.close()
 
+#
+
+"""
+MAPP OF ACC FRONTS
+"""
+# LOAD HYSPLOT DATA
+easy_access = pd.read_excel(r'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/hysplit/output_data/easy_access2 - Copy.xlsx')
+means_dataframe_100 = pd.read_excel(f'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/hysplit/output_data/means_dataframe_100_2005_2006.xlsx')  # TODO ADD OTHER YEARS (not only 05-06)
+# ADDING PROPER SITE NAMES FOR THE FOLLOWING LOOP TO READ
+means_dataframe_100 = means_dataframe_100.merge(easy_access)
+
+
+# codenames = easy_access['Codename']
+# code = easy_access['Code']
+# lat = easy_access['NewLat']
+# lon = easy_access['ChileFixLon']
+#
+
+# SEE hysplit_make_plots_GNS.py
+timemin = -(6*24)
+means_dataframe_100 = means_dataframe_100.loc[means_dataframe_100['timestep'] > timemin]
+
+# LOAD ACC FRONTS DATA
+acc_fronts = pd.read_csv(r'H:\Science\Datasets\ACC_fronts\csv\antarctic_circumpolar_current_fronts.csv')
+fronts = np.unique(acc_fronts['front_name'])
+
+
+
+# fronts = ['PF','SAF','STF']
+map = Basemap(projection='ortho',lon_0=-105,lat_0=-90,resolution='l')
+map.drawmapboundary(fill_color='lightgrey')
+map.fillcontinents(color='darkgrey')
+map.drawcoastlines(linewidth=0.1)
+#
+# PLOTTING THE ACC FRONTS
+for i in range(0, len(fronts)):
+    this_one = acc_fronts.loc[acc_fronts['front_name'] == fronts[i]]
+
+    chile_lat = this_one['latitude']
+    chile_lon = this_one['longitude']
+
+    z, a = map(list(chile_lon), list(chile_lat))
+
+    map.plot(z, a, color='black', label=f'{fronts[i]}')
+
+# PLOTTING CHILEAN SITES
+for i in range(0, len(locs1)):
+    slice = chile.loc[chile['Site'] == str(locs1[i])].reset_index(drop=True)  # grab the first data to plot, based on location
+    lat = slice['NewLat']
+    lat = lat[0]
+    lon = slice['new_Lon']
+    lon = lon[0]
+    x, y = map(lon, lat)
+    map.scatter(x, y, marker=markers[i],color=colors[i], s=size1*10, edgecolor='black')
+    print(locs1[i])
+
+    site_mean_100 = means_dataframe_100.loc[means_dataframe_100['Site'] == str(locs1[i])].reset_index(drop=True)
+    y_mean, x_mean = (site_mean_100['y'], site_mean_100['x'])
+    print(y_mean)
+    print(x_mean)
+    map.plot(x_mean, y_mean, color='darkred', alpha=1)
+
+# PLOTTING NZ SITES
+for i in range(0, len(locs2)):
+
+    slice = nz.loc[nz['Site'] == str(locs2[i])].reset_index(drop=True)  # grab the first data to plot, based on location
+    lat = slice['NewLat']
+    lat = lat[0]
+    lon = slice['NewLon']
+    lon = lon[0]
+    x, y = map(lon, lat)
+    # print(x, y)
+    map.scatter(x, y, marker=markers[i],color=colors[i], s=size1*10, edgecolor='black')
+
+    site_mean_100 = means_dataframe_100.loc[means_dataframe_100['Site'] == str(locs2[i])].reset_index(drop=True)
+    y_mean, x_mean = (site_mean_100['y'], site_mean_100['x'])
+    map.scatter(x_mean, y_mean, color=colors[i], alpha=1)
+
+plt.show()
+
+#
+#
+#
 
 
 
@@ -701,16 +787,32 @@ for m in range(0, len(times)):
 
 
 
-
-
-
-
-
-
-
-
-
-
+# from mpl_toolkits.basemap import Basemap
+# import numpy as np
+# import matplotlib.pyplot as plt
+#
+# acc_fronts = pd.read_csv(r'H:\Science\Datasets\ACC_fronts\csv\antarctic_circumpolar_current_fronts.csv')
+# fronts = np.unique(acc_fronts['front_name'])
+#
+# # lon_0, lat_0 are the center point of the projection.
+# # resolution = 'l' means use low resolution coastlines.
+# m = Basemap(projection='ortho',lon_0=-105,lat_0=-90,resolution='l')
+# m.drawcoastlines()
+# m.fillcontinents(color='coral',lake_color='aqua')
+#
+# for i in range(0, len(fronts)):
+#     this_one = acc_fronts.loc[acc_fronts['front_name'] == fronts[i]]
+#     xs = this_one['latitude']
+#     ys = this_one['longitude']
+#
+#     z, a = map(ys, xs)
+#
+#     map.scatter(z, a, label=f'{fronts[i]}')
+#
+#
+# m.drawmapboundary(fill_color='aqua')
+# plt.title("Full Disk Orthographic Projection")
+# plt.show()
 
 
 

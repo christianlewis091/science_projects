@@ -1,34 +1,25 @@
-import os
-
 import pandas as pd
 
+df = pd.read_excel(r'H:\Science\Datasets\RICE_IC_26901_27020.xlsx')
+filtered_df = df[df['Injection Name'].str.contains("RICE")]
+filtered_df.to_excel(r'H:\Science\Datasets\RICE_IC_26901_27020_RICE.xlsx')
+print(filtered_df)
+#
+# dataf = pd.DataFrame()
 
-"""
-Have a look through all the directories and find where there are _2's. When did we restart the measurement"
-"""
 
-def find_directories_with_file(directory):
-    result = []
-    for root, dirs, files in os.walk(directory):
-        for file in files:
-            if file.endswith("_2.csv"):
-                # print(file)
-                result.append(str(file))
-                break  # Break the loop if at least one matching file is found in the directory
-    return result
 
-# Example usage
-directory4 = r"I:\XCAMS\3_measurements\C-14 AMS\TW data analysis\TW3450-3499"
-directory3 = r"I:\XCAMS\3_measurements\C-14 AMS\TW data analysis\TW3350-3399"
-directory2 = r"I:\XCAMS\3_measurements\C-14 AMS\TW data analysis\TW3300-3349"
-directory1 = r"I:\XCAMS\3_measurements\C-14 AMS\TW data analysis\TW3250-3299"
+# for i in range(0, len(df)):
+#     row = df.iloc[i]
+#     query = str(row['Injection Name'])
+#     if 'RICE' in query:
+#         print('yes')
+#         new_data = pd.concat([dataf, row])
+# new_data.to_excel(r'H:\Science\Datasets\RICE_IC_26901_27020_RICEonly.xlsx')
 
-list1 = [directory1, directory2, directory3, directory4]
+    # print(row)
 
-database = pd.DataFrame()
-for i in range(0, len(list1)):
-    directories_with_file = find_directories_with_file(list1[i])
-    data = pd.DataFrame({"List": directories_with_file})
-    database = pd.concat([database, data]).reset_index(drop=True)
-
-database.to_excel(r'H:\Science\Datasets\Underscore2s.xlsx')
+#
+# # df = df.loc[df['Injection Name'].isin('RICE')]
+# new = df['Injection Name'].isin(["RICE"])
+# new.to_excel(r'H:\Science\Datasets\RICE_IC_26901_27020_RICE.xlsx')

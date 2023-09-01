@@ -21,12 +21,13 @@ from matplotlib.patches import Polygon
 from sklearn.linear_model import LinearRegression
 
 # read in the data from the previous .py files
-df = pd.read_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/samples_with_references10000.xlsx')
-ref2 = pd.read_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/harmonized_dataset.xlsx')
-ref1 = pd.read_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/reference3.xlsx')
+df = pd.read_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/from_reference_to_sample_xvals2/samples_with_references10000.xlsx')
+df = df.sort_values(by=['DecimalDate'])
+ref2 = pd.read_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/from_reference2/harmonized_dataset.xlsx')
+ref1 = pd.read_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/from_reference1/reference1.xlsx')
 bhdcgo = pd.read_excel(r'H:\Science\Datasets\CGOvBHD.xlsx')
 # ensure all data are sliced for after 1980.
-df = df.loc[df['Decimal_date'] > 1980].reset_index(drop=True)
+df = df.loc[df['DecimalDate'] > 1980].reset_index(drop=True)
 ref2 = ref2.loc[ref2['Decimal_date'] > 1980].reset_index(drop=True)
 ref1 = ref1.loc[ref1['Decimal_date'] > 1980].reset_index(drop=True)
 
@@ -70,7 +71,8 @@ plt.ylabel('\u0394$^1$$^4$C (\u2030)')  # label the y axis
 plt.xlabel('Year')
 cgo = ref1.loc[ref1['#location'] == 'CGO']
 bhd = ref1.loc[ref1['#location'] != 'CGO']
-plt.plot(df['Decimal_date'], df['D14C_ref3t_mean'], zorder=10, label='CCGCRV Trend Reference', color='black')
+
+plt.plot(df['DecimalDate'], df['D14C_ref3t_mean'], zorder=10, label='CCGCRV Trend Reference', color='black')
 plt.errorbar(cgo['Decimal_date'], cgo['D14C'], yerr=cgo['weightedstderr_D14C'], fmt='D',  elinewidth=1, capsize=2, label='Heidelberg Uni. Cape Grim Record', color='dimgray',  markersize = 2, alpha=0.75)
 plt.errorbar(bhd['Decimal_date'], bhd['D14C'], yerr=bhd['weightedstderr_D14C'], fmt='o',  elinewidth=1, capsize=2, label='RRL/NIWA Wellington Record', color='darkgray',  markersize =2, alpha=0.75)
 plt.legend()
@@ -90,7 +92,7 @@ plt.legend()
 plt.locator_params(axis='x', nbins=4)
 plt.xlim(2017, 2019)
 # plt.close()
-plt.savefig('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/NewFig1.png',
+plt.savefig('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/main_analysis/NewFig1.png',
             dpi=300, bbox_inches="tight")
 plt.close()
 
@@ -152,38 +154,43 @@ which are called D14C_1. These corrected values only exist for NEU and MCQ datas
 the harmonized dataset, where the reference also has a correction applied. However, in the dataframe, the SOAR data cells
 wrt D14C_1 are completely empty (because no corrected data exists), and this may complicate the otherwise simple script. 
 Therefore, I'm going to tell python, wherever D14C_1 is NaN, put in the data from D14C. 
+
+Update: The above section is not valid because we are only including Tree Rings and not NEU and MCQ data any more. 
 """
 
-mtarray = []
-mtarray2 = []
-for i in range(0, len(df)):
-    df_row = df.iloc[i]
-
-    if pd.isna(df_row['D14C_1']) is True:
-        mtarray.append(df_row['D14C'])
-        mtarray2.append(df_row['D14Cerr'])
-    else:
-        mtarray.append(df_row['D14C_1'])
-        mtarray2.append(df_row['weightedstderr_D14C_1'])
-
-df['D14C_1'] = mtarray
-df['weightedstderr_D14C_1'] = mtarray2
-df.to_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/test.xlsx')
+# mtarray = []
+# mtarray2 = []
+# for i in range(0, len(df)):
+#     df_row = df.iloc[i]
+#
+#     if pd.isna(df_row['D14C_1']) is True:
+#         mtarray.append(df_row['D14C'])
+#         mtarray2.append(df_row['D14Cerr'])
+#     else:
+#         mtarray.append(df_row['D14C_1'])
+#         mtarray2.append(df_row['weightedstderr_D14C_1'])
+#
+# df['D14C_1'] = mtarray
+# df['weightedstderr_D14C_1'] = mtarray2
+# df.to_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/main_analysis/test.xlsx')
 # ?
+# renaming columns as a workaround for removing the above code block
+df = df.rename(columns={'∆14C':'D14C_1'})
+df = df.rename(columns = {'∆14Cerr':'weightedstderr_D14C_1'})
 
 
 """
 How is the data when viewed relative to reference 2 and reference 3? 
 """
-# The difference between the CORRECTED samples, and REFERENCE 2, the harmonized reference (WEIGHTED RESIDUAL)
+# The difference between the data, and REFERENCE 2, the harmonized reference (WEIGHTED RESIDUAL)
 quaderr = np.sqrt(df['weightedstderr_D14C_1']**2 + df['D14C_ref2t_std']**2)
 
 df['r2_diff_trend'] = df['D14C_1'] - df['D14C_ref2t_mean']
 df['r2_diff_trend_errprop'] = np.sqrt(df['weightedstderr_D14C_1'] ** 2 + df['D14C_ref2t_std'] ** 2)
 
-# The difference between the raw samples, and REFERENCE 3, BHD with CGO in the gaps (WEIGHTED RESIDUAL)
-df['r3_diff_trend'] = df['D14C'] - df['D14C_ref3t_mean']
-df['r3_diff_trend_errprop'] = np.sqrt(df['D14Cerr'] ** 2 + df['D14C_ref3t_std'] ** 2)
+# The difference between the data, and REFERENCE 1, BHD with CGO in the gaps (WEIGHTED RESIDUAL)
+df['r3_diff_trend'] = df['D14C_1'] - df['D14C_ref3t_mean']
+df['r3_diff_trend_errprop'] = np.sqrt(df['weightedstderr_D14C_1'] ** 2 + df['D14C_ref3t_std'] ** 2)
 
 # And the difference between the two differences...
 df['deltadelta'] = df['r2_diff_trend'] - df['r3_diff_trend']
@@ -195,26 +202,26 @@ df_2 = df  # renaming for import into second analytical file
 D_ocean = -150
 D_err = 30
 
-df['testrat'] = (df['D14C'] - D_ocean) / (df['D14C_ref3t_mean'] - D_ocean)
+df['testrat'] = (df['D14C_1'] - D_ocean) / (df['D14C_ref3t_mean'] - D_ocean)
 
-testrat_e1 = np.sqrt(df['D14C']**2 + D_err**2)
+testrat_e1 = np.sqrt(df['D14C_1']**2 + D_err**2)
 testrat_e2 = np.sqrt(df['D14C_ref3t_mean']**2 + D_err**2)
 
-step1 = ((testrat_e1)/ (df['D14C'] - D_ocean))**2
+step1 = ((testrat_e1)/ (df['D14C_1'] - D_ocean))**2
 step2 = ((testrat_e2)/ (df['D14C_ref3t_mean'] - D_ocean))**2
-step3 = (df['D14C'] - D_ocean) / (df['D14C_ref3t_mean'] - D_ocean) *  np.sqrt(step1 + step2)
+step3 = (df['D14C_1'] - D_ocean) / (df['D14C_ref3t_mean'] - D_ocean) *  np.sqrt(step1 + step2)
 df['testrat_err'] = step3
 
 # df['testrat_err'] = df['testrat'] * [np.sqrt(testrat_e1**2 / (df['D14C'] - D_ocean)) +  np.sqrt( testrat_e2**2 /(df['D14C_ref3t_mean'] - D_ocean))]
 
 df = df.loc[df['Site'] != 'NMY']
-df.to_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/final_results.xlsx')
+df.to_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/main_analysis/final_results.xlsx')
 
 
 """
 Lets test the difference between the two sites
 """
-df_testing = df.loc[(df['Decimal_date'] >1987) & (df['Decimal_date'] <1994)]
+df_testing = df.loc[(df['DecimalDate'] >1987) & (df['DecimalDate'] <1994)]
 #df_testing.to_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/achecks.xlsx')
 
 stat=[]
@@ -233,7 +240,7 @@ for i in range(0, len(blahs)):
         site.append(blahs[i])
 p_resultsss = pd.DataFrame({"Site": site, "Stat": stat, "P-value": pval})
 # print(p_resultsss)
-p_resultsss.to_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/p_results.xlsx')
+p_resultsss.to_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/main_analysis/p_results.xlsx')
 
 """
 AT THIS POINT I WRITE THAT REF 1 will be USED FROM NOW ON!
@@ -243,7 +250,7 @@ At a high-level, how does the raw data look? This will be the first plot to go i
 """
 
 # SORT VALUES BY LATITUDE SO THEY APPEAR IN ORDER ON THE PLOTS LATER
-df = df.sort_values(by=['NewLat', 'Decimal_date'], ascending=False).reset_index(drop=True)
+df = df.sort_values(by=['NewLat', 'DecimalDate'], ascending=False).reset_index(drop=True)
 
 # first we'll extract the data by country flags that we've added above
 chile = df.loc[df['Country'] == 0].reset_index(drop=True)
@@ -301,7 +308,7 @@ for i in range(0, len(locs1)):
     region_array.append("Chile")
     # Errorbars removed after meeting with JT ap[ril 23
     # plt.errorbar(slice['Decimal_date'], slice['r3_diff_trend'], slice['r3_diff_trend_errprop'], markersize = size1, elinewidth=1, capsize=2, alpha=1, label=f"{str(latitude)} N", ls='none', fmt=markers[i], color=colors[i], ecolor=colors[i], markeredgecolor='black')
-    plt.errorbar(slice['Decimal_date'], slice['r3_diff_trend'], 0.01, markersize = size1, elinewidth=1, capsize=2, alpha=1, label=f"{str(latitude)} N", ls='none', fmt=markers[i], color=colors[i], ecolor=colors[i], markeredgecolor='black')
+    plt.errorbar(slice['DecimalDate'], slice['r3_diff_trend'], 0.01, markersize = size1, elinewidth=1, capsize=2, alpha=1, label=f"{str(latitude)} N", ls='none', fmt=markers[i], color=colors[i], ecolor=colors[i], markeredgecolor='black')
 
 plt.text(1981.5, 14, '[B]', horizontalalignment='center', verticalalignment='center', fontsize=14, fontweight="bold")
 plt.text(1976.5-20, 14, '[A]', horizontalalignment='center', verticalalignment='center', fontsize=14, fontweight="bold")
@@ -331,7 +338,7 @@ for i in range(0, len(locs2)):
     region_array.append("NZ")
     # Removed errorbars May 23 after meeting with JT
     # plt.errorbar(slice['Decimal_date'], slice['r3_diff_trend'], slice['r3_diff_trend_errprop'], markersize = size1, elinewidth=1, capsize=2, alpha=1, label=f"{str(latitude)} N", ls='none', fmt=markers[i], color=colors[i], ecolor=colors[i], markeredgecolor='black')
-    plt.errorbar(slice['Decimal_date'], slice['r3_diff_trend'], 0.01, markersize = size1, elinewidth=1, capsize=2, alpha=1, label=f"{str(latitude)} N", ls='none', fmt=markers[i], color=colors[i], ecolor=colors[i], markeredgecolor='black')
+    plt.errorbar(slice['DecimalDate'], slice['r3_diff_trend'], 0.01, markersize = size1, elinewidth=1, capsize=2, alpha=1, label=f"{str(latitude)} N", ls='none', fmt=markers[i], color=colors[i], ecolor=colors[i], markeredgecolor='black')
 
 
 plt.ylim(-15, 15)
@@ -397,7 +404,7 @@ for i in range(0, len(locs2)):
 map.drawparallels(np.arange(-90, 90, 10), labels=[True, False, False, False], linewidth=0.5)
 map.drawmeridians(np.arange(-180, 180, 10), labels=[1, 1, 0, 1], linewidth=0.5)
 
-plt.savefig('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/newmap.png',
+plt.savefig('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/main_analysis/newmap.png',
             dpi=300, bbox_inches="tight")
 plt.close()
 
@@ -438,7 +445,7 @@ plt.ylabel('Mean \u0394\u0394$^1$$^4$CO$_2$ (\u2030)')
 plt.xlabel('Latitude (N)')
 plt.text(-60+3.5, 7, '[B] New Zealand', horizontalalignment='center', verticalalignment='center', fontweight="bold")
 
-plt.savefig('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/MainFig2.5.png',
+plt.savefig('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/main_analysis/MainFig2.5.png',
             dpi=300, bbox_inches="tight")
 plt.close()
 
@@ -488,11 +495,11 @@ map.drawmeridians(np.arange(-180, 180, 1), labels=[1, 1, 0, 1], linewidth=0.5)
 xtr_subsplot = fig.add_subplot(gs[2:4, 0:4])
 slice1 = chile.loc[chile['Site'] == 'Puerto Navarino, Isla Navarino'].reset_index(drop=True)  # grab the first data to plot, based on location
 
-plt.errorbar(slice1['Decimal_date'], slice1['r3_diff_trend'], slice1['r3_diff_trend_errprop'], markersize = size1, elinewidth=1, capsize=2, alpha=1, label=f"-54.9N; Puerto Navarino, Isla Navarino; n={len(slice1)}", ls='none', fmt='X', color='#4393c3', ecolor='#4393c3', markeredgecolor='black')
+plt.errorbar(slice1['DecimalDate'], slice1['r3_diff_trend'], slice1['r3_diff_trend_errprop'], markersize = size1, elinewidth=1, capsize=2, alpha=1, label=f"-54.9N; Puerto Navarino, Isla Navarino; n={len(slice1)}", ls='none', fmt='X', color='#4393c3', ecolor='#4393c3', markeredgecolor='black')
 
 slice2 = chile.loc[chile['Site'] == 'Baja Rosales, Isla Navarino'].reset_index(drop=True)  # grab the first data to plot, based on location
 
-plt.errorbar(slice2['Decimal_date'], slice2['r3_diff_trend'], slice2['r3_diff_trend_errprop'], markersize = size1, elinewidth=1, capsize=2, alpha=1, label=f"-54.9N; Baja Rosales, Isla Navarino; n={len(slice2)}", ls='none', fmt='D', color='#2166ac', ecolor='#2166ac', markeredgecolor='black')
+plt.errorbar(slice2['DecimalDate'], slice2['r3_diff_trend'], slice2['r3_diff_trend_errprop'], markersize = size1, elinewidth=1, capsize=2, alpha=1, label=f"-54.9N; Baja Rosales, Isla Navarino; n={len(slice2)}", ls='none', fmt='D', color='#2166ac', ecolor='#2166ac', markeredgecolor='black')
 
 c = stats.ttest_ind(slice1['r3_diff_trend'], slice2['r3_diff_trend'])
 print(c)
@@ -507,7 +514,7 @@ plt.text(1982, 11, '[B]', horizontalalignment='center', verticalalignment='cente
 plt.text(1982, 34,  '[A]', horizontalalignment='center', verticalalignment='center', fontsize=14, fontweight="bold")
 
 # plt.show()
-plt.savefig('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/Navarino.png',
+plt.savefig('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/main_analysis/Navarino.png',
             dpi=300, bbox_inches="tight")
 plt.close()
 
@@ -540,7 +547,7 @@ map.drawcoastlines()
 map.drawparallels(np.arange(-90, 90, 1), labels=[True, False, False, False], linewidth=0.5)
 map.drawmeridians(np.arange(-180, 180, 1), labels=[1, 1, 0, 1], linewidth=0.5)
 
-plt.savefig('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/RaulMarin.png',
+plt.savefig('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/main_analysis/RaulMarin.png',
             dpi=300, bbox_inches="tight")
 plt.close()
 
@@ -567,7 +574,7 @@ map.drawcoastlines()
 map.drawparallels(np.arange(-90, 90, 1), labels=[True, False, False, False], linewidth=0.5)
 map.drawmeridians(np.arange(-180, 180, 1), labels=[1, 1, 0, 1], linewidth=0.5)
 
-plt.savefig('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/MonteTarn.png',
+plt.savefig('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/main_analysis/MonteTarn.png',
             dpi=300, bbox_inches="tight")
 plt.close()
 
@@ -578,7 +585,7 @@ labels = []
 num_labels=[]
 for i in range(0, len(df)):
     row = df.iloc[i]
-    dd = row['Decimal_date']
+    dd = row['DecimalDate']
     site = str(row['Site'])
     if 1980 < dd <= 1985:
         labels.append(f'Interval1_{site}')
@@ -601,13 +608,13 @@ for i in range(0, len(df)):
 
 df['Interval_labels'] = labels
 five_year_means = df.groupby('Interval_labels').mean('r3_diff_trend').reset_index()
-five_year_means.to_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/five_year_means.xlsx')
+five_year_means.to_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/main_analysis/five_year_means.xlsx')
 
 # From the above code, we have 5-year averages for each site. But now we want the WHOLE temporal average
 # What do we use to index, since the groupby.mean removes the sites, since they're strings? We can use the unique
 # latitudes from each site.
 full_temporal_means = df.groupby('Lat').mean('r3_diff_trend').reset_index()
-full_temporal_means.to_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/full_temporal_5_year_means.xlsx')
+full_temporal_means.to_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/main_analysis/full_temporal_5_year_means.xlsx')
 
 # and now we'll re-make plot Main2.5
 
@@ -648,7 +655,7 @@ plt.axhline(0, color='black', linewidth = 0.5)
 plt.ylabel('Mean \u0394\u0394$^1$$^4$CO$_2$ (\u2030)')
 plt.xlabel('Latitude (N)')
 plt.text(-60+3.5, 7, '[B] New Zealand', horizontalalignment='center', verticalalignment='center', fontweight="bold")
-plt.savefig('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/MainFig2.5_w_bkgd_averages.png',
+plt.savefig('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/main_analysis/MainFig2.5_w_bkgd_averages.png',
             dpi=300, bbox_inches="tight")
 plt.close()
 
@@ -693,7 +700,7 @@ for m in range(0, len(times)):
     plt.xlabel(f'Fraction of trajectory over land, {timelabel[m]} hours')
     plt.xlim(0, 1)
     plt.ylabel('Mean \u0394\u0394$^1$$^4$CO$_2$ (\u2030)')
-    plt.savefig(f'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/MainFig2_wLandFRac_{timelabel[m]}.png',
+    plt.savefig(f'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/main_analysis/MainFig2_wLandFRac_{timelabel[m]}.png',
                 dpi=300, bbox_inches="tight")
     plt.close()
 
@@ -730,8 +737,8 @@ for i in range(0, len(chile1)):
     x = landfrac_slice2['timestep']
     y = landfrac_slice2['LandFrac']
     plt.scatter(x,y, marker=markers[i], color=colors[i])
-plt.savefig(f'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/MainFig2_wLandFRac_NEW.png',
-                dpi=300, bbox_inches="tight")
+plt.savefig(f'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/main_analysis/MainFig2_wLandFRac_NEW.png',
+            dpi=300, bbox_inches="tight")
 plt.close()
 
 
@@ -756,8 +763,6 @@ MAPP OF ACC FRONTS
 """
 # LOAD HYSPLOT DATA
 easy_access = pd.read_excel(r'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/hysplit/output_data/easy_access2 - Copy.xlsx')
-
-
 acc_fronts = pd.read_csv(r'H:\Science\Datasets\ACC_fronts\csv\antarctic_circumpolar_current_fronts.csv')
 fronts = np.unique(acc_fronts['front_name'])
 fronts = ['PF','SAF','STF','Boundary']
@@ -869,7 +874,7 @@ for i in range(0, len(lon1)):
 map.drawparallels(np.arange(-90, 90, 10), labels=[True, False, False, False], fontsize=7, linewidth=0.5)
 map.drawmeridians(np.arange(-180, 180, 10), labels=[1, 1, 0, 1], fontsize=7, linewidth=0.5)
 plt.title('Mean Back-Trajectories for years 05-06, 10-11, 15-16, 20-21')
-plt.savefig(f'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/ACC_map.png',
+plt.savefig(f'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/main_analysis/ACC_map.png',
             dpi=300, bbox_inches="tight")
 plt.close()
 

@@ -1,9 +1,10 @@
 import pandas as pd
 import numpy as np
-# import warnings
-# import xlsxwriter
-# from datetime import date
-# warnings.simplefilter(action='ignore')
+import warnings
+import xlsxwriter
+from datetime import date
+warnings.simplefilter(action='ignore')
+import plotly.express as px
 
 """
 We are working on an AMS data quality paper that was originally started by Albert Zondervan, who is not at uOttawa.
@@ -160,41 +161,64 @@ These 'CBL_Filtering_Category'ies will be merged onto the df (the one written to
 a for loop at the moment, I think because the TP's all previously had a -999, so when you merge them, you get extra columns or removed columns
 I'm reimporting the written files so I run easier from the python console. 
 """
-# import pandas as pd
-# import numpy as np
-# import warnings
-# import xlsxwriter
-# from datetime import date
-# warnings.simplefilter(action='ignore')
-#
+
 # # READ IN MANUAL CHECKS/ REREAD IN DF AND SETUP FOR A MERGE WITH THOSE MANUAL CHECLS
 # df = pd.read_csv(f'C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_1_output/ALL_DATA_2023-09-09.csv')
 # manual_checks = pd.read_csv(f'C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_1_output/manual_checks.csv')
 #
-# # drop everything that was -999 cuz those would have had manual checks
-# df_dropped = df.loc[df['CBL_Filtering_Category'] != -999]
-# df_combined = pd.concat([df_dropped, manual_checks]).reset_index(drop=True)
+# # isolate all those that had manual checks, and drop the column
+# df_dropped = df.loc[df['CBL_Filtering_Category'] == -999].drop(columns=['CBL_Filtering_Category'])
+# df_keep = df.loc[df['CBL_Filtering_Category'] != -999]
 #
-# #LENGTH OF ORIGINAL DF SHOULD BE LENGHT OF DF COMBINED
-# # print(len(df))
-# # print(len(df_combined))
+# # now I can merge those two on their TP values
+# df_dropped = df_dropped.merge(manual_checks)
 #
-# df_combined['CBL_Filtering_Category'] = df_combined['CBL_Filtering_Category'].astype(str)
-# print(df_combined['CBL_Filtering_Category'])
-# print(np.unique(df_combined['CBL_Filtering_Category']))
 #
+# # now concatonate the files completely together
+# df_combined = pd.concat([df_dropped, df_keep])
+#
+# # WRITE AND CHECK
 # df_combined.to_csv(f'C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_1_output/PHASE_1_COMPLETE_{today}.csv')
 
 
+"""
+Now, we'll have to go back and remove/flag some more data points. When doing so, manuall adjust them on the sheet just written above. 
+Then, when the plots and math is run below, it will be up to date. IF YOU REDOWNLOAD RLIMS, MUST RERUN THE SCRIPT!!!
+"""
+import matplotlib.pyplot as plt
+
+df_combined = pd.read_csv(r'C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_1_output/PHASE_1_COMPLETE_2023-09-09.csv')
+
+# REMOVE ANYTHING WITH A TEST
+df_combined_notest = df_combined.loc[df_combined['CBL_Filtering_Category'] != 3]
+
+# ONLY LOOK AT KNOWNS
+knowns = ['CBOr','GB','CBAi','CBIn','UNSt']
+x = df_combined_notest.loc[df_combined_notest['AMScategID'].isin(knowns)]
+x.set_index('TP', inplace=True)
+x['RTS'] = x['RTS'].astype(float)
+
+fig = plt.figure(figsize=(20, 20))
+x.groupby('sampleDESC')['RTS'].plot(legend=True)
+plt.legend(loc='center left', bbox_to_anchor=(1, 0.5))
+plt.savefig(r'C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_1_output/figures/roughplot.png')
+
+fig = plt.figure(figsize=(20, 20))
+x.groupby('sampleDESC')['RTS'].plot(legend=True)
+plt.legend(loc='center left', bbox_to_anchor=(1, 0.5))
+plt.savefig(r'C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_1_output/figures/roughplot_notest.png')
 
 
+x = df_combined.loc[df_combined['AMScategID'].isin(knowns)]
+x['RTS'] = x['RTS'].astype(float)
 
+fig = px.scatter(x, x="TP", y="RTS", color="sampleDESC",
+                 labels={
+                     "TP": "TP (Wheel Number)",
+                     "RTS": "Ratio to standard",
+                     "sampleDESC": "Sample Description"
+                 },
+                 title="Manually Specified Labels")
+fig.write_html(r'C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_1_output/figures/LOCATE_OUTLIERS.html')
 
-
-
-
-
-
-
-
-
+# TODO LOCATE OUTLIERS AND REMOVE!

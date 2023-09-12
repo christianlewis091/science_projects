@@ -266,8 +266,10 @@ Kauri, 64942
 PHASE 4: Look for more data to flag by making individual plots of the "knowns" and running statistics
 ><>><>><>><>><>><>><>><>
 """
+
 # read in the file from previous phase and isolate only the knowns
 df_p4 = pd.read_csv(f'C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_1_output/PHASE_3_{today}.csv')
+df_p4 = df_p4.loc[df_p4['RTS'] != 'Missing[]']
 
 # CHANGE SOME DESCRIPTIONS IF THEY'RE CAUSING ISSUES
 df_p4.loc[df_p4['sampleDESC'] == 'Aliquot of SIL "Old Leucine" standard decanted into vial, used as a standard in EA combustion runs', 'sampleDESC'] = 'OLD_Leucine'
@@ -276,6 +278,24 @@ df_p4.loc[df_p4['sampleDESC'] == 'GAS-38265\x1d', 'sampleDESC'] = 'Gas-38265_nos
 df_p4.loc[df_p4['sampleDESC'] == 'GAS-38921\x1d', 'sampleDESC'] = 'Gas-38921_noslash'
 df_p4.loc[df_p4['sampleDESC'] == 'GAS35868\x1d', 'sampleDESC'] = 'Gas-35868_noslash'
 df_p4.loc[df_p4['sampleDESC'] == 'Kapuni bubbled NaOH 0.01"ID tubing 30s 20140123', 'sampleDESC'] = 'Kapuni_bubbled'
+
+df_p4.loc[df_p4['sampleDESC'] == 'FIRI-C: turbidite', 'sampleDESC'] = 'firi_c_turbidite'
+df_p4.loc[df_p4['sampleDESC'] == 'FIRI-D: wood', 'sampleDESC'] = 'firi_d_wood'
+df_p4.loc[df_p4['sampleDESC'] == 'FIRI-E: humic acid', 'sampleDESC'] = 'firi_e_humicacid'
+df_p4.loc[df_p4['sampleDESC'] == 'FIRI-F: wood', 'sampleDESC'] = 'firi_f_wood'
+df_p4.loc[df_p4['sampleDESC'] == 'FIRI-G: Barley mash', 'sampleDESC'] = 'firi_g_barley_mash'
+df_p4.loc[df_p4['sampleDESC'] == 'FIRI-H: wood', 'sampleDESC'] = 'firi_h_wood'
+df_p4.loc[df_p4['sampleDESC'] == 'FIRI-I: cellulose', 'sampleDESC'] = 'firi_I_cellulose'
+df_p4.loc[df_p4['sampleDESC'] == 'IAEA-C1: Carrara Marble', 'sampleDESC'] = 'iaea_c1_marble'
+df_p4.loc[df_p4['sampleDESC'] == 'IAEA-C1: Carrara Marble WATER LINE', 'sampleDESC'] = 'iaea_c1_marble_waterline'
+df_p4.loc[df_p4['sampleDESC'] == 'IAEA-C1: Carrara Marble WATER LINE COMBINED', 'sampleDESC'] = 'iaea_c1_marble_waterlinecombined'
+df_p4.loc[df_p4['sampleDESC'] == 'IAEA-C2: Freshwater Travertine', 'sampleDESC'] = 'iaea_c2_travertine'
+
+df_p4.loc[df_p4['sampleDESC'] == 'TIRI H: Ellanmore Whole Peat', 'sampleDESC'] = 'tiri_h_peat'
+df_p4.loc[df_p4['sampleDESC'] == 'TIRI I: Caerwys Quarry Travertine', 'sampleDESC'] = 'tiri_t_quarry_travertine'
+df_p4.loc[df_p4['sampleDESC'] == 'TIRI J: Buiston Crannog Palisade - Wood', 'sampleDESC'] = 'tiri_j_wood'
+df_p4.loc[df_p4['sampleDESC'] == 'TIRI K: Turbidite Carbonate (Mainly Coccolith Calcite)', 'sampleDESC'] = 'tiri_k_carbonate'
+df_p4.loc[df_p4['sampleDESC'] == 'TIRI L: Whalebone', 'sampleDESC'] = 'tiri_l_whalebone'
 
 # replace all the R numbers from backslashes to underscores:
 fin_array = []
@@ -286,75 +306,176 @@ for i in range(0, len(df_p4)):
     fin_array.append(new_r)
 df_p4['New_R'] = fin_array
 
-
-# Im interested in the knowns only, primaries, and secondaries
+# I ONLY WANT TO EDIT/LOOK AT DATA WHO ARE IN THE "KNOWNS"
+# LETS CREATE A UNIQUE LIST OF R NUMBERS FOR THE KNOWNS
 knowns = ['CBOr','GB','CBAi','CBIn','UNSt','GB','OX1','OX1_SM']
-print(np.unique(df_p4['AMScategID']))
-# only looking at the "knowns" (see above)
-df_p4 = df_p4.loc[df_p4['AMScategID'].isin(knowns)]
-# list of unique R's in the known range
-knowns_rs = np.unique(df_p4['New_R'])
+sub_list = df_p4.loc[df_p4['AMScategID'].isin(knowns)]
+knowns_Rs = np.unique(sub_list['New_R'])
+
+df_p4['CBL_stat_flags'] = -999
+for i in range(0, len(knowns_Rs)):
+    # where-ever the data is 3-sigma greater than the mean,
+    subset = df_p4.loc[df_p4['New_R'] == knowns_Rs[i]].reset_index(drop=True)
+
+    if len(subset) > 3:
+        x = subset['TW'].astype(float)
+        y = subset['RTS'].astype(float)
+        yerr = subset['RTSerr'].astype(float)
+        mean1 = np.mean(y)
+        one_sig = np.std(y)
+        two_sig = 2*one_sig
+        three_sig = 3*one_sig
+        desc = subset['sampleDESC']
+
+        # FLAG ANNYTHING THAT IS GREATER THAN 3 SIGMA
+        df_p4.loc[(df_p4['New_R'] == knowns_Rs[i]) & (df_p4['RTS'].astype(float) > (mean1+three_sig)).astype(float), 'flag'] = 'X..'
+        df_p4.loc[(df_p4['New_R'] == knowns_Rs[i]) & (df_p4['RTS'].astype(float) < (mean1-three_sig)).astype(float), 'flag'] = 'X..'
+        df_p4.loc[(df_p4['New_R'] == knowns_Rs[i]) & (df_p4['RTS'].astype(float) > (mean1+three_sig)).astype(float), 'CBL_stat_flags'] = 'Phase4_3_sigma_out'
+        df_p4.loc[(df_p4['New_R'] == knowns_Rs[i]) & (df_p4['RTS'].astype(float) < (mean1-three_sig)).astype(float), 'CBL_stat_flags'] = 'Phase4_3_sigma_out'
+
+        flagged = df_p4.loc[(df_p4['New_R'] == knowns_Rs[i]) & (df_p4['CBL_stat_flags'] == 'Phase4_3_sigma_out')].sort_values(by=['TW'])
+        not_flagged = df_p4.loc[(df_p4['New_R'] == knowns_Rs[i]) & (df_p4['CBL_stat_flags'] != 'Phase4_3_sigma_out')].sort_values(by=['TW'])
+
+        fig = plt.figure(figsize=(10, 8))
+        scaling_fac = 6
+        plt.ylim(mean1-(one_sig*scaling_fac), mean1+(one_sig*scaling_fac))
+        plt.xlabel('TW')
+        plt.ylabel('Ratio to Standard')
+        plt.title(f'{knowns_Rs[i]}_{desc[0]}')
+        plt.axhline(mean1, color='black')
+        plt.fill_between(not_flagged['TW'], mean1-three_sig, mean1+three_sig, alpha=0.1)
+        plt.fill_between(not_flagged['TW'], mean1-two_sig, mean1+two_sig, alpha=0.15)
+        plt.fill_between(not_flagged['TW'], mean1-one_sig, mean1+one_sig, alpha=0.2)
+
+        plt.errorbar(flagged['TW'].astype(float), flagged['RTS'].astype(float), yerr=flagged['RTSerr'].astype(float), color='red', capsize=2, fmt='o')
+        plt.errorbar(not_flagged['TW'].astype(float), not_flagged['RTS'].astype(float), yerr=not_flagged['RTSerr'].astype(float), color='blue', capsize=2, fmt='o')
+        plt.savefig(f'C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_1_output/figures/stat_plots/{today}_{knowns_Rs[i]}_{desc[0]}.png', dpi=300, bbox_inches="tight")
+
+print(len(df_p4))
+print(np.unique(df_p4['CBL_stat_flags'].astype(str)))
 
 
 
-def stats_and_plots(r_number):
-    this_one = df_p4.loc[df_p4['New_R'] == r_number].reset_index(drop=True).sort_values(by=['TW'])
-    desc = this_one['sampleDESC']
-
-    # The raw data
-    x = this_one['TW'].astype(float)
-    y = this_one['RTS'].astype(float)
-    yerrr = this_one['RTSerr'].astype(float)
-
-    # stats
-    avs = np.mean(y)
-    sigma1 = np.std(y)
-    sigma2 = sigma1*2
-    sigma3 = sigma1*3
-
-    # setup figure dimensions
-    fig = plt.figure(figsize=(10, 10))
-    scaling_fac = 6
-    plt.ylim(avs-(sigma1*scaling_fac), avs+(sigma1*scaling_fac))
-    plt.title(f'{knowns_rs[i]}_{desc[0]}')
-    plt.xlabel('TW')
-    plt.ylabel('Ratio to Standard')
-
-    plt.fill_between(x, avs-sigma1, avs+sigma1, color='brown', alpha=0.1)
-    plt.fill_between(x, avs-sigma2, avs+sigma2, color='brown', alpha=0.05)
-    plt.fill_between(x, avs-sigma3, avs+sigma3,  color='brown', alpha=0.025)
-    # plt.legend(loc='center left', bbox_to_anchor=(1, 0.5))
-    plt.axhline(avs, linestyle='-', color='black',alpha=0.5)
-    plt.errorbar(x, y, yerr=yerrr, fmt="o",capsize=2)
-    plt.savefig(f'C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_1_output/figures/stat_plots/{today}_{r_number}_{desc[0]}.png')
-
-list1 = ['41347_13',
-         '41347_12',
-         '41347_3',
-         '41347_2',
-         '40699_1',
-         '40430_3',
-         '40430_2',
-         '40430_1',
-         '40142_7',
-         '40142_3',
-         '40142_2',
-         '40142_1',
-         '40113_1',
-         '29855_1',
-         '26294_2',
-         '26294_1',
-         '26281_1',
-         '24779_1']
-
-for i in range(0,len(list1)):
-    stats_and_plots(str(list1[i]))
-
-# TODO it seems like the output from this list is small. Are there some R numbers not being captured when we look in
-# TODO the list of "knowns?"
 
 
 
+
+
+
+
+
+
+
+
+        # # setup figure dimensions
+        # fig = plt.figure(figsize=(16, 10))
+        # scaling_fac = 6
+        # plt.ylim(x_mean-(x_std*scaling_fac), x_mean+(x_std*scaling_fac))
+        # plt.title(f'{knowns_Rs[i]}_{desc[0]}')
+        # plt.xlabel('TW')
+        # plt.ylabel('Ratio to Standard')
+        #
+        # plt.fill_between(tw, x_mean-x_std, x_mean+x_std, color='brown', alpha=0.1)
+        # plt.fill_between(tw, x_mean-2*x_std, x_mean+2*x_std, color='brown', alpha=0.05)
+        # plt.fill_between(tw, x_mean-3*x_std, x_mean+3*x_std,  color='brown', alpha=0.025)
+        # plt.legend(loc='center left', bbox_to_anchor=(1, 0.5))
+        # #
+        # plt.axhline(x_mean, linestyle='-', color='black',alpha=0.5)
+        # plt.errorbar(tw, rts, yerr=rts_err, fmt="o",capsize=2, label='Good Data')
+        # #
+        # # # overlay where we've flagged data
+        # # flagged = df_p4.loc[(df_p4['New_R'] == knowns_Rs[i]) & (df_p4['CBL_stat_flags'] == 'Phase4_3_sigma_out')]
+        # # plt.errorbar(flagged['TW'].astype(float), flagged['RTS'].astype(float), yerr=flagged['RTSerr'].astype(float), fmt="o",capsize=2, color='darkred', label = 'Flagged Data')
+        #
+        # plt.show()
+        # plt.savefig(f'C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_1_output/figures/stat_plots/{today}_{knowns_Rs[i]}_{desc[0]}.png')
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# print(np.unique(df_p4['CBL_stat_flags'].astype(str)))
+#
+# test = df_p4.loc[df_p4['CBL_stat_flags'] == 'Phase4_3_sigma_out']
+# print(len(df_p4))
+# print(len(test))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#
+# def stats_and_plots(r_number):
+#     this_one = df_p4.loc[df_p4['New_R'] == r_number].reset_index(drop=True).sort_values(by=['TW'])
+#     desc = this_one['sampleDESC']
+#
+#     # The raw data
+#     x = this_one['TW'].astype(float)
+#     y = this_one['RTS'].astype(float)
+#     yerrr = this_one['RTSerr'].astype(float)
+#
+#     # stats
+#     avs = np.mean(y)
+#     sigma1 = np.std(y)
+#     sigma2 = sigma1*2
+#     sigma3 = sigma1*3
+#
+#     # setup figure dimensions
+#     fig = plt.figure(figsize=(16, 10))
+#     scaling_fac = 6
+#     plt.ylim(avs-(sigma1*scaling_fac), avs+(sigma1*scaling_fac))
+#     plt.title(f'{knowns_rs[i]}_{desc[0]}')
+#     plt.xlabel('TW')
+#     plt.ylabel('Ratio to Standard')
+#
+#     plt.fill_between(x, avs-sigma1, avs+sigma1, color='brown', alpha=0.1)
+#     plt.fill_between(x, avs-sigma2, avs+sigma2, color='brown', alpha=0.05)
+#     plt.fill_between(x, avs-sigma3, avs+sigma3,  color='brown', alpha=0.025)
+#     # plt.legend(loc='center left', bbox_to_anchor=(1, 0.5))
+#     plt.axhline(avs, linestyle='-', color='black',alpha=0.5)
+#     plt.errorbar(x, y, yerr=yerrr, fmt="o",capsize=2)
+#     plt.savefig(f'C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_1_output/figures/stat_plots/{today}_{r_number}_{desc[0]}.png')
+#
+#
+# for i in range(0,len(knowns_rs)):
+#     stats_and_plots(str(knowns_rs[i]))
+#
+# # TODO it seems like the output from this list is small. Are there some R numbers not being captured when we look in
+# # TODO the list of "knowns?"
+#
+# """
+# For all of the items in the list of "knowns" lets label everything that is >3 sigma out of the mean
+# """
+#
 
 
 

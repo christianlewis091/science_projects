@@ -3,6 +3,7 @@
 We previously made a cool map showing the differences in 14C and nitrate along the different fronts.
 Lets try to quantify it a little bit more. To do this, I'm going to comment out the section that makes the map until later,
 to speed up the code.
+I wrote a file called CBL_zones which labels each datapoint (within the boundaries of the fronts) which I will call later into the plot
 
 22-09-2023
 From my last meeting with Erik and Sara, we saw that Campbell island's HYSPLIT back-trajectory goes into the
@@ -23,16 +24,16 @@ The third will be hyplsit data
 """
 QUANTIFICATION SECTION
 """
-
-import pandas as pd
-import numpy as np
-from X_miller_curve_algorithm import ccgFilter
-import matplotlib.pyplot as plt
-from mpl_toolkits.basemap import Basemap
-import matplotlib.gridspec as gridspec
-from X_my_functions import monte_carlo_randomization_trend
+#
+# import pandas as pd
+# import numpy as np
+# from X_miller_curve_algorithm import ccgFilter
+# import matplotlib.pyplot as plt
+# from mpl_toolkits.basemap import Basemap
+# import matplotlib.gridspec as gridspec
+# from X_my_functions import monte_carlo_randomization_trend
 # from main_analysis import *
-
+#
 # df = pd.read_excel(r'H:\Science\Datasets\Hydrographic\raw_data_watermassproject_ALLDATA100m.xlsx')
 # acc_fronts = pd.read_csv(r'H:\Science\Datasets\ACC_fronts\csv\antarctic_circumpolar_current_fronts.csv')
 #
@@ -65,23 +66,24 @@ from X_my_functions import monte_carlo_randomization_trend
 #     #dynamically name a variable
 #     smoothed = ccgFilter(longitudes, latitudes, cutoff).getSmoothValue(datas['x'])
 #     df[f'{fronts[i]}+smoothed'] = smoothed
-
-    # test it by showing in a plot / works so i'm removing this
-#     x, y = m(datas['x'], smoothed)
-#     m.plot(x, y, color='black', label=f'{fronts[i]}', linestyle=line_sys[i])
-# plt.legend()
-# plt.show()
+#
+#     # # test it by showing in a plot / works so i'm removing this
+#     # x, y = m(datas['x'], smoothed)
+#     # m.plot(x, y, color='black', label=f'{fronts[i]}', linestyle=line_sys[i])
+# # plt.legend()
+# # plt.show()
 # print(df.columns)
 # df.to_excel(r'H:\Science\Datasets\Hydrographic\test.xlsx')
 # df = pd.read_excel(r'H:\Science\Datasets\Hydrographic\test.xlsx')
 #
 # # subset data so that I only see data where the latitude of the pont is lower than STF
-# df = df.loc[(df['LATITUDE'] <= df['STF+smoothed']) & (df['LATITUDE'] >= df['Boundary+smoothed'])]
 # # columns_to_dropna = ['Boundary+smoothed', 'PF+smoothed','SAF+smoothed','STF+smoothed']
 # # df = df.dropna(subset=columns_to_dropna, inplace=True)
 # print(len(df))
 # # loop through the DF and assign a "SURFACE FRONT" to each point based on its lat and lon...
 # result_array = []
+# results_array_sectors1 = []
+# results_array_sectors2 = []
 # for j in range(0, len(df)):
 #     row = df.iloc[j]
 #     print(row['LATITUDE'])
@@ -91,61 +93,366 @@ from X_my_functions import monte_carlo_randomization_trend
 #     print(row['STF+smoothed'])
 #
 #     # assign label based on latitude
-#     if (row['LATITUDE'] >= row['Boundary+smoothed']) & (row['LATITUDE'] <= row['PF+smoothed']):
-#         res = 'Zone1'
+#     if (row['LATITUDE'] >= row['STF+smoothed']):
+#         res = 'STZ'
+#     elif (row['LATITUDE'] >= row['Boundary+smoothed']) & (row['LATITUDE'] <= row['PF+smoothed']):
+#         res = 'ASZ'
 #     elif (row['LATITUDE'] >= row['PF+smoothed']) & (row['LATITUDE'] <= row['SAF+smoothed']):
-#         res = 'Zone2'
+#         res = 'PFZ'
 #     elif (row['LATITUDE'] >= row['SAF+smoothed']) & (row['LATITUDE'] <= row['STF+smoothed']):
-#         res = 'Zone3'
+#         res = 'SAZ'
+#     elif (row['LATITUDE'] <= row['Boundary+smoothed']):
+#         res = 'SIZ'
 #     else:
 #         res = 'Error'
+#
+#     # assign label based on latitude and longitude (PACIFIC SIDE FOR CHILEAN DATA)
+#     if (row['LATITUDE'] >= row['STF+smoothed']) & (-150 <= row['LONGITUDE'] <= -90):
+#         res2 = 'STZ'
+#     elif (row['LATITUDE'] >= row['Boundary+smoothed']) & (row['LATITUDE'] <= row['PF+smoothed']) & (-150 <= row['LONGITUDE'] <= -90):
+#         res2 = 'ASZ'
+#     elif (row['LATITUDE'] >= row['PF+smoothed']) & (row['LATITUDE'] <= row['SAF+smoothed']) & (-150 <= row['LONGITUDE'] <= -90):
+#         res2 = 'PFZ'
+#     elif (row['LATITUDE'] >= row['SAF+smoothed']) & (row['LATITUDE'] <= row['STF+smoothed']) & (-150 <= row['LONGITUDE'] <= -90):
+#         res2 = 'SAZ'
+#     elif (row['LATITUDE'] <= row['Boundary+smoothed']):
+#         res2 = 'SIZ'
+#     else:
+#         res2 = 'Error'
+#     # INDIAN SIDE FOR NZ ORIGIN
+#     if (row['LATITUDE'] >= row['STF+smoothed']) & (60 <= row['LONGITUDE'] <= 120):
+#         res3 = 'STZ'
+#     elif (row['LATITUDE'] >= row['Boundary+smoothed']) & (row['LATITUDE'] <= row['PF+smoothed']) & (60 <= row['LONGITUDE'] <= 120):
+#         res3 = 'ASZ'
+#     elif (row['LATITUDE'] >= row['PF+smoothed']) & (row['LATITUDE'] <= row['SAF+smoothed']) & (60 <= row['LONGITUDE'] <= 120):
+#         res3 = 'PFZ'
+#     elif (row['LATITUDE'] >= row['SAF+smoothed']) & (row['LATITUDE'] <= row['STF+smoothed']) & (60 <= row['LONGITUDE'] <= 120):
+#         res3 = 'SAZ'
+#     elif (row['LATITUDE'] <= row['Boundary+smoothed']):
+#         res3 = 'SIZ'
+#     else:
+#         res3 = 'Error'
+#
+#     # append the total zone
 #     result_array.append(res)
-#
+#     # append the Pac zone
+#     results_array_sectors1.append(res2)
+#     # append the indian zone
+#     results_array_sectors2.append(res3)
 # df['CBL_zones'] = result_array
-#
+# df['CBL_zones_sectored_CH'] = results_array_sectors1
+# df['CBL_zones_sectored_NZ'] = results_array_sectors2
 # df.to_excel(r'H:\Science\Datasets\Hydrographic\cbl_zones.xlsx')
+
+
+"""
+FIGURE SECTION
+"""
+
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+from mpl_toolkits.basemap import Basemap
+import matplotlib.gridspec as gridspec
+# from main_analysis import *
+
+# # READ IN THE _ALLDATA FILE
+# df = pd.read_excel(r'H:\Science\Datasets\Hydrographic\raw_data_watermassproject_ALLDATA.xlsx')
+df = pd.read_excel(r'H:\Science\Datasets\Hydrographic\raw_data_watermassproject_ALLDATA100m.xlsx')
+# FILTER TO ONLY GRAB SURFACE SAMPLES
+df = df.loc[df['CTDPRS'] < 100] # ONLY GRAB SURFACE SAMPLES
+
+# WRITE TO A NEW FILE FOR FASTER PRODUCTION OF THIS CODE (insert to above later)
+# df.to_excel(r'H:\Science\Datasets\Hydrographic\raw_data_watermassproject_ALLDATA100m.xlsx')
+
+# CREATE SUBSETS OF DATA FOR SUBPLOTS 1, 2, and 3
+df_sub1 = df.loc[df['NITRAT'] > -990]
+df_sub1 = df_sub1[::100]
+df_sub2 = df.loc[df['DELC14'] > -990]
+df_sub2 = df_sub2[::10]
+# df_sub3 will be produced later.
+
+# ACC FRONT DATA
+acc_fronts = pd.read_csv(r'H:\Science\Datasets\ACC_fronts\csv\antarctic_circumpolar_current_fronts.csv')
+#
+#
+# # CREATE THE MAP
+fib = 18 # goldenr atio
+fig = plt.figure(figsize=(fib, fib/1.618))
+gs = gridspec.GridSpec(4, 3)
+gs.update(wspace=.4, hspace=0.01)
+
+# # set colorbar boundaries
+#
+#
+# """
+# FIRST SUBPLOT: PLOT FRONTS AND PLOT NITRATE DATA
+# """
+# # Extract latitude, longitude, and NITRATE columns from HYDROGRAPHIC DATA
+xtr_subsplot = fig.add_subplot(gs[0:2, 0:1])
+m = Basemap(projection='ortho',lon_0=-150,lat_0=-90,resolution='l')
+m.drawcoastlines()
+m.shadedrelief()
+latitudes = df_sub1['LATITUDE']
+longitudes = df_sub1['LONGITUDE']
+nitrate = df_sub1['NITRAT']  # SST values (sea surface temperature)
+# # Convert latitudes and longitudes to map coordinates
+x, y = m(longitudes.values, latitudes.values)
+# Plot the SST data as scatter points, color-coded by temperature
+plt.title('Nitrate (\u03BCM)')
+m.scatter(x, y, c=nitrate, cmap='coolwarm', s=50, edgecolor='k', linewidth=0.5, vmin=0, vmax=32)
+cbar = plt.colorbar(orientation='vertical', fraction=0.046, pad=0.04)
+# cbar.set_label('Nitrate')
+
+fronts = np.unique(acc_fronts['front_name'])
+fronts = ['PF','SAF','STF','Boundary']
+line_sys = ['dotted','dashed','dashdot','solid','dotted','dashed','dashdot']
+
+for i in range(0, len(fronts)):
+    this_one = acc_fronts.loc[acc_fronts['front_name'] == fronts[i]]
+    latitudes = this_one['latitude']
+    longitudes = this_one['longitude']
+    x, y = m(longitudes.values, latitudes.values)
+    m.plot(x, y, color='black', label=f'{fronts[i]}', linestyle=line_sys[i])
+
+# """
+# SECOND SUBPLOT: PLOT FRONTS AND PLOT DEL14C DATA
+# """
+# #flip colormap
+cmap_reversed = plt.cm.get_cmap('coolwarm_r')
+# Extract latitude, longitude, and NITRATE columns from HYDROGRAPHIC DATA
+xtr_subsplot = fig.add_subplot(gs[0:2, 1:2])
+plt.title('DIC \u0394$^1$$^4$C (\u2030)')
+m = Basemap(projection='ortho',lon_0=-150,lat_0=-90,resolution='l')
+m.drawcoastlines()
+m.shadedrelief()
+latitudes = df_sub2['LATITUDE']
+longitudes = df_sub2['LONGITUDE']
+nitrate = df_sub2['DELC14']
+# Convert latitudes and longitudes to map coordinates
+x, y = m(longitudes.values, latitudes.values)
+# Plot the SST data as scatter points, color-coded by temperature
+m.scatter(x, y, c=nitrate, cmap=cmap_reversed, s=50, edgecolor='k', linewidth=0.5, vmin=-150, vmax=150)
+cbar = plt.colorbar(orientation='vertical', fraction=0.046, pad=0.04)
+
+
+fronts = np.unique(acc_fronts['front_name'])
+fronts = ['PF','SAF','STF','Boundary']
+line_sys = ['dotted','dashed','dashdot','solid','dotted','dashed','dashdot']
+
+for i in range(0, len(fronts)):
+    this_one = acc_fronts.loc[acc_fronts['front_name'] == fronts[i]]
+    latitudes = this_one['latitude']
+    longitudes = this_one['longitude']
+    x, y = m(longitudes.values, latitudes.values)
+    m.plot(x, y, color='black', label=f'{fronts[i]}', linestyle=line_sys[i])
+
+# """
+# THIRD SUBPLOT: hyspliy
+# """
+xtr_subsplot = fig.add_subplot(gs[0:3, 2:4])
+m = Basemap(projection='ortho',lon_0=-150,lat_0=-90,resolution='l')
+m.drawcoastlines()
+m.shadedrelief()
+m.drawparallels(np.arange(-90, 90, 30), labels=[True, False, False, False], fontsize=7, linewidth=0.5)
+m.drawmeridians(np.arange(-180, 180, 30), labels=[1, 1, 0, 1], fontsize=7, linewidth=0.5)
+# """
+# COPIED AND PASTED THE MAP FROM THE BOTTOM OF MAIN_ANALYSIS.PY
+# THE BELOW CODE WORKS. I'm going to test plotting the glodap data above and then bring it into the plot below
+# """
+# LOAD HYSPLOT DATA
+easy_access = pd.read_excel(r'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/hysplit/output_data/easy_access2 - Copy.xlsx')
+acc_fronts = pd.read_csv(r'H:\Science\Datasets\ACC_fronts\csv\antarctic_circumpolar_current_fronts.csv')
+means = pd.read_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/hysplit_make_plots/means_concat.xlsx')
+fronts = np.unique(acc_fronts['front_name'])
+fronts = ['PF','SAF','STF','Boundary']
+
+"""
+BEGIN PLOTTING THE FIGURE
+"""
+from main_analysis import locs1, chile, markers, colors, size1, locs2, nz
+line_sys = ['dotted','dashed','dashdot','solid','dotted','dashed','dashdot']
+
+
+# codenames = np.unique(easy_access['Codename'])
+# for i in range(0,len(codenames)):
+#
+#     # LOCATE FIRST SITE
+#     site1 = means.loc[means['location'] == codenames[i]]
+#     latitudes = site1['y']
+#     longitudes = site1['x']
+#     x, y = m(longitudes.values, latitudes.values)
+#     m.scatter(x, y, marker=markers[i],color=colors[i], s=size1*10, edgecolor='black')
+#     print(locs1[i])
+
+fronts = np.unique(acc_fronts['front_name'])
+fronts = ['PF','SAF','STF','Boundary']
+line_sys = ['dotted','dashed','dashdot','solid','dotted','dashed','dashdot']
+
+for i in range(0, len(fronts)):
+    this_one = acc_fronts.loc[acc_fronts['front_name'] == fronts[i]]
+    latitudes = this_one['latitude']
+    longitudes = this_one['longitude']
+    x, y = m(longitudes.values, latitudes.values)
+    m.plot(x, y, color='black', label=f'{fronts[i]}', linestyle=line_sys[i])
+
+    # PLOTTING CHILEAN SITES
+for i in range(0, len(locs1)):
+    slice = chile.loc[chile['Site'] == str(locs1[i])].reset_index(drop=True)  # grab the first data to plot, based on location
+    lat = slice['NewLat']
+    lat = lat[0]
+    lon = slice['new_Lon']
+    lon = lon[0]
+    x, y = m(lon, lat)
+    m.scatter(x, y, marker=markers[i],color=colors[i], s=size1*10, edgecolor='black')
+
+    site1 = means.loc[means['location'] == str(locs1[i])]
+    print(locs1[i])
+    latitudes = site1['y']
+    longitudes = site1['x']
+    x, y = m(longitudes.values, latitudes.values)
+    m.scatter(x, y, color=colors[i], s=5)
+
+    # PLOTTING NZ SITES
+for i in range(0, len(locs2)):
+    slice = nz.loc[nz['Site'] == str(locs2[i])].reset_index(drop=True)  # grab the first data to plot, based on location
+    lat = slice['NewLat']
+    lat = lat[0]
+    lon = slice['NewLon']
+    lon = lon[0]
+    x, y = m(lon, lat)
+    # print(x, y)
+    m.scatter(x, y, marker=markers[i],color=colors[i], s=size1*10, edgecolor='black')
+
+    site1 = means.loc[means['location'] == str(locs2[i])]
+    latitudes = site1['y']
+    longitudes = site1['x']
+    x, y = m(longitudes.values, latitudes.values)
+    m.scatter(x, y, color=colors[i], s=5)
+
+
+plt.title('HYSPLIT')
+#
+
 df = pd.read_excel(r'H:\Science\Datasets\Hydrographic\cbl_zones.xlsx')
+df = df.loc[df['CBL_zones'] != 'Error']
 df = df.loc[df['DELC14'] > -990]
+df = df.loc[df['NITRAT'] > -990]
 
 results = pd.DataFrame()
-zones = ['Zone1', 'Zone2','Zone3']
+zones = np.unique(df['CBL_zones'])
+zones = ['STZ','SAZ','PFZ','ASZ','SIZ']
+# total data
 mean14C = []
 std14C = []
 meannit = []
 stdnit = []
 zone = []
+
+# pac data
+mean14C_pac = []
+std14C_pac = []
+meannit_pac = []
+stdnit_pac = []
+zone_pac = []
+
+# ind data
+mean14C_ind = []
+std14C_ind = []
+meannit_ind = []
+stdnit_ind = []
+zone_ind = []
+
+
 for i in range(0, len(zones)):
     df1 = df.loc[df['CBL_zones'] == zones[i]]
-    mean14C.append(np.mean(df1['DELC14']))
-    std14C.append(np.std(df1['DELC14']))
-    meannit.append(np.mean(df1['NITRAT']))
-    stdnit.append(np.std(df1['NITRAT']))
+    mean14C.append(np.nanmean(df1['DELC14']))
+    std14C.append(np.nanstd(df1['DELC14']))
+    meannit.append(np.nanmean(df1['NITRAT']))
+    stdnit.append(np.nanstd(df1['NITRAT']))
     zone.append(zones[i])
 
-results = pd.DataFrame({"zone": zone, "mean_14C": mean14C, "std14C":std14C, "mean_nitrate": meannit, "stdnitrate":stdnit})
+    df2 = df.loc[df['CBL_zones_sectored_CH'] == zones[i]]
+    mean14C_pac.append(np.nanmean(df2['DELC14']))
+    std14C_pac.append(np.nanstd(df2['DELC14']))
+    meannit_pac.append(np.nanmean(df2['NITRAT']))
+    stdnit_pac.append(np.nanstd(df2['NITRAT']))
 
-plt.scatter(results['zone'], results['mean_14C'])
-plt.scatter(results['zone'], results['mean_nitrate'])
-plt.show()
-
-
-
-
-
-
-
-
+    df3 = df.loc[df['CBL_zones_sectored_NZ'] == zones[i]]
+    mean14C_ind.append(np.nanmean(df3['DELC14']))
+    std14C_ind.append(np.nanstd(df3['DELC14']))
+    meannit_ind.append(np.nanmean(df3['NITRAT']))
+    stdnit_ind.append(np.nanstd(df3['NITRAT']))
 
 
+results = pd.DataFrame({"zone": zone,
+                        "mean_14C": mean14C, "std14C":std14C, "mean_nitrate": meannit, "stdnitrate":stdnit,
+                        "mean_14C_pac": mean14C_pac, "std14C_pac":std14C_pac, "mean_nitrate_pac": meannit_pac, "stdnitrate_pac":stdnit_pac,
+                        "mean_14C_ind": mean14C_ind, "std14C_ind":std14C_ind, "mean_nitrate_ind": meannit_ind, "stdnitrate_ind":stdnit_ind,
+                        })
+results.to_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/glodap_overlay/glodap_goship_results.xlsx')
+xtr_subsplot = fig.add_subplot(gs[2:3, 0:1])
+# plt.errorbar(results['zone'], results['mean_nitrate'], yerr=results['stdnitrate'], fmt='o', color='black', ecolor='black', elinewidth=1, capsize=2, alpha=1)
+
+blah = 50
+results_tot = results.loc[(results['zone'] == 'STZ') | (results['zone'] == 'SAZ') | (results['zone'] == 'PFZ') | (results['zone'] == 'ASZ') |(results['zone'] == 'SIZ')]
+results_pac = results.loc[(results['zone'] == 'STZ') | (results['zone'] == 'SAZ') | (results['zone'] == 'PFZ') | (results['zone'] == 'ASZ') |(results['zone'] == 'SIZ')]
+
+plt.errorbar(results['zone'], results['mean_nitrate'], yerr=results['stdnitrate'], fmt='', ecolor='black', elinewidth=1, capsize=2, alpha=1, linestyle='', zorder=0)
+plt.scatter(results['zone'], results['mean_nitrate'], c=results['mean_nitrate'], cmap='coolwarm', s=blah, edgecolor='k', linewidth=0.5, vmin=0, vmax=32, zorder=10, marker='o')
+
+plt.errorbar(results['zone'], results['mean_nitrate_pac'], yerr=results['stdnitrate_pac'], fmt='', ecolor='black', elinewidth=1, capsize=2, alpha=1, linestyle='', zorder=0)
+plt.scatter(results['zone'], results['mean_nitrate_pac'], c=results['mean_nitrate_pac'], cmap='coolwarm', s=blah, edgecolor='k', linewidth=0.5, vmin=0, vmax=32, zorder=10, marker='D')
+
+plt.errorbar(results['zone'], results['mean_nitrate_ind'], yerr=results['stdnitrate_ind'], fmt='', ecolor='black', elinewidth=1, capsize=2, alpha=1, linestyle='', zorder=0)
+plt.scatter(results['zone'], results['mean_nitrate_ind'], c=results['mean_nitrate_ind'], cmap='coolwarm', s=blah, edgecolor='k', linewidth=0.5, vmin=0, vmax=32, zorder=10, marker='s')
+
+# cbar = plt.colorbar(orientation='vertical', fraction=0.046, pad=0.04)
+
+xtr_subsplot = fig.add_subplot(gs[2:3, 1:2])
+plt.errorbar(results['zone'], results['mean_14C'], yerr=results['std14C'], fmt='', ecolor='black', elinewidth=1, capsize=2, alpha=1, linestyle='', zorder=0)
+plt.scatter(results['zone'], results['mean_14C'], c=results['mean_14C'], cmap=cmap_reversed, s=blah, edgecolor='k', linewidth=0.5, vmin=-150, vmax=150, zorder=10, label='Total')
+
+plt.errorbar(results['zone'], results['mean_14C_pac'], yerr=results['std14C_pac'], fmt='', ecolor='black', elinewidth=1, capsize=2, alpha=1, linestyle='', zorder=0)
+plt.scatter(results['zone'], results['mean_14C_pac'], c=results['mean_14C_pac'], cmap=cmap_reversed, s=blah, edgecolor='k', linewidth=0.5, vmin=-150, vmax=150, zorder=10, marker='D', label='Pacific Sector')
+
+plt.errorbar(results['zone'], results['mean_14C_ind'], yerr=results['std14C_ind'], fmt='', ecolor='black', elinewidth=1, capsize=2, alpha=1, linestyle='', zorder=0)
+plt.scatter(results['zone'], results['mean_14C_ind'], c=results['mean_14C_ind'], cmap=cmap_reversed, s=blah, edgecolor='k', linewidth=0.5, vmin=-150, vmax=150, zorder=10, marker='s', label='Indian Sector')
+
+# cbar = plt.colorbar(orientation='vertical', fraction=0.046, pad=0.04)
+plt.legend()
+
+# add labels
+plt.text(-3, 95, '[B]', horizontalalignment='center', verticalalignment='center', fontsize=12)
+plt.text(0, 95, '[D]', horizontalalignment='center', verticalalignment='center', fontsize=12)
+plt.text(-3, 492, '[A]', horizontalalignment='center', verticalalignment='center', fontsize=12)
+plt.text(0, 492, '[C]', horizontalalignment='center', verticalalignment='center', fontsize=12)
+plt.text(3, 492, '[E]', horizontalalignment='center', verticalalignment='center', fontsize=12)
+
+
+plt.savefig(f'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/glodap_overlay/GLODAP_data_final.png',
+            dpi=300, bbox_inches="tight")
+plt.close()
 
 
 
 
 
 
-
-
-
+#
+#
+#
+#
+#
+# """
+# Make the figure again but zoom in on chile
+# """
+#
+#
+#
+#
+#
+#
 # """
 # FIGURE SECTION
 # """
@@ -157,7 +464,7 @@ plt.show()
 # import matplotlib.gridspec as gridspec
 # # from main_analysis import *
 #
-# # READ IN THE _ALLDATA FILE
+# # # READ IN THE _ALLDATA FILE
 # # df = pd.read_excel(r'H:\Science\Datasets\Hydrographic\raw_data_watermassproject_ALLDATA.xlsx')
 # df = pd.read_excel(r'H:\Science\Datasets\Hydrographic\raw_data_watermassproject_ALLDATA100m.xlsx')
 # print('ive loaded the data')
@@ -176,30 +483,35 @@ plt.show()
 #
 # # ACC FRONT DATA
 # acc_fronts = pd.read_csv(r'H:\Science\Datasets\ACC_fronts\csv\antarctic_circumpolar_current_fronts.csv')
+# #
+# #
+# # # CREATE THE MAP
+# fib = 18 # goldenr atio
+# fig = plt.figure(figsize=(fib, fib/1.618))
+# gs = gridspec.GridSpec(4, 3)
+# gs.update(wspace=.4, hspace=0.01)
 #
-#
-# # CREATE THE MAP
-# fig = plt.figure(figsize=(12, 4))
-# gs = gridspec.GridSpec(1, 3)
-# gs.update(wspace=.4, hspace=0.1)
-#
-# """
-# FIRST SUBPLOT: PLOT FRONTS AND PLOT NITRATE DATA
-# """
-# # Extract latitude, longitude, and NITRATE columns from HYDROGRAPHIC DATA
-# xtr_subsplot = fig.add_subplot(gs[0:1, 0:1])
+# # # set colorbar boundaries
+# #
+# #
+# # """
+# # FIRST SUBPLOT: PLOT FRONTS AND PLOT NITRATE DATA
+# # """
+# # # Extract latitude, longitude, and NITRATE columns from HYDROGRAPHIC DATA
+# xtr_subsplot = fig.add_subplot(gs[0:2, 0:1])
 # m = Basemap(projection='ortho',lon_0=-150,lat_0=-90,resolution='l')
 # m.drawcoastlines()
 # m.shadedrelief()
 # latitudes = df_sub1['LATITUDE']
 # longitudes = df_sub1['LONGITUDE']
 # nitrate = df_sub1['NITRAT']  # SST values (sea surface temperature)
-# # Convert latitudes and longitudes to map coordinates
+# # # Convert latitudes and longitudes to map coordinates
 # x, y = m(longitudes.values, latitudes.values)
 # # Plot the SST data as scatter points, color-coded by temperature
-# m.scatter(x, y, c=nitrate, cmap='coolwarm', s=50, edgecolor='k', linewidth=0.5)
+# plt.title('Nitrate (\u03BCM)')
+# m.scatter(x, y, c=nitrate, cmap='coolwarm', s=50, edgecolor='k', linewidth=0.5, vmin=0, vmax=32)
 # cbar = plt.colorbar(orientation='vertical', fraction=0.046, pad=0.04)
-# cbar.set_label('Nitrate')
+# # cbar.set_label('Nitrate')
 #
 # fronts = np.unique(acc_fronts['front_name'])
 # fronts = ['PF','SAF','STF','Boundary']
@@ -212,11 +524,14 @@ plt.show()
 #     x, y = m(longitudes.values, latitudes.values)
 #     m.plot(x, y, color='black', label=f'{fronts[i]}', linestyle=line_sys[i])
 #
-# """
-# SECOND SUBPLOT: PLOT FRONTS AND PLOT DEL14C DATA
-# """
+# # """
+# # SECOND SUBPLOT: PLOT FRONTS AND PLOT DEL14C DATA
+# # """
+# # #flip colormap
+# cmap_reversed = plt.cm.get_cmap('coolwarm_r')
 # # Extract latitude, longitude, and NITRATE columns from HYDROGRAPHIC DATA
-# xtr_subsplot = fig.add_subplot(gs[0:1, 1:2])
+# xtr_subsplot = fig.add_subplot(gs[0:2, 1:2])
+# plt.title('DIC \u0394$^1$$^4$C (\u2030)')
 # m = Basemap(projection='ortho',lon_0=-150,lat_0=-90,resolution='l')
 # m.drawcoastlines()
 # m.shadedrelief()
@@ -226,9 +541,9 @@ plt.show()
 # # Convert latitudes and longitudes to map coordinates
 # x, y = m(longitudes.values, latitudes.values)
 # # Plot the SST data as scatter points, color-coded by temperature
-# m.scatter(x, y, c=nitrate, cmap='coolwarm', s=50, edgecolor='k', linewidth=0.5)
+# m.scatter(x, y, c=nitrate, cmap=cmap_reversed, s=50, edgecolor='k', linewidth=0.5, vmin=-150, vmax=150)
 # cbar = plt.colorbar(orientation='vertical', fraction=0.046, pad=0.04)
-# cbar.set_label('DIC \u0394$^1$$^4$C (\u2030)')
+#
 #
 # fronts = np.unique(acc_fronts['front_name'])
 # fronts = ['PF','SAF','STF','Boundary']
@@ -241,14 +556,17 @@ plt.show()
 #     x, y = m(longitudes.values, latitudes.values)
 #     m.plot(x, y, color='black', label=f'{fronts[i]}', linestyle=line_sys[i])
 #
-# """
-# THIRD SUBPLOT: PLOT FRONTS AND PLOT DEL14C DATA
-# """
-# xtr_subsplot = fig.add_subplot(gs[0:1, 2:3])
-# m = Basemap(projection='ortho',lon_0=-150,lat_0=-90,resolution='l')
+# # """
+# # THIRD SUBPLOT: hyspliy
+# # """
+# xtr_subsplot = fig.add_subplot(gs[0:3, 2:4])
+# # m = Basemap(projection='ortho',lon_0=-150,lat_0=-90,resolution='l')
+# m = Basemap(width=12000000,height=9000000,projection='lcc',
+#             resolution='c',lat_1=-80,lat_2=-40,lat_0=-60,lon_0=170.)
 # m.drawcoastlines()
 # m.shadedrelief()
-#
+# m.drawparallels(np.arange(-90, 90, 30), labels=[True, False, False, False], fontsize=7, linewidth=0.5)
+# m.drawmeridians(np.arange(-180, 180, 30), labels=[1, 1, 0, 1], fontsize=7, linewidth=0.5)
 # # """
 # # COPIED AND PASTED THE MAP FROM THE BOTTOM OF MAIN_ANALYSIS.PY
 # # THE BELOW CODE WORKS. I'm going to test plotting the glodap data above and then bring it into the plot below
@@ -279,7 +597,7 @@ plt.show()
 #
 # # ADDING PROPER SITE NAMES FOR THE FOLLOWING LOOP TO READ
 # time_integrated_means = time_integrated_means.merge(easy_access)
-#
+# time_integrated_means.to_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/glodap_overlay/time_integrated_means.xlsx')
 # # SEE hysplit_make_plots_GNS.py
 # timemin = -(6*24)
 # time_integrated_means = time_integrated_means.loc[time_integrated_means['timestep'] > timemin]
@@ -326,7 +644,7 @@ plt.show()
 #
 #     # PLOTTING NZ SITES
 # for i in range(0, len(locs2)):
-#
+#     #
 #     slice = nz.loc[nz['Site'] == str(locs2[i])].reset_index(drop=True)  # grab the first data to plot, based on location
 #     lat = slice['NewLat']
 #     lat = lat[0]
@@ -335,14 +653,121 @@ plt.show()
 #     x, y = m(lon, lat)
 #     # print(x, y)
 #     m.scatter(x, y, marker=markers[i],color=colors[i], s=size1*10, edgecolor='black')
-#
 #     site_mean_100 = time_integrated_means.loc[time_integrated_means['Site'] == str(locs2[i])].reset_index(drop=True)
 #     chile_lat = site_mean_100['y']
 #     chile_lon = site_mean_100['x']
 #     print(type(chile_lon))
 #     z, a = m(list(chile_lon), list(chile_lat))
 #     m.plot(z, a, color=colors[i])
+#     if str(locs2[i]) == 'World\'s Loneliest Tree, Camp Cove, Campbell island':
+#         m.plot(z, a, color='yellow')
+# plt.title('HYSPLIT')
+# #
 #
-# plt.savefig(f'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/glodap_overlay/test.png',
+# df = pd.read_excel(r'H:\Science\Datasets\Hydrographic\cbl_zones.xlsx')
+# df = df.loc[df['CBL_zones'] != 'Error']
+# df = df.loc[df['DELC14'] > -990]
+# df = df.loc[df['NITRAT'] > -990]
+#
+# results = pd.DataFrame()
+# zones = np.unique(df['CBL_zones'])
+# zones = ['STZ','SAZ','PFZ','ASZ','SIZ']
+# # total data
+# mean14C = []
+# std14C = []
+# meannit = []
+# stdnit = []
+# zone = []
+#
+# # pac data
+# mean14C_pac = []
+# std14C_pac = []
+# meannit_pac = []
+# stdnit_pac = []
+# zone_pac = []
+#
+# # ind data
+# mean14C_ind = []
+# std14C_ind = []
+# meannit_ind = []
+# stdnit_ind = []
+# zone_ind = []
+#
+#
+# for i in range(0, len(zones)):
+#     df1 = df.loc[df['CBL_zones'] == zones[i]]
+#     mean14C.append(np.nanmean(df1['DELC14']))
+#     std14C.append(np.nanstd(df1['DELC14']))
+#     meannit.append(np.nanmean(df1['NITRAT']))
+#     stdnit.append(np.nanstd(df1['NITRAT']))
+#     zone.append(zones[i])
+#
+#     df2 = df.loc[df['CBL_zones_sectored_CH'] == zones[i]]
+#     mean14C_pac.append(np.nanmean(df2['DELC14']))
+#     std14C_pac.append(np.nanstd(df2['DELC14']))
+#     meannit_pac.append(np.nanmean(df2['NITRAT']))
+#     stdnit_pac.append(np.nanstd(df2['NITRAT']))
+#
+#     df3 = df.loc[df['CBL_zones_sectored_NZ'] == zones[i]]
+#     mean14C_ind.append(np.nanmean(df3['DELC14']))
+#     std14C_ind.append(np.nanstd(df3['DELC14']))
+#     meannit_ind.append(np.nanmean(df3['NITRAT']))
+#     stdnit_ind.append(np.nanstd(df3['NITRAT']))
+#
+#
+# results = pd.DataFrame({"zone": zone,
+#                         "mean_14C": mean14C, "std14C":std14C, "mean_nitrate": meannit, "stdnitrate":stdnit,
+#                         "mean_14C_pac": mean14C_pac, "std14C_pac":std14C_pac, "mean_nitrate_pac": meannit_pac, "stdnitrate_pac":stdnit_pac,
+#                         "mean_14C_ind": mean14C_ind, "std14C_ind":std14C_ind, "mean_nitrate_ind": meannit_ind, "stdnitrate_ind":stdnit_ind,
+#                         })
+# results.to_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/glodap_overlay/glodap_goship_results.xlsx')
+# xtr_subsplot = fig.add_subplot(gs[2:3, 0:1])
+# # plt.errorbar(results['zone'], results['mean_nitrate'], yerr=results['stdnitrate'], fmt='o', color='black', ecolor='black', elinewidth=1, capsize=2, alpha=1)
+#
+# blah = 50
+# results_tot = results.loc[(results['zone'] == 'STZ') | (results['zone'] == 'SAZ') | (results['zone'] == 'PFZ') | (results['zone'] == 'ASZ') |(results['zone'] == 'SIZ')]
+# results_pac = results.loc[(results['zone'] == 'STZ') | (results['zone'] == 'SAZ') | (results['zone'] == 'PFZ') | (results['zone'] == 'ASZ') |(results['zone'] == 'SIZ')]
+#
+# plt.errorbar(results['zone'], results['mean_nitrate'], yerr=results['stdnitrate'], fmt='', ecolor='black', elinewidth=1, capsize=2, alpha=1, linestyle='', zorder=0)
+# plt.scatter(results['zone'], results['mean_nitrate'], c=results['mean_nitrate'], cmap='coolwarm', s=blah, edgecolor='k', linewidth=0.5, vmin=0, vmax=32, zorder=10, marker='o')
+#
+# plt.errorbar(results['zone'], results['mean_nitrate_pac'], yerr=results['stdnitrate_pac'], fmt='', ecolor='black', elinewidth=1, capsize=2, alpha=1, linestyle='', zorder=0)
+# plt.scatter(results['zone'], results['mean_nitrate_pac'], c=results['mean_nitrate_pac'], cmap='coolwarm', s=blah, edgecolor='k', linewidth=0.5, vmin=0, vmax=32, zorder=10, marker='D')
+#
+# plt.errorbar(results['zone'], results['mean_nitrate_ind'], yerr=results['stdnitrate_ind'], fmt='', ecolor='black', elinewidth=1, capsize=2, alpha=1, linestyle='', zorder=0)
+# plt.scatter(results['zone'], results['mean_nitrate_ind'], c=results['mean_nitrate_ind'], cmap='coolwarm', s=blah, edgecolor='k', linewidth=0.5, vmin=0, vmax=32, zorder=10, marker='s')
+#
+# # cbar = plt.colorbar(orientation='vertical', fraction=0.046, pad=0.04)
+#
+# xtr_subsplot = fig.add_subplot(gs[2:3, 1:2])
+# plt.errorbar(results['zone'], results['mean_14C'], yerr=results['std14C'], fmt='', ecolor='black', elinewidth=1, capsize=2, alpha=1, linestyle='', zorder=0)
+# plt.scatter(results['zone'], results['mean_14C'], c=results['mean_14C'], cmap=cmap_reversed, s=blah, edgecolor='k', linewidth=0.5, vmin=-150, vmax=150, zorder=10, label='Total')
+#
+# plt.errorbar(results['zone'], results['mean_14C_pac'], yerr=results['std14C_pac'], fmt='', ecolor='black', elinewidth=1, capsize=2, alpha=1, linestyle='', zorder=0)
+# plt.scatter(results['zone'], results['mean_14C_pac'], c=results['mean_14C_pac'], cmap=cmap_reversed, s=blah, edgecolor='k', linewidth=0.5, vmin=-150, vmax=150, zorder=10, marker='D', label='Pacific Sector')
+#
+# plt.errorbar(results['zone'], results['mean_14C_ind'], yerr=results['std14C_ind'], fmt='', ecolor='black', elinewidth=1, capsize=2, alpha=1, linestyle='', zorder=0)
+# plt.scatter(results['zone'], results['mean_14C_ind'], c=results['mean_14C_ind'], cmap=cmap_reversed, s=blah, edgecolor='k', linewidth=0.5, vmin=-150, vmax=150, zorder=10, marker='s', label='Indian Sector')
+#
+# # cbar = plt.colorbar(orientation='vertical', fraction=0.046, pad=0.04)
+# plt.legend()
+#
+# # add labels
+# plt.text(-3, 95, '[B]', horizontalalignment='center', verticalalignment='center', fontsize=12)
+# plt.text(0, 95, '[D]', horizontalalignment='center', verticalalignment='center', fontsize=12)
+# plt.text(-3, 492, '[A]', horizontalalignment='center', verticalalignment='center', fontsize=12)
+# plt.text(0, 492, '[C]', horizontalalignment='center', verticalalignment='center', fontsize=12)
+# plt.text(3, 492, '[E]', horizontalalignment='center', verticalalignment='center', fontsize=12)
+#
+#
+# plt.savefig(f'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/glodap_overlay/GLODAP_data_final_CHILE.png',
 #             dpi=300, bbox_inches="tight")
 # plt.close()
+#
+#
+
+
+
+
+
+

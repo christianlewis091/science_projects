@@ -28,10 +28,12 @@ fronts = np.unique(acc_fronts['front_name'])
 fronts = ['PF','SAF','STF','Boundary']
 line_sys = ['dotted','dashed','dashdot','solid','dotted','dashed','dashdot']
 size1 = 5
+means_concat = pd.DataFrame()
 for i in range(0, len(easy_access)):
     row = easy_access.iloc[i]
     country_code = row['Code']
     codename = row['Codename']
+    sitename = row['Site']
     this_site_points = points.loc[points['location'] == codename]
 
     fig = plt.figure(figsize=(4, 8))
@@ -48,6 +50,8 @@ for i in range(0, len(easy_access)):
 
     # find the mean trajectory at every time-point.
     site_mean = this_site_points.groupby('timestep').mean()
+    site_mean['location'] = sitename
+    means_concat = pd.concat([means_concat, site_mean])
     lats = site_mean['y']
     lons = site_mean['x']
     a, b = m(lons, lats)
@@ -92,7 +96,7 @@ for i in range(0, len(easy_access)):
         latitudes = this_one['latitude']
         longitudes = this_one['longitude']
         x, y = m(longitudes.values, latitudes.values)
-        m.plot(x, y, color='black', label=f'{fronts[i]}', linestyle=line_sys[q])
+        m.plot(x, y, color='black', label=f'{fronts[q]}', linestyle=line_sys[q])
 
 
     m.drawmeridians(np.arange(-180, 180, 10), labels=[1, 1, 0, 1], fontsize=7, linewidth=0.5)
@@ -101,7 +105,7 @@ for i in range(0, len(easy_access)):
                 dpi=300, bbox_inches="tight")
     plt.close()
 
-
+means_concat.to_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/hysplit_make_plots/means_concat.xlsx')
 
 
 

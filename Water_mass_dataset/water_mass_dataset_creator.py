@@ -62,10 +62,10 @@ import matplotlib.gridspec as gridspec
 #     else:
 #         return value
 #
-# """
-# This section takes a bulk download of all the available GO-SHIP data and GLODAP data and merges it into one giant file
-# than can be used to run the for-loop to assign water masses.
-# """
+"""
+This section takes a bulk download of all the available GO-SHIP data and GLODAP data and merges it into one giant file
+than can be used to run the for-loop to assign water masses.
+"""
 # results_names = []
 # res_2 = []
 # filename = []
@@ -92,9 +92,9 @@ import matplotlib.gridspec as gridspec
 #     except pandas.errors.ParserError:
 #         x = 1
 #
-# """
-# Now I'm adding on GLODAP data, see scrape_GLODAP.py
-# """
+"""
+Now I'm adding on GLODAP data, see scrape_GLODAP.py
+"""
 # #
 # onlyfiles = [f for f in listdir(r'H:\Science\Datasets\Hydrographic\GLODAP_scrape2') if isfile(join(r'H:\Science\Datasets\Hydrographic\GLODAP_scrape2', f))]
 # glodap_len = len(onlyfiles)
@@ -226,10 +226,10 @@ df = df.dropna(subset=['Pot_density_anomaly'])
 THIS BLOCK ASSIGNS THE WATER MASSES!, Rewritten on October 23, 2023 to make full use of PANDAS :)
 """
 df['OCEAN_LABEL'] = -999 # add initial value for this column
-df.loc[(df['LONGITUDE'] > 30) & (df['LONGITUDE'] <= 120), 'OCEAN_LABEL'] = 'Indian'
+df.loc[(df['LONGITUDE'] > 20) & (df['LONGITUDE'] <= 120), 'OCEAN_LABEL'] = 'Indian'
 df.loc[(df['LONGITUDE'] > 120) & (df['LONGITUDE'] <= 180), 'OCEAN_LABEL'] = 'Pacific'
 df.loc[(df['LONGITUDE'] > -180) & (df['LONGITUDE'] <= -80), 'OCEAN_LABEL'] = 'Pacific'
-df.loc[(df['LONGITUDE'] > -80) & (df['LONGITUDE'] <= 0), 'OCEAN_LABEL'] = 'Atlantic'
+df.loc[(df['LONGITUDE'] > -80) & (df['LONGITUDE'] <= 20), 'OCEAN_LABEL'] = 'Atlantic'
 df.loc[(df['LATITUDE'] <= -30), 'OCEAN_LABEL'] = 'Southern'
 
 df['Tally_assigned'] = -999 # assign a dummy column name to the Talley Water Masses
@@ -239,13 +239,16 @@ for i in range(0, len(wmc_Talley)):
     name = row['Name']
     new_label = row['Talley Label']
     # assign the new water mass using pandas
-    df.loc[(df['OCEAN_LABEL'] == row['Ocean']) & (df['Pot_density_anomaly'] >= row['roe min']) & (df['Pot_density_anomaly'] < row['roe max']), 'Tally_assigned'] = new_label
+    df.loc[(df['OCEAN_LABEL'] == row['Ocean']) & (df['Pot_density_anomaly'] >= row['roe min']) & (df['Pot_density_anomaly'] < row['roe max']), 'Tally_assigned'] = name
 
-# add more detail to Southern Ocean characterization, has to be added after Talley, since she only has "Southern" in her chart.
-df.loc[(df['LONGITUDE'] > 20) & (df['LONGITUDE'] <= 120) & (df['LATITUDE'] <= -30), 'OCEAN_LABEL'] = 'SOUTHERN_INDIAN'
-df.loc[(df['LONGITUDE'] > 120) & (df['LONGITUDE'] <= 180)& (df['LATITUDE'] <= -30), 'OCEAN_LABEL'] = 'SOUTHERN_PACIFIC'
-df.loc[(df['LONGITUDE'] > -180) & (df['LONGITUDE'] <= -60) & (df['LATITUDE'] <= -30), 'OCEAN_LABEL'] = 'SOUTHERN_PACIFIC'
-df.loc[(df['LONGITUDE'] > -60) & (df['LONGITUDE'] <= 20)& (df['LATITUDE'] <= -30), 'OCEAN_LABEL'] = 'SOUTHERN_ATLANTIC'
+# By renaming these, I can connect Southern Ocean sectors of each basin to their northward counterparts for more
+# continuity in the figures (if I don't do these lines) you get a SOce plot for AABW, and then Atlantic for instance
+# and its better if its a continous blob
+# TODO very important this steo is exaplined well in methods. people will get confused
+df.loc[(df['LONGITUDE'] > 20) & (df['LONGITUDE'] <= 120) & (df['LATITUDE'] <= -30), 'OCEAN_LABEL'] = 'Southern_Indian'
+df.loc[(df['LONGITUDE'] > 120) & (df['LONGITUDE'] <= 180) & (df['LATITUDE'] <= -30), 'OCEAN_LABEL'] = 'Southern_Pacific'
+df.loc[(df['LONGITUDE'] > -180) & (df['LONGITUDE'] <= -80) & (df['LATITUDE'] <= -30), 'OCEAN_LABEL'] = 'Southern_Pacific'
+df.loc[(df['LONGITUDE'] > -80) & (df['LONGITUDE'] <= 20) & (df['LATITUDE'] <= -30), 'OCEAN_LABEL'] = 'Southern_Atlantic'
 
 # df.to_excel(r'H:\Science\Datasets\Hydrographic\raw_data_watermassproject_assigned2.xlsx')
 # df = pd.read_excel(r'H:\Science\Datasets\Hydrographic\raw_data_watermassproject_assigned2.xlsx')
@@ -279,139 +282,285 @@ for i in range(0, len(oceans)):
     z, a = map(lons,  lats)
     map.scatter(z, a, marker='o', s = 3.5, color='yellow', edgecolor='yellow')
 
-    plt.savefig(f'C:/Users/clewis/IdeaProjects/GNS/Water_mass_dataset/output/POST_WATER_MASS_ASSIGNEMT_LOCATION_CHECK_{oceans[i]}.jpg', dpi=300, bbox_inches="tight")
+    plt.savefig(f'C:/Users/clewis/IdeaProjects/GNS/Water_mass_dataset/output/Maps/POST_WATER_MASS_ASSIGNEMT_LOCATION_CHECK_{oceans[i]}.jpg', dpi=300, bbox_inches="tight")
     plt.close()
-df.to_excel(r'H:\Science\Datasets\Hydrographic\raw_data_watermassproject_assigned2.xlsx')
-missing.to_excel(r'H:\Science\Datasets\Hydrographic\missing.xlsx')
+
+# df.to_excel(r'H:\Science\Datasets\Hydrographic\raw_data_watermassproject_assigned2.xlsx')
+
+"""
+UNCOMMENT ABOVE IF YOU NEED TO EDIT OR REBUILD THE DATABASE. CONTINUE DOWN IF YOU WANT PLOTS
+
+For the plots, it seems easier to interpret the Ocean Sections when the Southern Sector is included with the northward
+section. For instance, if you include the Southern Ocean Pacific with the general pacific, you get a complete picture. 
+For this reason, for the plots, I'm going to make a new dataframe for each where I select those two sectors and then 
+plot them
+"""
+
+# df = pd.read_excel(r'H:\Science\Datasets\Hydrographic\raw_data_watermassproject_assigned2.xlsx')
+
+pac = df.loc[(df['OCEAN_LABEL'] == 'Pacific') | (df['OCEAN_LABEL'] == 'Southern_Pacific')]
+atl = df.loc[(df['OCEAN_LABEL'] == 'Atlantic') | (df['OCEAN_LABEL'] == 'Southern_Atlantic')]
+ind = df.loc[(df['OCEAN_LABEL'] == 'Indian') | (df['OCEAN_LABEL'] == 'Southern_Indian')]
+
+# # I want to report a table of all the cruises that I have inlcuded in here. I'll output that here...
+# x = df['EXPOCODE'].astype(str)
+# expos = np.unique(x)
+# expos = pd.DataFrame({"EXPOCODE": expos})
+#
+# # expos.to_excel(r'H:\Science\Datasets\Hydrographic\unique_expos.xlsx')
+
+# loop through the different oceans
+list1 = [pac, atl, ind]
+names = ['Pacific','Atlantic','Indian']
+for i in range(0, len(list1)):
+    sub_df = list1[i]
+#
+    # loop through the water masses that exist in that ocean
+    wm_labels = np.unique(sub_df['Tally_assigned'])
+    for q in range(0, len(wm_labels)):
+
+        # find the first water mass in this ocean
+        subsub_df = sub_df.loc[sub_df['Tally_assigned'] == wm_labels[q]]
+
+        fig = plt.figure(figsize=(12,6))
+        gs = gridspec.GridSpec(2, 4)
+        gs.update(wspace=.6, hspace=.6)
+        xtr_subsplot = fig.add_subplot(gs[0:2, 0:2])
+
+        plt.scatter(subsub_df['LATITUDE'], subsub_df['CTDPRS'], c=subsub_df['DELC14'], cmap='magma')
+        # plt.plot(subsub_df['LATITUDE'], subsub_df['DEPTH'], color='black')
+        plt.ylim(4000, 0)
+        plt.xlim(-70, 70)
+        plt.clim(-200, 150)
+        plt.title(f"{names[i]}, {wm_labels[q]}")
+        plt.ylabel('Depth (CTD Pressure)')
+        plt.xlabel('Latitude')
+
+        xtr_subsplot = fig.add_subplot(gs[0:2, 2:4])
+        import math
+        # add the contours
+        # Figure out boudaries (mins and maxs)
+        smin = subsub_df['SA'].min() - (0.01 * subsub_df['SA'].min())
+        smax = subsub_df['SA'].max() + (0.01 * subsub_df['SA'].max())
+        tmin = subsub_df['CT'].min() - (0.1 * subsub_df['CT'].max())
+        tmax = subsub_df['CT'].max() + (0.1 * subsub_df['CT'].max())
+
+        # Calculate how many gridcells we need in the x and y dimensions
+        xdim = ((smax - smin)/0.1)+1
+        ydim = ((tmax - tmin)/0.1)+1
+        xdim = int(round(xdim, 0))
+        ydim = int(round(ydim, 0))
+
+        # Create empty grid of zeros
+        dens = np.zeros((ydim,xdim))
+
+        # Create temp and salt vectors of appropiate dimensions
+        ti = np.linspace(1,ydim-1,ydim)*0.1+tmin
+        si = np.linspace(1,xdim-1,xdim)*0.1+smin
+
+        # Loop to fill in grid with densities
+        for j in range(0,int(ydim)):
+            for p in range(0, int(xdim)):
+                dens[j,p]=gsw.rho(si[p],ti[j],0)
+
+        # Substract 1000 to convert to sigma-t
+        dens = dens - 1000
+
+        CS = plt.contour(si,ti,dens, linestyles='dashed', colors='k')
+        plt.clabel(CS, fontsize=12, inline=1) # Label every second
+        plt.scatter(subsub_df['SA'], subsub_df['CT'], c=subsub_df['DELC14'], cmap='magma')
+        plt.colorbar().set_label('\u0394$^1$$^4$CO$_2$ (\u2030)', rotation=270, labelpad = 1)
+        plt.clim(-200, 150)
+        plt.ylabel('Conservative Temperature')
+        plt.xlabel('Absolute Salinity')
+        plt.savefig(f'C:/Users/clewis/IdeaProjects/GNS/Water_mass_dataset/output/Talley_all/{names[i]}_{wm_labels[q]}.png')
+        plt.close()
+
+
+
+"""
+I'm repeating a bunch of code because I want to run a case where I dont categorize anything according to Dr. Talley's SOce 
+categories so they plots can appear more fluid. 
+"""
+
+df = pd.read_excel(r'H:\Science\Datasets\Hydrographic\raw_data_watermassproject.xlsx')
+
+df['fake_ref'] = 0 # create a column with zeroes to allow functions to continue in pandas (0 = reference pressure)
+df['SA'] = gsw.conversions.SA_from_SP(df['SALNTY'], df['CTDPRS'], df['LONGITUDE'], df['LATITUDE'])
+df['CT'] = gsw.conversions.CT_from_t(df['SA'], df['CTDTMP'], df['CTDPRS'])
+df['Pot_density'] = gsw.pot_rho_t_exact(df['SA'], df['CTDTMP'], df['CTDPRS'], df['fake_ref'])
+df['Pot_density_anomaly'] = gsw.sigma0(df['SA'], df['CT'])
+
+# some rows/cruises are missing because they don't include SALTY or CTDTMP. We will drop those
+# row by dropping NANs on the Pot_density_anomaly
+df = df.dropna(subset=['Pot_density_anomaly'])
+
+"""
+THIS BLOCK ASSIGNS THE WATER MASSES!, Rewritten on October 23, 2023 to make full use of PANDAS :)
+"""
+df['OCEAN_LABEL'] = -999 # add initial value for this column
+df.loc[(df['LONGITUDE'] > 20) & (df['LONGITUDE'] <= 120), 'OCEAN_LABEL'] = 'Indian'
+df.loc[(df['LONGITUDE'] > 120) & (df['LONGITUDE'] <= 180), 'OCEAN_LABEL'] = 'Pacific'
+df.loc[(df['LONGITUDE'] > -180) & (df['LONGITUDE'] <= -80), 'OCEAN_LABEL'] = 'Pacific'
+df.loc[(df['LONGITUDE'] > -80) & (df['LONGITUDE'] <= 20), 'OCEAN_LABEL'] = 'Atlantic'
+
+
+df['Tally_assigned'] = -999 # assign a dummy column name to the Talley Water Masses
+wmc_Talley = pd.read_excel(f'H:\Science\Datasets\Water_Mass_Characteristics.xlsx',sheet_name='Talley_noSouthern', skiprows=1, comment='#')
+for i in range(0, len(wmc_Talley)):
+    row = wmc_Talley.iloc[i]
+    name = row['Name']
+    new_label = row['Talley Label']
+    # assign the new water mass using pandas
+    df.loc[(df['OCEAN_LABEL'] == row['Ocean']) & (df['Pot_density_anomaly'] >= row['roe min']) & (df['Pot_density_anomaly'] < row['roe max']), 'Tally_assigned'] = name
+
+missing = df.loc[df['OCEAN_LABEL'] == -999]
+df = df.loc[df['OCEAN_LABEL'] != -999]
+oceans = np.unique(df['OCEAN_LABEL'])
+for i in range(0, len(oceans)):
+    df1 = df.loc[df['OCEAN_LABEL'] == oceans[i]]
+
+    maxlat = 90
+    minlat = -90
+    max_lon = 180
+    min_lon = -180
+
+    # res = 'i'  # todo switch to i for intermediate
+    size1 = 50
+
+    # initialize the figure and subplots.
+    fig = plt.figure(1, figsize=(8, 8))
+
+    map = Basemap(llcrnrlat=minlat, urcrnrlat=maxlat, llcrnrlon=min_lon, urcrnrlon=max_lon)
+    map.etopo()
+    map.drawcoastlines()
+    map.drawparallels(np.arange(-90, 90, 20), labels=[True, False, False, False], fontsize=7, linewidth=0.5)
+    map.drawmeridians(np.arange(-180, 180, 40), labels=[1, 1, 0, 1], fontsize=7, linewidth=0.5)
+    lats = df1['LATITUDE']
+    lons = df1['LONGITUDE']
+
+    z, a = map(lons,  lats)
+    map.scatter(z, a, marker='o', s = 3.5, color='yellow', edgecolor='yellow')
+
+    plt.savefig(f'C:/Users/clewis/IdeaProjects/GNS/Water_mass_dataset/output/Maps/noSouthern_maps_{oceans[i]}.jpg', dpi=300, bbox_inches="tight")
+    plt.close()
+
+df.to_excel(r'H:\Science\Datasets\Hydrographic\raw_data_watermassproject_assigned_noSouthern.xlsx')
+
+pac = df.loc[(df['OCEAN_LABEL'] == 'Pacific')]
+atl = df.loc[(df['OCEAN_LABEL'] == 'Atlantic')]
+ind = df.loc[(df['OCEAN_LABEL'] == 'Indian')]
+
+# # I want to report a table of all the cruises that I have inlcuded in here. I'll output that here...
+# x = df['EXPOCODE'].astype(str)
+# expos = np.unique(x)
+# expos = pd.DataFrame({"EXPOCODE": expos})
+#
+# # expos.to_excel(r'H:\Science\Datasets\Hydrographic\unique_expos.xlsx')
+
+# loop through the different oceans
+list1 = [pac, atl, ind]
+names = ['Pacific','Atlantic','Indian']
+for i in range(0, len(list1)):
+    sub_df = list1[i]
+    #
+    # loop through the water masses that exist in that ocean
+    wm_labels = np.unique(sub_df['Tally_assigned'])
+    for q in range(0, len(wm_labels)):
+
+        # find the first water mass in this ocean
+        subsub_df = sub_df.loc[sub_df['Tally_assigned'] == wm_labels[q]]
+
+        fig = plt.figure(figsize=(12,6))
+        gs = gridspec.GridSpec(2, 4)
+        gs.update(wspace=.6, hspace=.6)
+        xtr_subsplot = fig.add_subplot(gs[0:2, 0:2])
+
+        plt.scatter(subsub_df['LATITUDE'], subsub_df['CTDPRS'], c=subsub_df['DELC14'], cmap='magma')
+        # plt.plot(subsub_df['LATITUDE'], subsub_df['DEPTH'], color='black')
+        plt.ylim(4000, 0)
+        plt.xlim(-70, 70)
+        plt.title(f"{names[i]}, {wm_labels[q]}")
+        plt.ylabel('Depth (CTD Pressure)')
+        plt.xlabel('Latitude')
+        plt.clim(-200, 150)
+
+        xtr_subsplot = fig.add_subplot(gs[0:2, 2:4])
+        import math
+        # add the contours
+        # Figure out boudaries (mins and maxs)
+        smin = subsub_df['SA'].min() - (0.01 * subsub_df['SA'].min())
+        smax = subsub_df['SA'].max() + (0.01 * subsub_df['SA'].max())
+        tmin = subsub_df['CT'].min() - (0.1 * subsub_df['CT'].max())
+        tmax = subsub_df['CT'].max() + (0.1 * subsub_df['CT'].max())
+
+        # Calculate how many gridcells we need in the x and y dimensions
+        xdim = ((smax - smin)/0.1)+1
+        ydim = ((tmax - tmin)/0.1)+1
+        xdim = int(round(xdim, 0))
+        ydim = int(round(ydim, 0))
+
+        # Create empty grid of zeros
+        dens = np.zeros((ydim,xdim))
+
+        # Create temp and salt vectors of appropiate dimensions
+        ti = np.linspace(1,ydim-1,ydim)*0.1+tmin
+        si = np.linspace(1,xdim-1,xdim)*0.1+smin
+
+        # Loop to fill in grid with densities
+        for j in range(0,int(ydim)):
+            for p in range(0, int(xdim)):
+                dens[j,p]=gsw.rho(si[p],ti[j],0)
+
+        # Substract 1000 to convert to sigma-t
+        dens = dens - 1000
+
+        CS = plt.contour(si,ti,dens, linestyles='dashed', colors='k')
+        plt.clabel(CS, fontsize=12, inline=1) # Label every second
+        plt.scatter(subsub_df['SA'], subsub_df['CT'], c=subsub_df['DELC14'], cmap='magma')
+        plt.colorbar().set_label('\u0394$^1$$^4$CO$_2$ (\u2030)', rotation=270, labelpad = 1)
+        plt.clim(-200, 150)
+
+        plt.ylabel('Conservative Temperature')
+        plt.xlabel('Absolute Salinity')
+        plt.savefig(f'C:/Users/clewis/IdeaProjects/GNS/Water_mass_dataset/output/Talley_noSouthern/{names[i]}_{wm_labels[q]}.png')
+        plt.close()
 
 
 
 
 
-#
-#
-#
-# # BLOCK FOR ASSIGNING WATER MASSES ACCORDING TO EMERY
-# water_masses_emery = []
-#
-# for i in range(0, len(database)):
-#     # grab the first row
-#     row = database.iloc[i]
-#     print(f"Emery {i}")
-#     # set an escape label to avoid double labeling
-#     escapeflag = 'N'
-#
-#     for k in range(0, len(wmc)):
-#         # grab the first row of water mass characteristics
-#         wmc_row = wmc.iloc[k]
-#         name = wmc_row['Name']
-#
-# # including depth filtering
-#         # if wmc_row['Ocean'] == row['Ocean_Label'] and float(wmc_row['CTDPRS MIN']) < float(row['CTDPRS']) < float(wmc_row['CTDPRS MAX']) and float(wmc_row['CTDTMP MIN']) < float(row['CTDTMP']) < float(wmc_row['CTDTMP MAX']) and float(wmc_row['SALNTY MIN']) < float(row['CTDSAL']) < float(wmc_row['SALNTY MAX']):
-#         #     water_masses.append(name)
-#         #     escapeflag = 'Y'
-#         #     break
-#
-#         if row['Potential Density'] == 'Negative CTDTMP':
-#             water_masses_emery.append('Bottom Waters, Negative CTDTMP')
-#             escapeflag = 'Y'
-#             break
-#
-#         # not including CTDPRS filter
-#         elif wmc_row['Ocean'] == row['Ocean_Label'] and float(wmc_row['Temp Min']) <= float(row['CTDTMP']) <= float(wmc_row['Temp Max']) and float(wmc_row['Sal Min']) <= float(row['CTDSAL']) <= float(wmc_row['Sal Max']):
-#             water_masses_emery.append(name)
-#             escapeflag = 'Y'
-#             break
-#
-#     if escapeflag == 'N':  # I still haven't found a match
-#         water_masses_emery.append('Error: No Water Mass Assigned')
-# database['Water Mass Emery'] = water_masses_emery
-#
-#
-#
-# # BLOCK FOR ASSIGNING WATER MASSES ACCORDING TO TALLEY
-# water_masses_talley = []
-# # Now I want to assign water masses based on the data in "WMC"
-# for i in range(0, len(database)):
-#     print(f"Talley {i}")
-#     # grab the first row
-#     row = database.iloc[i]
-#
-#     # set an escape label to avoid double labeling
-#     escapeflag = 'N'
-#
-#     # BLOCK FOR ASSIGNING WATER MASSES ACCORDING TO EMERY
-#     for k in range(0, len(wmc_Talley)):
-#         # grab the first row of water mass characteristics
-#         wmc_row = wmc_Talley.iloc[k]
-#         name = wmc_row['Name']
-#
-#         # including depth filtering
-#         # if wmc_row['Ocean'] == row['Ocean_Label'] and float(wmc_row['CTDPRS MIN']) < float(row['CTDPRS']) < float(wmc_row['CTDPRS MAX']) and float(wmc_row['CTDTMP MIN']) < float(row['CTDTMP']) < float(wmc_row['CTDTMP MAX']) and float(wmc_row['SALNTY MIN']) < float(row['CTDSAL']) < float(wmc_row['SALNTY MAX']):
-#         #     water_masses.append(name)
-#         #     escapeflag = 'Y'
-#         #     break
-#         # not including CTDPRS filter
-#         if row['Potential Density'] == 'Negative CTDTMP':
-#             water_masses_talley.append('Bottom Waters, Negative CTDTMP')
-#             escapeflag = 'Y'
-#             break
-#
-#         elif wmc_row['Ocean'] == row['Ocean_Label'] and float(wmc_row['roe min']) <= float(row['Potential Density']) <= float(wmc_row['roe max']):
-#             water_masses_talley.append(name)
-#             escapeflag = 'Y'
-#             break
-#
-#
-#     if escapeflag == 'N':  # I still haven't found a match
-#         water_masses_talley.append('Error: No Water Mass Assigned')
-# database['Water Mass Talley'] = water_masses_talley
-#
-#
-# database2 = database[['Origin','EXPOCODE','SECT_ID','STNNBR','CASTNO','SAMPNO','BTLNBR',
-# 'BTLNBR_FLAG_W',
-# 'DATE',
-# 'TIME',
-# 'LATITUDE',
-# 'LONGITUDE',
-# 'DEPTH',
-# 'CTDPRS',
-# 'CTDTMP',
-# 'CTDSAL',
-# 'CTDSAL_FLAG_W',
-# 'SALNTY',
-# 'SALNTY_FLAG_W',
-# 'OXYGEN',
-# 'OXYGEN_FLAG_W',
-# 'SILCAT',
-# 'SILCAT_FLAG_W',
-# 'NITRAT',
-# 'NITRAT_FLAG_W',
-# 'NITRIT',
-# 'NITRIT_FLAG_W',
-# 'PHSPHT',
-# 'PHSPHT_FLAG_W',
-# 'TCARBN',
-# 'TCARBN_FLAG_W',
-# 'FCO2',
-# 'FCO2_FLAG_W',
-# 'FCO2TMP',
-# 'DELC14',
-# 'DELC14_FLAG_W',
-# 'C14ERR',
-# 'DELC13',
-# 'DELC13_FLAG_W','Potential Density','Ocean_Label','Water Mass Emery','Water Mass Talley']]
-#
-#
-# with pd.ExcelWriter(r'H:\Science\Datasets\Hydrographic\water_masses_assigned.xlsx') as writer:
-#     database.to_excel(writer, sheet_name='Database_FULL')
-#     database2.to_excel(writer, sheet_name='Database_D14Cfocus')
-#
-#
-#
-# # """
-# # UNCOMMENT ABOVE IF YOU NEED TO EDIT OR REBUILD THE DATABASE. CONTINUE DOWN IF YOU WANT PLOTS
-# # """
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 #
 #
 # df = pd.read_excel(r'H:\Science\Datasets\Hydrographic\water_masses_assigned.xlsx')

@@ -55,6 +55,10 @@ sizess = 10
 # Should match the time that is in the is_land assignments or won't make sense. Currently that goes back to timestep -20.
 timemin = -(6*24)
 # Loop through the codenames
+
+acc_fronts = pd.read_csv(r'H:\Science\Datasets\ACC_fronts\csv\antarctic_circumpolar_current_fronts.csv')
+
+
 for k in range(0, len(year)):
     points = pd.read_excel(f'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/hysplit/output_data/points_{year[k]}.xlsx')
     points = points.loc[points['timestep'] > timemin]
@@ -124,16 +128,16 @@ for k in range(0, len(year)):
         map.fillcontinents(color='darkgrey')
         map.drawcoastlines(linewidth=0.1)
 
-        # PLOT TRAJECTORIES: NEED TO LOOP INTO OLD FILE NAMES
-        # old_filenames = np.unique(h1['filename'])
-        # for z in range(0, len(old_filenames)):
-        #     this_file = h1.loc[h1['filename'] == old_filenames[z]]
-        #
-        #     # plot only data within the map-range to remove crappy extra annoying lines on plot
-        #     this_file = this_file.loc[(this_file['x'] > minlon) & (this_file['x'] < maxlon)]
-        #
-        #     y, x = (this_file['y'], this_file['x'])
-        #     map.plot(x, y, color=colors[0],label=str(heights[0]), alpha =a, linewidth=1)
+        fronts = np.unique(acc_fronts['front_name'])
+        fronts = ['PF','SAF','STF','Boundary']
+        line_sys = ['dotted','dashed','dashdot','solid','dotted','dashed','dashdot']
+
+        for i in range(0, len(fronts)):
+            this_one = acc_fronts.loc[acc_fronts['front_name'] == fronts[i]]
+            latitudes = this_one['latitude']
+            longitudes = this_one['longitude']
+            x, y = map(longitudes.values, latitudes.values)
+            map.plot(x, y, color='black', label=f'{fronts[i]}', linestyle=line_sys[i])
 
         old_filenames = np.unique(h2['filename'])
         for z in range(0, len(old_filenames)):
@@ -144,24 +148,9 @@ for k in range(0, len(year)):
 
             y, x = (this_file['y'], this_file['x'])
             map.plot(x, y, color=colors[1],label=str(heights[1]), alpha =a, linewidth=1)
-        #
-        # old_filenames = np.unique(h3['filename'])
-        # for z in range(0, len(old_filenames)):
-        #     this_file = h3.loc[h3['filename'] == old_filenames[z]]
-        #
-        #     # plot only data within the map-range to remove crappy extra annoying lines on plot
-        #     this_file = this_file.loc[(this_file['x'] > minlon) & (this_file['x'] < maxlon)]
-        #
-        #     y, x = (this_file['y'], this_file['x'])
-        #     map.plot(x, y, color=colors[4],label=str(heights[2]), alpha =a, linewidth=1)
 
-        # add the means
-        # y_mean, x_mean = (site_mean_10['y'], site_mean_10['x'])
-        # map.plot(x_mean, y_mean, color=colors[1], alpha=1)
         y_mean, x_mean = (site_mean_100['y'], site_mean_100['x'])
         map.plot(x_mean, y_mean, color='darkred', alpha=1)
-        # y_mean, x_mean = (site_mean_200['y'], site_mean_200['x'])
-        # map.plot(x_mean, y_mean, color=colors[5], alpha=1)
 
         map.drawparallels(np.arange(-90, 90, 20), labels=[True, False, False, False], linewidth=0.5)
         map.drawmeridians(np.arange(-180, 180, 40), labels=[1, 1, 0, 1], linewidth=0.5)
@@ -186,16 +175,6 @@ for k in range(0, len(year)):
         map.fillcontinents(color='darkgrey')
         map.drawcoastlines(linewidth=0.1)
 
-        # PLOT TRAJECTORIES: NEED TO LOOP INTO OLD FILE NAMES
-        # old_filenames = np.unique(h1['filename'])
-        # for z in range(0, len(old_filenames)):
-        #     this_file = h1.loc[h1['filename'] == old_filenames[z]]
-        #
-        #     # plot only data within the map-range to remove crappy extra annoying lines on plot
-        #     this_file = this_file.loc[(this_file['x'] > minlon) & (this_file['x'] < maxlon)]
-        #
-        #     y, x = (this_file['y'], this_file['x'])
-        #     map.plot(x, y, color=colors[0],label=str(heights[0]), alpha =a, linewidth=.1)
 
         old_filenames = np.unique(h2['filename'])
         for z in range(0, len(old_filenames)):
@@ -207,23 +186,8 @@ for k in range(0, len(year)):
             y, x = (this_file['y'], this_file['x'])
             map.plot(x, y, color=colors[1],label=str(heights[0]), alpha =a, linewidth=1)
 
-        # old_filenames = np.unique(h3['filename'])
-        # for z in range(0, len(old_filenames)):
-        #     this_file = h3.loc[h3['filename'] == old_filenames[z]]
-        #
-        #     # plot only data within the map-range to remove crappy extra annoying lines on plot
-        #     this_file = this_file.loc[(this_file['x'] > minlon) & (this_file['x'] < maxlon)]
-        #
-        #     y, x = (this_file['y'], this_file['x'])
-        #     map.plot(x, y, color=colors[4],label=str(heights[0]), alpha =a, linewidth=.1)
-
-        # add the means
-        # y_mean, x_mean = (site_mean_10['y'], site_mean_10['x'])
-        # map.plot(x_mean, y_mean, color=colors[1], alpha=1)
         y_mean, x_mean = (site_mean_100['y'], site_mean_100['x'])
         map.plot(x_mean, y_mean, color='darkred', alpha=1)
-        # y_mean, x_mean = (site_mean_200['y'], site_mean_200['x'])
-        # map.plot(x_mean, y_mean, color=colors[5], alpha=1)
 
 
         # map.drawparallels(np.arange(-90, 90, 2), labels=[True, False, False, False], linewidth=0.5)
@@ -250,6 +214,7 @@ for k in range(0, len(year)):
 
         # plt.text(-19, 0.9, '[C]', fontweight="bold")
         # plt.text(-19.5, 2.1, '[B]', fontweight="bold")
+        # plt.show()
         plt.savefig(f'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/hysplit/output_plots/SixDays_{codenames[i]}_{year[k]}_Dec_to_Feb.png',
                     dpi=300, bbox_inches="tight")
         plt.close()

@@ -7,12 +7,13 @@ and labels why they are flagged. The second removes all the flagged data, leavin
 
 """
 import matplotlib as mpl
+import numpy as np
 import pandas as pd
 pd.options.mode.chained_assignment = None  # default='warn'
 import seaborn as sns
 from reference1 import reference1
 import matplotlib.pyplot as plt
-
+import matplotlib.gridspec as gridspec
 
 plt.close()
 colors = sns.color_palette("rocket", 6)  # import sns color pallet rocket
@@ -710,8 +711,10 @@ Of course, now I need to check that I haven't lost any data. What is the lenght 
 dropped the Nan's in the beginning, versus now?
 They check out!
 """
+
 # print(len(df)) == 648
 # print(len(combined2)) == 648
+
 combined.to_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/from_tree_ring_analysis/SOARTreeRingData_CBL_flags.xlsx')
 
 """
@@ -725,30 +728,112 @@ df_cleaned.to_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPE
 
 
 
+"""
+Making an additional plot to vizualise the idea of this work for my GNS seminar
+"""
+import matplotlib as mpl
+import pandas as pd
+import matplotlib.gridspec as gridspec
+pd.options.mode.chained_assignment = None  # default='warn'
+import seaborn as sns
+from reference1 import reference1
+import matplotlib.pyplot as plt
+plt.close()
+
+fig = plt.figure(figsize=(10, 4))
+gs = gridspec.GridSpec(1, 2)
+gs.update(wspace=.2, hspace=0.1)
 
 
+# BHD MAP
+xtr_subsplot = fig.add_subplot(gs[0:1, 0:1])
+group1 = reference1.loc[(reference1['Decimal_date'] >1980) & (reference1['Decimal_date'] < 1990)]
+group2 = reference1.loc[(reference1['Decimal_date'] >2000) & (reference1['Decimal_date'] < 2010)]
+group3 = reference1.loc[(reference1['Decimal_date'] >1990) & (reference1['Decimal_date'] < 2000)]
+group1 = group1[group1.index % 10 == 0]
+group2 = group2[group2.index % 10 == 0]
+group3 = group3[group3.index % 10 == 0]
+plt.plot(reference1['Decimal_date'], reference1['D14C'], label='SH Atmosphere \u0394$^1$$^4$CO$_2$ (\u2030)', color='black', alpha=0.9)
+plt.scatter(group1['Decimal_date'], group1['D14C']-10, label='Theoretical Tree Ring Data', color='dodgerblue', alpha=0.9)
+plt.scatter(group2['Decimal_date'], group2['D14C']-10, color='dodgerblue', alpha=0.9)
+plt.scatter(group3['Decimal_date'], group3['D14C'], color='dodgerblue', alpha=0.9)
+plt.legend()
+plt.xlabel('Date', fontsize=14)
+plt.ylabel('\u0394$^1$$^4$CO$_2$ (\u2030)', fontsize=14)  # label the y axis
+
+# BHD MAP
+xxtr_subsplot = fig.add_subplot(gs[0:1, 1:2])
+group1 = reference1.loc[(reference1['Decimal_date'] >1980) & (reference1['Decimal_date'] < 1990)]
+group2 = reference1.loc[(reference1['Decimal_date'] >2000) & (reference1['Decimal_date'] < 2010)]
+group3 = reference1.loc[(reference1['Decimal_date'] >1990) & (reference1['Decimal_date'] < 2000)]
+group1 = group1[group1.index % 10 == 0]
+group2 = group2[group2.index % 10 == 0]
+group3 = group3[group3.index % 10 == 0]
+plt.plot(reference1['Decimal_date'], reference1['D14C'], label='SH Atmosphere \u0394$^1$$^4$CO$_2$ (\u2030)', color='black', alpha=0.9)
+plt.scatter(group1['Decimal_date'], group1['D14C']-20, label='Theoretical Tree Ring Data', color='dodgerblue', alpha=0.9)
+plt.scatter(group2['Decimal_date'], group2['D14C']-10, color='dodgerblue', alpha=0.9)
+plt.scatter(group3['Decimal_date'], group3['D14C'], color='dodgerblue', alpha=0.9)
+plt.xlabel('Date', fontsize=14)
+plt.xlim(1980, 2020)
+plt.ylim(0, 300)
+plt.savefig(
+    'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/from_tree_ring_analysis/for_talk2.png',
+    dpi=300, bbox_inches="tight")
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+#
+# """
+# I'm going to quickly merge the tree-species to my data files.
+# """
+# import pandas as pd
+# import numpy as np
+# # read in the data originally output from this file
+# combined = pd.read_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/from_tree_ring_analysis/SOARTreeRingData_CBL_flags.xlsx')
+# combined['Core code'] = combined['Ring code'].str[:9]
+# print(len(combined))
+# # read in the file with the species i'm going to merge on
+# species = pd.read_csv(r'H:\Science\Datasets\tree_ring_species1.csv')
+#
+# # fill in the na's
+# species = species.fillna({"Species": 'Not recorded'})
+# combined = combined.merge(species, on='Core code', how='outer')
+# combined = combined.dropna(subset = 'CBL_flag')
+#
+# # re-write the complete file
+# combined.to_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/from_tree_ring_analysis/SOARTreeRingData_CBL_flags.xlsx')
+#
+# # re-write the clean file
+# df_cleaned = combined.loc[(combined['CBL_flag']) == '...']
+# df_cleaned.to_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/from_tree_ring_analysis/SOARTreeRingData_CBL_cleaned.xlsx')
+#
+# # write a summary
+# sites = np.unique(df_cleaned['Site'])
+# site_arr = []
+# lat_arr = []
+# lon_arr = []
+# core_arr = []
+# spec_arr = []
+# for i in range(0, len(sites)):
+#     site1 = df_cleaned.loc[df_cleaned['Site'] == sites[i]].reset_index(drop=True)
+#     cores = np.unique(site1['Core code'])
+#     print(cores)
+#     for k in range(0, len(cores)):
+#         core1 = site1.loc[site1['Core code'] == cores[i]].reset_index(drop=True)
+#         print(core1)
+#         a = core1['Site'].reset_index(drop=True)
+#         site_arr.append(a[0])
+#         b = core1['Lat'].reset_index(drop=True)
+#         lat_arr.append(b[0])
+#         c = core1['Lon'].reset_index(drop=True)
+#         lon_arr.append(c[0])
+#         d = core1['Core code'].reset_index(drop=True)
+#         core_arr.append(d[0])
+#         e = core1['Species'].reset_index(drop=True)
+#         spec_arr.append(e[0])
+#
+# for_sum = pd.DataFrame({"Site":site_arr, "Lat":lat_arr, "Lon":lon_arr, "Species": spec_arr, "Core": core_arr})
+# for_sum.to_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/from_tree_ring_analysis/species_summary.xlsx')
+#
 
 
 

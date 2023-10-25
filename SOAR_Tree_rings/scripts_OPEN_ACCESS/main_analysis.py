@@ -61,7 +61,6 @@ plt.legend()
 map.drawparallels(np.arange(-90, 90, 10), labels=[True, False, False, False], linewidth=0.5)
 map.drawmeridians(np.arange(-180, 180, 10), labels=[1, 1, 0, 1], linewidth=0.5)
 
-
 xtr_subsplot = fig.add_subplot(gs[0:1, 1:2])
 plt.text(1979, 322, '[B]', horizontalalignment='center', verticalalignment='center', fontsize=14, fontweight="bold")
 plt.text(1925, 322,  '[A]', horizontalalignment='center', verticalalignment='center', fontsize=14, fontweight="bold")
@@ -215,7 +214,13 @@ df['testrat_err'] = step3
 # df['testrat_err'] = df['testrat'] * [np.sqrt(testrat_e1**2 / (df['D14C'] - D_ocean)) +  np.sqrt( testrat_e2**2 /(df['D14C_ref3t_mean'] - D_ocean))]
 
 df = df.loc[df['Site'] != 'NMY']
+
+# trying out removing the one hihg outlier in Kapuni
+# df = df.loc[df['r3_diff_trend'] <= 10]
+
+
 df.to_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/main_analysis/final_results.xlsx')
+
 
 
 """
@@ -389,7 +394,7 @@ map = Basemap(llcrnrlat=minlat, urcrnrlat=maxlat, llcrnrlon=nz_min_lon, urcrnrlo
 map.drawmapboundary(fill_color='lightgrey')
 map.fillcontinents(color='darkgrey')
 map.drawcoastlines(linewidth=0.1)
-
+map.shadedrelief()
 
 for i in range(0, len(locs2)):
 
@@ -409,7 +414,7 @@ plt.savefig('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS
 plt.close()
 
 results_array = pd.DataFrame({"Site": site_array, "Region": region_array, "Lat": lat_array, "Mean": mean_array, "Std": std_array, "F_B": testrat_arr, "F_B_error": testrat_err_arr})
-results_array.to_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/site_ttest.xlsx')
+results_array.to_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/main_analysis/summary_means.xlsx')
 
 
 """
@@ -742,6 +747,43 @@ plt.savefig(f'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCES
 plt.close()
 
 
+"""
+T-test to see what is significantly different from the background
+"""
+df_testing = df.loc[(df['DecimalDate'] >1987) & (df['DecimalDate'] <1994)]
+
+
+stat=[]
+pval=[]
+site=[]
+blahs = np.unique(df_testing['Site'])
+
+for i in range(0, len(blahs)):
+    blah_data = df_testing.loc[df_testing['Site'] == blahs[i]]
+    if len(blah_data) > 1:
+        a = blah_data['r2_diff_trend'].dropna()
+        b = blah_data['r3_diff_trend'].dropna()
+        x = stats.ttest_ind(a,b)
+        stat.append(x[0])
+        pval.append(x[1])
+        site.append(blahs[i])
+p_resultsss = pd.DataFrame({"Site": site, "Stat": stat, "P-value": pval})
+# print(p_resultsss)
+p_resultsss.to_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/main_analysis/p_results.xlsx')
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 #     plt.errorbar(landfrac_slice3['LandFrac'], slice['Mean'], slice['Std'], markersize = size1, elinewidth=1, capsize=2, alpha=1, label=label, ls='none', fmt=markers[i], color=colors[i], ecolor=colors[i], markeredgecolor='black')
 # plt.xlabel(f'Fraction of trajectory over land, {timelabel[m]} hours')
@@ -749,18 +791,12 @@ plt.close()
 #
 
 
-
-
-
-
-
-
-
-
-
-"""
-MAPP OF ACC FRONTS
-"""
+#
+# """
+# MAPP OF ACC FRONTS
+# """
+#
+#
 # LOAD HYSPLOT DATA
 easy_access = pd.read_excel(r'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/hysplit/output_data/easy_access2 - Copy.xlsx')
 acc_fronts = pd.read_csv(r'H:\Science\Datasets\ACC_fronts\csv\antarctic_circumpolar_current_fronts.csv')
@@ -774,9 +810,7 @@ means_dataframe_100_3 = pd.read_excel(f'C:/Users/clewis/IdeaProjects/GNS/soar_tr
 means_dataframe_100_4 = pd.read_excel(f'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/hysplit/output_data/means_dataframe_100_2020_2021.xlsx')
 
 means_dataframe_100 = pd.concat([means_dataframe_100_1, means_dataframe_100_2, means_dataframe_100_3, means_dataframe_100_4])
-
 codenames = np.unique(means_dataframe_100['Codename'])
-
 time_integrated_means = pd.DataFrame()
 for i in range(0,len(codenames)):
 
@@ -786,136 +820,147 @@ for i in range(0,len(codenames)):
     means1['Codename'] = codenames[i]
 
     time_integrated_means = pd.concat([time_integrated_means, means1]).reset_index(drop=True)
-
-# ADDING PROPER SITE NAMES FOR THE FOLLOWING LOOP TO READ
-time_integrated_means = time_integrated_means.merge(easy_access)
-
-# SEE hysplit_make_plots_GNS.py
-timemin = -(6*24)
-time_integrated_means = time_integrated_means.loc[time_integrated_means['timestep'] > timemin]
-# fronts = ['PF','SAF','STF']
-map = Basemap(projection='ortho',lon_0=-150,lat_0=-90,resolution='l')
-map.drawmapboundary(fill_color='lightgrey')
-map.fillcontinents(color='darkgrey')
-map.drawcoastlines(linewidth=0.1)
-
-line_sys = ['dotted','dashed','dashdot','solid','dotted','dashed','dashdot']
-
-# PLOTTING THE ACC FRONTS
-for i in range(0, len(fronts)):
-    this_one = acc_fronts.loc[acc_fronts['front_name'] == fronts[i]]
-
-    lat = this_one['latitude']
-    lon = this_one['longitude']
-    z, a = map(list(lon), list(lat))
-
-    map.plot(z, a, color='black', label=f'{fronts[i]}', linestyle=line_sys[i])
-    plt.legend(bbox_to_anchor=(1.1, 1.05))
-
-# PLOTTING CHILEAN SITES
-for i in range(0, len(locs1)):
-    slice = chile.loc[chile['Site'] == str(locs1[i])].reset_index(drop=True)  # grab the first data to plot, based on location
-    lat = slice['NewLat']
-    lat = lat[0]
-    lon = slice['new_Lon']
-    lon = lon[0]
-    x, y = map(lon, lat)
-    map.scatter(x, y, marker=markers[i],color=colors[i], s=size1*10, edgecolor='black')
-    print(locs1[i])
-
-    site_mean_100 = time_integrated_means.loc[time_integrated_means['Site'] == str(locs1[i])].reset_index(drop=True)
-    chile_lat = site_mean_100['y']
-    chile_lon = site_mean_100['x']
-    print(type(chile_lon))
-    z, a = map(list(chile_lon), list(chile_lat))
-
-    map.plot(z, a, color=colors[i])
-
-# PLOTTING NZ SITES
-for i in range(0, len(locs2)):
-
-    slice = nz.loc[nz['Site'] == str(locs2[i])].reset_index(drop=True)  # grab the first data to plot, based on location
-    lat = slice['NewLat']
-    lat = lat[0]
-    lon = slice['NewLon']
-    lon = lon[0]
-    x, y = map(lon, lat)
-    # print(x, y)
-    map.scatter(x, y, marker=markers[i],color=colors[i], s=size1*10, edgecolor='black')
-
-    site_mean_100 = time_integrated_means.loc[time_integrated_means['Site'] == str(locs2[i])].reset_index(drop=True)
-    chile_lat = site_mean_100['y']
-    chile_lon = site_mean_100['x']
-    print(type(chile_lon))
-    z, a = map(list(chile_lon), list(chile_lat))
-    map.plot(z, a, color=colors[i])
-
-"""
-Add topographic hotspots from Tamsitt et al
-"""
-lon1 = [35, 65, 150, 190, -60]
-lat1 = [-46, -46, -50, -50, -45]
-lon2 = [40, 75, 155, 200, -50]
-lat2 = [-46, -46, -50, -50, -45]
-lon4 = [35, 65, 150, 190, -60]
-lat4 = [-55, -55, -60, -60, -60]
-lon3 = [40, 75, 155, 200, -50]
-lat3 = [-55, -55, -60, -60, -60]
-
-for i in range(0, len(lon1)):
-    # plot where my new zealand subplot is on the globe
-    x1, y1 = map(lon1[i], lat1[i])
-    x2, y2 = map(lon2[i], lat2[i])
-    x3, y3 = map(lon3[i], lat3[i])
-    x4, y4 = map(lon4[i], lat4[i])
-    poly = Polygon([(x1,y1),(x2,y2),(x3,y3),(x4,y4)], facecolor="orange", edgecolor='black',linewidth=1, alpha=1)
-    plt.gca().add_patch(poly)
-
-map.drawparallels(np.arange(-90, 90, 10), labels=[True, False, False, False], fontsize=7, linewidth=0.5)
-map.drawmeridians(np.arange(-180, 180, 10), labels=[1, 1, 0, 1], fontsize=7, linewidth=0.5)
-plt.title('Mean Back-Trajectories for years 05-06, 10-11, 15-16, 20-21')
-plt.savefig(f'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/main_analysis/ACC_map.png',
-            dpi=300, bbox_inches="tight")
-plt.close()
-
+#
+# # ADDING PROPER SITE NAMES FOR THE FOLLOWING LOOP TO READ
+# time_integrated_means = time_integrated_means.merge(easy_access)
+#
+# # SEE hysplit_make_plots_GNS.py
+# timemin = -(6*24)
+# time_integrated_means = time_integrated_means.loc[time_integrated_means['timestep'] > timemin]
+# # fronts = ['PF','SAF','STF']
+#
+# """
+# BEGIN PLOTTING THE FIGURE
+# """
 #
 #
+# line_sys = ['dotted','dashed','dashdot','solid','dotted','dashed','dashdot']
 #
-
-
-
-
-
-
-
-# from mpl_toolkits.basemap import Basemap
-# import numpy as np
-# import matplotlib.pyplot as plt
+# # LOOP THROUGH FIGURES STYLES
+# for j in range(0, 4):
+#     fig = plt.figure(figsize=(16, 16))
+#     map = Basemap(projection='ortho',lon_0=-150,lat_0=-90,resolution='l')
+#     map.drawcoastlines(linewidth=0.1)
 #
-# acc_fronts = pd.read_csv(r'H:\Science\Datasets\ACC_fronts\csv\antarctic_circumpolar_current_fronts.csv')
-# fronts = np.unique(acc_fronts['front_name'])
+#     if j == 0:
+#         map.etopo()
+#     elif j ==1:
+#         map.bluemarble()
+#     elif j == 2:
+#         map.shadedrelief()
+#     elif j == 3:
+#         map.drawmapboundary(fill_color='#A6CAE0')
+#         map.fillcontinents(color='#69b2a2',lake_color='#A6CAE0')
 #
-# # lon_0, lat_0 are the center point of the projection.
-# # resolution = 'l' means use low resolution coastlines.
-# m = Basemap(projection='ortho',lon_0=-105,lat_0=-90,resolution='l')
-# m.drawcoastlines()
-# m.fillcontinents(color='coral',lake_color='aqua')
+# # PLOTTING THE ACC FRONTS
+# #     pf = acc_fronts.loc[acc_fronts['front_name'] == 'PF']
+# #     saf = acc_fronts.loc[acc_fronts['front_name'] == 'SAF']
+# #     stf = acc_fronts.loc[acc_fronts['front_name'] == 'STF']
+# #     boundary = acc_fronts.loc[acc_fronts['front_name'] == 'Boundary']
+# #
+# #     pflat = pf['latitude']
+# #     pflon = pf['longitude']
+# #     lat1, lon1 = map(pflon, pflat)
+# #
+# #     stflat = stf['latitude']
+# #     stflon = stf['longitude']
+# #     lat2, lon2 = map(stflon, stflat)
+# #
 #
-# for i in range(0, len(fronts)):
-#     this_one = acc_fronts.loc[acc_fronts['front_name'] == fronts[i]]
-#     xs = this_one['latitude']
-#     ys = this_one['longitude']
+#     for i in range(0, len(fronts)):
+#         this_one = acc_fronts.loc[acc_fronts['front_name'] == fronts[i]]
 #
-#     z, a = map(ys, xs)
+#         lat = this_one['latitude']
+#         lon = this_one['longitude']
+#         z, a = map(list(lon), list(lat))
 #
-#     map.scatter(z, a, label=f'{fronts[i]}')
+#         map.plot(z, a, color='black', label=f'{fronts[i]}', linestyle=line_sys[i])
+#         plt.legend(bbox_to_anchor=(1.1, 1.05))
 #
+#     # PLOTTING CHILEAN SITES
+#     for i in range(0, len(locs1)):
+#         slice = chile.loc[chile['Site'] == str(locs1[i])].reset_index(drop=True)  # grab the first data to plot, based on location
+#         lat = slice['NewLat']
+#         lat = lat[0]
+#         lon = slice['new_Lon']
+#         lon = lon[0]
+#         x, y = map(lon, lat)
+#         map.scatter(x, y, marker=markers[i],color=colors[i], s=size1*10, edgecolor='black')
+#         print(locs1[i])
 #
-# m.drawmapboundary(fill_color='aqua')
-# plt.title("Full Disk Orthographic Projection")
-# plt.show()
+#         site_mean_100 = time_integrated_means.loc[time_integrated_means['Site'] == str(locs1[i])].reset_index(drop=True)
+#         chile_lat = site_mean_100['y']
+#         chile_lon = site_mean_100['x']
+#         print(type(chile_lon))
+#         z, a = map(list(chile_lon), list(chile_lat))
+#
+#         map.plot(z, a, color=colors[i])
+#
+#     # PLOTTING NZ SITES
+#     for i in range(0, len(locs2)):
+#
+#         slice = nz.loc[nz['Site'] == str(locs2[i])].reset_index(drop=True)  # grab the first data to plot, based on location
+#         lat = slice['NewLat']
+#         lat = lat[0]
+#         lon = slice['NewLon']
+#         lon = lon[0]
+#         x, y = map(lon, lat)
+#         # print(x, y)
+#         map.scatter(x, y, marker=markers[i],color=colors[i], s=size1*10, edgecolor='black')
+#
+#         site_mean_100 = time_integrated_means.loc[time_integrated_means['Site'] == str(locs2[i])].reset_index(drop=True)
+#         chile_lat = site_mean_100['y']
+#         chile_lon = site_mean_100['x']
+#         print(type(chile_lon))
+#         z, a = map(list(chile_lon), list(chile_lat))
+#         map.plot(z, a, color=colors[i])
+#
+#         """
+#         Add topographic hotspots from Tamsitt et al
+#         """
+#         lon1 = [35, 65, 150, 190, -60]
+#         lat1 = [-46, -46, -50, -50, -45]
+#         lon2 = [40, 75, 155, 200, -50]
+#         lat2 = [-46, -46, -50, -50, -45]
+#         lon4 = [35, 65, 150, 190, -60]
+#         lat4 = [-55, -55, -60, -60, -60]
+#         lon3 = [40, 75, 155, 200, -50]
+#         lat3 = [-55, -55, -60, -60, -60]
+#
+#         for i in range(0, len(lon1)):
+#             # plot where my new zealand subplot is on the globe
+#             x1, y1 = map(lon1[i], lat1[i])
+#             x2, y2 = map(lon2[i], lat2[i])
+#             x3, y3 = map(lon3[i], lat3[i])
+#             x4, y4 = map(lon4[i], lat4[i])
+#             poly = Polygon([(x1,y1),(x2,y2),(x3,y3),(x4,y4)], facecolor="orange", edgecolor='black',linewidth=1, alpha=1)
+#             plt.gca().add_patch(poly)
+#
+#     plt.savefig(f'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/main_analysis/ACC_map_{j}_nofronts_notitle_nolegend_w_steering.png',
+#                 dpi=300, bbox_inches="tight")
+#     plt.close()
+    # """
+    # Add topographic hotspots from Tamsitt et al
+    # """
+    # lon1 = [35, 65, 150, 190, -60]
+    # lat1 = [-46, -46, -50, -50, -45]
+    # lon2 = [40, 75, 155, 200, -50]
+    # lat2 = [-46, -46, -50, -50, -45]
+    # lon4 = [35, 65, 150, 190, -60]
+    # lat4 = [-55, -55, -60, -60, -60]
+    # lon3 = [40, 75, 155, 200, -50]
+    # lat3 = [-55, -55, -60, -60, -60]
+    #
+    # for i in range(0, len(lon1)):
+    #     # plot where my new zealand subplot is on the globe
+    #     x1, y1 = map(lon1[i], lat1[i])
+    #     x2, y2 = map(lon2[i], lat2[i])
+    #     x3, y3 = map(lon3[i], lat3[i])
+    #     x4, y4 = map(lon4[i], lat4[i])
+    #     poly = Polygon([(x1,y1),(x2,y2),(x3,y3),(x4,y4)], facecolor="orange", edgecolor='black',linewidth=1, alpha=1)
+    #     plt.gca().add_patch(poly)
 
-
-
+    # map.drawparallels(np.arange(-90, 90, 30), labels=[True, False, False, False], fontsize=7, linewidth=0.5)
+    # map.drawmeridians(np.arange(-180, 180, 30), labels=[1, 1, 0, 1], fontsize=7, linewidth=0.5)
 
 

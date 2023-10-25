@@ -78,11 +78,11 @@ PHASE 3: Plot the data to look for outliers (THE ROUGH IN)
 ><>><>><>><>><>><>><>><>
 PHASE 4: Plot the data to look for outliers (zooming into each "known") 
 ><>><>><>><>><>><>><>><>
-
-
+Phase 4 outliers/labels overwrite those from phase 3.
+400 flags added to the data
 
 """
-#
+
 # # IMPORT THE DATA FILE
 # df = pd.read_csv(r'H:\Science\Datasets\Alberts_dataquality\simplified RLIMS dataset.csv')
 #
@@ -144,7 +144,7 @@ PHASE 1: IDENTIFY INNOCUOUS JOB NOTES
 # # add a soft flag to those that contain test
 # df.loc[df['CBL_Filtering_Category'] == 'PHASE1_Contains_TEST', 'flag'] = '.X.'
 #
-# df.to_csv(f'C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_1_output/PHASE_1_{today}.csv')
+# df.to_csv(f'C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_1_output/PHASE_1.csv')
 # length_remaining = df.loc[df['CBL_Filtering_Category'] == -999]
 # phase1_frac_captured = (len(length_remaining)/ len(df))*100
 
@@ -153,9 +153,9 @@ PHASE 1: IDENTIFY INNOCUOUS JOB NOTES
 PHASE 2: MANUALLY CHECK REST OF JOB NOTES
 ><>><>><>><>><>><>><>><>
 """
-
+#
 # # READ IN MANUAL CHECKS/ REREAD IN DF AND SETUP FOR A MERGE WITH THOSE MANUAL CHECKS
-# df = pd.read_csv(f'C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_1_output/PHASE_1_{today}.csv')
+# df = pd.read_csv(f'C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_1_output/PHASE_1.csv')
 # manual_checks = pd.read_csv(f'C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_1_output/manual_checks.csv')
 #
 # # isolate all those that needed manual checks (-999s), and drop the column
@@ -181,15 +181,15 @@ PHASE 2: MANUALLY CHECK REST OF JOB NOTES
 #
 # print(np.unique(df_combined['CBL_Filtering_Category'].astype(str)))
 #
-# df_combined.to_csv(f'C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_1_output/PHASE_2_{today}.csv')
+# df_combined.to_csv(f'C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_1_output/PHASE_2.csv')
 
 """
 ><>><>><>><>><>><>><>><>
 PHASE 3: Roughly check for outliers with plotly, and remove
 ><>><>><>><>><>><>><>><>
 """
-# # TODO Check this section, no "test" samples exist in knowns? The plots don't change...
-# df_combined = pd.read_csv(f'C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_1_output/PHASE_2_{today}.csv')
+# # # TODO Check this section, no "test" samples exist in knowns? The plots don't change...
+# df_combined = pd.read_csv(f'C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_1_output/PHASE_2.csv')
 # # ONLY LOOK AT KNOWNS
 # knowns = ['CBOr','GB','CBAi','CBIn','UNSt']
 #
@@ -216,7 +216,7 @@ PHASE 3: Roughly check for outliers with plotly, and remove
 #
 #
 # # REPEAT CODE FROM ABOVE, removing all things with "test"
-# df_combined = pd.read_csv(f'C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_1_output/PHASE_2_{today}.csv')
+# df_combined = pd.read_csv(f'C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_1_output/PHASE_2.csv')
 # df_combined = df_combined.loc[df_combined['CBL_Filtering_Category'] != 3]
 #
 # # Code for MPL
@@ -249,16 +249,14 @@ Travertine, 67815, 67816
 Kauri, 64942
 """
 
-# df_combined = pd.read_csv(f'C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_1_output/PHASE_2_{today}.csv')
-#
-# TPs_to_remove = [62379,63982, 67815, 67816, 64942]
-# for i in range(0, len(TPs_to_remove)):
-#     df_combined.loc[df_combined['TP'] == TPs_to_remove[i], 'CBL_Filtering_Category'] = 'PHASE3_PLOTLYoutlier'
-#     df_combined.loc[df_combined['flag'] == TPs_to_remove[i], 'CBL_Filtering_Category'] = 'X..'
-#
-# print(np.unique(df_combined['CBL_Filtering_Category'].astype(str)))
-#
-# df_combined.to_csv(f'C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_1_output/PHASE_3_{today}.csv')
+df_combined = pd.read_csv(f'C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_1_output/PHASE_2.csv')
+
+TPs_to_remove = [62379,63982, 67815, 67816, 64942]
+for i in range(0, len(TPs_to_remove)):
+    df_combined.loc[df_combined['TP'] == TPs_to_remove[i], 'CBL_Filtering_Category'] = 'PHASE3_PLOTLYoutlier'
+    df_combined.loc[df_combined['flag'] == TPs_to_remove[i], 'CBL_Filtering_Category'] = 'X..'
+
+df_combined.to_csv(f'C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_1_output/PHASE_3.csv')
 
 
 """
@@ -268,7 +266,7 @@ PHASE 4: Look for more data to flag by making individual plots of the "knowns" a
 """
 
 # read in the file from previous phase and isolate only the knowns
-df_p4 = pd.read_csv(f'C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_1_output/PHASE_3_{today}.csv')
+df_p4 = pd.read_csv(f'C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_1_output/PHASE_3.csv')
 df_p4 = df_p4.loc[df_p4['RTS'] != 'Missing[]']
 
 # CHANGE SOME DESCRIPTIONS IF THEY'RE CAUSING ISSUES
@@ -327,14 +325,16 @@ for i in range(0, len(knowns_Rs)):
         three_sig = 3*one_sig
         desc = subset['sampleDESC']
 
+        tests = df_p4.loc[(df_p4['New_R'] == knowns_Rs[i]) & (df_p4['CBL_Filtering_Category'] == 'PHASE1_Contains_TEST')].sort_values(by=['TW'])
+
         # FLAG ANNYTHING THAT IS GREATER THAN 3 SIGMA
         df_p4.loc[(df_p4['New_R'] == knowns_Rs[i]) & (df_p4['RTS'].astype(float) > (mean1+three_sig)).astype(float), 'flag'] = 'X..'
         df_p4.loc[(df_p4['New_R'] == knowns_Rs[i]) & (df_p4['RTS'].astype(float) < (mean1-three_sig)).astype(float), 'flag'] = 'X..'
-        df_p4.loc[(df_p4['New_R'] == knowns_Rs[i]) & (df_p4['RTS'].astype(float) > (mean1+three_sig)).astype(float), 'CBL_stat_flags'] = 'Phase4_3_sigma_out'
-        df_p4.loc[(df_p4['New_R'] == knowns_Rs[i]) & (df_p4['RTS'].astype(float) < (mean1-three_sig)).astype(float), 'CBL_stat_flags'] = 'Phase4_3_sigma_out'
+        df_p4.loc[(df_p4['New_R'] == knowns_Rs[i]) & (df_p4['RTS'].astype(float) > (mean1+three_sig)).astype(float), 'CBL_Filtering_Category'] = 'Phase4_3_sigma_out'
+        df_p4.loc[(df_p4['New_R'] == knowns_Rs[i]) & (df_p4['RTS'].astype(float) < (mean1-three_sig)).astype(float), 'CBL_Filtering_Category'] = 'Phase4_3_sigma_out'
 
-        flagged = df_p4.loc[(df_p4['New_R'] == knowns_Rs[i]) & (df_p4['CBL_stat_flags'] == 'Phase4_3_sigma_out')].sort_values(by=['TW'])
-        not_flagged = df_p4.loc[(df_p4['New_R'] == knowns_Rs[i]) & (df_p4['CBL_stat_flags'] != 'Phase4_3_sigma_out')].sort_values(by=['TW'])
+        flagged = df_p4.loc[(df_p4['New_R'] == knowns_Rs[i]) & (df_p4['CBL_Filtering_Category'] == 'Phase4_3_sigma_out')].sort_values(by=['TW'])
+        not_flagged = df_p4.loc[(df_p4['New_R'] == knowns_Rs[i]) & (df_p4['CBL_Filtering_Category'] != 'Phase4_3_sigma_out')].sort_values(by=['TW'])
 
         fig = plt.figure(figsize=(10, 8))
         scaling_fac = 6
@@ -347,144 +347,14 @@ for i in range(0, len(knowns_Rs)):
         plt.fill_between(not_flagged['TW'], mean1-two_sig, mean1+two_sig, alpha=0.15)
         plt.fill_between(not_flagged['TW'], mean1-one_sig, mean1+one_sig, alpha=0.2)
 
-        plt.errorbar(flagged['TW'].astype(float), flagged['RTS'].astype(float), yerr=flagged['RTSerr'].astype(float), color='red', capsize=2, fmt='o')
-        plt.errorbar(not_flagged['TW'].astype(float), not_flagged['RTS'].astype(float), yerr=not_flagged['RTSerr'].astype(float), color='blue', capsize=2, fmt='o')
-        plt.savefig(f'C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_1_output/figures/stat_plots/{today}_{knowns_Rs[i]}_{desc[0]}.png', dpi=300, bbox_inches="tight")
+        plt.errorbar(flagged['TW'].astype(float), flagged['RTS'].astype(float), yerr=flagged['RTSerr'].astype(float), color='red', capsize=2, fmt='o', label='3-\u03C3 flag')
+        plt.errorbar(not_flagged['TW'].astype(float), not_flagged['RTS'].astype(float), yerr=not_flagged['RTSerr'].astype(float), color='blue', capsize=2, fmt='o', label='No flag')
+        plt.errorbar(tests['TW'].astype(float), tests['RTS'].astype(float), yerr=tests['RTSerr'].astype(float), color='yellow', capsize=2, fmt='o', label='Job Notes = Test')
+        plt.legend()
+        plt.savefig(f'C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_1_output/figures/stat_plots/{knowns_Rs[i]}_{desc[0]}.png', dpi=300, bbox_inches="tight")
 
 print(len(df_p4))
-print(np.unique(df_p4['CBL_stat_flags'].astype(str)))
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        # # setup figure dimensions
-        # fig = plt.figure(figsize=(16, 10))
-        # scaling_fac = 6
-        # plt.ylim(x_mean-(x_std*scaling_fac), x_mean+(x_std*scaling_fac))
-        # plt.title(f'{knowns_Rs[i]}_{desc[0]}')
-        # plt.xlabel('TW')
-        # plt.ylabel('Ratio to Standard')
-        #
-        # plt.fill_between(tw, x_mean-x_std, x_mean+x_std, color='brown', alpha=0.1)
-        # plt.fill_between(tw, x_mean-2*x_std, x_mean+2*x_std, color='brown', alpha=0.05)
-        # plt.fill_between(tw, x_mean-3*x_std, x_mean+3*x_std,  color='brown', alpha=0.025)
-        # plt.legend(loc='center left', bbox_to_anchor=(1, 0.5))
-        # #
-        # plt.axhline(x_mean, linestyle='-', color='black',alpha=0.5)
-        # plt.errorbar(tw, rts, yerr=rts_err, fmt="o",capsize=2, label='Good Data')
-        # #
-        # # # overlay where we've flagged data
-        # # flagged = df_p4.loc[(df_p4['New_R'] == knowns_Rs[i]) & (df_p4['CBL_stat_flags'] == 'Phase4_3_sigma_out')]
-        # # plt.errorbar(flagged['TW'].astype(float), flagged['RTS'].astype(float), yerr=flagged['RTSerr'].astype(float), fmt="o",capsize=2, color='darkred', label = 'Flagged Data')
-        #
-        # plt.show()
-        # plt.savefig(f'C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_1_output/figures/stat_plots/{today}_{knowns_Rs[i]}_{desc[0]}.png')
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# print(np.unique(df_p4['CBL_stat_flags'].astype(str)))
-#
-# test = df_p4.loc[df_p4['CBL_stat_flags'] == 'Phase4_3_sigma_out']
-# print(len(df_p4))
-# print(len(test))
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#
-# def stats_and_plots(r_number):
-#     this_one = df_p4.loc[df_p4['New_R'] == r_number].reset_index(drop=True).sort_values(by=['TW'])
-#     desc = this_one['sampleDESC']
-#
-#     # The raw data
-#     x = this_one['TW'].astype(float)
-#     y = this_one['RTS'].astype(float)
-#     yerrr = this_one['RTSerr'].astype(float)
-#
-#     # stats
-#     avs = np.mean(y)
-#     sigma1 = np.std(y)
-#     sigma2 = sigma1*2
-#     sigma3 = sigma1*3
-#
-#     # setup figure dimensions
-#     fig = plt.figure(figsize=(16, 10))
-#     scaling_fac = 6
-#     plt.ylim(avs-(sigma1*scaling_fac), avs+(sigma1*scaling_fac))
-#     plt.title(f'{knowns_rs[i]}_{desc[0]}')
-#     plt.xlabel('TW')
-#     plt.ylabel('Ratio to Standard')
-#
-#     plt.fill_between(x, avs-sigma1, avs+sigma1, color='brown', alpha=0.1)
-#     plt.fill_between(x, avs-sigma2, avs+sigma2, color='brown', alpha=0.05)
-#     plt.fill_between(x, avs-sigma3, avs+sigma3,  color='brown', alpha=0.025)
-#     # plt.legend(loc='center left', bbox_to_anchor=(1, 0.5))
-#     plt.axhline(avs, linestyle='-', color='black',alpha=0.5)
-#     plt.errorbar(x, y, yerr=yerrr, fmt="o",capsize=2)
-#     plt.savefig(f'C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_1_output/figures/stat_plots/{today}_{r_number}_{desc[0]}.png')
-#
-#
-# for i in range(0,len(knowns_rs)):
-#     stats_and_plots(str(knowns_rs[i]))
-#
-# # TODO it seems like the output from this list is small. Are there some R numbers not being captured when we look in
-# # TODO the list of "knowns?"
-#
-# """
-# For all of the items in the list of "knowns" lets label everything that is >3 sigma out of the mean
-# """
-#
-
-
-
-
-
-
-
-
-
+print(np.unique(df_p4['CBL_Filtering_Category'].astype(str)))
 
 
 

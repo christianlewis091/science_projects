@@ -7,8 +7,6 @@ I created a new file so I don't break the old one, and can edit it properly.
 EVERYTHING IS THE SAME UP TO THE PLOTS
 
 """
-
-
 import matplotlib.pyplot as plt
 from pylr2 import regress2
 import numpy as np
@@ -128,9 +126,10 @@ for c in ['P16N', 'P18', 'IO7N']:
 new_df = pd.DataFrame(redoing_data)
 new_df['Merging_Index'] = new_index2
 new_df['CTDPRS'] = new_depths
+
 new_df = new_df[['SPEDOC split UCID', 'Cruise','SorD','STNNBR','Weighted Average Depth',
                  'Raw d13C','13cerr','Corrected 14C with duplicates averaged','14cerr','Merging_Index','CTDPRS','X_sample',
-                 'X_sample_err', 'X_blank', 'X_blank_err','PPL % Recovery','±.12']]
+                 'X_sample_err', 'X_blank', 'X_blank_err','PPL % Recovery','±.12','DOC Concentration from closest depth','[SPE-DOC] uM']]
 new_df = new_df.rename(columns={"SPEDOC split UCID": "SPE_ID",
                                 "Raw d13C": "SPE 13C",
                                 "13cerr": "SPE 13C err",
@@ -146,7 +145,12 @@ cleaned_df = pd.merge(new_df, merged1, how='outer')
 cleaned_df = cleaned_df.dropna(subset='SPE 13C')
 
 
+cleaned_df.replace('missing', np.nan, inplace=True)
+cleaned_df.to_excel('C:/Users/clewis/IdeaProjects/GNS/UCI_13C/output/Version3/cleaneddf.xlsx')
+
+
 """
+
 As of this point the data has been associated with total DOC data, and the GO-SHIP data. We will still add a few changes
 to the data, so we will re-publish the final excel sheet at the end of the file. For now we'll carry on with some analysis,
 using the "cleaned_df" as the data from here on out. 
@@ -209,7 +213,7 @@ for i in range(0, len(cleaned_df)):
         news.append(lat)
 cleaned_df['LATITUDE'] = news
 
-cleaned_df.to_excel('C:/Users/clewis/IdeaProjects/GNS/UCI_13C/output/Version3/cleaneddf.xlsx')
+
 
 """
 Now, I'll compare total DOC to SPE-DOC
@@ -232,6 +236,11 @@ nonret_error = []
 ppl_rec = []
 ppl_rec_err = []
 count  = []
+bulk_uM = []
+SPE_uM = []
+bulk_um_std = []
+SPE_um_std = []
+
 for i in range(0, len(names)):
 
     # grab the DOC from each cruise
@@ -261,13 +270,24 @@ for i in range(0, len(names)):
     b_d = b.loc[b['SorD'] == 'Deep']
     count.append(len(b_d))
 
+    #append mean isotope
     SPE_av.append(np.average(b_s['SPE 13C Corrected']))
     SPE_std.append(np.std(b_s['SPE 13C Corrected']))
-    # descrip_spe.append(f'Surface, SPE-DOC {names2[i]}')
+    # append mean concentrations
+    SPE_uM.append(np.nanmean(b_s['[SPE-DOC] uM']))
+    SPE_um_std.append(np.nanstd(b_s['[SPE-DOC] uM']))
+    # append mean concentrations
+    bulk_uM.append(np.nanmean(b_s['DOC Concentration from closest depth']))
+    bulk_um_std.append(np.nanstd(b_s['DOC Concentration from closest depth']))
 
     SPE_av.append(np.average(b_d['SPE 13C Corrected']))
     SPE_std.append(np.std(b_d['SPE 13C Corrected']))
-    # descrip_spe.append(f'Deep, SPE-DOC {names2[i]}')
+    # append mean concentrations
+    SPE_uM.append(np.nanmean(b_d['[SPE-DOC] uM']))
+    SPE_um_std.append(np.nanstd(b_d['[SPE-DOC] uM']))
+    # append mean concentrations
+    bulk_uM.append(np.nanmean(b_d['DOC Concentration from closest depth']))
+    bulk_um_std.append(np.nanstd(b_d['DOC Concentration from closest depth']))
 
     # calculate non-retained's (surface)
     rec = (np.nanmean(b_s['PPL % Recovery']))/100
@@ -285,8 +305,6 @@ for i in range(0, len(names)):
     nonret_error_fin = -1*nonretained_surface*(np.sqrt((b/value)**2 + (np.nanmean(b_s['±.12'])/np.nanmean(b_s['PPL % Recovery'])**2)))
 
     nonret_error.append(np.nanmean(nonret_error_fin))
-    # #
-
 
     # calculate non-retained's (deep)
     rec = (np.nanmean(b_d['PPL % Recovery']))/100
@@ -305,8 +323,7 @@ for i in range(0, len(names)):
 
 results = pd.DataFrame({"Description": descrip_doc, 'DOC 13C': bulk_av, 'error1': bulk_std,
                         'SPE-DOC 13C': SPE_av, "error2": SPE_std, "PPL % Recovery": ppl_rec, "error3": ppl_rec_err,
-                        "Nonretained 13C": nonret, "error4": nonret_error, "N": count, "Cruise": cruise, "Dep": dep})
-
+                        "Nonretained 13C": nonret, "error4": nonret_error, "N": count, "Cruise": cruise, "Dep": dep, "SPE-DOC uM": SPE_uM, "SPE-DOC um STD": SPE_um_std, "DOC_uM": bulk_uM, "DOC uM STD": bulk_um_std})
 
 """
 Ellen asked me to recreate her Figure S6 from her 2021 paper, which is a plot of DOC vs He from the 1994 P18 cruise. 
@@ -973,11 +990,135 @@ plt.ylabel('Total DOC \u03B4$^1$$^3$C (\u2030)', fontsize=14)
 plt.savefig('C:/Users/clewis/IdeaProjects/GNS/UCI_13C/output/Version3/totalDOC_13C_IO7.png', dpi=300, bbox_inches="tight")
 plt.close()
 
+
+
+
+
+
+
+
+
+
+
+"""
+WRITE DATA TO FILE
+"""
+
+results['Nonretained uM'] = results['DOC_uM'] - results['SPE-DOC uM']
+results['Nonretained uM err'] = np.sqrt(results['SPE-DOC um STD']**2 + results['DOC uM STD']**2)
+
 with pd.ExcelWriter(r'C:\Users\clewis\IdeaProjects\GNS\UCI_13C\output\Version3\outputv3.xlsx') as writer:
     cleaned_df.to_excel(writer, sheet_name='SPE Data')
     results.to_excel(writer, sheet_name='SPE Results Summary')
-    HeliumMerge.to_excel(writer, sheet_name='SPEvP18 1994 He')
+    # HeliumMerge.to_excel(writer, sheet_name='SPEvP18 1994 He')
     merged2.to_excel(writer, sheet_name='DOC Data')
+
+
+
+
+
+
+
+"""
+non-retained NEW
+"""
+
+fig = plt.figure(1, figsize=(10, 10))
+gs = gridspec.GridSpec(4, 4)
+gs.update(wspace=.1, hspace=.35)
+
+cruises = ['IO7N','P16N', 'P18']
+colors = ['#d73027','#fc8d59','#4575b4']
+symbol = ['o','^','D','s']
+size = 10
+xtr_subsplot = fig.add_subplot(gs[0:2, 0:2])
+results1 = results.loc[results['Dep'] == 'S']
+plt.title('Surface')
+
+plt.errorbar(results1['Cruise'], results1['DOC 13C'], markersize = size, label='Total DOC', yerr=results1['error1'],  markerfacecolor='none', fmt='X', color='black', ecolor='black', elinewidth=1, capsize=2, alpha = 1)
+plt.plot(results1['Cruise'], results1['DOC 13C'], color='black')
+
+plt.errorbar(results1['Cruise'], results1['SPE-DOC 13C'], markersize = size, label='SPE-DOC', yerr=results1['error2'],  markerfacecolor='none', fmt='s', color='black', ecolor='black', elinewidth=1, capsize=2, alpha = 1)
+plt.plot(results1['Cruise'], results1['SPE-DOC 13C'], color='black')
+
+plt.errorbar(results1['Cruise'], results1["Nonretained 13C"], markersize = size, label='Non-retained', yerr=results1['error4'],  markerfacecolor='none', fmt='h', color='black', ecolor='black', elinewidth=1, capsize=2, alpha = 1)
+plt.plot(results1['Cruise'], results1['Nonretained 13C'], color='black')
+plt.text(0, -19+.13, 'A)', horizontalalignment='center', verticalalignment='center', fontsize=14)
+plt.xlabel('Cruise', fontsize=14)
+plt.ylabel('\u03B4$^1$$^3$C (\u2030)', fontsize=14)
+plt.ylim(-24, -19)
+plt.legend()
+
+xtr_subsplot = fig.add_subplot(gs[0:2, 2:4])
+results1 = results.loc[results['Dep'] == 'D']
+plt.title('Deep')
+plt.errorbar(results1['Cruise'], results1['DOC 13C'], markersize = size, label='Total DOC', yerr=results1['error1'],  markerfacecolor='none', fmt='X', color='black', ecolor='black', elinewidth=1, capsize=2, alpha = 1)
+plt.plot(results1['Cruise'], results1['DOC 13C'], color='black')
+
+plt.errorbar(results1['Cruise'], results1['SPE-DOC 13C'], markersize = size, label='SPE-DOC', yerr=results1['error2'],  markerfacecolor='none', fmt='s', color='black', ecolor='black', elinewidth=1, capsize=2, alpha = 1)
+plt.plot(results1['Cruise'], results1['SPE-DOC 13C'], color='black')
+
+plt.errorbar(results1['Cruise'], results1["Nonretained 13C"], markersize = size, label='Non-retained', yerr=results1['error4'],  markerfacecolor='none', fmt='h', color='black', ecolor='black', elinewidth=1, capsize=2, alpha = 1)
+# plt.plot(results1['Cruise'], results1['Nonretained 13C'], color='black')
+plt.text(0, -19+.13, 'B)', horizontalalignment='center', verticalalignment='center', fontsize=14)
+plt.xlabel('Cruise', fontsize=14)
+plt.ylim(-24, -19)
+plt.yticks([], [])
+
+
+xtr_subsplot = fig.add_subplot(gs[2:4, 0:2])
+results1 = results.loc[results['Dep'] == 'S']
+plt.title('Surface')
+
+plt.errorbar(results1['Cruise'], results1['DOC_uM'], markersize = size, label='Total DOC', yerr=results1['DOC uM STD'],  markerfacecolor='none', fmt='X', color='black', ecolor='black', elinewidth=1, capsize=2, alpha = 1)
+plt.plot(results1['Cruise'], results1['DOC_uM'], color='black')
+
+plt.errorbar(results1['Cruise'], results1['SPE-DOC uM'], markersize = size, label='SPE-DOC', yerr=results1['SPE-DOC um STD'],  markerfacecolor='none', fmt='s', color='black', ecolor='black', elinewidth=1, capsize=2, alpha = 1)
+plt.plot(results1['Cruise'], results1['SPE-DOC uM'], color='black')
+
+plt.errorbar(results1['Cruise'], results1["Nonretained uM"], markersize = size, label='Non-retained', yerr=results1['Nonretained uM err'],  markerfacecolor='none', fmt='h', color='black', ecolor='black', elinewidth=1, capsize=2, alpha = 1)
+plt.plot(results1['Cruise'], results1['Nonretained uM'], color='black')
+
+
+xtr_subsplot = fig.add_subplot(gs[2:4, 2:4])
+
+results1 = results.loc[results['Dep'] == 'D']
+plt.title('Deep')
+
+plt.errorbar(results1['Cruise'], results1['DOC_uM'], markersize = size, label='Total DOC', yerr=results1['DOC uM STD'],  markerfacecolor='none', fmt='X', color='black', ecolor='black', elinewidth=1, capsize=2, alpha = 1)
+plt.plot(results1['Cruise'], results1['DOC_uM'], color='black')
+
+plt.errorbar(results1['Cruise'], results1['SPE-DOC uM'], markersize = size, label='SPE-DOC', yerr=results1['SPE-DOC um STD'],  markerfacecolor='none', fmt='s', color='black', ecolor='black', elinewidth=1, capsize=2, alpha = 1)
+plt.plot(results1['Cruise'], results1['SPE-DOC uM'], color='black')
+
+plt.errorbar(results1['Cruise'], results1["Nonretained uM"], markersize = size, label='Non-retained', yerr=results1['Nonretained uM err'],  markerfacecolor='none', fmt='h', color='black', ecolor='black', elinewidth=1, capsize=2, alpha = 1)
+plt.plot(results1['Cruise'], results1['Nonretained uM'], color='black')
+
+
+
+plt.savefig('C:/Users/clewis/IdeaProjects/GNS/UCI_13C/output/Version3/Results4NEW.png', dpi=300, bbox_inches="tight")
+plt.close()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 #
 # # ADDING THE FOLLOWING BELOW AFTER BRETT"S V5 COMments

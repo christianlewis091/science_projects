@@ -147,7 +147,7 @@ PHASE 1: IDENTIFY INNOCUOUS JOB NOTES
 # df.to_csv(f'C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_1_output/PHASE_1.csv')
 # length_remaining = df.loc[df['CBL_Filtering_Category'] == -999]
 # phase1_frac_captured = (len(length_remaining)/ len(df))*100
-
+# testing a change
 """
 ><>><>><>><>><>><>><>><>
 PHASE 2: MANUALLY CHECK REST OF JOB NOTES

@@ -169,9 +169,9 @@ def blank_corr_050223(input_name, date_bound_input, num_list):
     df_condensed.to_csv(r'I:/C14Data/C14_blank_corrections_dev/RLIMS_import/TW{}_reimport.csv'.format(input_name))
 
 
-blank_corr_050223(3481,0.5,'')
-# blank_corr_050223(3472,1,'')
-
+# blank_corr_050223(3481,0.5,'')
+# # blank_corr_050223(3472,1,'')
+#
 
 
 

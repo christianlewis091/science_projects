@@ -1015,16 +1015,13 @@ with pd.ExcelWriter(r'C:\Users\clewis\IdeaProjects\GNS\UCI_13C\output\Version3\o
 
 
 
-
-
-
-
 """
-non-retained NEW
+non-retained
 """
 
-fig = plt.figure(1, figsize=(10, 10))
-gs = gridspec.GridSpec(4, 4)
+
+fig = plt.figure(1, figsize=(10, 5))
+gs = gridspec.GridSpec(2, 4)
 gs.update(wspace=.1, hspace=.35)
 
 cruises = ['IO7N','P16N', 'P18']
@@ -1043,6 +1040,11 @@ plt.plot(results1['Cruise'], results1['SPE-DOC 13C'], color='black')
 
 plt.errorbar(results1['Cruise'], results1["Nonretained 13C"], markersize = size, label='Non-retained', yerr=results1['error4'],  markerfacecolor='none', fmt='h', color='black', ecolor='black', elinewidth=1, capsize=2, alpha = 1)
 plt.plot(results1['Cruise'], results1['Nonretained 13C'], color='black')
+
+plt.bar(results1['Cruise'], results1['DOC_uM'], color='black')
+plt.bar(results1['Cruise'], results1['SPE-DOC uM'], color='black')
+plt.bar(results1['Cruise'], results1["Nonretained uM"], color='black')
+
 plt.text(0, -19+.13, 'A)', horizontalalignment='center', verticalalignment='center', fontsize=14)
 plt.xlabel('Cruise', fontsize=14)
 plt.ylabel('\u03B4$^1$$^3$C (\u2030)', fontsize=14)
@@ -1059,45 +1061,153 @@ plt.errorbar(results1['Cruise'], results1['SPE-DOC 13C'], markersize = size, lab
 plt.plot(results1['Cruise'], results1['SPE-DOC 13C'], color='black')
 
 plt.errorbar(results1['Cruise'], results1["Nonretained 13C"], markersize = size, label='Non-retained', yerr=results1['error4'],  markerfacecolor='none', fmt='h', color='black', ecolor='black', elinewidth=1, capsize=2, alpha = 1)
-# plt.plot(results1['Cruise'], results1['Nonretained 13C'], color='black')
+plt.plot(results1['Cruise'], results1['Nonretained 13C'], color='black')
+
 plt.text(0, -19+.13, 'B)', horizontalalignment='center', verticalalignment='center', fontsize=14)
 plt.xlabel('Cruise', fontsize=14)
 plt.ylim(-24, -19)
 plt.yticks([], [])
 
 
-xtr_subsplot = fig.add_subplot(gs[2:4, 0:2])
-results1 = results.loc[results['Dep'] == 'S']
-plt.title('Surface')
-
-plt.errorbar(results1['Cruise'], results1['DOC_uM'], markersize = size, label='Total DOC', yerr=results1['DOC uM STD'],  markerfacecolor='none', fmt='X', color='black', ecolor='black', elinewidth=1, capsize=2, alpha = 1)
-plt.plot(results1['Cruise'], results1['DOC_uM'], color='black')
-
-plt.errorbar(results1['Cruise'], results1['SPE-DOC uM'], markersize = size, label='SPE-DOC', yerr=results1['SPE-DOC um STD'],  markerfacecolor='none', fmt='s', color='black', ecolor='black', elinewidth=1, capsize=2, alpha = 1)
-plt.plot(results1['Cruise'], results1['SPE-DOC uM'], color='black')
-
-plt.errorbar(results1['Cruise'], results1["Nonretained uM"], markersize = size, label='Non-retained', yerr=results1['Nonretained uM err'],  markerfacecolor='none', fmt='h', color='black', ecolor='black', elinewidth=1, capsize=2, alpha = 1)
-plt.plot(results1['Cruise'], results1['Nonretained uM'], color='black')
-
-
-xtr_subsplot = fig.add_subplot(gs[2:4, 2:4])
-
-results1 = results.loc[results['Dep'] == 'D']
-plt.title('Deep')
-
-plt.errorbar(results1['Cruise'], results1['DOC_uM'], markersize = size, label='Total DOC', yerr=results1['DOC uM STD'],  markerfacecolor='none', fmt='X', color='black', ecolor='black', elinewidth=1, capsize=2, alpha = 1)
-plt.plot(results1['Cruise'], results1['DOC_uM'], color='black')
-
-plt.errorbar(results1['Cruise'], results1['SPE-DOC uM'], markersize = size, label='SPE-DOC', yerr=results1['SPE-DOC um STD'],  markerfacecolor='none', fmt='s', color='black', ecolor='black', elinewidth=1, capsize=2, alpha = 1)
-plt.plot(results1['Cruise'], results1['SPE-DOC uM'], color='black')
-
-plt.errorbar(results1['Cruise'], results1["Nonretained uM"], markersize = size, label='Non-retained', yerr=results1['Nonretained uM err'],  markerfacecolor='none', fmt='h', color='black', ecolor='black', elinewidth=1, capsize=2, alpha = 1)
-plt.plot(results1['Cruise'], results1['Nonretained uM'], color='black')
-
-
-
-plt.savefig('C:/Users/clewis/IdeaProjects/GNS/UCI_13C/output/Version3/Results4NEW.png', dpi=300, bbox_inches="tight")
+plt.savefig('C:/Users/clewis/IdeaProjects/GNS/UCI_13C/output/Version3/Results4_newnew.png', dpi=300, bbox_inches="tight")
 plt.close()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#
+# """
+# non-retained NEW
+# """
+#
+# fig = plt.figure(1, figsize=(10, 10))
+# gs = gridspec.GridSpec(4, 4)
+# gs.update(wspace=.1, hspace=.35)
+#
+# cruises = ['IO7N','P16N', 'P18']
+# colors = ['#d73027','#fc8d59','#4575b4']
+# symbol = ['o','^','D','s']
+# size = 10
+# xtr_subsplot = fig.add_subplot(gs[0:2, 0:2])
+# results1 = results.loc[results['Dep'] == 'S']
+# plt.title('Surface')
+#
+# plt.errorbar(results1['Cruise'], results1['DOC 13C'], markersize = size, label='Total DOC', yerr=results1['error1'],  markerfacecolor='none', fmt='X', color='black', ecolor='black', elinewidth=1, capsize=2, alpha = 1)
+# plt.plot(results1['Cruise'], results1['DOC 13C'], color='black')
+#
+# plt.errorbar(results1['Cruise'], results1['SPE-DOC 13C'], markersize = size, label='SPE-DOC', yerr=results1['error2'],  markerfacecolor='none', fmt='s', color='black', ecolor='black', elinewidth=1, capsize=2, alpha = 1)
+# plt.plot(results1['Cruise'], results1['SPE-DOC 13C'], color='black')
+#
+# plt.errorbar(results1['Cruise'], results1["Nonretained 13C"], markersize = size, label='Non-retained', yerr=results1['error4'],  markerfacecolor='none', fmt='h', color='black', ecolor='black', elinewidth=1, capsize=2, alpha = 1)
+# plt.plot(results1['Cruise'], results1['Nonretained 13C'], color='black')
+# plt.text(0, -19+.13, 'A)', horizontalalignment='center', verticalalignment='center', fontsize=14)
+# plt.xlabel('Cruise', fontsize=14)
+# plt.ylabel('\u03B4$^1$$^3$C (\u2030)', fontsize=14)
+# plt.ylim(-24, -19)
+# plt.legend()
+#
+# xtr_subsplot = fig.add_subplot(gs[0:2, 2:4])
+# results1 = results.loc[results['Dep'] == 'D']
+# plt.title('Deep')
+# plt.errorbar(results1['Cruise'], results1['DOC 13C'], markersize = size, label='Total DOC', yerr=results1['error1'],  markerfacecolor='none', fmt='X', color='black', ecolor='black', elinewidth=1, capsize=2, alpha = 1)
+# plt.plot(results1['Cruise'], results1['DOC 13C'], color='black')
+#
+# plt.errorbar(results1['Cruise'], results1['SPE-DOC 13C'], markersize = size, label='SPE-DOC', yerr=results1['error2'],  markerfacecolor='none', fmt='s', color='black', ecolor='black', elinewidth=1, capsize=2, alpha = 1)
+# plt.plot(results1['Cruise'], results1['SPE-DOC 13C'], color='black')
+#
+# plt.errorbar(results1['Cruise'], results1["Nonretained 13C"], markersize = size, label='Non-retained', yerr=results1['error4'],  markerfacecolor='none', fmt='h', color='black', ecolor='black', elinewidth=1, capsize=2, alpha = 1)
+# # plt.plot(results1['Cruise'], results1['Nonretained 13C'], color='black')
+# plt.text(0, -19+.13, 'B)', horizontalalignment='center', verticalalignment='center', fontsize=14)
+# plt.xlabel('Cruise', fontsize=14)
+# plt.ylim(-24, -19)
+# plt.yticks([], [])
+#
+#
+# xtr_subsplot = fig.add_subplot(gs[2:4, 0:2])
+# results1 = results.loc[results['Dep'] == 'S']
+# plt.title('Surface')
+#
+# plt.errorbar(results1['Cruise'], results1['DOC_uM'], markersize = size, label='Total DOC', yerr=results1['DOC uM STD'],  markerfacecolor='none', fmt='X', color='black', ecolor='black', elinewidth=1, capsize=2, alpha = 1)
+# plt.plot(results1['Cruise'], results1['DOC_uM'], color='black')
+#
+# plt.errorbar(results1['Cruise'], results1['SPE-DOC uM'], markersize = size, label='SPE-DOC', yerr=results1['SPE-DOC um STD'],  markerfacecolor='none', fmt='s', color='black', ecolor='black', elinewidth=1, capsize=2, alpha = 1)
+# plt.plot(results1['Cruise'], results1['SPE-DOC uM'], color='black')
+#
+# plt.errorbar(results1['Cruise'], results1["Nonretained uM"], markersize = size, label='Non-retained', yerr=results1['Nonretained uM err'],  markerfacecolor='none', fmt='h', color='black', ecolor='black', elinewidth=1, capsize=2, alpha = 1)
+# plt.plot(results1['Cruise'], results1['Nonretained uM'], color='black')
+#
+#
+# xtr_subsplot = fig.add_subplot(gs[2:4, 2:4])
+#
+# results1 = results.loc[results['Dep'] == 'D']
+# plt.title('Deep')
+#
+# plt.errorbar(results1['Cruise'], results1['DOC_uM'], markersize = size, label='Total DOC', yerr=results1['DOC uM STD'],  markerfacecolor='none', fmt='X', color='black', ecolor='black', elinewidth=1, capsize=2, alpha = 1)
+# plt.plot(results1['Cruise'], results1['DOC_uM'], color='black')
+#
+# plt.errorbar(results1['Cruise'], results1['SPE-DOC uM'], markersize = size, label='SPE-DOC', yerr=results1['SPE-DOC um STD'],  markerfacecolor='none', fmt='s', color='black', ecolor='black', elinewidth=1, capsize=2, alpha = 1)
+# plt.plot(results1['Cruise'], results1['SPE-DOC uM'], color='black')
+#
+# plt.errorbar(results1['Cruise'], results1["Nonretained uM"], markersize = size, label='Non-retained', yerr=results1['Nonretained uM err'],  markerfacecolor='none', fmt='h', color='black', ecolor='black', elinewidth=1, capsize=2, alpha = 1)
+# plt.plot(results1['Cruise'], results1['Nonretained uM'], color='black')
+#
+#
+#
+# plt.savefig('C:/Users/clewis/IdeaProjects/GNS/UCI_13C/output/Version3/Results4NEW.png', dpi=300, bbox_inches="tight")
+# plt.close()
 
 
 

@@ -35,6 +35,13 @@ P16N = pd.read_csv('H:\Science\Datasets\Hydrographic\P16N_2015.csv', skiprows=11
 IO7N = pd.read_csv('H:\Science\Datasets\Hydrographic\IO7N_2018.csv', skiprows=131).dropna(subset='DATE')
 P18_1994 = pd.read_csv('H:\Science\Datasets\Hydrographic\P18_1994.csv', skiprows=10).dropna(subset='DATE')
 
+# quick checking something for ellen:
+qc = IO7N.loc[IO7N['CTDPRS'] < 10]
+t = qc['CTDTMP']
+print(f"max is {max(t)}, and min is {min(t)}, and the average is {np.average(t)}")
+
+
+
 # Lets concat all the cruises together into one file...
 P18['Cruise'] = 'P18'
 P16N['Cruise'] = 'P16N'

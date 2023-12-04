@@ -33,6 +33,10 @@ ref1 = ref1.loc[ref1['Decimal_date'] > 1980].reset_index(drop=True)
 
 # I DON"T WANT TO PRESENT MCQ as a TREE RING SITE!
 df = df.loc[df['Site'] != 'MCQ']
+# December 4, 2023: Removing Kapuni and RMB after notes from JT (or until we re-measure some of the cores)
+df = df.loc[df['Site'] != 'Raul Marin Balmaceda']
+df = df.loc[df['Site'] != 'near Kapuni school field, NZ']
+
 
 """
 FOR METHODS SECTION: DEVELOPMENT OF BACKGROUND REFERENCE: 
@@ -249,9 +253,7 @@ p_resultsss.to_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OP
 
 """
 AT THIS POINT I WRITE THAT REF 1 will be USED FROM NOW ON!
-
 At a high-level, how does the raw data look? This will be the first plot to go into our paper...
-
 """
 
 # SORT VALUES BY LATITUDE SO THEY APPEAR IN ORDER ON THE PLOTS LATER

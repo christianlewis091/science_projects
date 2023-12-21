@@ -84,7 +84,30 @@ Phase 4 outliers/labels overwrite those from phase 3.
 """
 
 # IMPORT THE DATA FILE
-df = pd.read_csv(r'H:\Science\Datasets\Alberts_dataquality\simplified RLIMS dataset.csv')
+# this file contains all of RLIMS as downloaded from one of our most recent wheels (today is 21/12/2023; Dec 21),
+# but the file was moved to my C: drive
+df = pd.read_csv(r'C:\Users\clewis\IdeaProjects\GNS\xcams\TW3494standards.xlsx')
+
+# I initially wrote the following 4 scripts using a downloaded file from Albert. His export script has since gone
+# Missing, and some of the variable names have changed. I can either 1) change all the variable names in the following
+# 4 scripts, or simply rename the values here, to match the old ones. I choose the latter.
+df = df[['R_number','TW','TP','Quality Flag','AMS Category ID XCAMS','Ratio to standard','Ratio to standard error','Collection Decimal Date','Date Run','JOB Notes']]
+
+# TODO upon return in January:
+# TODO 1) Re-export the file above, but this time make sure to include the field EArun. This allows me to filter for Ea vs Sealed tube later on
+# TODO 2) Re-run all the scripts, without removing any data yet!
+# TODO 3) after re-running, decide where data should be removed, and then import those NEW FLAGS back into RLIMS
+
+
+
+
+
+
+
+
+
+
+
 length_check = df
 # INITIAlZE A COLUMN FOR ME TO ADD THINGS TO FILTER ON LATER
 df['CBL_Filtering_Category'] = -999

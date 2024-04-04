@@ -20,104 +20,77 @@ from scipy.stats import chisquare
 This region of the code explores the data downloaded from AccelNet (copied from the website, where the 
 chi2 is calculated using the 14/12he ratio and the data is reduced by taking the AVERAGE OF EACH OX CATHODE
 """
-
-# df = pd.read_excel(r'H:\Science\Current_Projects\04_ams_data_quality\AMS_stats\TW3438_testing.xlsx', skiprows=3)
-
-df2 = pd.read_excel(r'H:\Science\Current_Projects\04_ams_data_quality\AMS_stats\Book3.xlsx')
-calibration_positions = [0, 5, 10, 15, 20, 25, 30, 35]
-
-df = pd.read_excel(r'H:\Science\Current_Projects\04_ams_data_quality\AMS_stats\testing_postcalams.xlsx', skiprows=3)
-
-
-"""
-Chi2 using output from AccelNet and FCIR calculation, each OX cathode is AVERAGED. 
-"""
-# The first thing we need is the "M" which is our FCIR (3a (Zondervan 2015))
-# arrays are based on cell names in excel
-g = []
-columni = []
-j = []
-k = []
-sig = []
-
-for i in range(0, len(calibration_positions)):
-    cat = df.loc[df['position'] == calibration_positions[i]]
-    c14_i, c12_i, c13_i, t = cat['14Ccnts'], cat['12Ccurr'], cat['13Ccurr'], cat['Tdetect']
-    fcir_i = (c14_i * c12_i) / (t * (c13_i**2))  # calculates PER RUN FCIR
-    fcir_j = np.average(fcir_i)  # This is our "M"
-
-    sigma_j = fcir_j / np.sqrt(sum(cat['14Ccnts']) + 1)
-    # sigma_j = np.average(sigma_i)  # This is our "sigma"
-
-    sigma_j2 = sigma_j**2           # This is our "sigma^2"
-    Mz_num = fcir_j / sigma_j      # Equivalent to column J in excel sheet
-    Mz_denom = 1 / sigma_j         # Equivalent to column K in excel sheet
-
-    sig.append(sigma_j)
-    g.append(fcir_j)
-    columni.append(sigma_j2)
-    j.append(Mz_num)
-    k.append(Mz_denom)
 #
-chi2data = pd.DataFrame({"M": g, "sigma^2": columni, "Mznum": j, "Mzdenom": k, "sig": sig})
-# chi2data.to_excel(r'H:\Science\Current_Projects\04_ams_data_quality\AMS_stats\test2.xlsx')
-
-mz_num = np.sum(chi2data['Mznum'])
-mz_den = np.sum(chi2data['Mzdenom'])
-mz = mz_num/mz_den
-
-dof = (len(calibration_positions)) - 1
-chi2data['chi2'] = ((chi2data['M'] - mz)**2 ) / chi2data['sigma^2']
-# chi2data['chi2'] = ((chi2data['M'] - mz)**2 ) / chi2data['sig']
-chi2_norm = np.sum(chi2data['chi2'])
-chi2_red = np.sum(chi2data['chi2']) / dof
-
-chilim = 14.1
-
-
-print("X^2 using FCIR data and OX1's are averaged (cathode global, not runs): X^2: {}, chiLim: {}".format(chi2_red, chilim))
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+# # df = pd.read_excel(r'H:\Science\Current_Projects\04_ams_data_quality\AMS_stats\TW3438_testing.xlsx', skiprows=3)
+#
+# df2 = pd.read_excel(r'H:\Science\Current_Projects\04_ams_data_quality\AMS_stats\Book3.xlsx')
+# calibration_positions = [0, 5, 10, 15, 20, 25, 30, 35]
+#
+# df = pd.read_excel(r'H:\Science\Current_Projects\04_ams_data_quality\AMS_stats\testing_postcalams.xlsx', skiprows=3)
+#
+#
+# """
+# Chi2 using output from AccelNet and FCIR calculation, each OX cathode is AVERAGED.
+# """
+# # The first thing we need is the "M" which is our FCIR (3a (Zondervan 2015))
+# # arrays are based on cell names in excel
+# g = []
+# columni = []
+# j = []
+# k = []
+# sig = []
+#
+# for i in range(0, len(calibration_positions)):
+#     cat = df.loc[df['position'] == calibration_positions[i]]
+#     c14_i, c12_i, c13_i, t = cat['14Ccnts'], cat['12Ccurr'], cat['13Ccurr'], cat['Tdetect']
+#     fcir_i = (c14_i * c12_i) / (t * (c13_i**2))  # calculates PER RUN FCIR
+#     fcir_j = np.average(fcir_i)  # This is our "M"
+#
+#     sigma_j = fcir_j / np.sqrt(sum(cat['14Ccnts']) + 1)
+#     # sigma_j = np.average(sigma_i)  # This is our "sigma"
+#
+#     sigma_j2 = sigma_j**2           # This is our "sigma^2"
+#     Mz_num = fcir_j / sigma_j      # Equivalent to column J in excel sheet
+#     Mz_denom = 1 / sigma_j         # Equivalent to column K in excel sheet
+#
+#     sig.append(sigma_j)
+#     g.append(fcir_j)
+#     columni.append(sigma_j2)
+#     j.append(Mz_num)
+#     k.append(Mz_denom)
+# #
+# chi2data = pd.DataFrame({"M": g, "sigma^2": columni, "Mznum": j, "Mzdenom": k, "sig": sig})
+# # chi2data.to_excel(r'H:\Science\Current_Projects\04_ams_data_quality\AMS_stats\test2.xlsx')
+#
+# mz_num = np.sum(chi2data['Mznum'])
+# mz_den = np.sum(chi2data['Mzdenom'])
+# mz = mz_num/mz_den
+#
+# dof = (len(calibration_positions)) - 1
+# chi2data['chi2'] = ((chi2data['M'] - mz)**2 ) / chi2data['sigma^2']
+# # chi2data['chi2'] = ((chi2data['M'] - mz)**2 ) / chi2data['sig']
+# chi2_norm = np.sum(chi2data['chi2'])
+# chi2_red = np.sum(chi2data['chi2']) / dof
+#
+# chilim = 14.1
+#
+#
+# print("X^2 using FCIR data and OX1's are averaged (cathode global, not runs): X^2: {}, chiLim: {}".format(chi2_red, chilim))
+#
 
 
 # df2.to_excel(r'H:\Science\Current_Projects\04_ams_data_quality\AMS_stats\test3.xlsx')  # checking concat works
 
 
+subset = pd.read_csv('C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_1_output/test_chi2.csv')
 
-
-
-
+# caclulate chi2 reduced
+data_squared = (subset['FracMOD'] - (np.mean(subset['FracMOD'])))**2
+error_squared = subset['FerrNOwtwNOsys']**2
+numerator = np.sum(data_squared/error_squared)
+denominator = len(subset) - 1
+chi2_red = numerator/denominator
+print(chi2_red)
 
 
 

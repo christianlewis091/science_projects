@@ -14,21 +14,43 @@ the trended and smooth curves at all datapoints we have for the SAMPLES.
 Currently, for some reason, during creatino of the final dataframe, the x-values get jumbled and the bomb peak looks
 like it's drunk. I'm not sure why. Need to come back to this.
 """
-
 import pandas as pd
 from X_my_functions import monte_carlo_randomization_smooth
 from X_my_functions import monte_carlo_randomization_trend
+from datetime import datetime
 import matplotlib.pyplot as plt
-
 # read in the list of all SAMPLES (SOAR, MCQ, NEU)
 samples = pd.read_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/from_tree_ring_analysis/SOARTreeRingData_CBL_cleaned.xlsx')
-# samples = samples[['Ring code', 'R number', 'Site', 'F14C', 'F14Cerr',
-#                   'Decimal_date', 'D14C', 'D14Cerr', 'Lat', 'Lon', '#location', 'Sample',
-#                   'Lab', 'Analysis', 'Sample ', 'Sample.1', 'Average of Dates', 'd13C',
-#                   'Flag', 'D14C_1', 'weightedstderr_D14C_1', 'sampler_id',
-#                   'wheightedanalyticalstdev_D14C']]
 
-# samples['Ref1'] = -999  # currently a placeholder
+# 12/12/2023 I need to add MCQ comparison (to validate CMP) into the paper. Need to add these into the works here,
+# will add Heidelberg data now, and remove before main plots.
+mcq = pd.read_excel('H:/Science/Datasets/heidelberg_MQA.xlsx')
+
+res = []
+# need to convert MCQ dates to decimal dates
+for i in range(0, len(mcq)):
+    row = mcq.iloc[i]
+    date_string = str(row['Average of Dates'])
+    date_string = date_string[:10]
+    date_object = datetime.strptime(date_string, '%Y-%m-%d')
+    decimal_date = date_object.year + (date_object.timetuple().tm_yday - 1) / 365.25
+    res.append(decimal_date)
+mcq['Average of Dates'] = res
+
+mcq = mcq[['#location', 'Average of Dates', 'D14C','1sigma_error']]
+mcq = mcq.rename(columns={'#location': 'Site', 'Average of Dates': 'DecimalDate', '1sigma_error':'∆14Cerr','D14C':'∆14C'})
+samples = pd.concat([samples, mcq])
+samples.to_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/from_tree_ring_analysis/SOARTreeRingData_CBL_cleaned.xlsx')
+
+
+# #
+# # # samples = samples[['Ring code', 'R number', 'Site', 'F14C', 'F14Cerr',
+# # #                   'Decimal_date', 'D14C', 'D14Cerr', 'Lat', 'Lon', '#location', 'Sample',
+# # #                   'Lab', 'Analysis', 'Sample ', 'Sample.1', 'Average of Dates', 'd13C',
+# # #                   'Flag', 'D14C_1', 'weightedstderr_D14C_1', 'sampler_id',
+# # #                   'wheightedanalyticalstdev_D14C']]
+#
+# # samples['Ref1'] = -999  # currently a placeholder
 
 # read in the references
 ref2 = pd.read_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/from_reference2/harmonized_dataset.xlsx')

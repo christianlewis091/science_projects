@@ -1,5 +1,6 @@
 """
 UPDATES:
+
 8/30/23
 Adding a "better" hysplit plot for vizualization of the data around the ACC fronts
 
@@ -7,6 +8,7 @@ Adding a "better" hysplit plot for vizualization of the data around the ACC fron
 Since we decided to split the paper into two sections during our April meeting with Erik and Sarah, the paper
 has become significantly simpler. All analyses/plots will be contained in one TRUTH file, which is this one.
 For best future reference, the sheet will follow the format of the paper.
+
 """
 
 import numpy
@@ -22,10 +24,13 @@ from sklearn.linear_model import LinearRegression
 
 # read in the data from the previous .py files
 df = pd.read_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/from_reference_to_sample_xvals2/samples_with_references10000.xlsx')
+df = df.loc[df['Site'] != 'Macquarie_Isl.'] # REMOVE IF WANT TO MAKE A CMP TO MQA COMPARISON PLOT LATER
+
 df = df.sort_values(by=['DecimalDate'])
 ref2 = pd.read_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/from_reference2/harmonized_dataset.xlsx')
 ref1 = pd.read_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/from_reference1/reference1.xlsx')
 bhdcgo = pd.read_excel(r'H:\Science\Datasets\CGOvBHD.xlsx')
+
 # ensure all data are sliced for after 1980.
 df = df.loc[df['DecimalDate'] > 1980].reset_index(drop=True)
 ref2 = ref2.loc[ref2['Decimal_date'] > 1980].reset_index(drop=True)
@@ -36,8 +41,8 @@ df = df.loc[df['Site'] != 'MCQ']
 # December 4, 2023: Removing Kapuni and RMB after notes from JT (or until we re-measure some of the cores)
 df = df.loc[df['Site'] != 'Raul Marin Balmaceda']
 df = df.loc[df['Site'] != 'near Kapuni school field, NZ']
-
-
+print(len(df))
+print(min(df['DecimalDate']))
 """
 FOR METHODS SECTION: DEVELOPMENT OF BACKGROUND REFERENCE: 
 WE WANT TO SHOW THE DEVELOPMENT OF REFERENCE, WITH A MAP, AND PLOT OF THE DATA TOGETHER
@@ -250,6 +255,42 @@ for i in range(0, len(blahs)):
 p_resultsss = pd.DataFrame({"Site": site, "Stat": stat, "P-value": pval})
 # print(p_resultsss)
 p_resultsss.to_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/main_analysis/p_results.xlsx')
+
+
+"""
+12/12/2023
+Need to make the new plot to compare CMP and MCQ before I remove mcquarie island for the tree-ring plots. 
+Even though the MCQ figure will be last
+"""
+fig = plt.figure(figsize=(12, 12))
+sites = np.unique(df['Site'])
+for m in range(0, len(sites)):
+    thisonee = df.loc[df['Site'] == sites[i]]
+    plt.plot(thisonee['DecimalDate'], thisonee['r3_diff_trend'])
+
+plt.savefig('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/main_analysis/cmp_mcq.png',
+            dpi=300, bbox_inches="tight")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 """
 AT THIS POINT I WRITE THAT REF 1 will be USED FROM NOW ON!
@@ -784,185 +825,207 @@ p_resultsss.to_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OP
 
 
 
+"""
+Jocelyn wants me to change the figures a bit, so I'm trying to that here...
+Feb 22, 2024
+
+Need to reload some of the data from the g
+"""
+
+df = pd.read_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/from_reference_to_sample_xvals2/samples_with_references10000.xlsx')
+df = df.loc[df['Site'] != 'Macquarie_Isl.'] # REMOVE IF WANT TO MAKE A CMP TO MQA COMPARISON PLOT LATER
+
+df = df.sort_values(by=['DecimalDate'])
+ref2 = pd.read_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/from_reference2/harmonized_dataset.xlsx')
+ref1 = pd.read_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/from_reference1/reference1.xlsx')
+bhdcgo = pd.read_excel(r'H:\Science\Datasets\CGOvBHD.xlsx')
+
+# ensure all data are sliced for after 1980.
+df = df.loc[df['DecimalDate'] > 1980].reset_index(drop=True)
+ref2 = ref2.loc[ref2['Decimal_date'] > 1980].reset_index(drop=True)
+ref1 = ref1.loc[ref1['Decimal_date'] > 1980].reset_index(drop=True)
+
+# I DON"T WANT TO PRESENT MCQ as a TREE RING SITE!
+df = df.loc[df['Site'] != 'MCQ']
+# December 4, 2023: Removing Kapuni and RMB after notes from JT (or until we re-measure some of the cores)
+df = df.loc[df['Site'] != 'Raul Marin Balmaceda']
+df = df.loc[df['Site'] != 'near Kapuni school field, NZ']
+print(len(df))
+print(min(df['DecimalDate']))
 
 
 
-#     plt.errorbar(landfrac_slice3['LandFrac'], slice['Mean'], slice['Std'], markersize = size1, elinewidth=1, capsize=2, alpha=1, label=label, ls='none', fmt=markers[i], color=colors[i], ecolor=colors[i], markeredgecolor='black')
-# plt.xlabel(f'Fraction of trajectory over land, {timelabel[m]} hours')
-#
-#
+
+fig = plt.figure(figsize=(8, 8))
+gs = gridspec.GridSpec(3, 2)
+gs.update(wspace=0.15, hspace=0.15)
+
+"""
+MAPS ON THE FIRST TOP ROW
+
+"""
+
+# NOW DRAW THE MAPS
+# SET MAP BOUNDARIES
+maxlat = -30
+minlat = -60
+nz_max_lon = 185
+nz_min_lon = 155
+chile_max_lon = -55
+chile_min_lon = -85
+res = 'l'
+
+c1, c2, c3, c4, c5, c6, c7, c8 = '#b2182b','#d6604d','#f4a582','#fddbc7','#d1e5f0','#92c5de','#4393c3','#2166ac'
+colors = [c1, c2, c3, c4, c5, c6, c7, c8]
+markers = ['o', '^', '8', 's', 'p', '*', 'X', 'D']
+size1 = 8
+
+site_array = []
+lat_array = []
+stat_array = []
+mean_array = []
+std_array = []
+region_array = []
+testrat_arr = []
+testrat_err_arr = []
 
 
-#
-# """
-# MAPP OF ACC FRONTS
-# """
-#
-#
-# LOAD HYSPLOT DATA
-easy_access = pd.read_excel(r'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/hysplit/output_data/easy_access2 - Copy.xlsx')
-acc_fronts = pd.read_csv(r'H:\Science\Datasets\ACC_fronts\csv\antarctic_circumpolar_current_fronts.csv')
-fronts = np.unique(acc_fronts['front_name'])
-fronts = ['PF','SAF','STF','Boundary']
 
-# FIND THE MEAN OF THE TRAJECTORIES FOR EACH SITE, OVER TIME.
-means_dataframe_100_1 = pd.read_excel(f'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/hysplit/output_data/means_dataframe_100_2005_2006.xlsx')
-means_dataframe_100_2 = pd.read_excel(f'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/hysplit/output_data/means_dataframe_100_2010_2011.xlsx')
-means_dataframe_100_3 = pd.read_excel(f'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/hysplit/output_data/means_dataframe_100_2015_2016.xlsx')
-means_dataframe_100_4 = pd.read_excel(f'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/hysplit/output_data/means_dataframe_100_2020_2021.xlsx')
+# plot structure
+xtr_subsplot = fig.add_subplot(gs[0:1, 0:1])
+map = Basemap(llcrnrlat=minlat, urcrnrlat=maxlat, llcrnrlon=chile_min_lon, urcrnrlon=chile_max_lon, resolution=res)
+map.drawmapboundary(fill_color='lightgrey')
+map.fillcontinents(color='darkgrey')
+map.drawcoastlines(linewidth=0.1)
+for i in range(0, len(locs1)):
 
-means_dataframe_100 = pd.concat([means_dataframe_100_1, means_dataframe_100_2, means_dataframe_100_3, means_dataframe_100_4])
-codenames = np.unique(means_dataframe_100['Codename'])
-time_integrated_means = pd.DataFrame()
-for i in range(0,len(codenames)):
+    slice = chile.loc[chile['Site'] == str(locs1[i])].reset_index(drop=True)  # grab the first data to plot, based on location
+    lat = slice['NewLat']
+    lat = lat[0]
+    lon = slice['new_Lon']
+    lon = lon[0]
+    x, y = map(lon, lat)
+    # print(x, y)
+    map.scatter(x, y, marker=markers[i],color=colors[i], s=size1*10, edgecolor='black')
+plt.legend()
+map.drawparallels(np.arange(-90, 90, 10), labels=[True, False, False, False], linewidth=0.5)
+map.drawmeridians(np.arange(-180, 180, 10), labels=[1, 1, 0, 1], linewidth=0.5)
 
-    # LOCATE FIRST SITE
-    site1 = means_dataframe_100.loc[means_dataframe_100['Codename'] == codenames[i]]
-    means1 = site1.groupby('timestep', as_index=False).mean()
-    means1['Codename'] = codenames[i]
 
-    time_integrated_means = pd.concat([time_integrated_means, means1]).reset_index(drop=True)
-#
-# # ADDING PROPER SITE NAMES FOR THE FOLLOWING LOOP TO READ
-# time_integrated_means = time_integrated_means.merge(easy_access)
-#
-# # SEE hysplit_make_plots_GNS.py
-# timemin = -(6*24)
-# time_integrated_means = time_integrated_means.loc[time_integrated_means['timestep'] > timemin]
-# # fronts = ['PF','SAF','STF']
-#
-# """
-# BEGIN PLOTTING THE FIGURE
-# """
-#
-#
-# line_sys = ['dotted','dashed','dashdot','solid','dotted','dashed','dashdot']
-#
-# # LOOP THROUGH FIGURES STYLES
-# for j in range(0, 4):
-#     fig = plt.figure(figsize=(16, 16))
-#     map = Basemap(projection='ortho',lon_0=-150,lat_0=-90,resolution='l')
-#     map.drawcoastlines(linewidth=0.1)
-#
-#     if j == 0:
-#         map.etopo()
-#     elif j ==1:
-#         map.bluemarble()
-#     elif j == 2:
-#         map.shadedrelief()
-#     elif j == 3:
-#         map.drawmapboundary(fill_color='#A6CAE0')
-#         map.fillcontinents(color='#69b2a2',lake_color='#A6CAE0')
-#
-# # PLOTTING THE ACC FRONTS
-# #     pf = acc_fronts.loc[acc_fronts['front_name'] == 'PF']
-# #     saf = acc_fronts.loc[acc_fronts['front_name'] == 'SAF']
-# #     stf = acc_fronts.loc[acc_fronts['front_name'] == 'STF']
-# #     boundary = acc_fronts.loc[acc_fronts['front_name'] == 'Boundary']
-# #
-# #     pflat = pf['latitude']
-# #     pflon = pf['longitude']
-# #     lat1, lon1 = map(pflon, pflat)
-# #
-# #     stflat = stf['latitude']
-# #     stflon = stf['longitude']
-# #     lat2, lon2 = map(stflon, stflat)
-# #
-#
-#     for i in range(0, len(fronts)):
-#         this_one = acc_fronts.loc[acc_fronts['front_name'] == fronts[i]]
-#
-#         lat = this_one['latitude']
-#         lon = this_one['longitude']
-#         z, a = map(list(lon), list(lat))
-#
-#         map.plot(z, a, color='black', label=f'{fronts[i]}', linestyle=line_sys[i])
-#         plt.legend(bbox_to_anchor=(1.1, 1.05))
-#
-#     # PLOTTING CHILEAN SITES
-#     for i in range(0, len(locs1)):
-#         slice = chile.loc[chile['Site'] == str(locs1[i])].reset_index(drop=True)  # grab the first data to plot, based on location
-#         lat = slice['NewLat']
-#         lat = lat[0]
-#         lon = slice['new_Lon']
-#         lon = lon[0]
-#         x, y = map(lon, lat)
-#         map.scatter(x, y, marker=markers[i],color=colors[i], s=size1*10, edgecolor='black')
-#         print(locs1[i])
-#
-#         site_mean_100 = time_integrated_means.loc[time_integrated_means['Site'] == str(locs1[i])].reset_index(drop=True)
-#         chile_lat = site_mean_100['y']
-#         chile_lon = site_mean_100['x']
-#         print(type(chile_lon))
-#         z, a = map(list(chile_lon), list(chile_lat))
-#
-#         map.plot(z, a, color=colors[i])
-#
-#     # PLOTTING NZ SITES
-#     for i in range(0, len(locs2)):
-#
-#         slice = nz.loc[nz['Site'] == str(locs2[i])].reset_index(drop=True)  # grab the first data to plot, based on location
-#         lat = slice['NewLat']
-#         lat = lat[0]
-#         lon = slice['NewLon']
-#         lon = lon[0]
-#         x, y = map(lon, lat)
-#         # print(x, y)
-#         map.scatter(x, y, marker=markers[i],color=colors[i], s=size1*10, edgecolor='black')
-#
-#         site_mean_100 = time_integrated_means.loc[time_integrated_means['Site'] == str(locs2[i])].reset_index(drop=True)
-#         chile_lat = site_mean_100['y']
-#         chile_lon = site_mean_100['x']
-#         print(type(chile_lon))
-#         z, a = map(list(chile_lon), list(chile_lat))
-#         map.plot(z, a, color=colors[i])
-#
-#         """
-#         Add topographic hotspots from Tamsitt et al
-#         """
-#         lon1 = [35, 65, 150, 190, -60]
-#         lat1 = [-46, -46, -50, -50, -45]
-#         lon2 = [40, 75, 155, 200, -50]
-#         lat2 = [-46, -46, -50, -50, -45]
-#         lon4 = [35, 65, 150, 190, -60]
-#         lat4 = [-55, -55, -60, -60, -60]
-#         lon3 = [40, 75, 155, 200, -50]
-#         lat3 = [-55, -55, -60, -60, -60]
-#
-#         for i in range(0, len(lon1)):
-#             # plot where my new zealand subplot is on the globe
-#             x1, y1 = map(lon1[i], lat1[i])
-#             x2, y2 = map(lon2[i], lat2[i])
-#             x3, y3 = map(lon3[i], lat3[i])
-#             x4, y4 = map(lon4[i], lat4[i])
-#             poly = Polygon([(x1,y1),(x2,y2),(x3,y3),(x4,y4)], facecolor="orange", edgecolor='black',linewidth=1, alpha=1)
-#             plt.gca().add_patch(poly)
-#
-#     plt.savefig(f'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/main_analysis/ACC_map_{j}_nofronts_notitle_nolegend_w_steering.png',
-#                 dpi=300, bbox_inches="tight")
-#     plt.close()
-    # """
-    # Add topographic hotspots from Tamsitt et al
-    # """
-    # lon1 = [35, 65, 150, 190, -60]
-    # lat1 = [-46, -46, -50, -50, -45]
-    # lon2 = [40, 75, 155, 200, -50]
-    # lat2 = [-46, -46, -50, -50, -45]
-    # lon4 = [35, 65, 150, 190, -60]
-    # lat4 = [-55, -55, -60, -60, -60]
-    # lon3 = [40, 75, 155, 200, -50]
-    # lat3 = [-55, -55, -60, -60, -60]
-    #
-    # for i in range(0, len(lon1)):
-    #     # plot where my new zealand subplot is on the globe
-    #     x1, y1 = map(lon1[i], lat1[i])
-    #     x2, y2 = map(lon2[i], lat2[i])
-    #     x3, y3 = map(lon3[i], lat3[i])
-    #     x4, y4 = map(lon4[i], lat4[i])
-    #     poly = Polygon([(x1,y1),(x2,y2),(x3,y3),(x4,y4)], facecolor="orange", edgecolor='black',linewidth=1, alpha=1)
-    #     plt.gca().add_patch(poly)
 
-    # map.drawparallels(np.arange(-90, 90, 30), labels=[True, False, False, False], fontsize=7, linewidth=0.5)
-    # map.drawmeridians(np.arange(-180, 180, 30), labels=[1, 1, 0, 1], fontsize=7, linewidth=0.5)
+# plot structure
+xtr_subsplot = fig.add_subplot(gs[0:1, 1:2])
+map = Basemap(llcrnrlat=minlat, urcrnrlat=maxlat, llcrnrlon=nz_min_lon, urcrnrlon=nz_max_lon, resolution=res)
+map.drawmapboundary(fill_color='lightgrey')
+map.fillcontinents(color='darkgrey')
+map.drawcoastlines(linewidth=0.1)
+map.shadedrelief()
+
+for i in range(0, len(locs2)):
+
+    slice = nz.loc[nz['Site'] == str(locs2[i])].reset_index(drop=True)  # grab the first data to plot, based on location
+    lat = slice['NewLat']
+    lat = lat[0]
+    lon = slice['NewLon']
+    lon = lon[0]
+    x, y = map(lon, lat)
+    # print(x, y)
+    map.scatter(x, y, marker=markers[i],color=colors[i], s=size1*10, edgecolor='black')
+map.drawparallels(np.arange(-90, 90, 10), labels=[True, False, False, False], linewidth=0.5)
+map.drawmeridians(np.arange(-180, 180, 10), labels=[1, 1, 0, 1], linewidth=0.5)
+
+
+
+# plot structure
+xtr_subsplot = fig.add_subplot(gs[1:2, 0:1])
+plt.plot(df['DecimalDate'], df['D14C_ref3t_mean'], zorder=10, label='CCGCRV Trend Reference', color='black')
+for i in range(0, len(locs1)):
+    slice = chile.loc[chile['Site'] == str(locs1[i])].reset_index(drop=True)  # grab the first data to plot, based on location
+    plt.errorbar(slice['DecimalDate'], slice['D14C_1'], 0.01, markersize = size1, elinewidth=1, capsize=2, alpha=.3, ls='none', fmt=markers[i], color=colors[i], ecolor=colors[i], markeredgecolor=colors[i])
+plt.xticks([], [])
+plt.ylim(0, 300)
+plt.xlim(1980, 2020)
+plt.ylabel('\u0394$^1$$^4$CO$_2$ (\u2030)')
+plt.legend()
+
+
+# plot structure
+xtr_subsplot = fig.add_subplot(gs[1:2, 1:2])
+plt.plot(df['DecimalDate'], df['D14C_ref3t_mean'], zorder=10, label='Southern Hemisphere Background', color='black')
+for i in range(0, len(locs2)):
+    slice = nz.loc[nz['Site'] == str(locs2[i])].reset_index(drop=True)  # grab the first data to plot, based on location
+    plt.errorbar(slice['DecimalDate'], slice['D14C_1'], 0.01, markersize = size1, elinewidth=1, capsize=2, alpha=.3, ls='none', fmt=markers[i], color=colors[i], ecolor=colors[i], markeredgecolor=colors[i])
+plt.xticks([], [])
+plt.yticks([], [])
+plt.ylim(0, 300)
+plt.xlim(1980, 2020)
+
+
+
+
+# plot structure
+xtr_subsplot = fig.add_subplot(gs[2:3, 0:1])
+for i in range(0, len(locs1)):
+    slice = chile.loc[chile['Site'] == str(locs1[i])].reset_index(drop=True)  # grab the first data to plot, based on location
+    # print(slice)
+    latitude = slice['NewLat']
+    latitude = latitude[0]
+    latitude = round(latitude, 1)
+
+    x = stats.ttest_rel(slice['r2_diff_trend'], slice['r3_diff_trend'])
+    stat_array.append(x[1])
+    mean_array.append(np.nanmean(slice['r3_diff_trend']))
+    std_array.append(np.nanstd(slice['r3_diff_trend']))
+    testrat_arr.append(np.nanmean(slice['testrat']))
+    testrat_err_arr.append(np.nanmean(slice['testrat_err']))
+    lat_array.append(latitude)
+    site_array.append(str(locs1[i]))
+    region_array.append("Chile")
+    # Errorbars removed after meeting with JT ap[ril 23
+    # plt.errorbar(slice['Decimal_date'], slice['r3_diff_trend'], slice['r3_diff_trend_errprop'], markersize = size1, elinewidth=1, capsize=2, alpha=1, label=f"{str(latitude)} N", ls='none', fmt=markers[i], color=colors[i], ecolor=colors[i], markeredgecolor='black')
+    plt.errorbar(slice['DecimalDate'], slice['r3_diff_trend'], 0.01, markersize = size1, elinewidth=1, capsize=2, alpha=1, label=f"{str(latitude)} N", ls='none', fmt=markers[i], color=colors[i], ecolor=colors[i], markeredgecolor='black')
+
+plt.ylim(-15, 15)
+plt.xlim(1980, 2020)
+plt.axhline(0, color='black')
+plt.ylabel('\u0394\u0394$^1$$^4$CO$_2$ (\u2030)')
+
+
+
+
+
+
+# plot structure
+xtr_subsplot = fig.add_subplot(gs[2:3, 1:2])
+for i in range(0, len(locs2)):
+    slice = nz.loc[nz['Site'] == str(locs2[i])].reset_index(drop=True)  # grab the first data to plot, based on location
+    latitude = slice['NewLat']
+    latitude = latitude[0]
+    latitude = round(latitude, 1)
+
+    x = stats.ttest_rel(slice['r2_diff_trend'], slice['r3_diff_trend'])
+    stat_array.append(x[1])
+    mean_array.append(np.nanmean(slice['r3_diff_trend']))
+    std_array.append(np.nanstd(slice['r3_diff_trend']))
+    testrat_arr.append(np.nanmean(slice['testrat']))
+    testrat_err_arr.append(np.nanmean(slice['testrat_err']))
+    lat_array.append(latitude)
+    site_array.append(str(locs2[i]))
+    region_array.append("NZ")
+    # Removed errorbars May 23 after meeting with JT
+    # plt.errorbar(slice['Decimal_date'], slice['r3_diff_trend'], slice['r3_diff_trend_errprop'], markersize = size1, elinewidth=1, capsize=2, alpha=1, label=f"{str(latitude)} N", ls='none', fmt=markers[i], color=colors[i], ecolor=colors[i], markeredgecolor='black')
+    plt.errorbar(slice['DecimalDate'], slice['r3_diff_trend'], 0.01, markersize = size1, elinewidth=1, capsize=2, alpha=1, label=f"{str(latitude)} N", ls='none', fmt=markers[i], color=colors[i], ecolor=colors[i], markeredgecolor='black')
+
+plt.ylim(-15, 15)
+plt.xlim(1980, 2020)
+plt.axhline(0, color='black')
+plt.xlabel('Year of Growth')
+plt.yticks([], [])
+
+
+
+plt.savefig(f'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/main_analysis/newfigJT.png',
+            dpi=300, bbox_inches="tight")
+plt.close()
 
 

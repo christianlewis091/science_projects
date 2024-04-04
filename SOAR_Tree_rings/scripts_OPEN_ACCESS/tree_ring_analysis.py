@@ -37,500 +37,611 @@ Before I do anything else, as advised, let's check to see which if any tree ring
 have bad counts. First, I'll just do this visually by overlaying the plots onto the
 harmonized background record, and see if they do or do not overlap with the bomb spike.
 In order to do this, I'll first index the dataset according to each site for easy sub-plotting.
+
+Jan 11, 2024. Redoing this section via loops. I've leveled up in codeing and realized the preivous way can lead to errors
 """
 
-# # names = np.unique(df['StudySites::Site name'])
-# # print(names)
-CH_41_S = df.loc[(df['Site'] == 'Bahia San Pedro, Chile')]
-CH_41_S_x = CH_41_S['DecimalDate']
-CH_41_S_y = CH_41_S['∆14C']
+# add a new descriptor which is the ring code (T2-C3, etc)
+newdesc = []
+for i in range(0, len(df)):
+    row = df.iloc[i]
 
-CH_44_S = df.loc[(df['Site'] == 'Raul Marin Balmaceda')]
-CH_44_S_x = CH_44_S['DecimalDate']
-CH_44_S_y = CH_44_S['∆14C']
+    if row['Site'] == "19 Nikau St, Eastbourne, NZ":
+        ringcode = row['Ring code']
+        ringcode = ringcode[6:11]
+    elif row['Site'] == "23 Nikau St, Eastbourne, NZ":
+        ringcode = row['Ring code']
+        ringcode = ringcode[6:11]
+    elif row['Site'] == "near Kapuni school field, NZ":
+        ringcode = row['Ring code']
+        ringcode = ringcode[8:13]
+    else:
+        ringcode = row['Ring code']
+        ringcode = ringcode[4:9]
 
-CH_48_S = df.loc[(df['Site'] == 'Tortel island')]
-CH_48_S_x = CH_48_S['DecimalDate']
-CH_48_S_y = CH_48_S['∆14C']
+    newdesc.append(ringcode)
 
-CH_48_S_2 = df.loc[(df['Site'] == 'Tortel river')]
-CH_48_S_2_x = CH_48_S_2['DecimalDate']
-CH_48_S_2_y = CH_48_S_2['∆14C']
+df['TreeandCore'] = newdesc
 
-CH_53_S = df.loc[(df['Site'] == 'Seno Skyring')]
-CH_53_S_x = CH_53_S['DecimalDate']
-CH_53_S_y = CH_53_S['∆14C']
+sites = np.unique(df['Site'])
+for i in range(0, len(sites)):
 
-CH_54_S = df.loc[(df['Site'] == 'Monte Tarn, Punta Arenas')]
-CH_54_S_x = CH_54_S['DecimalDate']
-CH_54_S_y = CH_54_S['∆14C']
+    # loop into the first site
+    this_site = df.loc[df['Site'] == sites[i]]
 
-CH_55_S = df.loc[(df['Site'] == 'Baja Rosales, Isla Navarino')]
-CH_55_S_x = CH_55_S['DecimalDate']
-CH_55_S_y = CH_55_S['∆14C']
+    # how many unique tree cores are in this site?
+    cores = np.unique(this_site['TreeandCore'])
+    fig = plt.figure()
+    for j in range(0, len(cores)):
+        this_core = this_site.loc[this_site['TreeandCore'] == cores[j]]
+        # used to do errorbar but they're too small to se anyway compared to the data
+        plt.scatter(this_core['DecimalDate'], this_core['∆14C'], label=f'{cores[j]}')
+    plt.plot(harm_xs, harm_ys, label='SH Atmosphere \u0394$^1$$^4$CO$_2$ (\u2030)', color='black', alpha=0.2)
+    plt.legend()
+    plt.xlabel('Date', fontsize=14)
+    plt.title(f'{sites[i]}')
+    plt.ylabel('\u0394$^1$$^4$CO$_2$ (\u2030)', fontsize=14)  # label the y axis
+    plt.savefig(
+        f'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/from_tree_ring_analysis/Fixing_in_Jan2024/unfiltered_plots/{sites[i]}.png',
+        dpi=300, bbox_inches="tight")
+    plt.close()
 
-CH_55_S_2 = df.loc[(df['Site'] == 'Puerto Navarino, Isla Navarino')]
-CH_55_S_2_x = CH_55_S_2['DecimalDate']
-CH_55_S_2_y = CH_55_S_2['∆14C']
+# add flags to those samples that look bad.
+df['CBL_flag'] = '...'
+df.loc[(df['Site'] == "Bahia San Pedro, Chile") & (df['DecimalDate'] <= 2005), 'CBL_flag'] = 'REMOVED FROM ANALYSIS: Tree 1 and Tree 2 deviate before 2005. Therefore I am removing all data < 2005'
+df.loc[(df['Site'] == "near Kapuni school field, NZ") & (df['TreeandCore'] == 'T1-C4'), 'CBL_flag'] = 'REMOVED FROM ANALYSIS: Tree 1 Core 4 does not match bomb spike.'
+df.loc[(df['Site'] == "Mason's Bay Homestead"), 'CBL_flag'] = 'REMOVED FROM ANALYSIS: Only one record exists, and is post-bomb spike - therefore cannot be validated.'
+df.loc[(df['Site'] == "Monte Tarn, Punta Arenas") & (df['TreeandCore'] == 'T5-C1'), 'CBL_flag'] = 'REMOVED FROM ANALYSIS: Tree 5 Core 1 does not match bomb spike.'
+df.loc[(df['Site'] == "Muriwai Beach Surf Club"), 'CBL_flag'] = 'REMOVED FROM ANALYSIS: Only one record exists, and is post-bomb spike - therefore cannot be validated.'
+df.loc[(df['Site'] == "Raul Marin Balmaceda") & (df['TreeandCore'] != 'T7-C1'), 'CBL_flag'] = 'REMOVED FROM ANALYSIS: Only Tree 7 Core 1 matches bomb spike, all others from this site are wrong.'
 
-NZ_37_S = df.loc[(df['Site'] == 'Muriwai Beach Surf Club')]
-NZ_37_S_x = NZ_37_S['DecimalDate']
-NZ_37_S_y = NZ_37_S['∆14C']
+df.to_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/from_tree_ring_analysis/SOARTreeRingData_CBL_flags_jan2024.xlsx')
+print(len(df))
 
-NZ_39_S = df.loc[(df['Site'] == 'near Kapuni school field, NZ')]
-NZ_39_S_x = NZ_39_S['DecimalDate']
-NZ_39_S_y = NZ_39_S['∆14C']
+df_cleaned = df.loc[(df['CBL_flag']) == '...']
+df_cleaned.to_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/from_tree_ring_analysis/SOARTreeRingData_CBL_cleaned_jan2024.xlsx')
+print(len(df_cleaned))
 
-NZ_41_S = df.loc[(df['Site'] == '19 Nikau St, Eastbourne, NZ')]
-NZ_41_S_x = NZ_41_S['DecimalDate']
-NZ_41_S_y = NZ_41_S['∆14C']
+# re-write the plots with only the cleaned data
+sites = np.unique(df_cleaned['Site'])
+for i in range(0, len(sites)):
 
-NZ_41_S_2 = df.loc[(df['Site'] == 'Baring Head, NZ')]
-NZ_41_S_2_x = NZ_41_S_2['DecimalDate']
-NZ_41_S_2_y = NZ_41_S_2['∆14C']
+    # loop into the first site
+    this_site = df_cleaned.loc[df_cleaned['Site'] == sites[i]]
 
-NZ_41_S_3 = df.loc[(df['Site'] == '23 Nikau St, Eastbourne, NZ')]
-NZ_41_S_3_x = NZ_41_S_3['DecimalDate']
-NZ_41_S_3_y = NZ_41_S_3['∆14C']
+    # how many unique tree cores are in this site?
+    cores = np.unique(this_site['TreeandCore'])
+    fig = plt.figure()
+    for j in range(0, len(cores)):
+        this_core = this_site.loc[this_site['TreeandCore'] == cores[j]]
+        # used to do errorbar but they're too small to se anyway compared to the data
+        plt.scatter(this_core['DecimalDate'], this_core['∆14C'], label=f'{cores[j]}')
+    plt.plot(harm_xs, harm_ys, label='SH Atmosphere \u0394$^1$$^4$CO$_2$ (\u2030)', color='black', alpha=0.2)
+    plt.legend()
+    plt.xlabel('Date', fontsize=14)
+    plt.title(f'{sites[i]}')
+    plt.ylabel('\u0394$^1$$^4$CO$_2$ (\u2030)', fontsize=14)  # label the y axis
+    plt.savefig(
+        f'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/from_tree_ring_analysis/Fixing_in_Jan2024/cleaned_plots/{sites[i]}.png',
+        dpi=300, bbox_inches="tight")
+    plt.close()
 
-NZ_44_S = df.loc[(df['Site'] == 'Haast Beach, paddock near beach')]
-NZ_44_S_x = NZ_44_S['DecimalDate']
-NZ_44_S_y = NZ_44_S['∆14C']
-# NZ_41_S_3.to_excel('eb.xlsx')
 
-NZ_46_S = df.loc[(df['Site'] == 'Oreti Beach')]
-NZ_46_S_x = NZ_46_S['DecimalDate']
-NZ_46_S_y = NZ_46_S['∆14C']
 
-NZ_47_S = df.loc[(df['Site'] == "Mason's Bay Homestead")]
-NZ_47_S_x = NZ_47_S['DecimalDate']
-NZ_47_S_y = NZ_47_S['∆14C']
 
-NZ_53_S = df.loc[(df['Site'] == "World's Loneliest Tree, Camp Cove, Campbell island")]
-NZ_53_S_x = NZ_53_S['DecimalDate']
-NZ_53_S_y = NZ_53_S['∆14C']
 
-fig, axs = plt.subplots(2, 4, sharex=True, sharey=True, figsize=(20, 8))
 
-axs[0, 0].scatter(CH_41_S_x, CH_41_S_y, label='CH_41_S')
-axs[0, 0].set_title("41\xb0S (Bahia, San Pedro)")
-axs[0, 0].plot(harm_xs, harm_ys, label='CH_41_S', color='black', alpha=0.5)
 
-axs[0, 1].scatter(CH_44_S_x, CH_44_S_y, label='CH_41_S')
-axs[0, 1].set_title("44\xb0S (Raul Marin Balcemeda)")
-axs[0, 1].plot(harm_xs, harm_ys, label='CH_41_S', color='black', alpha=0.5)
 
-axs[0, 2].scatter(CH_48_S_x, CH_48_S_y, label='CH_41_S')
-axs[0, 2].set_title("48\xb0S (Tortel Island)")
-axs[0, 2].plot(harm_xs, harm_ys, label='CH_41_S', color='black', alpha=0.5)
 
-axs[0, 3].scatter(CH_48_S_2_x, CH_48_S_2_y, label='CH_41_S')
-axs[0, 3].set_title("48\xb0S (Tortel River)")
-axs[0, 3].plot(harm_xs, harm_ys, label='CH_41_S', color='black', alpha=0.5)
 
-axs[1, 0].scatter(CH_53_S_x, CH_53_S_y, label='CH_41_S')
-axs[1, 0].set_title("53\xb0S (Seno Skyring)")
-axs[1, 0].plot(harm_xs, harm_ys, label='CH_41_S', color='black', alpha=0.5)
 
-axs[1, 3].plot(harm_xs, harm_ys, label='CH_41_S', color='black', alpha=0.5)
-axs[1, 3].scatter(CH_54_S_x, CH_54_S_y, label='CH_41_S')
-axs[1, 3].set_title("54\xb0S (Monte Tarn, Punta Arenas)")
 
-axs[1, 1].scatter(CH_55_S_x, CH_55_S_y, label='CH_41_S')
-axs[1, 1].set_title("55\xb0S (Baja Rosales, Isla Navarino)")
-axs[1, 1].plot(harm_xs, harm_ys, label='CH_41_S', color='black', alpha=0.5)
 
-axs[1, 2].scatter(CH_55_S_2_x, CH_55_S_2_y, label='CH_41_S')
-axs[1, 2].set_title("55\xb0S (Puerto Navarino, Isla Navarino)")
-axs[1, 2].plot(harm_xs, harm_ys, label='CH_41_S', color='black', alpha=0.5)
 
-plt.savefig(
-    'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/from_tree_ring_analysis/Tree_ring_validation1.png',
-    dpi=300, bbox_inches="tight")
-plt.close()
 
-fig, axs = plt.subplots(2, 5, sharex=True, sharey=True, figsize=(20, 8))
-axs[0, 0].scatter(NZ_37_S_x, NZ_37_S_y, label='CH_41_S')
-axs[0, 0].set_title("37\xb0S (Muriwai Beach)")
-axs[0, 0].plot(harm_xs, harm_ys, label='CH_41_S', color='black', alpha=0.5)
 
-axs[0, 1].scatter(NZ_39_S_x, NZ_39_S_y, label='CH_41_S')
-axs[0, 1].set_title("39\xb0S (Kapuni Beach)")
-axs[0, 1].plot(harm_xs, harm_ys, label='CH_41_S', color='black', alpha=0.5)
 
-axs[0, 3].scatter(NZ_41_S_x, NZ_41_S_y, label='CH_41_S')
-axs[0, 3].set_title("41\xb0S (Eastbourne)")
-axs[0, 3].plot(harm_xs, harm_ys, label='CH_41_S', color='black', alpha=0.5)
 
-axs[0, 2].scatter(NZ_41_S_2_x, NZ_41_S_2_y, label='CH_41_S')
-axs[0, 2].set_title("41\xb0S (Baring Head)")
-axs[0, 2].plot(harm_xs, harm_ys, label='CH_41_S', color='black', alpha=0.5)
 
-axs[0, 4].scatter(NZ_41_S_3_x, NZ_41_S_3_y, label='CH_41_S')
-axs[0, 4].set_title("41\xb0S (Eastbourne)")
-axs[0, 4].plot(harm_xs, harm_ys, label='CH_41_S', color='black', alpha=0.5)
 
-axs[1, 1].scatter(NZ_44_S_x, NZ_44_S_y, label='CH_41_S')
-axs[1, 1].set_title("44\xb0S (Haast Beach)")
-axs[1, 1].plot(harm_xs, harm_ys, label='CH_41_S', color='black', alpha=0.5)
 
-axs[1, 2].scatter(NZ_46_S_x, NZ_46_S_y, label='CH_41_S')
-axs[1, 2].set_title("46\xb0S (Oreti Beach)")
-axs[1, 2].plot(harm_xs, harm_ys, label='CH_41_S', color='black', alpha=0.5)
-
-axs[1, 3].scatter(NZ_47_S_x, NZ_47_S_y, label='CH_41_S')
-axs[1, 3].set_title("47\xb0S (Mason's Bay)")
-axs[1, 3].plot(harm_xs, harm_ys, label='CH_41_S', color='black', alpha=0.5)
-
-axs[1, 4].scatter(NZ_53_S_x, NZ_53_S_y, label='CH_41_S')
-axs[1, 4].set_title("53\xb0S (World's Lonliest Tree)")
-axs[1, 4].plot(harm_xs, harm_ys, label='CH_41_S', color='black', alpha=0.5)
-
-plt.savefig(
-    'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/from_tree_ring_analysis/Tree_ring_validation2.png',
-    dpi=300, bbox_inches="tight")
-plt.close()
-
-fig, axs = plt.subplots(2, 2, sharex=True, sharey=True, figsize=(20, 8))
-
-axs[0, 0].scatter(NZ_39_S_x, NZ_39_S_y, label='CH_41_S')
-axs[0, 0].set_title("39\xb0S (Kapuni Beach)")
-axs[0, 0].plot(harm_xs, harm_ys, label='CH_41_S', color='black', alpha=0.5)
-
-axs[0, 1].scatter(NZ_41_S_3_x, NZ_41_S_3_y, label='CH_41_S')
-axs[0, 1].set_title("41\xb0S (Eastbourne)")
-axs[0, 1].plot(harm_xs, harm_ys, label='CH_41_S', color='black', alpha=0.5)
-
-axs[1, 0].scatter(CH_44_S_x, CH_44_S_y, label='CH_41_S')
-axs[1, 0].set_title("44\xb0S (Raul Marin Balcemeda)")
-axs[1, 0].plot(harm_xs, harm_ys, label='CH_41_S', color='black', alpha=0.5)
-
-axs[1, 1].plot(harm_xs, harm_ys, label='CH_41_S', color='black', alpha=0.5)
-axs[1, 1].scatter(CH_54_S_x, CH_54_S_y, label='CH_41_S')
-axs[1, 1].set_title("54\xb0S (Monte Tarn, Punta Arenas)")
-
-plt.savefig(
-    'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/from_tree_ring_analysis/Tree_ring_validation_badrings.png',
-    dpi=300, bbox_inches="tight")
-plt.close()
 
 """
-May 30, 2022: 
-After meeting with Jocelyn, she noted that some of the bad ring counts may be from bad cores, while there are many
-cores from the same site. 
-Let's go through each of the cores and just verify that each one is good.
-The following checks will go in order of the already indexed data by site.  
-We shall follow the following checklist: 
-1. If there is an obvious bad ring count (such as in Kapuni, Balcemeda, or Monte Tarn), check if there are multiple 
-cores and if so, remove the bad ones. Check if there is a flag. If there is no flag, add a flag. 
-2. If the core is too young to have the bomb-spike, there should be multiple cores. These double-cores are another
-way of verifying the ring-counts (less likely that you have two side by side bad ring counts). 
-So. 
-I wrote a function(s) that is meant to aid with this specific process, because it became quite hard to index with 
-the Ring Codes 'T1-C3-XXYY'. 
-The following function "tree_ring_count_verification" indexes using data and and element that the user knows to 
-tell the computer to look for. This data can then be put into the plotting function. I don't think its usually such a 
-good idea to have a generic function for plotting but in this case, I think it will save me heaps of time. 
-I'll define the arguments for each function below: 
-data: a pandas dataframe of data 
-element: a string ('xxxxx') element that you want the computer to look for. 'T1' for tree 1, or C3 for core 3. 
-I'm going to just quickly list the types of elements that I'll need for each site here to save myself time for later. 
-This can be found in my Data Science notebook. May 30, 2022, second page from this day. 
+old ugly code
 """
-
-
-def tree_ring_count_verification(data, element):
-    data = data.reset_index(drop=True)  # reset the index or you get type-setting errors
-    empty_array = []  # create an empty array. We will dump our sorted data in here
-    for i in range(0, len(data)):  # initialize a for-loop the length of the site's dataset
-        row = data.iloc[i]  # grab the i'th row
-        cell = row['Ring code']  # grab the column of data from that row
-        if element in cell:  # if what we're looking for is in there, append it to the array
-            empty_array.append(row)
-    data_new = pd.DataFrame(empty_array)  # take the array and put into a Pandas Dataframe.
-    return data_new
-
-
-CH_41_S_core1 = tree_ring_count_verification(CH_41_S, 'T1')
-CH_41_S_core2 = tree_ring_count_verification(CH_41_S, 'T2')
-
-CH_44_S_core1 = tree_ring_count_verification(CH_44_S, 'T7')
-CH_44_S_core2 = tree_ring_count_verification(CH_44_S, 'T4')
-CH_44_S_core3 = tree_ring_count_verification(CH_44_S, 'T3')
-
-CH_48_S_core1 = tree_ring_count_verification(CH_48_S, 'T4')
-CH_48_S_core2 = tree_ring_count_verification(CH_48_S_2,'T6')
-
-CH_53_S_core1 = tree_ring_count_verification(CH_53_S, 'T3')
-CH_53_S_core2 = tree_ring_count_verification(CH_53_S, 'T4')
-
-CH_54_S_core1 = tree_ring_count_verification(CH_54_S, 'T6')
-CH_54_S_core2 = tree_ring_count_verification(CH_54_S, 'T3')
-CH_54_S_core3 = tree_ring_count_verification(CH_54_S, 'T5')
-
-CH_55_S_core1 = tree_ring_count_verification(CH_55_S, 'T4')
-CH_55_S_core2 = tree_ring_count_verification(CH_55_S, 'T1')
-CH_55_S_core3 = tree_ring_count_verification(CH_55_S_2, 'T1')
-
-NZ_37_S_core1 = tree_ring_count_verification(NZ_37_S, 'T2')  # ONLY ONE CORE HERE
-
-NZ_39_S_core1 = tree_ring_count_verification(NZ_39_S, 'C1')
-NZ_39_S_core2 = tree_ring_count_verification(NZ_39_S, 'C4')
-
-NZ_41_S_core1 = tree_ring_count_verification(NZ_41_S, 'C2')
-NZ_41_S_core2 = tree_ring_count_verification(NZ_41_S_2, 'C1')
-NZ_41_S_core3 = tree_ring_count_verification(NZ_41_S_2, 'C3')
-NZ_41_S_core4 = tree_ring_count_verification(NZ_41_S_3, 'C2')
-
-NZ_44_S_core1 = tree_ring_count_verification(NZ_44_S, 'C1')
-NZ_44_S_core2 = tree_ring_count_verification(NZ_44_S, 'C2')
-
-NZ_46_S_core1 = tree_ring_count_verification(NZ_46_S, 'C1')
-NZ_46_S_core2 = tree_ring_count_verification(NZ_46_S, 'C2')
-
-
-NZ_47_S_core1 = tree_ring_count_verification(NZ_47_S, 'T1')  # ONLY ONE CORE HERE
-
-NZ_53_S_core1 = tree_ring_count_verification(NZ_53_S, 'C2')
-NZ_53_S_core2 = tree_ring_count_verification(NZ_53_S, 'C3')
-
-"""
-After splicing up the data based on the multi-tree and core information, the next block of code will be the plots. 
-I'll use the plots to help visually decide which data the keep and which to remove. As a reminder: 
-1. If data matches the bomb peak, this is one good validation. 
-2. If data is too young for the bomb peak, there should be TWO records from the same tree and if they match, 
-we call it valid. 
-"""
-
-size = 50
-plt.errorbar(CH_41_S_core1['DecimalDate'], CH_41_S_core1['∆14C'], label='Tree 1, Core 2', yerr=CH_41_S_core1['∆14Cerr'], fmt='o', color=colors2[1], ecolor=colors2[1], elinewidth=1, capsize=2)
-plt.errorbar(CH_41_S_core2['DecimalDate'], CH_41_S_core2['∆14C'], label='Tree 2, Core 1', yerr=CH_41_S_core2['∆14Cerr'], fmt='D', color=colors2[3], ecolor=colors2[3], elinewidth=1, capsize=2)
-plt.plot(harm_xs, harm_ys, label='SH Atmosphere \u0394$^1$$^4$CO$_2$ (\u2030)', color='black', alpha=0.2)
-plt.legend()
-plt.title('41\u00b0S: Bahia San Pedro, Chile')
-plt.xlim(min(CH_41_S['DecimalDate'] - 5), max(CH_41_S['DecimalDate'] + 5))
-plt.ylim(min(CH_41_S['∆14C'] - 25), max(CH_41_S['∆14C'] + 25))
-plt.xlabel('Date', fontsize=14)
-plt.ylabel('\u0394$^1$$^4$CO$_2$ (\u2030)', fontsize=14)  # label the y axis
-plt.savefig(
-    'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/from_tree_ring_analysis/BahiaSanPedro_validation.png',
-    dpi=300, bbox_inches="tight")
-plt.close()
-
-size = 50
-plt.errorbar(CH_44_S_core1['DecimalDate'], CH_44_S_core1['∆14C'], label='Tree 7, Core 1', yerr=CH_44_S_core1['∆14Cerr'], fmt='o', color=colors2[1], ecolor=colors2[1], elinewidth=1, capsize=2)
-plt.errorbar(CH_44_S_core2['DecimalDate'], CH_44_S_core2['∆14C'], label='Tree 4, Core 1', yerr=CH_44_S_core2['∆14Cerr'], fmt='D', color=colors2[3], ecolor=colors2[3], elinewidth=1, capsize=2)
-plt.errorbar(CH_44_S_core3['DecimalDate'], CH_44_S_core3['∆14C'], label='Tree 3, Core 2', yerr=CH_44_S_core3['∆14Cerr'], fmt='*', color=colors2[5], ecolor=colors2[5], elinewidth=1, capsize=2)
-plt.plot(harm_xs, harm_ys, label='SH Atmosphere \u0394$^1$$^4$CO$_2$ (\u2030)', color='black', alpha=0.2)
-plt.legend()
-plt.title('44\u00b0S: Raul Marin Balmaceda, Chile')
-plt.xlim(min(CH_44_S['DecimalDate'] - 5), max(CH_44_S['DecimalDate'] + 5))
-plt.ylim(min(CH_44_S['∆14C'] - 25), max(CH_44_S['∆14C'] + 25))
-plt.xlabel('Date', fontsize=14)
-plt.ylabel('\u0394$^1$$^4$CO$_2$ (\u2030)', fontsize=14)  # label the y axis
-plt.savefig(
-    'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/from_tree_ring_analysis/RaulMarin_validation.png',
-    dpi=300, bbox_inches="tight")
-plt.close()
-
-size = 50
-plt.errorbar(CH_48_S_core1['DecimalDate'], CH_48_S_core1['∆14C'], label='Tree 4, Core 1 (Tortel Island)', yerr=CH_48_S_core1['∆14Cerr'], fmt='o', color=colors2[1], ecolor=colors2[1], elinewidth=1, capsize=2)
-plt.errorbar(CH_48_S_core2['DecimalDate'], CH_48_S_core2['∆14C'], label='Tree 6, Core 1 (Tortel River)', yerr=CH_48_S_core2['∆14Cerr'], fmt='D', color=colors2[3], ecolor=colors2[3], elinewidth=1, capsize=2)
-plt.plot(harm_xs, harm_ys, label='SH Atmosphere \u0394$^1$$^4$CO$_2$ (\u2030)', color='black', alpha=0.2)
-plt.legend()
-plt.title('48\u00b0S: Tortel Island and Tortel River, Chile')
-plt.xlim(min(CH_48_S['DecimalDate'] - 5), max(CH_48_S['DecimalDate'] + 5))
-plt.ylim(min(CH_48_S['∆14C'] - 25), max(CH_48_S['∆14C'] + 25))
-plt.xlabel('Date', fontsize=14)
-plt.ylabel('\u0394$^1$$^4$CO$_2$ (\u2030)', fontsize=14)  # label the y axis
-plt.savefig(
-    'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/from_tree_ring_analysis/Tortel_validation.png',
-    dpi=300, bbox_inches="tight")
-plt.close()
-
-size = 50
-plt.errorbar(CH_53_S_core1['DecimalDate'], CH_53_S_core1['∆14C'], label='Tree 3, Core 1', yerr=CH_53_S_core1['∆14Cerr'], fmt='o', color=colors2[1], ecolor=colors2[1], elinewidth=1, capsize=2)
-plt.errorbar(CH_53_S_core2['DecimalDate'], CH_53_S_core2['∆14C'], label='Tree 4, Core 2', yerr=CH_53_S_core2['∆14Cerr'], fmt='D', color=colors2[3], ecolor=colors2[3], elinewidth=1, capsize=2)
-plt.plot(harm_xs, harm_ys, label='SH Atmosphere \u0394$^1$$^4$CO$_2$ (\u2030)', color='black', alpha=0.2)
-plt.legend()
-plt.title('53\u00b0S: Seno Skyring, Chile')
-plt.xlim(min(CH_53_S['DecimalDate'] - 5), max(CH_53_S['DecimalDate'] + 5))
-plt.ylim(min(CH_53_S['∆14C'] - 25), max(CH_53_S['∆14C'] + 25))
-plt.xlabel('Date', fontsize=14)
-plt.ylabel('\u0394$^1$$^4$CO$_2$ (\u2030)', fontsize=14)  # label the y axis
-plt.savefig(
-    'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/from_tree_ring_analysis/SenoSky_validation.png',
-    dpi=300, bbox_inches="tight")
-plt.close()
-
-size = 50
-plt.errorbar(CH_54_S_core1['DecimalDate'], CH_54_S_core1['∆14C'], label='Tree 6, Core 2', yerr=CH_54_S_core1['∆14Cerr'], fmt='o', color=colors2[1], ecolor=colors2[1], elinewidth=1, capsize=2)
-plt.errorbar(CH_54_S_core2['DecimalDate'], CH_54_S_core2['∆14C'], label='Tree 3, Core 1', yerr=CH_54_S_core2['∆14Cerr'], fmt='D', color=colors2[3], ecolor=colors2[3], elinewidth=1, capsize=2)
-plt.errorbar(CH_54_S_core3['DecimalDate'], CH_54_S_core3['∆14C'], label='Tree 5, Core 1', yerr=CH_54_S_core3['∆14Cerr'], fmt='*', color=colors2[5], ecolor=colors2[5], elinewidth=1, capsize=2)
-plt.plot(harm_xs, harm_ys, label='SH Atmosphere \u0394$^1$$^4$CO$_2$ (\u2030)', color='black', alpha=0.2)
-plt.legend()
-plt.title('54\u00b0S: Monte Tarn, Chile')
-plt.xlim(min(CH_54_S['DecimalDate'] - 5), max(CH_54_S['DecimalDate'] + 5))
-plt.ylim(min(CH_54_S['∆14C'] - 25), max(CH_54_S['∆14C'] + 25))
-plt.xlabel('Date', fontsize=14)
-plt.ylabel('\u0394$^1$$^4$CO$_2$ (\u2030)', fontsize=14)  # label the y axis
-plt.savefig(
-    'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/from_tree_ring_analysis/MonteTarn_validation.png',
-    dpi=300, bbox_inches="tight")
-plt.close()
-"""
-Another thing to see is how Ricardo's Monte Tarn data matches with ours, so i'm going to briefly look at those as well. 
-"""
-df2 = pd.read_excel(r'H:\Science\Datasets\Jocelyn Chile tree data 1980-2016.xlsx')
-df2_1 = df2.loc[(df2['Sheet']) == 1]
-df2_2 = df2.loc[(df2['Sheet']) == 2]
-df2_3 = df2.loc[(df2['Sheet']) == 3]
-df2_4 = df2.loc[(df2['Sheet']) == 4]
-
-size = 50
-plt.errorbar(CH_54_S_core1['DecimalDate'], CH_54_S_core1['∆14C'], label='Tree 6, Core 2', yerr=CH_54_S_core1['∆14Cerr'], fmt='o', color=colors2[1], ecolor=colors2[1], elinewidth=1, capsize=2)
-plt.errorbar(CH_54_S_core2['DecimalDate'], CH_54_S_core2['∆14C'], label='Tree 3, Core 1', yerr=CH_54_S_core2['∆14Cerr'], fmt='D', color=colors2[3], ecolor=colors2[3], elinewidth=1, capsize=2)
-plt.errorbar(CH_54_S_core3['DecimalDate'], CH_54_S_core3['∆14C'], label='Tree 5, Core 1', yerr=CH_54_S_core3['∆14Cerr'], fmt='*', color=colors2[5], ecolor=colors2[5], elinewidth=1, capsize=2)
-# plt.errorbar(df2_1['Year of Growth'], df2_1['D14C'], label='De Pol Holz: Polylepis tarapacana', yerr=df2_1['D14Cerr'], fmt='o', color=colors[1], ecolor=colors[1], elinewidth=1, capsize=2)
-# plt.errorbar(df2_2['Year of Growth'], df2_2['D14C'], label='De Pol Holz: Asutrocedrus chilensis', yerr=df2_2['D14Cerr'], fmt='D', color=colors[2], ecolor=colors[2], elinewidth=1, capsize=2)
-# plt.errorbar(df2_3['Year of Growth'], df2_3['D14C'], label='De Pol Holz: Fitzroya cupressoides', yerr=df2_3['D14Cerr'], fmt='*', color=colors[3], ecolor=colors[3], elinewidth=1, capsize=2)
-plt.errorbar(df2_4['Year of Growth'], df2_4['D14C'], label='De Pol Holz: Pilgerodendron uviferum', yerr=df2_4['D14Cerr'], fmt='^', color=colors[4], ecolor=colors[4], elinewidth=1, capsize=2)
-plt.plot(harm_xs, harm_ys, label='SH Atmosphere \u0394$^1$$^4$CO$_2$ (\u2030)', color='black', alpha=0.2)
-plt.legend()
-plt.title('54\u00b0S: Monte Tarn, Chile, de Pol Holz Dataset')
-plt.xlim(min(df2['Year of Growth'] - 5), max(df2['Year of Growth'] + 5))
-plt.ylim(min(df2['D14C'] - 25), max(df2['D14C'] + 25))
-plt.xlabel('Date', fontsize=14)
-plt.ylabel('\u0394$^1$$^4$CO$_2$ (\u2030)', fontsize=14)  # label the y axis
-plt.savefig(
-    'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/from_tree_ring_analysis/MonteTarn_dePol Holz.png',
-    dpi=300, bbox_inches="tight")
-plt.close()
-
-# c = stats.ttest_rel(bhdcgo['BHD_D14C'], bhdcgo['CGO_D14C'])
-# print(c)
-
-
-size = 50
-plt.errorbar(CH_55_S_core1['DecimalDate'], CH_55_S_core1['∆14C'], label='Tree 4, Core 1 (Baja Rosales)', yerr=CH_55_S_core1['∆14Cerr'], fmt='o', color=colors2[1], ecolor=colors2[1], elinewidth=1, capsize=2)
-plt.errorbar(CH_55_S_core2['DecimalDate'], CH_55_S_core2['∆14C'], label='Tree 1, Core 1 (Baja Rosales)', yerr=CH_55_S_core2['∆14Cerr'], fmt='D', color=colors2[3], ecolor=colors2[3], elinewidth=1, capsize=2)
-plt.errorbar(CH_55_S_core3['DecimalDate'], CH_55_S_core3['∆14C'], label='Tree 1, Core 1 (Puerto Navarino)', yerr=CH_55_S_core3['∆14Cerr'], fmt='*', color=colors2[5], ecolor=colors2[5], elinewidth=1, capsize=2)
-plt.plot(harm_xs, harm_ys, label='SH Atmosphere \u0394$^1$$^4$CO$_2$ (\u2030)', color='black', alpha=0.2)
-plt.legend()
-plt.title('55\u00b0S: Baja Rosales and Puerto Navarino, Chile')
-plt.xlim(min(CH_55_S['DecimalDate'] - 5), max(CH_55_S['DecimalDate'] + 5))
-plt.ylim(min(CH_55_S['∆14C'] - 25), max(CH_55_S['∆14C'] + 25))
-plt.xlabel('Date', fontsize=14)
-plt.ylabel('\u0394$^1$$^4$CO$_2$ (\u2030)', fontsize=14)  # label the y axis
-plt.savefig(
-    'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/from_tree_ring_analysis/Puerto Navarino_validation.png',
-    dpi=300, bbox_inches="tight")
-plt.close()
-
-size = 50
-plt.errorbar(NZ_37_S_core1['DecimalDate'], NZ_37_S_core1['∆14C'], label='Tree 2, Core 2', yerr=NZ_37_S_core1['∆14Cerr'], fmt='o', color=colors2[1], ecolor=colors2[1], elinewidth=1, capsize=2)
-plt.plot(harm_xs, harm_ys, label='SH Atmosphere \u0394$^1$$^4$CO$_2$ (\u2030)', color='black', alpha=0.2)
-plt.legend()
-plt.title('37\u00b0S: Muriwai Beach, New Zealand')
-plt.xlim(min(NZ_37_S['DecimalDate'] - 5), max(NZ_37_S['DecimalDate'] + 5))
-plt.ylim(min(NZ_37_S['∆14C'] - 25), max(NZ_37_S['∆14C'] + 25))
-plt.xlabel('Date', fontsize=14)
-plt.ylabel('\u0394$^1$$^4$CO$_2$ (\u2030)', fontsize=14)  # label the y axis
-plt.savefig(
-    'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/from_tree_ring_analysis/MuriwaiBeach_validation.png',
-    dpi=300, bbox_inches="tight")
-plt.close()
-
-size = 50
-plt.errorbar(NZ_39_S_core1['DecimalDate'], NZ_39_S_core1['∆14C'], label='Tree 1, Core 1', yerr=NZ_39_S_core1['∆14Cerr'], fmt='o', color=colors2[1], ecolor=colors2[1], elinewidth=1, capsize=2)
-plt.errorbar(NZ_39_S_core2['DecimalDate'], NZ_39_S_core2['∆14C'], label='Tree 1, Core 4', yerr=NZ_39_S_core2['∆14Cerr'], fmt='D', color=colors2[3], ecolor=colors2[3], elinewidth=1, capsize=2)
-plt.plot(harm_xs, harm_ys, label='SH Atmosphere \u0394$^1$$^4$CO$_2$ (\u2030)', color='black', alpha=0.2)
-plt.legend()
-plt.title('39\u00b0S: Kapuni Beach, New Zealand')
-plt.xlim(min(NZ_39_S['DecimalDate'] - 5), max(NZ_39_S['DecimalDate'] + 5))
-plt.ylim(min(NZ_39_S['∆14C'] - 25), max(NZ_39_S['∆14C'] + 25))
-plt.xlabel('Date', fontsize=14)
-plt.ylabel('\u0394$^1$$^4$CO$_2$ (\u2030)', fontsize=14)  # label the y axis
-plt.savefig(
-    'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/from_tree_ring_analysis/Kapuni_validation.png',
-    dpi=300, bbox_inches="tight")
-plt.close()
-
-size = 50
-plt.errorbar(NZ_41_S_core2['DecimalDate'], NZ_41_S_core2['∆14C'], label='Tree 1, Core 1, (Baring Head)', yerr=NZ_41_S_core2['∆14Cerr'], fmt='o', color=colors2[1], ecolor=colors2[1], elinewidth=1, capsize=2)
-plt.errorbar(NZ_41_S_core3['DecimalDate'], NZ_41_S_core3['∆14C'], label='Tree 1, Core 3 (Baring Head)', yerr=NZ_41_S_core3['∆14Cerr'], fmt='D', color=colors[2], ecolor=colors[2], elinewidth=1, capsize=2)
-plt.errorbar(NZ_41_S_core4['DecimalDate'], NZ_41_S_core4['∆14C'], label='Tree 1, Core 2 (Eastbourne 2)', yerr=NZ_41_S_core4['∆14Cerr'], fmt='*', color=colors2[3], ecolor=colors2[3], elinewidth=1, capsize=2)
-plt.errorbar(NZ_41_S_core1['DecimalDate'], NZ_41_S_core1['∆14C'], label='Tree 1, Core 2, (Eastbourne 1)', yerr=NZ_41_S_core1['∆14Cerr'], fmt='^', color=colors[4], ecolor=colors[4], elinewidth=1, capsize=2)
-plt.plot(harm_xs, harm_ys, label='SH Atmosphere \u0394$^1$$^4$CO$_2$ (\u2030)', color='black', alpha=0.2)
-plt.legend()
-plt.title('41\u00b0S: Eastbourne and Baring Head, New Zealand')
-plt.xlim(min(NZ_41_S['DecimalDate'] - 5), max(NZ_41_S['DecimalDate'] + 5))
-plt.ylim(min(NZ_41_S['∆14C'] - 25), max(NZ_41_S['∆14C'] + 25))
-plt.xlabel('Date', fontsize=14)
-plt.ylabel('\u0394$^1$$^4$CO$_2$ (\u2030)', fontsize=14)  # label the y axis
-plt.savefig(
-    'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/from_tree_ring_analysis/Eastborne_BHEAD_validation.png',
-    dpi=300, bbox_inches="tight")
-plt.close()
-
-size = 50
-plt.errorbar(NZ_44_S_core1['DecimalDate'], NZ_44_S_core1['∆14C'], label='Tree 1, Core 1', yerr=NZ_44_S_core1['∆14Cerr'], fmt='o', color=colors2[3], ecolor=colors2[3], elinewidth=1, capsize=2)
-plt.errorbar(NZ_44_S_core2['DecimalDate'], NZ_44_S_core2['∆14C'], label='Tree 1, Core 2', yerr=NZ_44_S_core2['∆14Cerr'], fmt='D', color=colors2[1], ecolor=colors2[1], elinewidth=1, capsize=2)
-plt.plot(harm_xs, harm_ys, label='SH Atmosphere \u0394$^1$$^4$CO$_2$ (\u2030)', color='black', alpha=0.2)
-plt.legend()
-plt.title('44\u00b0S: Haast Beach, New Zealand')
-plt.xlim(min(NZ_44_S['DecimalDate'] - 5), max(NZ_44_S['DecimalDate'] + 5))
-plt.ylim(min(NZ_44_S['∆14C'] - 25), max(NZ_44_S['∆14C'] + 25))
-plt.xlabel('Date', fontsize=14)
-plt.ylabel('\u0394$^1$$^4$CO$_2$ (\u2030)', fontsize=14)  # label the y axis
-plt.savefig(
-    'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/from_tree_ring_analysis/Haast_validation.png',
-    dpi=300, bbox_inches="tight")
-plt.close()
-
-size = 50
-plt.errorbar(NZ_46_S_core1['DecimalDate'], NZ_46_S_core1['∆14C'], label='Tree 2, Core 2', yerr=NZ_46_S_core1['∆14Cerr'], fmt='o', color=colors2[1], ecolor=colors2[1], elinewidth=1, capsize=2)
-plt.errorbar(NZ_46_S_core2['DecimalDate'], NZ_46_S_core2['∆14C'], label='Tree 2, Core 1', yerr=NZ_46_S_core2['∆14Cerr'], fmt='D', color=colors[2], ecolor=colors[2], elinewidth=1, capsize=2)
-plt.plot(harm_xs, harm_ys, label='SH Atmosphere \u0394$^1$$^4$CO$_2$ (\u2030)', color='black', alpha=0.2)
-plt.legend()
-plt.title('46\u00b0S: Oreti Beach, New Zealand')
-plt.xlim(min(NZ_46_S['DecimalDate'] - 5), max(NZ_46_S['DecimalDate'] + 5))
-plt.ylim(min(NZ_46_S['∆14C'] - 25), max(NZ_46_S['∆14C'] + 25))
-plt.xlabel('Date', fontsize=14)
-plt.ylabel('\u0394$^1$$^4$CO$_2$ (\u2030)', fontsize=14)  # label the y axis
-plt.savefig(
-    'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/from_tree_ring_analysis/Oreti_validation.png',
-    dpi=300, bbox_inches="tight")
-plt.close()
-
-size = 50
-plt.errorbar(NZ_47_S_core1['DecimalDate'], NZ_47_S_core1['∆14C'], label='Tree 1, Core 1', yerr=NZ_47_S_core1['∆14Cerr'], fmt='o', color=colors2[1], ecolor=colors2[1], elinewidth=1, capsize=2)
-plt.plot(harm_xs, harm_ys, label='SH Atmosphere \u0394$^1$$^4$CO$_2$ (\u2030)', color='black', alpha=0.2)
-plt.legend()
-plt.title('47\u00b0S: Masons Bay, New Zealand')
-plt.xlim(min(NZ_47_S['DecimalDate'] - 5), max(NZ_47_S['DecimalDate'] + 5))
-plt.ylim(min(NZ_47_S['∆14C'] - 25), max(NZ_47_S['∆14C'] + 25))
-plt.xlabel('Date', fontsize=14)
-plt.ylabel('\u0394$^1$$^4$CO$_2$ (\u2030)', fontsize=14)  # label the y axis
-plt.savefig(
-    'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/from_tree_ring_analysis/MasonBay_validation.png',
-    dpi=300, bbox_inches="tight")
-plt.close()
-
-size = 50
-plt.errorbar(NZ_53_S_core1['DecimalDate'], NZ_53_S_core1['∆14C'], label='Tree 2, Core 2', yerr=NZ_53_S_core1['∆14Cerr'], fmt='o', color=colors2[1], ecolor=colors2[1], elinewidth=1, capsize=2)
-plt.errorbar(NZ_53_S_core2['DecimalDate'], NZ_53_S_core2['∆14C'], label='Tree 3, Core 3', yerr=NZ_53_S_core2['∆14Cerr'], fmt='D', color=colors2[3], ecolor=colors2[3], elinewidth=1, capsize=2)
-plt.plot(harm_xs, harm_ys, label='SH Atmosphere \u0394$^1$$^4$CO$_2$ (\u2030)', color='black', alpha=0.2)
-plt.legend()
-plt.title('53\u00b0S: Lonliest Tree, New Zealand')
-plt.xlim(min(NZ_53_S['DecimalDate'] - 5), max(NZ_53_S['DecimalDate'] + 5))
-plt.ylim(min(NZ_53_S['∆14C'] - 25), max(NZ_53_S['∆14C'] + 25))
-plt.xlabel('Date', fontsize=14)
-plt.ylabel('\u0394$^1$$^4$CO$_2$ (\u2030)', fontsize=14)  # label the y axis
-plt.savefig(
-    'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/from_tree_ring_analysis/LonliestTree_validation.png',
-    dpi=300, bbox_inches="tight")
-plt.close()
+# # # names = np.unique(df['StudySites::Site name'])
+# # # print(names)
+# CH_41_S = df.loc[(df['Site'] == 'Bahia San Pedro, Chile')]
+# CH_41_S_x = CH_41_S['DecimalDate']
+# CH_41_S_y = CH_41_S['∆14C']
+#
+# CH_44_S = df.loc[(df['Site'] == 'Raul Marin Balmaceda')]
+# CH_44_S_x = CH_44_S['DecimalDate']
+# CH_44_S_y = CH_44_S['∆14C']
+#
+# CH_48_S = df.loc[(df['Site'] == 'Tortel island')]
+# CH_48_S_x = CH_48_S['DecimalDate']
+# CH_48_S_y = CH_48_S['∆14C']
+#
+# CH_48_S_2 = df.loc[(df['Site'] == 'Tortel river')]
+# CH_48_S_2_x = CH_48_S_2['DecimalDate']
+# CH_48_S_2_y = CH_48_S_2['∆14C']
+#
+# CH_53_S = df.loc[(df['Site'] == 'Seno Skyring')]
+# CH_53_S_x = CH_53_S['DecimalDate']
+# CH_53_S_y = CH_53_S['∆14C']
+#
+# CH_54_S = df.loc[(df['Site'] == 'Monte Tarn, Punta Arenas')]
+# CH_54_S_x = CH_54_S['DecimalDate']
+# CH_54_S_y = CH_54_S['∆14C']
+#
+# CH_55_S = df.loc[(df['Site'] == 'Baja Rosales, Isla Navarino')]
+# CH_55_S_x = CH_55_S['DecimalDate']
+# CH_55_S_y = CH_55_S['∆14C']
+#
+# CH_55_S_2 = df.loc[(df['Site'] == 'Puerto Navarino, Isla Navarino')]
+# CH_55_S_2_x = CH_55_S_2['DecimalDate']
+# CH_55_S_2_y = CH_55_S_2['∆14C']
+#
+# NZ_37_S = df.loc[(df['Site'] == 'Muriwai Beach Surf Club')]
+# NZ_37_S_x = NZ_37_S['DecimalDate']
+# NZ_37_S_y = NZ_37_S['∆14C']
+#
+# NZ_39_S = df.loc[(df['Site'] == 'near Kapuni school field, NZ')]
+# NZ_39_S_x = NZ_39_S['DecimalDate']
+# NZ_39_S_y = NZ_39_S['∆14C']
+#
+# NZ_41_S = df.loc[(df['Site'] == '19 Nikau St, Eastbourne, NZ')]
+# NZ_41_S_x = NZ_41_S['DecimalDate']
+# NZ_41_S_y = NZ_41_S['∆14C']
+#
+# NZ_41_S_2 = df.loc[(df['Site'] == 'Baring Head, NZ')]
+# NZ_41_S_2_x = NZ_41_S_2['DecimalDate']
+# NZ_41_S_2_y = NZ_41_S_2['∆14C']
+#
+# NZ_41_S_3 = df.loc[(df['Site'] == '23 Nikau St, Eastbourne, NZ')]
+# NZ_41_S_3_x = NZ_41_S_3['DecimalDate']
+# NZ_41_S_3_y = NZ_41_S_3['∆14C']
+#
+# NZ_44_S = df.loc[(df['Site'] == 'Haast Beach, paddock near beach')]
+# NZ_44_S_x = NZ_44_S['DecimalDate']
+# NZ_44_S_y = NZ_44_S['∆14C']
+# # NZ_41_S_3.to_excel('eb.xlsx')
+#
+# NZ_46_S = df.loc[(df['Site'] == 'Oreti Beach')]
+# NZ_46_S_x = NZ_46_S['DecimalDate']
+# NZ_46_S_y = NZ_46_S['∆14C']
+#
+# NZ_47_S = df.loc[(df['Site'] == "Mason's Bay Homestead")]
+# NZ_47_S_x = NZ_47_S['DecimalDate']
+# NZ_47_S_y = NZ_47_S['∆14C']
+#
+# NZ_53_S = df.loc[(df['Site'] == "World's Loneliest Tree, Camp Cove, Campbell island")]
+# NZ_53_S_x = NZ_53_S['DecimalDate']
+# NZ_53_S_y = NZ_53_S['∆14C']
+#
+# fig, axs = plt.subplots(2, 4, sharex=True, sharey=True, figsize=(20, 8))
+#
+# axs[0, 0].scatter(CH_41_S_x, CH_41_S_y, label='CH_41_S')
+# axs[0, 0].set_title("41\xb0S (Bahia, San Pedro)")
+# axs[0, 0].plot(harm_xs, harm_ys, label='CH_41_S', color='black', alpha=0.5)
+#
+# axs[0, 1].scatter(CH_44_S_x, CH_44_S_y, label='CH_41_S')
+# axs[0, 1].set_title("44\xb0S (Raul Marin Balcemeda)")
+# axs[0, 1].plot(harm_xs, harm_ys, label='CH_41_S', color='black', alpha=0.5)
+#
+# axs[0, 2].scatter(CH_48_S_x, CH_48_S_y, label='CH_41_S')
+# axs[0, 2].set_title("48\xb0S (Tortel Island)")
+# axs[0, 2].plot(harm_xs, harm_ys, label='CH_41_S', color='black', alpha=0.5)
+#
+# axs[0, 3].scatter(CH_48_S_2_x, CH_48_S_2_y, label='CH_41_S')
+# axs[0, 3].set_title("48\xb0S (Tortel River)")
+# axs[0, 3].plot(harm_xs, harm_ys, label='CH_41_S', color='black', alpha=0.5)
+#
+# axs[1, 0].scatter(CH_53_S_x, CH_53_S_y, label='CH_41_S')
+# axs[1, 0].set_title("53\xb0S (Seno Skyring)")
+# axs[1, 0].plot(harm_xs, harm_ys, label='CH_41_S', color='black', alpha=0.5)
+#
+# axs[1, 3].plot(harm_xs, harm_ys, label='CH_41_S', color='black', alpha=0.5)
+# axs[1, 3].scatter(CH_54_S_x, CH_54_S_y, label='CH_41_S')
+# axs[1, 3].set_title("54\xb0S (Monte Tarn, Punta Arenas)")
+#
+# axs[1, 1].scatter(CH_55_S_x, CH_55_S_y, label='CH_41_S')
+# axs[1, 1].set_title("55\xb0S (Baja Rosales, Isla Navarino)")
+# axs[1, 1].plot(harm_xs, harm_ys, label='CH_41_S', color='black', alpha=0.5)
+#
+# axs[1, 2].scatter(CH_55_S_2_x, CH_55_S_2_y, label='CH_41_S')
+# axs[1, 2].set_title("55\xb0S (Puerto Navarino, Isla Navarino)")
+# axs[1, 2].plot(harm_xs, harm_ys, label='CH_41_S', color='black', alpha=0.5)
+#
+# plt.savefig(
+#     'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/from_tree_ring_analysis/Tree_ring_validation1.png',
+#     dpi=300, bbox_inches="tight")
+# plt.close()
+#
+# fig, axs = plt.subplots(2, 5, sharex=True, sharey=True, figsize=(20, 8))
+# axs[0, 0].scatter(NZ_37_S_x, NZ_37_S_y, label='CH_41_S')
+# axs[0, 0].set_title("37\xb0S (Muriwai Beach)")
+# axs[0, 0].plot(harm_xs, harm_ys, label='CH_41_S', color='black', alpha=0.5)
+#
+# axs[0, 1].scatter(NZ_39_S_x, NZ_39_S_y, label='CH_41_S')
+# axs[0, 1].set_title("39\xb0S (Kapuni Beach)")
+# axs[0, 1].plot(harm_xs, harm_ys, label='CH_41_S', color='black', alpha=0.5)
+#
+# axs[0, 3].scatter(NZ_41_S_x, NZ_41_S_y, label='CH_41_S')
+# axs[0, 3].set_title("41\xb0S (Eastbourne)")
+# axs[0, 3].plot(harm_xs, harm_ys, label='CH_41_S', color='black', alpha=0.5)
+#
+# axs[0, 2].scatter(NZ_41_S_2_x, NZ_41_S_2_y, label='CH_41_S')
+# axs[0, 2].set_title("41\xb0S (Baring Head)")
+# axs[0, 2].plot(harm_xs, harm_ys, label='CH_41_S', color='black', alpha=0.5)
+#
+# axs[0, 4].scatter(NZ_41_S_3_x, NZ_41_S_3_y, label='CH_41_S')
+# axs[0, 4].set_title("41\xb0S (Eastbourne)")
+# axs[0, 4].plot(harm_xs, harm_ys, label='CH_41_S', color='black', alpha=0.5)
+#
+# axs[1, 1].scatter(NZ_44_S_x, NZ_44_S_y, label='CH_41_S')
+# axs[1, 1].set_title("44\xb0S (Haast Beach)")
+# axs[1, 1].plot(harm_xs, harm_ys, label='CH_41_S', color='black', alpha=0.5)
+#
+# axs[1, 2].scatter(NZ_46_S_x, NZ_46_S_y, label='CH_41_S')
+# axs[1, 2].set_title("46\xb0S (Oreti Beach)")
+# axs[1, 2].plot(harm_xs, harm_ys, label='CH_41_S', color='black', alpha=0.5)
+#
+# axs[1, 3].scatter(NZ_47_S_x, NZ_47_S_y, label='CH_41_S')
+# axs[1, 3].set_title("47\xb0S (Mason's Bay)")
+# axs[1, 3].plot(harm_xs, harm_ys, label='CH_41_S', color='black', alpha=0.5)
+#
+# axs[1, 4].scatter(NZ_53_S_x, NZ_53_S_y, label='CH_41_S')
+# axs[1, 4].set_title("53\xb0S (World's Lonliest Tree)")
+# axs[1, 4].plot(harm_xs, harm_ys, label='CH_41_S', color='black', alpha=0.5)
+#
+# plt.savefig(
+#     'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/from_tree_ring_analysis/Tree_ring_validation2.png',
+#     dpi=300, bbox_inches="tight")
+# plt.close()
+#
+# fig, axs = plt.subplots(2, 2, sharex=True, sharey=True, figsize=(20, 8))
+#
+# axs[0, 0].scatter(NZ_39_S_x, NZ_39_S_y, label='CH_41_S')
+# axs[0, 0].set_title("39\xb0S (Kapuni Beach)")
+# axs[0, 0].plot(harm_xs, harm_ys, label='CH_41_S', color='black', alpha=0.5)
+#
+# axs[0, 1].scatter(NZ_41_S_3_x, NZ_41_S_3_y, label='CH_41_S')
+# axs[0, 1].set_title("41\xb0S (Eastbourne)")
+# axs[0, 1].plot(harm_xs, harm_ys, label='CH_41_S', color='black', alpha=0.5)
+#
+# axs[1, 0].scatter(CH_44_S_x, CH_44_S_y, label='CH_41_S')
+# axs[1, 0].set_title("44\xb0S (Raul Marin Balcemeda)")
+# axs[1, 0].plot(harm_xs, harm_ys, label='CH_41_S', color='black', alpha=0.5)
+#
+# axs[1, 1].plot(harm_xs, harm_ys, label='CH_41_S', color='black', alpha=0.5)
+# axs[1, 1].scatter(CH_54_S_x, CH_54_S_y, label='CH_41_S')
+# axs[1, 1].set_title("54\xb0S (Monte Tarn, Punta Arenas)")
+#
+# plt.savefig(
+#     'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/from_tree_ring_analysis/Tree_ring_validation_badrings.png',
+#     dpi=300, bbox_inches="tight")
+# plt.close()
+#
+# """
+# May 30, 2022:
+# After meeting with Jocelyn, she noted that some of the bad ring counts may be from bad cores, while there are many
+# cores from the same site.
+# Let's go through each of the cores and just verify that each one is good.
+# The following checks will go in order of the already indexed data by site.
+# We shall follow the following checklist:
+# 1. If there is an obvious bad ring count (such as in Kapuni, Balcemeda, or Monte Tarn), check if there are multiple
+# cores and if so, remove the bad ones. Check if there is a flag. If there is no flag, add a flag.
+# 2. If the core is too young to have the bomb-spike, there should be multiple cores. These double-cores are another
+# way of verifying the ring-counts (less likely that you have two side by side bad ring counts).
+# So.
+# I wrote a function(s) that is meant to aid with this specific process, because it became quite hard to index with
+# the Ring Codes 'T1-C3-XXYY'.
+# The following function "tree_ring_count_verification" indexes using data and and element that the user knows to
+# tell the computer to look for. This data can then be put into the plotting function. I don't think its usually such a
+# good idea to have a generic function for plotting but in this case, I think it will save me heaps of time.
+# I'll define the arguments for each function below:
+# data: a pandas dataframe of data
+# element: a string ('xxxxx') element that you want the computer to look for. 'T1' for tree 1, or C3 for core 3.
+# I'm going to just quickly list the types of elements that I'll need for each site here to save myself time for later.
+# This can be found in my Data Science notebook. May 30, 2022, second page from this day.
+# """
+#
+#
+# def tree_ring_count_verification(data, element):
+#     data = data.reset_index(drop=True)  # reset the index or you get type-setting errors
+#     empty_array = []  # create an empty array. We will dump our sorted data in here
+#     for i in range(0, len(data)):  # initialize a for-loop the length of the site's dataset
+#         row = data.iloc[i]  # grab the i'th row
+#         cell = row['Ring code']  # grab the column of data from that row
+#         if element in cell:  # if what we're looking for is in there, append it to the array
+#             empty_array.append(row)
+#     data_new = pd.DataFrame(empty_array)  # take the array and put into a Pandas Dataframe.
+#     return data_new
+#
+#
+# CH_41_S_core1 = tree_ring_count_verification(CH_41_S, 'T1')
+# CH_41_S_core2 = tree_ring_count_verification(CH_41_S, 'T2')
+#
+# CH_44_S_core1 = tree_ring_count_verification(CH_44_S, 'T7')
+# CH_44_S_core2 = tree_ring_count_verification(CH_44_S, 'T4')
+# CH_44_S_core3 = tree_ring_count_verification(CH_44_S, 'T3')
+#
+# CH_48_S_core1 = tree_ring_count_verification(CH_48_S, 'T4')
+# CH_48_S_core2 = tree_ring_count_verification(CH_48_S_2,'T6')
+#
+# CH_53_S_core1 = tree_ring_count_verification(CH_53_S, 'T3')
+# CH_53_S_core2 = tree_ring_count_verification(CH_53_S, 'T4')
+#
+# CH_54_S_core1 = tree_ring_count_verification(CH_54_S, 'T6')
+# CH_54_S_core2 = tree_ring_count_verification(CH_54_S, 'T3')
+# CH_54_S_core3 = tree_ring_count_verification(CH_54_S, 'T5')
+#
+# CH_55_S_core1 = tree_ring_count_verification(CH_55_S, 'T4')
+# CH_55_S_core2 = tree_ring_count_verification(CH_55_S, 'T1')
+# CH_55_S_core3 = tree_ring_count_verification(CH_55_S_2, 'T1')
+#
+# NZ_37_S_core1 = tree_ring_count_verification(NZ_37_S, 'T2')  # ONLY ONE CORE HERE
+#
+# NZ_39_S_core1 = tree_ring_count_verification(NZ_39_S, 'C1')
+# NZ_39_S_core2 = tree_ring_count_verification(NZ_39_S, 'C4')
+#
+# NZ_41_S_core1 = tree_ring_count_verification(NZ_41_S, 'C2')
+# NZ_41_S_core2 = tree_ring_count_verification(NZ_41_S_2, 'C1')
+# NZ_41_S_core3 = tree_ring_count_verification(NZ_41_S_2, 'C3')
+# NZ_41_S_core4 = tree_ring_count_verification(NZ_41_S_3, 'C2')
+#
+# NZ_44_S_core1 = tree_ring_count_verification(NZ_44_S, 'C1')
+# NZ_44_S_core2 = tree_ring_count_verification(NZ_44_S, 'C2')
+#
+# NZ_46_S_core1 = tree_ring_count_verification(NZ_46_S, 'C1')
+# NZ_46_S_core2 = tree_ring_count_verification(NZ_46_S, 'C2')
+#
+#
+# NZ_47_S_core1 = tree_ring_count_verification(NZ_47_S, 'T1')  # ONLY ONE CORE HERE
+#
+# NZ_53_S_core1 = tree_ring_count_verification(NZ_53_S, 'C2')
+# NZ_53_S_core2 = tree_ring_count_verification(NZ_53_S, 'C3')
+#
+# """
+# After splicing up the data based on the multi-tree and core information, the next block of code will be the plots.
+# I'll use the plots to help visually decide which data the keep and which to remove. As a reminder:
+# 1. If data matches the bomb peak, this is one good validation.
+# 2. If data is too young for the bomb peak, there should be TWO records from the same tree and if they match,
+# we call it valid.
+# """
+#
+# size = 50
+# plt.errorbar(CH_41_S_core1['DecimalDate'], CH_41_S_core1['∆14C'], label='Tree 1, Core 2', yerr=CH_41_S_core1['∆14Cerr'], fmt='o', color=colors2[1], ecolor=colors2[1], elinewidth=1, capsize=2)
+# plt.errorbar(CH_41_S_core2['DecimalDate'], CH_41_S_core2['∆14C'], label='Tree 2, Core 1', yerr=CH_41_S_core2['∆14Cerr'], fmt='D', color=colors2[3], ecolor=colors2[3], elinewidth=1, capsize=2)
+# plt.plot(harm_xs, harm_ys, label='SH Atmosphere \u0394$^1$$^4$CO$_2$ (\u2030)', color='black', alpha=0.2)
+# plt.legend()
+# plt.title('41\u00b0S: Bahia San Pedro, Chile')
+# plt.xlim(min(CH_41_S['DecimalDate'] - 5), max(CH_41_S['DecimalDate'] + 5))
+# plt.ylim(min(CH_41_S['∆14C'] - 25), max(CH_41_S['∆14C'] + 25))
+# plt.xlabel('Date', fontsize=14)
+# plt.ylabel('\u0394$^1$$^4$CO$_2$ (\u2030)', fontsize=14)  # label the y axis
+# plt.savefig(
+#     'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/from_tree_ring_analysis/BahiaSanPedro_validation.png',
+#     dpi=300, bbox_inches="tight")
+# plt.close()
+#
+# size = 50
+# plt.errorbar(CH_44_S_core1['DecimalDate'], CH_44_S_core1['∆14C'], label='Tree 7, Core 1', yerr=CH_44_S_core1['∆14Cerr'], fmt='o', color=colors2[1], ecolor=colors2[1], elinewidth=1, capsize=2)
+# plt.errorbar(CH_44_S_core2['DecimalDate'], CH_44_S_core2['∆14C'], label='Tree 4, Core 1', yerr=CH_44_S_core2['∆14Cerr'], fmt='D', color=colors2[3], ecolor=colors2[3], elinewidth=1, capsize=2)
+# plt.errorbar(CH_44_S_core3['DecimalDate'], CH_44_S_core3['∆14C'], label='Tree 3, Core 2', yerr=CH_44_S_core3['∆14Cerr'], fmt='*', color=colors2[5], ecolor=colors2[5], elinewidth=1, capsize=2)
+# plt.plot(harm_xs, harm_ys, label='SH Atmosphere \u0394$^1$$^4$CO$_2$ (\u2030)', color='black', alpha=0.2)
+# plt.legend()
+# plt.title('44\u00b0S: Raul Marin Balmaceda, Chile')
+# plt.xlim(min(CH_44_S['DecimalDate'] - 5), max(CH_44_S['DecimalDate'] + 5))
+# plt.ylim(min(CH_44_S['∆14C'] - 25), max(CH_44_S['∆14C'] + 25))
+# plt.xlabel('Date', fontsize=14)
+# plt.ylabel('\u0394$^1$$^4$CO$_2$ (\u2030)', fontsize=14)  # label the y axis
+# plt.savefig(
+#     'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/from_tree_ring_analysis/RaulMarin_validation.png',
+#     dpi=300, bbox_inches="tight")
+# plt.close()
+#
+# size = 50
+# plt.errorbar(CH_48_S_core1['DecimalDate'], CH_48_S_core1['∆14C'], label='Tree 4, Core 1 (Tortel Island)', yerr=CH_48_S_core1['∆14Cerr'], fmt='o', color=colors2[1], ecolor=colors2[1], elinewidth=1, capsize=2)
+# plt.errorbar(CH_48_S_core2['DecimalDate'], CH_48_S_core2['∆14C'], label='Tree 6, Core 1 (Tortel River)', yerr=CH_48_S_core2['∆14Cerr'], fmt='D', color=colors2[3], ecolor=colors2[3], elinewidth=1, capsize=2)
+# plt.plot(harm_xs, harm_ys, label='SH Atmosphere \u0394$^1$$^4$CO$_2$ (\u2030)', color='black', alpha=0.2)
+# plt.legend()
+# plt.title('48\u00b0S: Tortel Island and Tortel River, Chile')
+# plt.xlim(min(CH_48_S['DecimalDate'] - 5), max(CH_48_S['DecimalDate'] + 5))
+# plt.ylim(min(CH_48_S['∆14C'] - 25), max(CH_48_S['∆14C'] + 25))
+# plt.xlabel('Date', fontsize=14)
+# plt.ylabel('\u0394$^1$$^4$CO$_2$ (\u2030)', fontsize=14)  # label the y axis
+# plt.savefig(
+#     'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/from_tree_ring_analysis/Tortel_validation.png',
+#     dpi=300, bbox_inches="tight")
+# plt.close()
+#
+# size = 50
+# plt.errorbar(CH_53_S_core1['DecimalDate'], CH_53_S_core1['∆14C'], label='Tree 3, Core 1', yerr=CH_53_S_core1['∆14Cerr'], fmt='o', color=colors2[1], ecolor=colors2[1], elinewidth=1, capsize=2)
+# plt.errorbar(CH_53_S_core2['DecimalDate'], CH_53_S_core2['∆14C'], label='Tree 4, Core 2', yerr=CH_53_S_core2['∆14Cerr'], fmt='D', color=colors2[3], ecolor=colors2[3], elinewidth=1, capsize=2)
+# plt.plot(harm_xs, harm_ys, label='SH Atmosphere \u0394$^1$$^4$CO$_2$ (\u2030)', color='black', alpha=0.2)
+# plt.legend()
+# plt.title('53\u00b0S: Seno Skyring, Chile')
+# plt.xlim(min(CH_53_S['DecimalDate'] - 5), max(CH_53_S['DecimalDate'] + 5))
+# plt.ylim(min(CH_53_S['∆14C'] - 25), max(CH_53_S['∆14C'] + 25))
+# plt.xlabel('Date', fontsize=14)
+# plt.ylabel('\u0394$^1$$^4$CO$_2$ (\u2030)', fontsize=14)  # label the y axis
+# plt.savefig(
+#     'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/from_tree_ring_analysis/SenoSky_validation.png',
+#     dpi=300, bbox_inches="tight")
+# plt.close()
+#
+# size = 50
+# plt.errorbar(CH_54_S_core1['DecimalDate'], CH_54_S_core1['∆14C'], label='Tree 6, Core 2', yerr=CH_54_S_core1['∆14Cerr'], fmt='o', color=colors2[1], ecolor=colors2[1], elinewidth=1, capsize=2)
+# plt.errorbar(CH_54_S_core2['DecimalDate'], CH_54_S_core2['∆14C'], label='Tree 3, Core 1', yerr=CH_54_S_core2['∆14Cerr'], fmt='D', color=colors2[3], ecolor=colors2[3], elinewidth=1, capsize=2)
+# plt.errorbar(CH_54_S_core3['DecimalDate'], CH_54_S_core3['∆14C'], label='Tree 5, Core 1', yerr=CH_54_S_core3['∆14Cerr'], fmt='*', color=colors2[5], ecolor=colors2[5], elinewidth=1, capsize=2)
+# plt.plot(harm_xs, harm_ys, label='SH Atmosphere \u0394$^1$$^4$CO$_2$ (\u2030)', color='black', alpha=0.2)
+# plt.legend()
+# plt.title('54\u00b0S: Monte Tarn, Chile')
+# plt.xlim(min(CH_54_S['DecimalDate'] - 5), max(CH_54_S['DecimalDate'] + 5))
+# plt.ylim(min(CH_54_S['∆14C'] - 25), max(CH_54_S['∆14C'] + 25))
+# plt.xlabel('Date', fontsize=14)
+# plt.ylabel('\u0394$^1$$^4$CO$_2$ (\u2030)', fontsize=14)  # label the y axis
+# plt.savefig(
+#     'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/from_tree_ring_analysis/MonteTarn_validation.png',
+#     dpi=300, bbox_inches="tight")
+# plt.close()
+# """
+# Another thing to see is how Ricardo's Monte Tarn data matches with ours, so i'm going to briefly look at those as well.
+# """
+# df2 = pd.read_excel(r'H:\Science\Datasets\Jocelyn Chile tree data 1980-2016.xlsx')
+# df2_1 = df2.loc[(df2['Sheet']) == 1]
+# df2_2 = df2.loc[(df2['Sheet']) == 2]
+# df2_3 = df2.loc[(df2['Sheet']) == 3]
+# df2_4 = df2.loc[(df2['Sheet']) == 4]
+#
+# size = 50
+# plt.errorbar(CH_54_S_core1['DecimalDate'], CH_54_S_core1['∆14C'], label='Tree 6, Core 2', yerr=CH_54_S_core1['∆14Cerr'], fmt='o', color=colors2[1], ecolor=colors2[1], elinewidth=1, capsize=2)
+# plt.errorbar(CH_54_S_core2['DecimalDate'], CH_54_S_core2['∆14C'], label='Tree 3, Core 1', yerr=CH_54_S_core2['∆14Cerr'], fmt='D', color=colors2[3], ecolor=colors2[3], elinewidth=1, capsize=2)
+# plt.errorbar(CH_54_S_core3['DecimalDate'], CH_54_S_core3['∆14C'], label='Tree 5, Core 1', yerr=CH_54_S_core3['∆14Cerr'], fmt='*', color=colors2[5], ecolor=colors2[5], elinewidth=1, capsize=2)
+# # plt.errorbar(df2_1['Year of Growth'], df2_1['D14C'], label='De Pol Holz: Polylepis tarapacana', yerr=df2_1['D14Cerr'], fmt='o', color=colors[1], ecolor=colors[1], elinewidth=1, capsize=2)
+# # plt.errorbar(df2_2['Year of Growth'], df2_2['D14C'], label='De Pol Holz: Asutrocedrus chilensis', yerr=df2_2['D14Cerr'], fmt='D', color=colors[2], ecolor=colors[2], elinewidth=1, capsize=2)
+# # plt.errorbar(df2_3['Year of Growth'], df2_3['D14C'], label='De Pol Holz: Fitzroya cupressoides', yerr=df2_3['D14Cerr'], fmt='*', color=colors[3], ecolor=colors[3], elinewidth=1, capsize=2)
+# plt.errorbar(df2_4['Year of Growth'], df2_4['D14C'], label='De Pol Holz: Pilgerodendron uviferum', yerr=df2_4['D14Cerr'], fmt='^', color=colors[4], ecolor=colors[4], elinewidth=1, capsize=2)
+# plt.plot(harm_xs, harm_ys, label='SH Atmosphere \u0394$^1$$^4$CO$_2$ (\u2030)', color='black', alpha=0.2)
+# plt.legend()
+# plt.title('54\u00b0S: Monte Tarn, Chile, de Pol Holz Dataset')
+# plt.xlim(min(df2['Year of Growth'] - 5), max(df2['Year of Growth'] + 5))
+# plt.ylim(min(df2['D14C'] - 25), max(df2['D14C'] + 25))
+# plt.xlabel('Date', fontsize=14)
+# plt.ylabel('\u0394$^1$$^4$CO$_2$ (\u2030)', fontsize=14)  # label the y axis
+# plt.savefig(
+#     'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/from_tree_ring_analysis/MonteTarn_dePol Holz.png',
+#     dpi=300, bbox_inches="tight")
+# plt.close()
+#
+# # c = stats.ttest_rel(bhdcgo['BHD_D14C'], bhdcgo['CGO_D14C'])
+# # print(c)
+#
+#
+# size = 50
+# plt.errorbar(CH_55_S_core1['DecimalDate'], CH_55_S_core1['∆14C'], label='Tree 4, Core 1 (Baja Rosales)', yerr=CH_55_S_core1['∆14Cerr'], fmt='o', color=colors2[1], ecolor=colors2[1], elinewidth=1, capsize=2)
+# plt.errorbar(CH_55_S_core2['DecimalDate'], CH_55_S_core2['∆14C'], label='Tree 1, Core 1 (Baja Rosales)', yerr=CH_55_S_core2['∆14Cerr'], fmt='D', color=colors2[3], ecolor=colors2[3], elinewidth=1, capsize=2)
+# plt.errorbar(CH_55_S_core3['DecimalDate'], CH_55_S_core3['∆14C'], label='Tree 1, Core 1 (Puerto Navarino)', yerr=CH_55_S_core3['∆14Cerr'], fmt='*', color=colors2[5], ecolor=colors2[5], elinewidth=1, capsize=2)
+# plt.plot(harm_xs, harm_ys, label='SH Atmosphere \u0394$^1$$^4$CO$_2$ (\u2030)', color='black', alpha=0.2)
+# plt.legend()
+# plt.title('55\u00b0S: Baja Rosales and Puerto Navarino, Chile')
+# plt.xlim(min(CH_55_S['DecimalDate'] - 5), max(CH_55_S['DecimalDate'] + 5))
+# plt.ylim(min(CH_55_S['∆14C'] - 25), max(CH_55_S['∆14C'] + 25))
+# plt.xlabel('Date', fontsize=14)
+# plt.ylabel('\u0394$^1$$^4$CO$_2$ (\u2030)', fontsize=14)  # label the y axis
+# plt.savefig(
+#     'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/from_tree_ring_analysis/Puerto Navarino_validation.png',
+#     dpi=300, bbox_inches="tight")
+# plt.close()
+#
+# size = 50
+# plt.errorbar(NZ_37_S_core1['DecimalDate'], NZ_37_S_core1['∆14C'], label='Tree 2, Core 2', yerr=NZ_37_S_core1['∆14Cerr'], fmt='o', color=colors2[1], ecolor=colors2[1], elinewidth=1, capsize=2)
+# plt.plot(harm_xs, harm_ys, label='SH Atmosphere \u0394$^1$$^4$CO$_2$ (\u2030)', color='black', alpha=0.2)
+# plt.legend()
+# plt.title('37\u00b0S: Muriwai Beach, New Zealand')
+# plt.xlim(min(NZ_37_S['DecimalDate'] - 5), max(NZ_37_S['DecimalDate'] + 5))
+# plt.ylim(min(NZ_37_S['∆14C'] - 25), max(NZ_37_S['∆14C'] + 25))
+# plt.xlabel('Date', fontsize=14)
+# plt.ylabel('\u0394$^1$$^4$CO$_2$ (\u2030)', fontsize=14)  # label the y axis
+# plt.savefig(
+#     'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/from_tree_ring_analysis/MuriwaiBeach_validation.png',
+#     dpi=300, bbox_inches="tight")
+# plt.close()
+#
+# size = 50
+# plt.errorbar(NZ_39_S_core1['DecimalDate'], NZ_39_S_core1['∆14C'], label='Tree 1, Core 1', yerr=NZ_39_S_core1['∆14Cerr'], fmt='o', color=colors2[1], ecolor=colors2[1], elinewidth=1, capsize=2)
+# plt.errorbar(NZ_39_S_core2['DecimalDate'], NZ_39_S_core2['∆14C'], label='Tree 1, Core 4', yerr=NZ_39_S_core2['∆14Cerr'], fmt='D', color=colors2[3], ecolor=colors2[3], elinewidth=1, capsize=2)
+# plt.plot(harm_xs, harm_ys, label='SH Atmosphere \u0394$^1$$^4$CO$_2$ (\u2030)', color='black', alpha=0.2)
+# plt.legend()
+# plt.title('39\u00b0S: Kapuni Beach, New Zealand')
+# plt.xlim(min(NZ_39_S['DecimalDate'] - 5), max(NZ_39_S['DecimalDate'] + 5))
+# plt.ylim(min(NZ_39_S['∆14C'] - 25), max(NZ_39_S['∆14C'] + 25))
+# plt.xlabel('Date', fontsize=14)
+# plt.ylabel('\u0394$^1$$^4$CO$_2$ (\u2030)', fontsize=14)  # label the y axis
+# plt.savefig(
+#     'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/from_tree_ring_analysis/Kapuni_validation.png',
+#     dpi=300, bbox_inches="tight")
+# plt.close()
+#
+# size = 50
+# plt.errorbar(NZ_41_S_core2['DecimalDate'], NZ_41_S_core2['∆14C'], label='Tree 1, Core 1, (Baring Head)', yerr=NZ_41_S_core2['∆14Cerr'], fmt='o', color=colors2[1], ecolor=colors2[1], elinewidth=1, capsize=2)
+# plt.errorbar(NZ_41_S_core3['DecimalDate'], NZ_41_S_core3['∆14C'], label='Tree 1, Core 3 (Baring Head)', yerr=NZ_41_S_core3['∆14Cerr'], fmt='D', color=colors[2], ecolor=colors[2], elinewidth=1, capsize=2)
+# plt.errorbar(NZ_41_S_core4['DecimalDate'], NZ_41_S_core4['∆14C'], label='Tree 1, Core 2 (Eastbourne 2)', yerr=NZ_41_S_core4['∆14Cerr'], fmt='*', color=colors2[3], ecolor=colors2[3], elinewidth=1, capsize=2)
+# plt.errorbar(NZ_41_S_core1['DecimalDate'], NZ_41_S_core1['∆14C'], label='Tree 1, Core 2, (Eastbourne 1)', yerr=NZ_41_S_core1['∆14Cerr'], fmt='^', color=colors[4], ecolor=colors[4], elinewidth=1, capsize=2)
+# plt.plot(harm_xs, harm_ys, label='SH Atmosphere \u0394$^1$$^4$CO$_2$ (\u2030)', color='black', alpha=0.2)
+# plt.legend()
+# plt.title('41\u00b0S: Eastbourne and Baring Head, New Zealand')
+# plt.xlim(min(NZ_41_S['DecimalDate'] - 5), max(NZ_41_S['DecimalDate'] + 5))
+# plt.ylim(min(NZ_41_S['∆14C'] - 25), max(NZ_41_S['∆14C'] + 25))
+# plt.xlabel('Date', fontsize=14)
+# plt.ylabel('\u0394$^1$$^4$CO$_2$ (\u2030)', fontsize=14)  # label the y axis
+# plt.savefig(
+#     'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/from_tree_ring_analysis/Eastborne_BHEAD_validation.png',
+#     dpi=300, bbox_inches="tight")
+# plt.close()
+#
+# size = 50
+# plt.errorbar(NZ_44_S_core1['DecimalDate'], NZ_44_S_core1['∆14C'], label='Tree 1, Core 1', yerr=NZ_44_S_core1['∆14Cerr'], fmt='o', color=colors2[3], ecolor=colors2[3], elinewidth=1, capsize=2)
+# plt.errorbar(NZ_44_S_core2['DecimalDate'], NZ_44_S_core2['∆14C'], label='Tree 1, Core 2', yerr=NZ_44_S_core2['∆14Cerr'], fmt='D', color=colors2[1], ecolor=colors2[1], elinewidth=1, capsize=2)
+# plt.plot(harm_xs, harm_ys, label='SH Atmosphere \u0394$^1$$^4$CO$_2$ (\u2030)', color='black', alpha=0.2)
+# plt.legend()
+# plt.title('44\u00b0S: Haast Beach, New Zealand')
+# plt.xlim(min(NZ_44_S['DecimalDate'] - 5), max(NZ_44_S['DecimalDate'] + 5))
+# plt.ylim(min(NZ_44_S['∆14C'] - 25), max(NZ_44_S['∆14C'] + 25))
+# plt.xlabel('Date', fontsize=14)
+# plt.ylabel('\u0394$^1$$^4$CO$_2$ (\u2030)', fontsize=14)  # label the y axis
+# plt.savefig(
+#     'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/from_tree_ring_analysis/Haast_validation.png',
+#     dpi=300, bbox_inches="tight")
+# plt.close()
+#
+# size = 50
+# plt.errorbar(NZ_46_S_core1['DecimalDate'], NZ_46_S_core1['∆14C'], label='Tree 2, Core 2', yerr=NZ_46_S_core1['∆14Cerr'], fmt='o', color=colors2[1], ecolor=colors2[1], elinewidth=1, capsize=2)
+# plt.errorbar(NZ_46_S_core2['DecimalDate'], NZ_46_S_core2['∆14C'], label='Tree 2, Core 1', yerr=NZ_46_S_core2['∆14Cerr'], fmt='D', color=colors[2], ecolor=colors[2], elinewidth=1, capsize=2)
+# plt.plot(harm_xs, harm_ys, label='SH Atmosphere \u0394$^1$$^4$CO$_2$ (\u2030)', color='black', alpha=0.2)
+# plt.legend()
+# plt.title('46\u00b0S: Oreti Beach, New Zealand')
+# plt.xlim(min(NZ_46_S['DecimalDate'] - 5), max(NZ_46_S['DecimalDate'] + 5))
+# plt.ylim(min(NZ_46_S['∆14C'] - 25), max(NZ_46_S['∆14C'] + 25))
+# plt.xlabel('Date', fontsize=14)
+# plt.ylabel('\u0394$^1$$^4$CO$_2$ (\u2030)', fontsize=14)  # label the y axis
+# plt.savefig(
+#     'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/from_tree_ring_analysis/Oreti_validation.png',
+#     dpi=300, bbox_inches="tight")
+# plt.close()
+#
+# size = 50
+# plt.errorbar(NZ_47_S_core1['DecimalDate'], NZ_47_S_core1['∆14C'], label='Tree 1, Core 1', yerr=NZ_47_S_core1['∆14Cerr'], fmt='o', color=colors2[1], ecolor=colors2[1], elinewidth=1, capsize=2)
+# plt.plot(harm_xs, harm_ys, label='SH Atmosphere \u0394$^1$$^4$CO$_2$ (\u2030)', color='black', alpha=0.2)
+# plt.legend()
+# plt.title('47\u00b0S: Masons Bay, New Zealand')
+# plt.xlim(min(NZ_47_S['DecimalDate'] - 5), max(NZ_47_S['DecimalDate'] + 5))
+# plt.ylim(min(NZ_47_S['∆14C'] - 25), max(NZ_47_S['∆14C'] + 25))
+# plt.xlabel('Date', fontsize=14)
+# plt.ylabel('\u0394$^1$$^4$CO$_2$ (\u2030)', fontsize=14)  # label the y axis
+# plt.savefig(
+#     'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/from_tree_ring_analysis/MasonBay_validation.png',
+#     dpi=300, bbox_inches="tight")
+# plt.close()
+#
+# size = 50
+# plt.errorbar(NZ_53_S_core1['DecimalDate'], NZ_53_S_core1['∆14C'], label='Tree 2, Core 2', yerr=NZ_53_S_core1['∆14Cerr'], fmt='o', color=colors2[1], ecolor=colors2[1], elinewidth=1, capsize=2)
+# plt.errorbar(NZ_53_S_core2['DecimalDate'], NZ_53_S_core2['∆14C'], label='Tree 3, Core 3', yerr=NZ_53_S_core2['∆14Cerr'], fmt='D', color=colors2[3], ecolor=colors2[3], elinewidth=1, capsize=2)
+# plt.plot(harm_xs, harm_ys, label='SH Atmosphere \u0394$^1$$^4$CO$_2$ (\u2030)', color='black', alpha=0.2)
+# plt.legend()
+# plt.title('53\u00b0S: Lonliest Tree, New Zealand')
+# plt.xlim(min(NZ_53_S['DecimalDate'] - 5), max(NZ_53_S['DecimalDate'] + 5))
+# plt.ylim(min(NZ_53_S['∆14C'] - 25), max(NZ_53_S['∆14C'] + 25))
+# plt.xlabel('Date', fontsize=14)
+# plt.ylabel('\u0394$^1$$^4$CO$_2$ (\u2030)', fontsize=14)  # label the y axis
+# plt.savefig(
+#     'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/from_tree_ring_analysis/LonliestTree_validation.png',
+#     dpi=300, bbox_inches="tight")
+# plt.close()
 
 
 """
@@ -561,91 +672,91 @@ Detailed as Step 1 above: my the block of code below will add new flags to the b
 send back to our group.
 ######################################################################################################################
 """
-# LABEL flags to the Bahia San Pedro Set.
-mt_array = []
-for i in range(0, len(CH_41_S)):
-    row = CH_41_S.iloc[i]
-    # row = row.reset_index(drop = True)
-    if row['DecimalDate'] < 2005:
-        row[
-            'CBL_flag'] = 'REMOVED FROM ANALYSIS: Tree 1 and Tree 2 deviate before 2005. Therefore I am removing all data < 2005'
-    else:
-        row['CBL_flag'] = '...'
-    mt_array.append(row)
-toconcat_CH_41_S = pd.DataFrame(mt_array)
-
-# LABEL the outlying measurements from 23 Nikau St. Eastbourne NZ.
-# This outlier will re-appear in the plots if you uncomment line 39 which excludes all original flags ("A..")
-mt_array = []
-for i in range(0, len(NZ_41_S_3)):  # initialize for loop to the length of the 23 Nikau Eastbourne Dataset
-    row = NZ_41_S_3.iloc[i]
-    if row['C14Flag'] == 'A..' and row['DecimalDate'] == 1995.00274:
-        row['CBL_flag'] = 'REMOVED FROM ANALYSIS: Outlying low measurement. Also indicated by "A.." in C14 Flag column.'
-    elif row['C14Flag'] == 'A..':
-        row['CBL_flag'] = 'Removed due to original C14 Flag "A.."'
-    else:
-        row['CBL_flag'] = '...'
-    mt_array.append(row)
-toconcat_NZ_41_S_3 = pd.DataFrame(mt_array)
-
-# LABEL Tree 1 Core 4 from Kapuni as BAD
-mt_array = []  # create an empty array. We will dump our sorted data in here
-for i in range(0, len(NZ_39_S)):  # initialize a for-loop the length of the site's dataset
-    row = NZ_39_S.iloc[i]  # grab the i'th row
-    cell = row['Ring code']  # grab the column of data from that row
-    if 'C4' in cell:  # if what we're looking for is in there, append it to the array
-        row['CBL_flag'] = 'REMOVED FROM ANALYSIS: Tree 1 Core 4 does not match bomb spike.'
-    else:
-        row['CBL_flag'] = '...'
-    mt_array.append(row)
-toconcat_NZ_39_S = pd.DataFrame(mt_array)
-
-# LABEL Mason's Bay: Only 1 record - remove from Further analysis.
-NZ_47_S[
-    'CBL_flag'] = 'REMOVED FROM ANALYSIS: Only one record exists, and is post-bomb spike - therefore cannot be validated.'
-# NZ_47_S.to_excel('test.xlsx')
-
-# LABEL Monte Tarn Tree 5 Core 1 as BAD
-mt_array = []  # create an empty array. We will dump our sorted data in here
-for i in range(0, len(CH_54_S)):  # initialize a for-loop the length of the site's dataset
-    row = CH_54_S.iloc[i]  # grab the i'th row
-    cell = row['Ring code']  # grab the column of data from that row
-    if 'T5' in cell:  # if what we're looking for is in there, append it to the array
-        row['CBL_flag'] = 'REMOVED FROM ANALYSIS: Tree 5 Core 1 does not match bomb spike.'
-    else:
-        row['CBL_flag'] = '...'
-    mt_array.append(row)
-toconcat_CH_54_S = pd.DataFrame(mt_array)
-
-# LABEL Muriwai Beach: Only 1 record - remove from Further analysis.
-NZ_37_S[
-    'CBL_flag'] = 'REMOVED FROM ANALYSIS: Only one record exists, and is post-bomb spike - therefore cannot be validated.'
-
-# LABEL Balmaceda Tree 5 Core 1 as BAD
-mt_array = []  # create an empty array. We will dump our sorted data in here
-for i in range(0, len(CH_44_S)):  # initialize a for-loop the length of the site's dataset
-    row = CH_44_S.iloc[i]  # grab the i'th row
-    cell = row['Ring code']  # grab the column of data from that row
-    if 'T7' not in cell:  # if what we're looking for is in there, append it to the array
-        row[
-            'CBL_flag'] = 'REMOVED FROM ANALYSIS: This tree core does not match bomb spike. Only keeping Tree 7 from this site.'
-    else:
-        row['CBL_flag'] = '...'
-    mt_array.append(row)
-toconcat_CH_44_S = pd.DataFrame(mt_array)
-# toconcat_CH_44_S.to_excel('test.xlsx')
-
-# LABEL the outlying measurements from Tortel Island
-# This outlier will re-appear in the plots if you uncomment line 39 which excludes all original flags ("A..")
-mt_array = []
-for i in range(0, len(CH_48_S_2)):  # initialize for loop to the length of the 23 Nikau Eastbourne Dataset
-    row = CH_48_S_2.iloc[i]
-    if row['C14Flag'] == 'A..':
-        row['CBL_flag'] = 'REMOVED FROM ANALYSIS: Outlying low measurement. Also indicated by "A.." in C14 Flag column.'
-    else:
-        row['CBL_flag'] = '...'
-    mt_array.append(row)
-toconcat_CH_48_S_2 = pd.DataFrame(mt_array)
+# # LABEL flags to the Bahia San Pedro Set.
+# mt_array = []
+# for i in range(0, len(CH_41_S)):
+#     row = CH_41_S.iloc[i]
+#     # row = row.reset_index(drop = True)
+#     if row['DecimalDate'] < 2005:
+#         row[
+#             'CBL_flag'] = 'REMOVED FROM ANALYSIS: Tree 1 and Tree 2 deviate before 2005. Therefore I am removing all data < 2005'
+#     else:
+#         row['CBL_flag'] = '...'
+#     mt_array.append(row)
+# toconcat_CH_41_S = pd.DataFrame(mt_array)
+#
+# # LABEL the outlying measurements from 23 Nikau St. Eastbourne NZ.
+# # This outlier will re-appear in the plots if you uncomment line 39 which excludes all original flags ("A..")
+# mt_array = []
+# for i in range(0, len(NZ_41_S_3)):  # initialize for loop to the length of the 23 Nikau Eastbourne Dataset
+#     row = NZ_41_S_3.iloc[i]
+#     if row['C14Flag'] == 'A..' and row['DecimalDate'] == 1995.00274:
+#         row['CBL_flag'] = 'REMOVED FROM ANALYSIS: Outlying low measurement. Also indicated by "A.." in C14 Flag column.'
+#     elif row['C14Flag'] == 'A..':
+#         row['CBL_flag'] = 'Removed due to original C14 Flag "A.."'
+#     else:
+#         row['CBL_flag'] = '...'
+#     mt_array.append(row)
+# toconcat_NZ_41_S_3 = pd.DataFrame(mt_array)
+#
+# # LABEL Tree 1 Core 4 from Kapuni as BAD
+# mt_array = []  # create an empty array. We will dump our sorted data in here
+# for i in range(0, len(NZ_39_S)):  # initialize a for-loop the length of the site's dataset
+#     row = NZ_39_S.iloc[i]  # grab the i'th row
+#     cell = row['Ring code']  # grab the column of data from that row
+#     if 'C4' in cell:  # if what we're looking for is in there, append it to the array
+#         row['CBL_flag'] = 'REMOVED FROM ANALYSIS: Tree 1 Core 4 does not match bomb spike.'
+#     else:
+#         row['CBL_flag'] = '...'
+#     mt_array.append(row)
+# toconcat_NZ_39_S = pd.DataFrame(mt_array)
+#
+# # LABEL Mason's Bay: Only 1 record - remove from Further analysis.
+# NZ_47_S[
+#     'CBL_flag'] = 'REMOVED FROM ANALYSIS: Only one record exists, and is post-bomb spike - therefore cannot be validated.'
+# # NZ_47_S.to_excel('test.xlsx')
+#
+# # LABEL Monte Tarn Tree 5 Core 1 as BAD
+# mt_array = []  # create an empty array. We will dump our sorted data in here
+# for i in range(0, len(CH_54_S)):  # initialize a for-loop the length of the site's dataset
+#     row = CH_54_S.iloc[i]  # grab the i'th row
+#     cell = row['Ring code']  # grab the column of data from that row
+#     if 'T5' in cell:  # if what we're looking for is in there, append it to the array
+#         row['CBL_flag'] = 'REMOVED FROM ANALYSIS: Tree 5 Core 1 does not match bomb spike.'
+#     else:
+#         row['CBL_flag'] = '...'
+#     mt_array.append(row)
+# toconcat_CH_54_S = pd.DataFrame(mt_array)
+#
+# # LABEL Muriwai Beach: Only 1 record - remove from Further analysis.
+# NZ_37_S[
+#     'CBL_flag'] = 'REMOVED FROM ANALYSIS: Only one record exists, and is post-bomb spike - therefore cannot be validated.'
+#
+# # LABEL Balmaceda Tree 5 Core 1 as BAD
+# mt_array = []  # create an empty array. We will dump our sorted data in here
+# for i in range(0, len(CH_44_S)):  # initialize a for-loop the length of the site's dataset
+#     row = CH_44_S.iloc[i]  # grab the i'th row
+#     cell = row['Ring code']  # grab the column of data from that row
+#     if 'T7' not in cell:  # if what we're looking for is in there, append it to the array
+#         row[
+#             'CBL_flag'] = 'REMOVED FROM ANALYSIS: This tree core does not match bomb spike. Only keeping Tree 7 from this site.'
+#     else:
+#         row['CBL_flag'] = '...'
+#     mt_array.append(row)
+# toconcat_CH_44_S = pd.DataFrame(mt_array)
+# # toconcat_CH_44_S.to_excel('test.xlsx')
+#
+# # LABEL the outlying measurements from Tortel Island
+# # This outlier will re-appear in the plots if you uncomment line 39 which excludes all original flags ("A..")
+# mt_array = []
+# for i in range(0, len(CH_48_S_2)):  # initialize for loop to the length of the 23 Nikau Eastbourne Dataset
+#     row = CH_48_S_2.iloc[i]
+#     if row['C14Flag'] == 'A..':
+#         row['CBL_flag'] = 'REMOVED FROM ANALYSIS: Outlying low measurement. Also indicated by "A.." in C14 Flag column.'
+#     else:
+#         row['CBL_flag'] = '...'
+#     mt_array.append(row)
+# toconcat_CH_48_S_2 = pd.DataFrame(mt_array)
 
 """
 To complete Step 1 outlined on line 566, I'll concatonate all of the newly labeled data to later send to Jocelyn and
@@ -675,55 +786,55 @@ Then, later, I can slice using the '...' to get a new cleaned dataframe which in
 to use from here on out.
 ##
 """
-combine = pd.concat([toconcat_CH_41_S,
-                     toconcat_CH_44_S,
-                     CH_48_S,
-                     toconcat_CH_48_S_2,
-                     CH_53_S,
-                     toconcat_CH_54_S,
-                     CH_55_S,
-                     CH_55_S_2,
-                     NZ_37_S,
-                     toconcat_NZ_39_S,
-                     NZ_41_S,
-                     NZ_41_S_2,
-                     toconcat_NZ_41_S_3,
-                     NZ_44_S,
-                     NZ_46_S,
-                     NZ_47_S,
-                     NZ_53_S])  # Keeps ALL Data
-combine = combine.reset_index(drop=True)
-
-# # where there is not already a CBL Flag, add '...'
-mt_array = []
-for i in range(0, len(combine)):
-    combine = combine.reset_index(drop=True)
-    row = combine.iloc[i]  # grab the i'th row
-    x = row['CBL_flag']  # grab the CBL_flag column
-    x = str(x)  # change the value to a string
-    if x == 'nan':  # if there is no value there
-        row['CBL_flag'] = '...'  # change it to '...'
-    mt_array.append(row)
-combined = pd.DataFrame(mt_array)
-
-"""
-Of course, now I need to check that I haven't lost any data. What is the lenght of the original dataframe after I
-dropped the Nan's in the beginning, versus now?
-They check out!
-"""
-
-# print(len(df)) == 648
-# print(len(combined2)) == 648
-
-combined.to_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/from_tree_ring_analysis/SOARTreeRingData_CBL_flags.xlsx')
-
-"""
-Finally, I want to remove all the flagged data so I'm only left with things I HAVEN'T Flagged.
-"""
-df_cleaned = combined.loc[(combined['CBL_flag']) == '...']
-# print(len(df_cleaned))
-df_cleaned.to_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/from_tree_ring_analysis/SOARTreeRingData_CBL_cleaned.xlsx')
-
+# combine = pd.concat([toconcat_CH_41_S,
+#                      toconcat_CH_44_S,
+#                      CH_48_S,
+#                      toconcat_CH_48_S_2,
+#                      CH_53_S,
+#                      toconcat_CH_54_S,
+#                      CH_55_S,
+#                      CH_55_S_2,
+#                      NZ_37_S,
+#                      toconcat_NZ_39_S,
+#                      NZ_41_S,
+#                      NZ_41_S_2,
+#                      toconcat_NZ_41_S_3,
+#                      NZ_44_S,
+#                      NZ_46_S,
+#                      NZ_47_S,
+#                      NZ_53_S])  # Keeps ALL Data
+# combine = combine.reset_index(drop=True)
+#
+# # # where there is not already a CBL Flag, add '...'
+# mt_array = []
+# for i in range(0, len(combine)):
+#     combine = combine.reset_index(drop=True)
+#     row = combine.iloc[i]  # grab the i'th row
+#     x = row['CBL_flag']  # grab the CBL_flag column
+#     x = str(x)  # change the value to a string
+#     if x == 'nan':  # if there is no value there
+#         row['CBL_flag'] = '...'  # change it to '...'
+#     mt_array.append(row)
+# combined = pd.DataFrame(mt_array)
+#
+# """
+# Of course, now I need to check that I haven't lost any data. What is the lenght of the original dataframe after I
+# dropped the Nan's in the beginning, versus now?
+# They check out!
+# """
+#
+# # print(len(df)) == 648
+# # print(len(combined2)) == 648
+#
+# combined.to_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/from_tree_ring_analysis/SOARTreeRingData_CBL_flags.xlsx')
+#
+# """
+# Finally, I want to remove all the flagged data so I'm only left with things I HAVEN'T Flagged.
+# """
+# df_cleaned = combined.loc[(combined['CBL_flag']) == '...']
+# # print(len(df_cleaned))
+# df_cleaned.to_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/from_tree_ring_analysis/SOARTreeRingData_CBL_cleaned.xlsx')
+#
 
 
 
@@ -731,54 +842,54 @@ df_cleaned.to_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPE
 """
 Making an additional plot to vizualise the idea of this work for my GNS seminar
 """
-import matplotlib as mpl
-import pandas as pd
-import matplotlib.gridspec as gridspec
-pd.options.mode.chained_assignment = None  # default='warn'
-import seaborn as sns
-from reference1 import reference1
-import matplotlib.pyplot as plt
-plt.close()
-
-fig = plt.figure(figsize=(10, 4))
-gs = gridspec.GridSpec(1, 2)
-gs.update(wspace=.2, hspace=0.1)
-
-
-# BHD MAP
-xtr_subsplot = fig.add_subplot(gs[0:1, 0:1])
-group1 = reference1.loc[(reference1['Decimal_date'] >1980) & (reference1['Decimal_date'] < 1990)]
-group2 = reference1.loc[(reference1['Decimal_date'] >2000) & (reference1['Decimal_date'] < 2010)]
-group3 = reference1.loc[(reference1['Decimal_date'] >1990) & (reference1['Decimal_date'] < 2000)]
-group1 = group1[group1.index % 10 == 0]
-group2 = group2[group2.index % 10 == 0]
-group3 = group3[group3.index % 10 == 0]
-plt.plot(reference1['Decimal_date'], reference1['D14C'], label='SH Atmosphere \u0394$^1$$^4$CO$_2$ (\u2030)', color='black', alpha=0.9)
-plt.scatter(group1['Decimal_date'], group1['D14C']-10, label='Theoretical Tree Ring Data', color='dodgerblue', alpha=0.9)
-plt.scatter(group2['Decimal_date'], group2['D14C']-10, color='dodgerblue', alpha=0.9)
-plt.scatter(group3['Decimal_date'], group3['D14C'], color='dodgerblue', alpha=0.9)
-plt.legend()
-plt.xlabel('Date', fontsize=14)
-plt.ylabel('\u0394$^1$$^4$CO$_2$ (\u2030)', fontsize=14)  # label the y axis
-
-# BHD MAP
-xxtr_subsplot = fig.add_subplot(gs[0:1, 1:2])
-group1 = reference1.loc[(reference1['Decimal_date'] >1980) & (reference1['Decimal_date'] < 1990)]
-group2 = reference1.loc[(reference1['Decimal_date'] >2000) & (reference1['Decimal_date'] < 2010)]
-group3 = reference1.loc[(reference1['Decimal_date'] >1990) & (reference1['Decimal_date'] < 2000)]
-group1 = group1[group1.index % 10 == 0]
-group2 = group2[group2.index % 10 == 0]
-group3 = group3[group3.index % 10 == 0]
-plt.plot(reference1['Decimal_date'], reference1['D14C'], label='SH Atmosphere \u0394$^1$$^4$CO$_2$ (\u2030)', color='black', alpha=0.9)
-plt.scatter(group1['Decimal_date'], group1['D14C']-20, label='Theoretical Tree Ring Data', color='dodgerblue', alpha=0.9)
-plt.scatter(group2['Decimal_date'], group2['D14C']-10, color='dodgerblue', alpha=0.9)
-plt.scatter(group3['Decimal_date'], group3['D14C'], color='dodgerblue', alpha=0.9)
-plt.xlabel('Date', fontsize=14)
-plt.xlim(1980, 2020)
-plt.ylim(0, 300)
-plt.savefig(
-    'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/from_tree_ring_analysis/for_talk2.png',
-    dpi=300, bbox_inches="tight")
+# import matplotlib as mpl
+# import pandas as pd
+# import matplotlib.gridspec as gridspec
+# pd.options.mode.chained_assignment = None  # default='warn'
+# import seaborn as sns
+# from reference1 import reference1
+# import matplotlib.pyplot as plt
+# plt.close()
+#
+# fig = plt.figure(figsize=(10, 4))
+# gs = gridspec.GridSpec(1, 2)
+# gs.update(wspace=.2, hspace=0.1)
+#
+#
+# # BHD MAP
+# xtr_subsplot = fig.add_subplot(gs[0:1, 0:1])
+# group1 = reference1.loc[(reference1['Decimal_date'] >1980) & (reference1['Decimal_date'] < 1990)]
+# group2 = reference1.loc[(reference1['Decimal_date'] >2000) & (reference1['Decimal_date'] < 2010)]
+# group3 = reference1.loc[(reference1['Decimal_date'] >1990) & (reference1['Decimal_date'] < 2000)]
+# group1 = group1[group1.index % 10 == 0]
+# group2 = group2[group2.index % 10 == 0]
+# group3 = group3[group3.index % 10 == 0]
+# plt.plot(reference1['Decimal_date'], reference1['D14C'], label='SH Atmosphere \u0394$^1$$^4$CO$_2$ (\u2030)', color='black', alpha=0.9)
+# plt.scatter(group1['Decimal_date'], group1['D14C']-10, label='Theoretical Tree Ring Data', color='dodgerblue', alpha=0.9)
+# plt.scatter(group2['Decimal_date'], group2['D14C']-10, color='dodgerblue', alpha=0.9)
+# plt.scatter(group3['Decimal_date'], group3['D14C'], color='dodgerblue', alpha=0.9)
+# plt.legend()
+# plt.xlabel('Date', fontsize=14)
+# plt.ylabel('\u0394$^1$$^4$CO$_2$ (\u2030)', fontsize=14)  # label the y axis
+#
+# # BHD MAP
+# xxtr_subsplot = fig.add_subplot(gs[0:1, 1:2])
+# group1 = reference1.loc[(reference1['Decimal_date'] >1980) & (reference1['Decimal_date'] < 1990)]
+# group2 = reference1.loc[(reference1['Decimal_date'] >2000) & (reference1['Decimal_date'] < 2010)]
+# group3 = reference1.loc[(reference1['Decimal_date'] >1990) & (reference1['Decimal_date'] < 2000)]
+# group1 = group1[group1.index % 10 == 0]
+# group2 = group2[group2.index % 10 == 0]
+# group3 = group3[group3.index % 10 == 0]
+# plt.plot(reference1['Decimal_date'], reference1['D14C'], label='SH Atmosphere \u0394$^1$$^4$CO$_2$ (\u2030)', color='black', alpha=0.9)
+# plt.scatter(group1['Decimal_date'], group1['D14C']-20, label='Theoretical Tree Ring Data', color='dodgerblue', alpha=0.9)
+# plt.scatter(group2['Decimal_date'], group2['D14C']-10, color='dodgerblue', alpha=0.9)
+# plt.scatter(group3['Decimal_date'], group3['D14C'], color='dodgerblue', alpha=0.9)
+# plt.xlabel('Date', fontsize=14)
+# plt.xlim(1980, 2020)
+# plt.ylim(0, 300)
+# plt.savefig(
+#     'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/from_tree_ring_analysis/for_talk2.png',
+#     dpi=300, bbox_inches="tight")
 
 
 #

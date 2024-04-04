@@ -52,6 +52,7 @@ go_ship = pd.concat([P18, P16N, IO7N]).reset_index(drop=True)
 merged1 = pd.merge(go_ship, doc, how='outer')
 merged1.to_excel('C:/Users/clewis/IdeaProjects/GNS/UCI_13C/output/Version3/testtest.xlsx')
 merged2 = pd.merge(go_ship, doc)
+merged2.to_excel('C:/Users/clewis/IdeaProjects/GNS/UCI_13C/output/Version3/doc_final.xlsx')
 
 # I also want to add the SPE-DOC into there, but need the depths are weighted averages.
 # I want to stick the SPE-DOC data in the bottle with the closest depth to the weighted average (for loop required)
@@ -498,6 +499,8 @@ plt.close()
 
 
 
+
+
 """
 
 SPE 13C vs 14C
@@ -542,6 +545,7 @@ plt.yticks([], [])
 plt.xlabel('SPE-DOC \u0394$^1$$^4$C (\u2030)', fontsize=14)
 plt.savefig('C:/Users/clewis/IdeaProjects/GNS/UCI_13C/output/Version3/Results2.png', dpi=300, bbox_inches="tight")
 plt.close()
+
 
 
 """
@@ -809,7 +813,7 @@ for i in range(0, 3):
 
 plt.text(-700, -20+0.13, 'B)', horizontalalignment='center', verticalalignment='center', fontsize=14)
 
-plt.text(-530, -23.8, '6.7\u00B0S, A', horizontalalignment='center', verticalalignment='center', fontsize=10)
+plt.text(-530, -23.8, '6.7\u00B0S', horizontalalignment='center', verticalalignment='center', fontsize=10)
 plt.text(-645, -22.9, '15\u00B0S', horizontalalignment='center', verticalalignment='center', fontsize=10)
 plt.text(-600, -23.3, '20\u00B0N', horizontalalignment='center', verticalalignment='center', fontsize=10)
 
@@ -823,9 +827,115 @@ plt.xlabel('\u0394$^1$$^4$C (\u2030)', fontsize=14)
 plt.savefig('C:/Users/clewis/IdeaProjects/GNS/UCI_13C/output/Version3/Results2_wtotalDOC.png', dpi=300, bbox_inches="tight")
 plt.close()
 
-#
 
 
+
+
+"""
+
+Extra Plot for Reviewer
+
+"""
+
+
+cruises = ['IO7N','P16N', 'P18']
+colors = ['#d73027','#fc8d59','#4575b4']
+markers = ['o','^','D','s']
+
+
+fig = plt.figure(figsize=(8, 8))
+gs = gridspec.GridSpec(2, 2)
+gs.update(wspace=0.2, hspace=0.25)
+
+
+xtr_subsplot = fig.add_subplot(gs[0:1, 0:1])
+for i in range(0, 3):
+    curr_doc = doc[doc['Cruise'] == cruises[i]]
+    color = colors[i]
+    symbols = symbol[i]
+    plt.scatter(curr_doc['del13C'], curr_doc['[DOC] µM'], color=color, label=str(cruises[i]), marker=symbols)
+plt.ylim(10, 100)
+plt.xlim(-20, -24)
+plt.title('Total DOC')
+plt.xlabel('\u03B4$^1$$^3$C (\u2030)', fontsize=14)
+plt.ylabel('Concentration')
+
+
+xtr_subsplot = fig.add_subplot(gs[0:1, 1:2])
+for i in range(0, 3):
+    curr = cleaned_df.loc[cleaned_df['Cruise'] == cruises[i]]
+    color = colors[i]
+    symbols = symbol[i]
+    plt.scatter(curr['SPE 13C Corrected'], curr['[SPE-DOC] uM'], color=color, label=str(cruises[i]), marker=symbols)
+plt.ylim(10, 100)
+plt.yticks([], [])
+plt.xlim(-20, -24)
+plt.legend()
+plt.title('SPE-DOC')
+plt.xlabel('\u03B4$^1$$^3$C (\u2030)', fontsize=14)
+
+
+xtr_subsplot = fig.add_subplot(gs[1:2, 0:1])
+for i in range(0, 3):
+    curr_doc = doc[doc['Cruise'] == cruises[i]]
+    color = colors[i]
+    symbols = symbol[i]
+    plt.scatter(curr_doc['corrDel14C'], curr_doc['[DOC] µM'], color=color, label=str(cruises[i]), marker=symbols)
+plt.ylim(10, 100)
+plt.xlabel('\u0394$^1$$^4$C (\u2030)', fontsize=14)
+plt.ylabel('Concentration')
+plt.xlim(-150, -600)
+
+xtr_subsplot = fig.add_subplot(gs[1:2, 1:2])
+for i in range(0, 3):
+    curr = cleaned_df.loc[cleaned_df['Cruise'] == cruises[i]]
+    color = colors[i]
+    symbols = symbol[i]
+    plt.scatter(curr['SPE-14C'], curr['[SPE-DOC] uM'], color=color, label=str(cruises[i]), marker=symbols)
+plt.ylim(10, 100)
+plt.yticks([], [])
+plt.xlabel('\u0394$^1$$^4$C (\u2030)', fontsize=14)
+plt.xlim(-150, -600)
+
+plt.savefig('C:/Users/clewis/IdeaProjects/GNS/UCI_13C/output/Version3/ExtraPlotforReviewer.png', dpi=300, bbox_inches="tight")
+plt.close()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+""""
+Ezxtra pllot
+"""
+fig = plt.figure(1, figsize=(5, 5))
+doc_s = doc.loc[doc['Depth'] < 200]
+plt.scatter(doc_s['corrDel14C'], doc_s['del13C'], c=doc_s['Depth'], cmap='viridis', facecolors='none', edgecolors='black', marker=markers[i], label=f"Total DOC {str(cruises[i])}")
+plt.colorbar(label="Depth", orientation="horizontal")
+
+plt.xlabel('\u0394$^1$$^4$C (\u2030)', fontsize=14)
+plt.ylabel('SPE-DOC \u03B4$^1$$^3$C (\u2030)')
+plt.savefig('C:/Users/clewis/IdeaProjects/GNS/UCI_13C/output/Version3/TEST.png', dpi=300, bbox_inches="tight")
+
+plt.close()
 """
 RESULTS 1 with depths
 """

@@ -69,3 +69,41 @@ reference1 = reference1.loc[(reference1['weightedstderr_D14C'] > 0)]
 reference1.sort_values(by=['Decimal_date'], inplace=True)
 reference1.to_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/from_reference1/reference1.xlsx')
 
+
+"""
+I'm currently in the writing phase of the paper, and want to know: why did we smooth? The asnwer is "to get rid of the scatter"
+But why is there scatter? 
+Beacuse of the variability in all the points throughout the year. BUT, how many points are there per year? 
+"""
+import pandas as pd
+import numpy as np
+df = pd.read_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/from_reference1/reference1.xlsx')
+arr = []
+years_list = list(range(1954, 2023))
+for i in range(0, len(years_list)-1):
+
+    sublist = df.loc[(df['Decimal_date'] > years_list[i]) & (df['Decimal_date'] < years_list[i+1])]
+    arr.append(len(sublist))
+
+# print(np.average(arr))
+# print(np.std(arr))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

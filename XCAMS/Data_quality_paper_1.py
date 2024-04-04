@@ -14,6 +14,10 @@ Jocelyn wants to rerun the scripts that created the plots, and numbers for the d
 are concerned that many data in the record should have quality flags, and currently do not. This script's goal is to
 help me identify and flag those data.
 
+January 8, 2024
+Re-exporting the full RLIMS dataset to run the script and will keep updating here. 
+
+
 
 September 12, 2023
 I'm splitting the document into different "steps" that I can use as the flags to help identify where flags came in. 
@@ -86,26 +90,17 @@ Phase 4 outliers/labels overwrite those from phase 3.
 # IMPORT THE DATA FILE
 # this file contains all of RLIMS as downloaded from one of our most recent wheels (today is 21/12/2023; Dec 21),
 # but the file was moved to my C: drive
-df = pd.read_csv(r'C:\Users\clewis\IdeaProjects\GNS\xcams\TW3494standards.xlsx')
-
+df = pd.read_csv(r'H:\Science\Datasets\data_quality1.csv')
+# df = pd.read_csv(r'H:\Science\Papers\In Prep Work\2023_Zondervan_DataQuality\simplified RLIMS dataset.csv')
 # I initially wrote the following 4 scripts using a downloaded file from Albert. His export script has since gone
 # Missing, and some of the variable names have changed. I can either 1) change all the variable names in the following
 # 4 scripts, or simply rename the values here, to match the old ones. I choose the latter.
-df = df[['R_number','TW','TP','Quality Flag','AMS Category ID XCAMS','Ratio to standard','Ratio to standard error','Collection Decimal Date','Date Run','JOB Notes']]
-
+# df = df[['R_number','TW','TP','Quality Flag','AMS Category ID XCAMS','Ratio to standard','Ratio to standard error','Date Run','JOB Notes','sample']]
+df = df.rename(columns={"JOB Notes": "jobNOTES", "AMS Category ID XCAMS": "AMScategID", "Ratio to standard": "RTS", "Ratio to standard error": "RTSerr"})
 # TODO upon return in January:
 # TODO 1) Re-export the file above, but this time make sure to include the field EArun. This allows me to filter for Ea vs Sealed tube later on
 # TODO 2) Re-run all the scripts, without removing any data yet!
 # TODO 3) after re-running, decide where data should be removed, and then import those NEW FLAGS back into RLIMS
-
-
-
-
-
-
-
-
-
 
 
 length_check = df
@@ -119,7 +114,8 @@ PHASE 1: IDENTIFY INNOCUOUS JOB NOTES
 """
 # See documentation above for details on 1-7 labeling scheme
 # Checking for "must contain -999" because if it doesn't it's already been labeled
-df.loc[(df['jobNOTES'] == 'Missing[]') & (df['CBL_Filtering_Category'] == -999), 'CBL_Filtering_Category'] = 1
+
+df.loc[(df['jobNOTES'].isnull()) & (df['CBL_Filtering_Category'] == -999), 'CBL_Filtering_Category'] = 1
 df.loc[(df['jobNOTES'].str.len() == 1) & (df['CBL_Filtering_Category'] == -999), 'CBL_Filtering_Category'] = 2
 df.loc[(df['jobNOTES'].str.isdigit()) & (df['CBL_Filtering_Category'] == -999), 'CBL_Filtering_Category'] = 4
 
@@ -183,7 +179,15 @@ PHASE 2: MANUALLY CHECK REST OF JOB NOTES
 
 # # READ IN MANUAL CHECKS/ REREAD IN DF AND SETUP FOR A MERGE WITH THOSE MANUAL CHECKS
 df = pd.read_csv(f'C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_1_output/PHASE_1.csv')
-manual_checks = pd.read_csv(f'C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_1_output/manual_checks.csv')
+manual_checks = pd.read_csv(f'C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_1_output/manual_checks1.csv')
+
+# # need to add more manual checks now that we're including more recent data
+# p1 = df.loc[(df['TP'] > 2755) & (df['jobNOTES'] == -999)]
+# p1.to_csv(f'C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_1_output/manual_checks2.csv')
+#
+#
+#
+
 
 # isolate all those that needed manual checks (-999s), and drop the column
 df_dropped = df.loc[df['CBL_Filtering_Category'] == str(-999)].drop(columns=['CBL_Filtering_Category'])
@@ -336,7 +340,7 @@ df_p4.loc[df_p4['sampleDESC'] == 'TIRI L: Whalebone', 'sampleDESC'] = 'tiri_l_wh
 fin_array = []
 for i in range(0, len(df_p4)):
     row = df_p4.iloc[i]
-    R = row['R']
+    R = str(row['R_number'])
     new_r = R.replace('/', '_')
     fin_array.append(new_r)
 df_p4['New_R'] = fin_array

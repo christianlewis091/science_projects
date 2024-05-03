@@ -5,13 +5,18 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.basemap import Basemap
 import seaborn as sns
 
-df = pd.read_excel('H:/Science/Datasets/Fiordland/Past_Field_Season_Data/2022_CTD_DATAMERGE_LEWIS.xlsx').dropna(subset='DepSM')
-
+df = pd.read_excel('C:/Users/clewis/IdeaProjects/GNS/Fiordland/OUTPUT/2022_2023_CTD_Data_Concat/FINAL_merged.xlsx').dropna(subset='DepSM')
+df['fileName'] = df['FileName']
 # for each location / sound
 locations = np.unique(df['ctdSampleLocation'])
-colors2 = sns.color_palette("mako", 10)
+colors2 = sns.color_palette("mako", 20)
 colors2 = list(reversed(colors2))
-markers = ['o', '^', '8', 's', 'p', '*', 'X', 'D']
+markers = ['o', '^', '8', 's', 'p', '*', 'X', 'D','o', '^', '8', 's', 'p', '*', 'X', 'D','o', '^', '8', 's', 'p', '*', 'X', 'D','o', '^', '8', 's', 'p', '*', 'X', 'D']
+
+# doubtful sound giving problems: have a lookski. Has too maby
+dbt = df.loc[df['ctdSampleLocation'] == 'DBT']
+print(len(np.unique(dbt['fileName'])))
+# dbt.to_excel('C:/Users/clewis/IdeaProjects/GNS/Fiordland/OUTPUT/2022_2023_CTD_Data_Concat/dbt.xlsx')
 
 # loop through and create plots
 for k in range(0, len(locations)):
@@ -23,6 +28,7 @@ for k in range(0, len(locations)):
     surf = 10
 
     location1 = df.loc[df['ctdSampleLocation'] == locations[k]].sort_values(by=['longitude'])
+    print(locations[k])
     # grab each station within the "sound" subloop
     stations = np.unique(location1['fileName'])  # each filename comes from a differnet CTD cast
 
@@ -140,7 +146,7 @@ for k in range(0, len(locations)):
     BELOW IS THE MAP
     """
     xtr_subsplot = fig.add_subplot(gs[0:3, 3:5])
-    plt.title(f'{locations[k]}')
+    plt.title(f'{locations[k]}; contains both 2022 and 2023 data, not visually distinguished!')
     maxlat = -45.0
     minlat = -46
     nz_max_lon = 167.25
@@ -155,10 +161,14 @@ for k in range(0, len(locations)):
     map.shadedrelief()
 
     for i in range(0, len(stations)):
+        print(stations[i])
         stn1 = location1.loc[location1['fileName'] == stations[i]].sort_values(by=['DepSM'])
         lat = np.unique(stn1['latitude'])
         lon = np.unique(stn1['longitude'])
         x, y = map(lon, lat)
+        x = x[0] # some of the DBT stations had weird errors where the lon showed up twice: [167.0944685 167.0944685]
+        print(x)
+        print(y)
         map.scatter(x, y, edgecolor='black', color=colors2[i], marker=markers[i])
 
     plt.savefig(f'C:/Users/clewis/IdeaProjects/GNS/Fiordland/OUTPUT/2022_Field_Season_Figures/{locations[k]}_new',

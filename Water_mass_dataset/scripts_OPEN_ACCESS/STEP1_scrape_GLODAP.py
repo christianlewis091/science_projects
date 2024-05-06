@@ -1,5 +1,4 @@
 """
-
 I'm trying to webscrape GLODAP website
 https://www.ncei.noaa.gov/access/ocean-carbon-acidification-data-system/oceans/GLODAPv2_2021/cruise_table_v2021.html
 So I don't have to click into every "Data Files" Page
@@ -13,7 +12,6 @@ https://medium.com/@CodeYogi/bulk-downloading-files-from-websites-with-python-1c
 
 The FIRST instance of running this code errored out at line Cruise No. 268,
 I'm going to start it again at 269 and invoke the TRY except clause to keep it from doing that again
-
 """
 
 import requests
@@ -56,7 +54,7 @@ x = 0
 for row in table.find_all('tr'):
     x = x+1
     print(x)
-  # see notes above
+    # see notes above
     try:
         print(x)
         # Find the cells in the specified column

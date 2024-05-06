@@ -126,8 +126,20 @@ Now I'm adding on GLODAP data, see scrape_GLODAP.py
 # with pd.ExcelWriter(r'H:\Science\Datasets\Hydrographic\raw_data_watermassproject.xlsx') as writer:
 #     database.to_excel(writer, sheet_name='Database')
 #     results.to_excel(writer, sheet_name='FileErrors')
-#
-#
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 # print(f"{goship_len}: GOSHIP length")
 # print(f"{glodap_len}: GLODAP length")
 #
@@ -244,7 +256,7 @@ for i in range(0, len(wmc_Talley)):
 # By renaming these, I can connect Southern Ocean sectors of each basin to their northward counterparts for more
 # continuity in the figures (if I don't do these lines) you get a SOce plot for AABW, and then Atlantic for instance
 # and its better if its a continous blob
-# TODO very important this steo is exaplined well in methods. people will get confused
+# TODO very important this step is exaplined well in methods. people will get confused
 df.loc[(df['LONGITUDE'] > 20) & (df['LONGITUDE'] <= 120) & (df['LATITUDE'] <= -30), 'OCEAN_LABEL'] = 'Southern_Indian'
 df.loc[(df['LONGITUDE'] > 120) & (df['LONGITUDE'] <= 180) & (df['LATITUDE'] <= -30), 'OCEAN_LABEL'] = 'Southern_Pacific'
 df.loc[(df['LONGITUDE'] > -180) & (df['LONGITUDE'] <= -80) & (df['LATITUDE'] <= -30), 'OCEAN_LABEL'] = 'Southern_Pacific'
@@ -286,6 +298,19 @@ for i in range(0, len(oceans)):
     plt.close()
 
 # df.to_excel(r'H:\Science\Datasets\Hydrographic\raw_data_watermassproject_assigned2.xlsx')
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 """
 UNCOMMENT ABOVE IF YOU NEED TO EDIT OR REBUILD THE DATABASE. CONTINUE DOWN IF YOU WANT PLOTS
@@ -557,7 +582,9 @@ for i in range(0, len(list1)):
 
 
 
-
+"""
+OLD MAYBE BAD
+"""
 
 
 

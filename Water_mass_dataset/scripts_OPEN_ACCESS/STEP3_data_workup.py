@@ -68,9 +68,9 @@ df.loc[(df['LONGITUDE'] > 120) & (df['LONGITUDE'] <= 180) & (df['LATITUDE'] <= 0
 df.loc[(df['LONGITUDE'] > -180) & (df['LONGITUDE'] <= -80) & (df['LATITUDE'] <= 0), 'OCEAN_LABEL'] = 'South Pacific'
 
 df.loc[(df['LONGITUDE'] > -80) & (df['LONGITUDE'] <= 20) & (df['LATITUDE'] > 0), 'OCEAN_LABEL'] = 'North Atlantic'
-df.loc[(df['LONGITUDE'] > -80) & (df['LONGITUDE'] <= 20) & (df['LATITUDE'] <= 0), 'OCEAN_LABEL'] = 'South Atlantic'
+df.loc[(df['LONGITUDE'] > -60) & (df['LONGITUDE'] <= 20) & (df['LATITUDE'] <= 0), 'OCEAN_LABEL'] = 'South Atlantic'
 
-df.loc[(df['LATITUDE'] >= 66.6), 'OCEAN_LABEL'] = 'Arctic'
+# df.loc[(df['LATITUDE'] >= 66.6), 'OCEAN_LABEL'] = 'Arctic'  # this is removed beacuse there is no equivalent.
 df.loc[(df['LATITUDE'] <= -30), 'OCEAN_LABEL'] = 'Southern'
 
 """
@@ -85,7 +85,7 @@ for i in range(0, len(wmc_Talley)):
     # assign the new water mass using pandas
     df.loc[(df['OCEAN_LABEL'] == row['Talley Label']) & (df['Pot_density_anomaly'] >= row['roe min']) & (df['Pot_density_anomaly'] < row['roe max']), 'Tally_assigned'] = water_mass
 
-
+df = df.loc[df['CTDSAL'] > 0]
 df.to_excel(r'C:/Users/clewis/IdeaProjects/GNS/Water_mass_dataset/output_OPEN_ACCESS/STEP3_data_workup/STEP3_WATER_MASSES_ASSIGNED.xlsx')
 
 """
@@ -123,7 +123,17 @@ for i in range(0, len(oceans)):
     plt.savefig(f'C:/Users/clewis/IdeaProjects/GNS/Water_mass_dataset/output_OPEN_ACCESS/STEP3_data_workup/Spot_checks/{oceans[i]}.jpg', dpi=300, bbox_inches="tight")
     plt.close()
 
+"""
+Some final checks
+"""
+df = df.loc[df['CTDSAL'] > 0]
+# how many bottles are not assigned a water mass?
+nans = df.loc[df['Tally_assigned'] == -999]
+# nans seems to include a potential density calculated of -1000. Lets remove that.
+nans = nans.loc[nans['Pot_density_anomaly'] > 0]
 
+assigned = df.loc[df['Tally_assigned'] != -999]
+print(f'Of the total dataset {len(df)}, {len(nans)} are NOT characterized')
 
 
 

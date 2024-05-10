@@ -96,6 +96,8 @@ map.drawmeridians(np.arange(-180, 180, 0.25), labels=[True, False, False, True],
 map.fillcontinents(color="#FFDDCC", lake_color='#DDEEFF')
 map.drawmapboundary(fill_color="#DDEEFF")
 map.drawcoastlines()
+plt.text(167.1, -45.5, 'Doubtful S.', fontsize=12)
+plt.text(167, -45.75, 'Dusky S.', fontsize=12)
 
 for i in range(0, len(filenames)):
     stn1 = subset.loc[subset['FileName'] == filenames[i]]

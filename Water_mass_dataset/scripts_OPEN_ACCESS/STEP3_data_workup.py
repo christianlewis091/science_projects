@@ -59,6 +59,7 @@ This next block of code assigns each row of data an "ocean label"
 """
 
 df['OCEAN_LABEL'] = -999 # add initial value for this column
+df['OCEAN_LABEL_2'] = -999 # add initial value for this column
 df.loc[(df['LONGITUDE'] > 20) & (df['LONGITUDE'] <= 120), 'OCEAN_LABEL'] = 'Indian'
 
 df.loc[(df['LONGITUDE'] > 120) & (df['LONGITUDE'] <= 180) & (df['LATITUDE'] > 0), 'OCEAN_LABEL'] = 'North Pacific'
@@ -70,8 +71,13 @@ df.loc[(df['LONGITUDE'] > -180) & (df['LONGITUDE'] <= -80) & (df['LATITUDE'] <= 
 df.loc[(df['LONGITUDE'] > -80) & (df['LONGITUDE'] <= 20) & (df['LATITUDE'] > 0), 'OCEAN_LABEL'] = 'North Atlantic'
 df.loc[(df['LONGITUDE'] > -60) & (df['LONGITUDE'] <= 20) & (df['LATITUDE'] <= 0), 'OCEAN_LABEL'] = 'South Atlantic'
 
-# df.loc[(df['LATITUDE'] >= 66.6), 'OCEAN_LABEL'] = 'Arctic'  # this is removed beacuse there is no equivalent.
 df.loc[(df['LATITUDE'] <= -30), 'OCEAN_LABEL'] = 'Southern'
+
+df.loc[(df['LATITUDE'] >= 66.6), 'OCEAN_LABEL_2'] = 'Arctic'  # This is put into the second label beacuse there is no categorization for Arctic in Talley 08
+df.loc[(df['LONGITUDE'] > -180) & (df['LONGITUDE'] <= -80) & (df['LATITUDE'] <= -30), 'OCEAN_LABEL_2'] = 'Southern - Pacific Sector'  # THIS IS ONLY ADDED SO I CAN INDEX UPON IT LATER DOING STATS
+df.loc[(df['LONGITUDE'] > 120) & (df['LONGITUDE'] <= 180) & (df['LATITUDE'] <= 0-30), 'OCEAN_LABEL_2'] = 'Southern - Pacific Sector'
+df.loc[(df['LONGITUDE'] > -60) & (df['LONGITUDE'] <= 20) & (df['LATITUDE'] <= -30), 'OCEAN_LABEL_2'] = 'Southern - Atlantic Sector'  # THIS IS ONLY ADDED SO I CAN INDEX UPON IT LATER DOING STATS
+df.loc[(df['LONGITUDE'] > 20) & (df['LONGITUDE'] <= 120) & (df['LATITUDE'] <= -30), 'OCEAN_LABEL_2'] = 'Southern - Indian Sector'  # THIS IS ONLY ADDED SO I CAN INDEX UPON IT LATER DOING STATS
 
 """
 THIS BLOCK ASSIGNS THE WATER MASSES!

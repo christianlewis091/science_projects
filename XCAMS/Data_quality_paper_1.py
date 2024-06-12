@@ -150,19 +150,48 @@ df.loc[(df['Quality Flag'].isin(odd)) & (df['Keep_Remove'] == 'NYC'), 'Keep_Remo
 
 # check = df.loc[df['Keep_Remove'] == 'NYC']
 # unique_values_A = check['Quality Flag'].value_counts()
+# print(unique_values_A)
+
 
 # whats left are the NON flagged data that need to be checked for flags requried, but first I need to fix a few of the flags
 df = df.replace({'Quality Flag': {'.....': '...'}})
 
+# check = df.loc[df['Keep_Remove'] == 'NYC']
+# unique_values_A = check['Quality Flag'].value_counts()
+# print(unique_values_A)
 
 
-# KEEP WRITING THIS FILE OVER TIME TO CHECK THINGS ARE WORKING...
-# df.to_excel(r'C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_1_output/systems_check.xlsx')
+# Flag all samples that contain the word "test" in job notes, set the
+tests = ['TEST','test','Test']
+for i in range(len(tests)):
+    df.loc[(df['Job::Job notes'].str.contains(tests[i], na=False)) & (df['Keep_Remove'] == 'NYC') & (df['Quality Flag'] == '...'), 'Keep_Remove'] = 'Remove'
+    df.loc[(df['Job::Job notes'].str.contains(tests[i], na=False)) & (df['Keep_Remove'] == 'NYC') & (df['Quality Flag'] == '...'), 'Comment'] = 'Removed because the keyword test was found in job notes'
+# set all other No Flags to Keep
+df.loc[(df['Keep_Remove'] == 'NYC') & (df['Quality Flag'] == '...'), 'Keep_Remove'] = 'Keep'
 
+# What's left is a Quality Flag which is a crammed 3 dots withiout the spaces, a strange computer glitch.
+# However, from the exporting and manaul check of these data, they all look fine. I'll put these last ones as Keep too.
+check = df.loc[df['Keep_Remove'] == 'NYC']
+# check.to_excel(r'C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_1_output/remaining.xlsx')
+df.loc[(df['Keep_Remove'] == 'NYC'), 'Keep_Remove'] = 'Keep'
 
+# HOW MANY WERE LABELED FOR REMOVAL?
+unique_values_A = df['Keep_Remove'].value_counts()
+print(unique_values_A)
 
+# Write the sheet to excel so I can read it in from here...
+df.to_excel(r'C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_1_output/DF_ALL_KEEP_REMOVES.xlsx')
+#
+# import pandas as pd
+# df = pd.read_excel(r'C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_1_output/DF_ALL_KEEP_REMOVES.xlsx')
 
+# This all seems fine. Now, how many of the removed, need flags to be added?
+flag_import_to_RLIMS = df.loc[((df['Quality Flag'].isin(odd)) | (df['Quality Flag'].isin(infs)) | (df['Quality Flag'].isin(softs))) & (df['Keep_Remove'] == 'Remove')]
+flag_import_to_RLIMS.to_excel(r'C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_1_output/flag_import_to_RLIMS.xlsx')
+print(len(flag_import_to_RLIMS))
 
+# TODO | all the data is still in the sheets, not yet removed. Run the chi2 tests for all data types, with "removes" in AND out, see if it makes a difference
+# TODO
 
 
 

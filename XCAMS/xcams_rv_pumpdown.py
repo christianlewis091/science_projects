@@ -126,7 +126,7 @@ Plotting pumpdowns after Ion suorce cleans
 """
 import numpy as np
 
-df = pd.read_excel('I:/XCAMS/4_maintenance/SNICS ion source/SNICS OPENINGS/SORX reports/2024/30_April_2024/Pumpdowns.xlsx')
+df = pd.read_excel('I:/XCAMS/4_maintenance/SNICS ion source/SNICS OPENINGS/SORX reports/2024/23_May_2024/Pumpdowns.xlsx')
 
 fig = plt.figure(1, figsize=(8, 8))
 
@@ -147,6 +147,6 @@ plt.legend()
 plt.yscale('log')
 plt.title('Turbo Pump Vacuum After Ion Source Rebuilds')
 
-plt.savefig('I:/XCAMS/4_maintenance/SNICS ion source/SNICS OPENINGS/SORX reports/2024/30_April_2024/Pumpdown.png',
+plt.savefig('I:/XCAMS/4_maintenance/SNICS ion source/SNICS OPENINGS/SORX reports/2024/23_May_2024/Pumpdown.png',
             dpi=300, bbox_inches="tight")
 plt.close()

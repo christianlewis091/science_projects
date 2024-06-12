@@ -72,12 +72,14 @@ import numpy as np
 from matplotlib.patches import Polygon
 # from Basemap import basemap-data-hires
 import seaborn as sns
+import pandas as pd
 
 colors2 = sns.color_palette("mako", 30)
 colors2 = list(reversed(colors2))
 markers = ['o', '^', '8', 's', 'p', '*', 'X', 'D','o', '^', '8', 's', 'p', '*', 'X', 'D','o', '^', '8', 's', 'p', '*', 'X', 'D','o', '^', '8', 's', 'p', '*', 'X', 'D']
 
 df = pd.read_excel('C:/Users/clewis/IdeaProjects/GNS/Fiordland/OUTPUT/2022_2023_CTD_Data_Concat/FINAL_merged.xlsx')
+cathys = pd.read_excel('C:/Users/clewis/IdeaProjects/GNS/Fiordland/OUTPUT/2022_2023_CTD_Data_Concat/CathysGermanySamples2024.xlsx')
 
 # were only going to be collecting from Doubtful and Dusky, so i'll only grab the figures from those sites
 subset = df.loc[(df['ctdSampleLocation'] == 'DBT') | (df['ctdSampleLocation'] == 'DUS')]
@@ -135,7 +137,13 @@ poly = Polygon([(x2, y2), (x1, y1), (x3, y3), (x4, y4)], facecolor='blue', edgec
 axin.add_patch(poly)
 
 
-plt.savefig('H:/Science/Current_Projects/03_coastal_carbon/May_2024_Cruise/Cruise Panning/Fiordland_DIC_Figure1.png',
+lat = cathys['Latitude']
+lon = cathys['Longitude']
+x, y = map(lon, lat)
+map.scatter(x, y, edgecolor='black', color='red', marker='o')
+
+
+plt.savefig('H:/Science/Current_Projects/03_coastal_carbon/May_2024_Cruise/Cruise Panning/Fiordland_DIC_Figure1_4cathy.png',
             dpi=300, bbox_inches="tight")
 
 

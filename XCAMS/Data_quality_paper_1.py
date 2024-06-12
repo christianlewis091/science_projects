@@ -1,12 +1,3 @@
-import pandas as pd
-import numpy as np
-import warnings
-import xlsxwriter
-from datetime import date
-warnings.simplefilter(action='ignore')
-import plotly.express as px
-import matplotlib.pyplot as plt
-today = date.today()
 
 """
 We are working on an AMS data quality paper that was originally started by Albert Zondervan, who is not at uOttawa.
@@ -14,14 +5,16 @@ Jocelyn wants to rerun the scripts that created the plots, and numbers for the d
 are concerned that many data in the record should have quality flags, and currently do not. This script's goal is to
 help me identify and flag those data.
 
+June 7, 2024
+Pickng this project back up full steam ahead. Re-running script along with writng more notes in my methods doc.
+I'm writing the script to follow a workflow in the associated power point Draft1_progress.pptx.
+
+
 January 8, 2024
 Re-exporting the full RLIMS dataset to run the script and will keep updating here. 
 
-
-
 September 12, 2023
 I'm splitting the document into different "steps" that I can use as the flags to help identify where flags came in. 
-
 
 September 8, 2023:
 Initialization of this file. Creating the folders where the data will be stored:
@@ -86,90 +79,358 @@ Phase 4 outliers/labels overwrite those from phase 3.
 400 flags added to the data
 
 """
+import pandas as pd
+import numpy as np
+import warnings
+import xlsxwriter
+from datetime import date
+warnings.simplefilter(action='ignore')
+import plotly.express as px
+import matplotlib.pyplot as plt
+today = date.today()
 
-# IMPORT THE DATA FILE
-# this file contains all of RLIMS as downloaded from one of our most recent wheels (today is 21/12/2023; Dec 21),
-# but the file was moved to my C: drive
-df = pd.read_csv(r'H:\Science\Datasets\data_quality1.csv')
-# df = pd.read_csv(r'H:\Science\Papers\In Prep Work\2023_Zondervan_DataQuality\simplified RLIMS dataset.csv')
-# I initially wrote the following 4 scripts using a downloaded file from Albert. His export script has since gone
-# Missing, and some of the variable names have changed. I can either 1) change all the variable names in the following
-# 4 scripts, or simply rename the values here, to match the old ones. I choose the latter.
-# df = df[['R_number','TW','TP','Quality Flag','AMS Category ID XCAMS','Ratio to standard','Ratio to standard error','Date Run','JOB Notes','sample']]
-df = df.rename(columns={"JOB Notes": "jobNOTES", "AMS Category ID XCAMS": "AMScategID", "Ratio to standard": "RTS", "Ratio to standard error": "RTSerr"})
-# TODO upon return in January:
-# TODO 1) Re-export the file above, but this time make sure to include the field EArun. This allows me to filter for Ea vs Sealed tube later on
-# TODO 2) Re-run all the scripts, without removing any data yet!
-# TODO 3) after re-running, decide where data should be removed, and then import those NEW FLAGS back into RLIMS
+# # IMPORT THE DATA FILE
+# # this file contains all of RLIMS as downloaded from one of our most recent wheels (today is 21/12/2023; Dec 21),
+# # but the file was moved to my C: drive
 
-
-length_check = df
-# INITIAlZE A COLUMN FOR ME TO ADD THINGS TO FILTER ON LATER
-df['CBL_Filtering_Category'] = -999
+df = pd.read_csv(r'H:\Science\Datasets\Alberts_dataquality\FINAL_WORKING_DATASET.csv').dropna(subset='TP')
+df = df.dropna(subset='RTS_corrected')
+og_len_df = len(df)
 
 """
-><>><>><>><>><>><>><>><>
-PHASE 1: IDENTIFY INNOCUOUS JOB NOTES
-><>><>><>><>><>><>><>><>
+In June 2024, I went full steam ahead on this; however, after the end of categorizing all the data, I realized loads of 
+the codes were broken. However, I had already manually selected loads for removal. Those TP's are here below...
 """
-# See documentation above for details on 1-7 labeling scheme
-# Checking for "must contain -999" because if it doesn't it's already been labeled
 
-df.loc[(df['jobNOTES'].isnull()) & (df['CBL_Filtering_Category'] == -999), 'CBL_Filtering_Category'] = 1
-df.loc[(df['jobNOTES'].str.len() == 1) & (df['CBL_Filtering_Category'] == -999), 'CBL_Filtering_Category'] = 2
-df.loc[(df['jobNOTES'].str.isdigit()) & (df['CBL_Filtering_Category'] == -999), 'CBL_Filtering_Category'] = 4
+for_removal = pd.read_excel(r'C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_1_output/Manually_checked_data.xlsx')
 
-# Label anything containing "test"
-tests = ['TEST','test','Test']
-for i in range(len(tests)):
-    df.loc[(df['jobNOTES'].str.contains(tests[i], na=False)) & (df['CBL_Filtering_Category'] == -999), 'CBL_Filtering_Category'] = 3
-df.loc[(df['AMScategID'] == 'Test'), 'CBL_Filtering_Category'] = 3
+# set up the Keep/Remove category
+df['Keep_Remove'] = 'NYC' # not yet categorized
 
-# HOW MANY OF THE JOB NOTES ARE SUCH AS: 1 OF 2, 3 of 6
-for i in range(0, 10):
-    for k in range(0, 10):
-        df.loc[(df['CBL_Filtering_Category'] == -999) & (df['jobNOTES'] == f'{i} of {k}'), 'CBL_Filtering_Category'] = 5
-        df.loc[(df['CBL_Filtering_Category'] == -999) & (df['jobNOTES'] == f'Split {i} of {k}'), 'CBL_Filtering_Category'] = 5
-        df.loc[(df['CBL_Filtering_Category'] == -999) & (df['jobNOTES'] == f'split {i} of {k}'), 'CBL_Filtering_Category'] = 5
+# put all those that have already been manually checked as labeled for REMOVAL
+df.loc[df['TP'].isin(for_removal['TP']), 'Keep_Remove'] = 'Remove'
 
-# HOW MANY NOTES ARE ONLY EA NUMBERS? # TODO THIS LINE TAKES THE LONGEST! (UNCOMMENT WHEN CODE IS READY
-for x in range(0,10):
-    for y in range(0, 10):
-        for z in range(0, 10):
-            df.loc[(df['jobNOTES'].str.contains(f'EA {x}{y}{z}')) & (df['CBL_Filtering_Category'] == -999), 'CBL_Filtering_Category'] = 6
-            df.loc[(df['jobNOTES'].str.contains(f'EA # {x}{y}{z}')) & (df['CBL_Filtering_Category'] == -999), 'CBL_Filtering_Category'] = 6
-            df.loc[(df['jobNOTES'].str.contains(f'EA{x}{y}{z}')) & (df['CBL_Filtering_Category'] == -999), 'CBL_Filtering_Category'] = 6
-            df.loc[(df['jobNOTES'].str.contains(f'EA #{x}{y}{z}')) & (df['CBL_Filtering_Category'] == -999), 'CBL_Filtering_Category'] = 6
-            df.loc[(df['jobNOTES'].str.contains(f'for EA{x}{y}{z}')) & (df['CBL_Filtering_Category'] == -999), 'CBL_Filtering_Category'] = 6
+# how many unique quality flakgs are there?
+# df['Quality Flag'] = df['Quality Flag'].fillna(str(-999))
+# unique_values_A = df['Quality Flag'].value_counts()
+# x = pd.DataFrame(unique_values_A)
+# x.to_excel(r'C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_1_output/flags.xlsx')
 
-# MANY OF THE JOB NOTES ARE SOMETHING I CAN CALL "COMMON REPEATS", and are things I don't think we need to worry too much about
-common_repeats = pd.read_excel(r'H:\Science\Datasets\Alberts_dataquality\common_repeats.xlsx').astype(str)
-repeats = common_repeats['REPEAT']
-for i in range(0, len(repeats)):
-    x = str(repeats[i])
-    df.loc[(df['jobNOTES'] == x) & (df['CBL_Filtering_Category'] == -999), 'CBL_Filtering_Category'] = 7
+# label the hard quality flags for removal:
+hards = ['A..','N..','X..','P..','O..','E..','T..','x..']
+df.loc[df['Quality Flag'].isin(hards), 'Keep_Remove'] = 'Remove'
+
+# check how many are left by searching in the "Not yet categorized" section
+# check = df.loc[df['Keep_Remove'] == 'NYC']
+# unique_values_A = check['Quality Flag'].value_counts()
+
+# I've already gone through and manaully screened for all the middle "soft" flags that need to be categorized,
+# so, I can label the remaining for keeping using a double filtering function below
+softs = ['.X.','.A.','.S.','.T.','.O.','.Q.','.D.','.E.','.F.','.C.']
+df.loc[(df['Quality Flag'].isin(softs)) & (df['Keep_Remove'] == 'NYC'), 'Keep_Remove'] = 'Keep'
+
+# check = df.loc[df['Keep_Remove'] == 'NYC']
+# unique_values_A = check['Quality Flag'].value_counts()
+# print(unique_values_A)
+
+# the informational flags are supposed to be fine...
+infs = ['..D','..X','..T','..S']
+df.loc[(df['Quality Flag'].isin(infs)) & (df['Keep_Remove'] == 'NYC'), 'Keep_Remove'] = 'Keep'
+
+# check = df.loc[df['Keep_Remove'] == 'NYC']
+# unique_values_A = check['Quality Flag'].value_counts()
+# print(unique_values_A)
+
+# there are a few odd flags I need to check manually...
+odd = ['X.S','A.S','O.D','.FD']
+mancheck = df.loc[df['Quality Flag'].isin(odd)]
+# mancheck.to_excel(r'C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_1_output/strangies.xlsx')
+# these all seem to be RP or not needsed to be taken out based on job notes. Keep all!
+df.loc[(df['Quality Flag'].isin(odd)) & (df['Keep_Remove'] == 'NYC'), 'Keep_Remove'] = 'Keep'
+
+# check = df.loc[df['Keep_Remove'] == 'NYC']
+# unique_values_A = check['Quality Flag'].value_counts()
+
+# whats left are the NON flagged data that need to be checked for flags requried, but first I need to fix a few of the flags
+df = df.replace({'Quality Flag': {'.....': '...'}})
 
 
-# REPLACE THE NUMBERS WITH ACTUAL LABELS THAT ARE MORE DESCRIPTIVE. FOR SOME REASON COULDN'T ADD THESE AT FIRST,
-# PANDAS BUG?
-df = df.replace({'CBL_Filtering_Category': {1: 'PHASE1_EmptyJobNotes',
-                                            2: 'PHASE1_1-Char',
-                                            3: 'PHASE1_Contains_TEST',
-                                            4: 'PHASE1_Only_Digits',
-                                            5: 'PHASE1_X_of_Y',
-                                            6: 'PHASE1_EA_XYZ',
-                                            7: 'PHASE1_Common_Repeats'}})
 
-# add a soft flag to those that contain test
-df.loc[df['CBL_Filtering_Category'] == 'PHASE1_Contains_TEST', 'flag'] = '.X.'
+# KEEP WRITING THIS FILE OVER TIME TO CHECK THINGS ARE WORKING...
+# df.to_excel(r'C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_1_output/systems_check.xlsx')
 
-df.to_csv(f'C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_1_output/PHASE_1.csv')
-length_remaining = df.loc[df['CBL_Filtering_Category'] == -999]
-phase1_frac_captured = (len(length_remaining)/ len(df))*100
 
-# GENERATE REPORT PART1
-print(f"The initial lenght of the data was {len(length_check)}, and now after phase 1 it is {len(df)}")
-print(f"The amount of data that has been categorized is {len(df) - len(length_remaining)}, and the amount left the categorize is {len(length_remaining)}")
+
+
+
+
+
+
+"""
+REPORT
+"""
+print(f'Dataset has lentgh of {og_len_df}')
+
+
+
+
+
+
+#
+
+
+
+
+# # drop dupliate rows (some have extra rows from multtiple EA runs)
+# df = df.dropna(subset='TP')
+# df = df.dropna(subset='RTS_corrected')
+# t = len(df)
+# original_length = len(df)
+#
+# """
+# XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+# PROVIDE AN INITAL REPORT ON THE ABUNDANCE OF DIFFERENT TYPES OF FLAGS
+# XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+# """
+# # Split up the data according to quality flags
+# df_flag2 = df[df['Quality Flag'].str[2] != '.']
+# df_flag1 = df[df['Quality Flag'].str[1] != '.']
+# df_flag0 = df[df['Quality Flag'].str[0] != '.']
+# df_noflag = df[df['Quality Flag'] == '...']
+# p = len(df_flag0)
+# flags = np.unique(df['Quality Flag'])
+# print(flags)
+#
+# print('STEP 1')
+# print(f'Of the original dataset with length {len(df)}, there are {len(df_flag0)} rows with a hard flag,'
+#       f' {len(df_flag1)} rows with a soft flag, and  {len(df_flag2)} rows with an information flag. There are also {len(df_noflag)} with no flag assigned')
+#
+# """
+# XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+# LABEL SOFT FLAGS (FLAG1) FOR RETAINMENT OR REMOVAL
+# XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+# """
+#
+# # I will have a look at which rows are applied a soft flag...
+# df_flag1_export = df_flag1[['Job::Job notes','TP']]
+# nan_counts_per_column = df_flag1_export.isna().sum()
+#
+# duplicates = df_flag1_export[df_flag1_export.duplicated('TP', keep=False)]
+#
+#
+# df_flag1_export['Keep_Remove'] = '' # set this column up
+# # Check for NaN values or empty strings in the 'Job::Job notes' column
+# df_flag1_export.loc[pd.isna(df['Job::Job notes']) | (df['Job::Job notes'] == ''), 'Keep_Remove'] = 'Keep' # if there is no notes, keep the softly flagged data
+# # df_flag1_export.to_excel(f'C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_1_output/SoftFlags.xlsx')
+#
+# # The sheet read in below has "KEEP" or "REMOVE" labels attached.
+# df_flag1_keep_remove = pd.read_excel(f'C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_1_output/SoftFlags_REIMPORT.xlsx', comment='#').drop_duplicates(subset='TP')
+#
+# df_flag1 = df_flag1.merge(df_flag1_keep_remove, on='TP', how='outer')
+# df_flag1 = df_flag1.dropna(subset='RTS_corrected')
+#
+# df_flag1['CBL_Filtering_Category'] = df_flag1['Keep_Remove']
+# print('STEP 2')
+# print(f'This section dealt with all items with a SOFT FLAG. SOFT FLAGS have been mannually checked for problems, such as "test" or "remove". '
+#       f'See word doc for more. Each row has been assigned a KEEP or REMOVE label, which will be filtered on later. The original length has beem retained'
+#       f'i.e., no weird things have happened with the data. '
+#       f'I did find that if a # sign appears in the job notes, it will mess everything up. Lenght is {len(df_flag1)}'
+#       f'No data has been removed yet, Ill do that all later as a group')
+# df_flag1.to_excel(f'C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_1_output/SoftFlags_FINAL.xlsx')
+#
+#
+# """
+# XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+# STEP 3: Deal with no flags: For those without flags, are there some that shouldn't be?
+# XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+# """
+# # RENAMING SO THAT I DONT HAVE TO REFACTOR ALL THIS WORKING CODE FROM THE PAST
+# df = df_noflag
+# lencheck = len(df)
+# # INITIAlZE A COLUMN FOR ME TO ADD THINGS TO FILTER ON LATER
+# df['CBL_Filtering_Category'] = -999
+#
+# """
+# ><>><>><>><>><>><>><>><>
+# # 1 == HAD NO DATA IN JOB NOTES
+# # 2 == ONLY ONE CHARACTER
+# # 4 == ONLY CONTAINS NUMBERS
+# ><>><>><>><>><>><>><>><>
+# """
+# # See documentation above for details on 1-7 labeling scheme
+# # Checking for "must contain -999" because if it doesn't it's already been labeled
+# df.loc[(df['Job::Job notes'].isnull()) & (df['CBL_Filtering_Category'] == -999), 'CBL_Filtering_Category'] = 1
+# df.loc[(df['Job::Job notes'].str.len() == 1) & (df['CBL_Filtering_Category'] == -999), 'CBL_Filtering_Category'] = 2
+# df.loc[(df['Job::Job notes'].str.isdigit()) & (df['CBL_Filtering_Category'] == -999), 'CBL_Filtering_Category'] = 4
+#
+# """
+# ><>><>><>><>><>><>><>><>
+# # 3 == Contains Keyword TEST
+# ><>><>><>><>><>><>><>><>
+# """
+# # Label anything containing "test"
+# tests = ['TEST','test','Test']
+# for i in range(len(tests)):
+#     df.loc[(df['Job::Job notes'].str.contains(tests[i], na=False)) & (df['CBL_Filtering_Category'] == -999), 'CBL_Filtering_Category'] = 3
+# df.loc[(df['Job::AMS Category'] == 'Test'), 'CBL_Filtering_Category'] = 3
+#
+#
+# """
+# ><>><>><>><>><>><>><>><>
+# 5 == DESCRIBES X/Y (1 of 2, 3 of 6, etc)
+# 6 == DESCRIBES ANYTHING COMTAINING ONLY EA "XYZ"
+# ><>><>><>><>><>><>><>><>
+# """
+#
+# for i in range(0, 10):
+#     for k in range(0, 10):
+#         df.loc[(df['CBL_Filtering_Category'] == -999) & (df['Job::Job notes'] == f'{i} of {k}'), 'CBL_Filtering_Category'] = 5
+#         df.loc[(df['CBL_Filtering_Category'] == -999) & (df['Job::Job notes'] == f'Split {i} of {k}'), 'CBL_Filtering_Category'] = 5
+#         df.loc[(df['CBL_Filtering_Category'] == -999) & (df['Job::Job notes'] == f'split {i} of {k}'), 'CBL_Filtering_Category'] = 5
+#
+# # HOW MANY NOTES ARE ONLY EA NUMBERS? # TODO THIS LINE TAKES THE LONGEST! (UNCOMMENT WHEN CODE IS READY
+# for x in range(0,10):
+#     for y in range(0, 10):
+#         for z in range(0, 10):
+#             df.loc[(df['Job::Job notes'].str.contains(f'EA {x}{y}{z}')) & (df['CBL_Filtering_Category'] == -999), 'CBL_Filtering_Category'] = 6
+#             df.loc[(df['Job::Job notes'].str.contains(f'EA # {x}{y}{z}')) & (df['CBL_Filtering_Category'] == -999), 'CBL_Filtering_Category'] = 6
+#             df.loc[(df['Job::Job notes'].str.contains(f'EA{x}{y}{z}')) & (df['CBL_Filtering_Category'] == -999), 'CBL_Filtering_Category'] = 6
+#             df.loc[(df['Job::Job notes'].str.contains(f'EA #{x}{y}{z}')) & (df['CBL_Filtering_Category'] == -999), 'CBL_Filtering_Category'] = 6
+#             df.loc[(df['Job::Job notes'].str.contains(f'for EA{x}{y}{z}')) & (df['CBL_Filtering_Category'] == -999), 'CBL_Filtering_Category'] = 6
+# #
+#
+# """
+# ><>><>><>><>><>><>><>><>
+# 7 = Common Repeats (see excel file read in beloew)
+# ><>><>><>><>><>><>><>><>
+# """
+#
+# common_repeats = pd.read_excel(r'H:\Science\Datasets\Alberts_dataquality\old\common_repeats.xlsx').astype(str)
+# repeats = common_repeats['REPEAT']
+# for i in range(0, len(repeats)):
+#     x = str(repeats[i])
+#     df.loc[(df['Job::Job notes'] == x) & (df['CBL_Filtering_Category'] == -999), 'CBL_Filtering_Category'] = 7
+#
+# # REPLACE THE NUMBERS WITH ACTUAL LABELS THAT ARE MORE DESCRIPTIVE. FOR SOME REASON COULDN'T ADD THESE AT FIRST,
+# # PANDAS BUG?
+# df = df.replace({'CBL_Filtering_Category': {1: 'PHASE1_EmptyJobNotes',
+#                                             2: 'PHASE1_1-Char',
+#                                             3: 'PHASE1_Contains_TEST',
+#                                             4: 'PHASE1_Only_Digits',
+#                                             5: 'PHASE1_X_of_Y',
+#                                             6: 'PHASE1_EA_XYZ',
+#                                             7: 'PHASE1_Common_Repeats'}})
+#
+# df['Keep_Remove'] = -999
+# # If it was labeled set it to be KEPT. Except in the next line where "tests" are re-labeled for removal
+# df.loc[(df['CBL_Filtering_Category'] != -999), 'Keep_Remove'] = 'Keep'
+# df.loc[(df['CBL_Filtering_Category'] == 'PHASE1_Contains_TEST'), 'Keep_Remove'] = 'Remove'
+#
+#
+# length_remaining = df.loc[df['CBL_Filtering_Category'] == -999]
+# phase1_frac_captured = (lencheck/len(df))*100
+# #
+# # GENERATE REPORT PART1
+# print()
+# print("Step 3")
+# print(f"The initial lenght of the data was {lencheck}, and now after phase 1 it is {len(df)}")
+# print(f"The amount of data that has been categorized is {len(df) - len(length_remaining)}, and the amount left the categorize is {len(length_remaining)}")
+#
+# # SPLIT THE DATA INTO WHAT NEEDS MANUAL CHECKS, AND WHAT DOESNT
+# check = df[['TP','Job::Job notes','CBL_Filtering_Category','Keep_Remove']]
+#
+# # EXPORT WHOLE DATA...
+# # Sort to find all -999s, and change the KEEP/REMOVEs to reflect JOB Notes.
+# check.to_excel(f'C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_1_output/NoFlags_needsManCheck.xlsx')
+#
+# # REIMPORT THE DATA AFTER BRING CHECKED.
+# check = pd.read_excel(f'C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_1_output/NoFlags_needsManCheck_DONE.xlsx').drop_duplicates(subset='TP')
+# # MOVE THE EDITED COLUMNS ONTO THE WHOLE DATAFRAME
+# df['CBL_Filtering_Category'] = check['CBL_Filtering_Category']
+# df['Keep_Remove'] = check['Keep_Remove']
+# df.to_excel(f'C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_1_output/NoFlags_Final.xlsx')
+#
+# """
+# ><>><>><>><>><>><>><>><>
+# STITCH THE 4 TYPES oF DATA TOGETHER, MAKE SURE THE LENGHT IS THE SAME.
+# THEN ISOLATE WHERE FLAGS NEED TO BE ADDED INTO RLIMS
+# THEN FINALIZE WHICH DATA WE"RE MOVING FORWARD WITH
+# ><>><>><>><>><>><>><>><>
+# """
+# df_flag1 = pd.read_excel(f'C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_1_output/SoftFlags_FINAL.xlsx').drop_duplicates(subset='TP')
+# df_noflag = pd.read_excel(f'C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_1_output/NoFlags_Final.xlsx').drop_duplicates(subset='TP')
+# df_flag0['Keep_Remove'] = 'Remove' # all hard flags get removed
+# df_flag2['Keep_Remove'] = 'Keep'   # all informational flags are kept, for now.
+#
+# print('Step 4')
+# print(f'With length {original_length}, there are {len(df_flag0)} rows with a hard flag,'
+#       f' {len(df_flag1)} rows with a soft flag, and  {len(df_flag2)} rows with an information flag. There are also {len(df_noflag)} with no flag assigned')
+# # testlen = df_noflag.loc[df_noflag['CBL_Filtering_Category'] == 'PHASE1_Contains_TEST']
+# # print(len(testlen))
+#
+# final_df = pd.concat([df_noflag, df_flag0, df_flag1, df_flag2])
+#
+# end_length = len(final_df)
+# print()
+# print('STEP 5: concatonate the data back together')
+# print(f'END LENGHT MUST MATCH ORIGINAL: {original_length}, {end_length}')
+# print(' I think that the way I looked for flags in the beginning may have led to duplicates?')
+# final_df.to_excel(f'C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_1_output/Labelled_Data_Final.xlsx')
+
+# # after the concatonation, I had three replciate Job Notes categories
+# df = pd.read_excel(f'C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_1_output/Labelled_Data_Final.xlsx')
+# # Combine columns into a list
+# df['JobNotes_combined'] = df[['Job::Job notes', 'Job::Job notes_x', 'Job::Job notes_y']].apply(lambda row: [x for x in row if pd.notna(x)], axis=1)
+#
+# # Drop the old columns if needed
+# df.drop(columns=['Job::Job notes', 'Job::Job notes_x', 'Job::Job notes_y'], inplace=True)
+# print(df.columns)
+#
+# df.to_excel(f'C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_1_output/Labelled_Data_Final2.xlsx')
+#
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 """
 ><>><>><>><>><>><>><>><>
@@ -177,245 +438,245 @@ PHASE 2: MANUALLY CHECK REST OF JOB NOTES
 ><>><>><>><>><>><>><>><>
 """
 
-# # READ IN MANUAL CHECKS/ REREAD IN DF AND SETUP FOR A MERGE WITH THOSE MANUAL CHECKS
-df = pd.read_csv(f'C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_1_output/PHASE_1.csv')
-manual_checks = pd.read_csv(f'C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_1_output/manual_checks1.csv')
-
-# # need to add more manual checks now that we're including more recent data
-# p1 = df.loc[(df['TP'] > 2755) & (df['jobNOTES'] == -999)]
-# p1.to_csv(f'C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_1_output/manual_checks2.csv')
+# # # READ IN MANUAL CHECKS/ REREAD IN DF AND SETUP FOR A MERGE WITH THOSE MANUAL CHECKS
+# df = pd.read_excel(f'C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_1_output/NoFlags_needsManCheck.xlsx')
+# manual_checks = pd.read_csv(f'C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_1_output/manual_checks1.csv')
+#
+# # # need to add more manual checks now that we're including more recent data
+# # p1 = df.loc[(df['TP'] > 2755) & (df['jobNOTES'] == -999)]
+# # p1.to_csv(f'C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_1_output/manual_checks2.csv')
+# #
+# #
+# #
 #
 #
+# # isolate all those that needed manual checks (-999s), and drop the column
+# df_dropped = df.loc[df['CBL_Filtering_Category'] == str(-999)].drop(columns=['CBL_Filtering_Category'])
+# df_keep = df.loc[df['CBL_Filtering_Category'] != str(-999)]
 #
-
-
-# isolate all those that needed manual checks (-999s), and drop the column
-df_dropped = df.loc[df['CBL_Filtering_Category'] == str(-999)].drop(columns=['CBL_Filtering_Category'])
-df_keep = df.loc[df['CBL_Filtering_Category'] != str(-999)]
-
-# now I can merge those two on their TP values
-# THE TWO FILES WERE THE SAME LENGTH, BUT AFTER MERGEING, BECAME 6 VALUES LONGER...
-print(len(df_dropped))
-print(len(manual_checks))
-df_dropped = df_dropped.merge(manual_checks)
-df_dropped.to_csv(f'C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_1_output/PHASE2_manually_checked.csv')
-print(len(df_dropped))
-# WHY???
-# duplicate_series = df_dropped.duplicated(subset=['TP'])
-# duplicate_rows = df_dropped[duplicate_series]
-# print("Duplicate Rows:")
-# print(duplicate_rows)
-# duplicate_rows.to_csv(f'C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_1_output/test2.csv')
-
-# now concatonate the files completely together
-df_combined = pd.concat([df_dropped, df_keep])
-
-df_combined = df_combined.replace({'CBL_Filtering_Category': {'13C_soft_filter': 'PHASE2_13C_soft_filter',
-                                                              'Discuss': 'PHASE2_needs_discussion',
-                                                              'OK': 'PHASE2_OK',
-                                                              'Remove': 'PHASE2_Remove',
-                                                              'soft_filter': 'PHASE2_softfilter',
-                                                              }})
-# add a soft flag to those that say discuss
-df_combined.loc[df_combined['CBL_Filtering_Category'] == 'PHASE2_needs_discussion', 'flag'] = '.X.'
-df_combined.loc[df_combined['CBL_Filtering_Category'] == 'PHASE2_Remove', 'flag'] = 'X..'
-
-print(np.unique(df_combined['CBL_Filtering_Category'].astype(str)))
-
-df_combined.to_csv(f'C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_1_output/PHASE_2.csv')
-
-"""
-><>><>><>><>><>><>><>><>
-PHASE 3: Roughly check for outliers with plotly, and remove
-><>><>><>><>><>><>><>><>
-"""
-# # TODO Check this section, no "test" samples exist in knowns? The plots don't change...
-df_combined = pd.read_csv(f'C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_1_output/PHASE_2.csv')
-# ONLY LOOK AT KNOWNS
-knowns = ['CBOr','GB','CBAi','CBIn','UNSt']
-
-# Code for MPL
-x = df_combined.loc[df_combined['AMScategID'].isin(knowns)]
-x.set_index('TP', inplace=True)
-x['RTS'] = x['RTS'].astype(float)
-
-fig = plt.figure(figsize=(20, 20))
-x.groupby('sampleDESC')['RTS'].plot(legend=True)
-plt.legend(loc='center left', bbox_to_anchor=(1, 0.5))
-plt.savefig(r'C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_1_output/figures/roughplot.png')
-
-# Code for PLTLY
-x = df_combined.loc[df_combined['AMScategID'].isin(knowns)]
-fig = px.scatter(x, x="TP", y="RTS", color="sampleDESC",
-                 labels={
-                     "TP": "TP (Wheel Number)",
-                     "RTS": "Ratio to standard",
-                     "sampleDESC": "Sample Description"
-                 },
-                 title="Manually Specified Labels")
-fig.write_html(r'C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_1_output/figures/LOCATE_OUTLIERS.html')
-
-
-# REPEAT CODE FROM ABOVE, removing all things with "test"
-df_combined = pd.read_csv(f'C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_1_output/PHASE_2.csv')
-df_combined = df_combined.loc[df_combined['CBL_Filtering_Category'] != 3]
-
-# Code for MPL
-x = df_combined.loc[df_combined['AMScategID'].isin(knowns)]
-x.set_index('TP', inplace=True)
-x['RTS'] = x['RTS'].astype(float)
-
-fig = plt.figure(figsize=(20, 20))
-x.groupby('sampleDESC')['RTS'].plot(legend=True)
-plt.legend(loc='center left', bbox_to_anchor=(1, 0.5))
-plt.savefig(r'C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_1_output/figures/roughplot_notest.png')
-
-# Code for PLTLY
-x = df_combined.loc[df_combined['AMScategID'].isin(knowns)]
-fig = px.scatter(x, x="TP", y="RTS", color="sampleDESC",
-                 labels={
-                     "TP": "TP (Wheel Number)",
-                     "RTS": "Ratio to standard",
-                     "sampleDESC": "Sample Description"
-                 },
-                 title="Manually Specified Labels")
-fig.write_html(r'C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_1_output/figures/LOCATE_OUTLIERS_notest.html')
-
-"""
-There's a few points that look in definite need of removal from the line Plotly line plots created above:
-Here are their TP's:
-
-NBS Oxalic, 62379, 63982
-Travertine, 67815, 67816
-Kauri, 64942
-"""
-
-df_combined = pd.read_csv(f'C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_1_output/PHASE_2.csv')
-
-TPs_to_remove = [62379,63982, 67815, 67816, 64942]
-for i in range(0, len(TPs_to_remove)):
-    df_combined.loc[df_combined['TP'] == TPs_to_remove[i], 'CBL_Filtering_Category'] = 'PHASE3_PLOTLYoutlier'
-    df_combined.loc[df_combined['flag'] == TPs_to_remove[i], 'CBL_Filtering_Category'] = 'X..'
-
-df_combined.to_csv(f'C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_1_output/PHASE_3.csv')
-
-
-"""
-><>><>><>><>><>><>><>><>
-PHASE 4: Look for more data to flag by making individual plots of the "knowns" and running statistics
-><>><>><>><>><>><>><>><>
-"""
+# # now I can merge those two on their TP values
+# # THE TWO FILES WERE THE SAME LENGTH, BUT AFTER MERGEING, BECAME 6 VALUES LONGER...
+# print(len(df_dropped))
+# print(len(manual_checks))
+# df_dropped = df_dropped.merge(manual_checks)
+# df_dropped.to_csv(f'C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_1_output/PHASE2_manually_checked.csv')
+# print(len(df_dropped))
+# # WHY???
+# # duplicate_series = df_dropped.duplicated(subset=['TP'])
+# # duplicate_rows = df_dropped[duplicate_series]
+# # print("Duplicate Rows:")
+# # print(duplicate_rows)
+# # duplicate_rows.to_csv(f'C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_1_output/test2.csv')
 #
-# read in the file from previous phase and isolate only the knowns
-df_p4 = pd.read_csv(f'C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_1_output/PHASE_3.csv')
-df_p4 = df_p4.loc[df_p4['RTS'] != 'Missing[]']
-
-# CHANGE SOME DESCRIPTIONS IF THEY'RE CAUSING ISSUES
-df_p4.loc[df_p4['sampleDESC'] == 'Aliquot of SIL "Old Leucine" standard decanted into vial, used as a standard in EA combustion runs', 'sampleDESC'] = 'OLD_Leucine'
-df_p4.loc[df_p4['sampleDESC'] == 'GAS-37257\x1d', 'sampleDESC'] = 'Gas-37257_noslash'
-df_p4.loc[df_p4['sampleDESC'] == 'GAS-38265\x1d', 'sampleDESC'] = 'Gas-38265_noslash'
-df_p4.loc[df_p4['sampleDESC'] == 'GAS-38921\x1d', 'sampleDESC'] = 'Gas-38921_noslash'
-df_p4.loc[df_p4['sampleDESC'] == 'GAS35868\x1d', 'sampleDESC'] = 'Gas-35868_noslash'
-df_p4.loc[df_p4['sampleDESC'] == 'Kapuni bubbled NaOH 0.01"ID tubing 30s 20140123', 'sampleDESC'] = 'Kapuni_bubbled'
-
-df_p4.loc[df_p4['sampleDESC'] == 'FIRI-C: turbidite', 'sampleDESC'] = 'firi_c_turbidite'
-df_p4.loc[df_p4['sampleDESC'] == 'FIRI-D: wood', 'sampleDESC'] = 'firi_d_wood'
-df_p4.loc[df_p4['sampleDESC'] == 'FIRI-E: humic acid', 'sampleDESC'] = 'firi_e_humicacid'
-df_p4.loc[df_p4['sampleDESC'] == 'FIRI-F: wood', 'sampleDESC'] = 'firi_f_wood'
-df_p4.loc[df_p4['sampleDESC'] == 'FIRI-G: Barley mash', 'sampleDESC'] = 'firi_g_barley_mash'
-df_p4.loc[df_p4['sampleDESC'] == 'FIRI-H: wood', 'sampleDESC'] = 'firi_h_wood'
-df_p4.loc[df_p4['sampleDESC'] == 'FIRI-I: cellulose', 'sampleDESC'] = 'firi_I_cellulose'
-df_p4.loc[df_p4['sampleDESC'] == 'IAEA-C1: Carrara Marble', 'sampleDESC'] = 'iaea_c1_marble'
-df_p4.loc[df_p4['sampleDESC'] == 'IAEA-C1: Carrara Marble WATER LINE', 'sampleDESC'] = 'iaea_c1_marble_waterline'
-df_p4.loc[df_p4['sampleDESC'] == 'IAEA-C1: Carrara Marble WATER LINE COMBINED', 'sampleDESC'] = 'iaea_c1_marble_waterlinecombined'
-df_p4.loc[df_p4['sampleDESC'] == 'IAEA-C2: Freshwater Travertine', 'sampleDESC'] = 'iaea_c2_travertine'
-
-df_p4.loc[df_p4['sampleDESC'] == 'TIRI H: Ellanmore Whole Peat', 'sampleDESC'] = 'tiri_h_peat'
-df_p4.loc[df_p4['sampleDESC'] == 'TIRI I: Caerwys Quarry Travertine', 'sampleDESC'] = 'tiri_t_quarry_travertine'
-df_p4.loc[df_p4['sampleDESC'] == 'TIRI J: Buiston Crannog Palisade - Wood', 'sampleDESC'] = 'tiri_j_wood'
-df_p4.loc[df_p4['sampleDESC'] == 'TIRI K: Turbidite Carbonate (Mainly Coccolith Calcite)', 'sampleDESC'] = 'tiri_k_carbonate'
-df_p4.loc[df_p4['sampleDESC'] == 'TIRI L: Whalebone', 'sampleDESC'] = 'tiri_l_whalebone'
-
-# replace all the R numbers from backslashes to underscores:
-fin_array = []
-for i in range(0, len(df_p4)):
-    row = df_p4.iloc[i]
-    R = str(row['R_number'])
-    new_r = R.replace('/', '_')
-    fin_array.append(new_r)
-df_p4['New_R'] = fin_array
-
-# I ONLY WANT TO EDIT/LOOK AT DATA WHO ARE IN THE "KNOWNS"
-# LETS CREATE A UNIQUE LIST OF R NUMBERS FOR THE KNOWNS
-knowns = ['CBOr','GB','CBAi','CBIn','UNSt','GB','OX1','OX1_SM']
-sub_list = df_p4.loc[df_p4['AMScategID'].isin(knowns)]
-knowns_Rs = np.unique(sub_list['New_R'])
-
-df_p4['CBL_stat_flags'] = -999
-for i in range(0, len(knowns_Rs)):
-    # where-ever the data is 3-sigma greater than the mean,
-    subset = df_p4.loc[df_p4['New_R'] == knowns_Rs[i]].reset_index(drop=True)
-
-    if len(subset) > 3:
-        x = subset['TW'].astype(float)
-        y = subset['RTS'].astype(float)
-        yerr = subset['RTSerr'].astype(float)
-        mean1 = np.mean(y)
-        one_sig = np.std(y)
-        two_sig = 2*one_sig
-        three_sig = 3*one_sig
-        desc = subset['sampleDESC']
-
-        tests = df_p4.loc[(df_p4['New_R'] == knowns_Rs[i]) & (df_p4['CBL_Filtering_Category'] == 'PHASE1_Contains_TEST')].sort_values(by=['TW'])
-
-        # FLAG ANNYTHING THAT IS GREATER THAN 3 SIGMA
-        df_p4.loc[(df_p4['New_R'] == knowns_Rs[i]) & (df_p4['RTS'].astype(float) > (mean1+three_sig)).astype(float), 'flag'] = 'X..'
-        df_p4.loc[(df_p4['New_R'] == knowns_Rs[i]) & (df_p4['RTS'].astype(float) < (mean1-three_sig)).astype(float), 'flag'] = 'X..'
-        df_p4.loc[(df_p4['New_R'] == knowns_Rs[i]) & (df_p4['RTS'].astype(float) > (mean1+three_sig)).astype(float), 'CBL_Filtering_Category'] = 'Phase4_3_sigma_out'
-        df_p4.loc[(df_p4['New_R'] == knowns_Rs[i]) & (df_p4['RTS'].astype(float) < (mean1-three_sig)).astype(float), 'CBL_Filtering_Category'] = 'Phase4_3_sigma_out'
-
-        flagged = df_p4.loc[(df_p4['New_R'] == knowns_Rs[i]) & (df_p4['CBL_Filtering_Category'] == 'Phase4_3_sigma_out')].sort_values(by=['TW'])
-        not_flagged = df_p4.loc[(df_p4['New_R'] == knowns_Rs[i]) & (df_p4['CBL_Filtering_Category'] != 'Phase4_3_sigma_out')].sort_values(by=['TW'])
-
-        fig = plt.figure(figsize=(10, 8))
-        scaling_fac = 6
-        plt.ylim(mean1-(one_sig*scaling_fac), mean1+(one_sig*scaling_fac))
-        plt.xlabel('TW')
-        plt.ylabel('Ratio to Standard')
-        plt.title(f'{knowns_Rs[i]}_{desc[0]}')
-        plt.axhline(mean1, color='black')
-        plt.fill_between(not_flagged['TW'], mean1-three_sig, mean1+three_sig, alpha=0.1)
-        plt.fill_between(not_flagged['TW'], mean1-two_sig, mean1+two_sig, alpha=0.15)
-        plt.fill_between(not_flagged['TW'], mean1-one_sig, mean1+one_sig, alpha=0.2)
-
-        plt.errorbar(flagged['TW'].astype(float), flagged['RTS'].astype(float), yerr=flagged['RTSerr'].astype(float), color='red', capsize=2, fmt='o', label='3-\u03C3 flag')
-        plt.errorbar(not_flagged['TW'].astype(float), not_flagged['RTS'].astype(float), yerr=not_flagged['RTSerr'].astype(float), color='blue', capsize=2, fmt='o', label='No flag')
-        plt.errorbar(tests['TW'].astype(float), tests['RTS'].astype(float), yerr=tests['RTSerr'].astype(float), color='yellow', capsize=2, fmt='o', label='Job Notes = Test')
-        plt.legend()
-        plt.savefig(f'C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_1_output/figures/stat_plots/{knowns_Rs[i]}_{desc[0]}.png', dpi=300, bbox_inches="tight")
-df_p4.to_csv(f'C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_1_output/PHASE_4.csv')
-print(len(df_p4))
-print(np.unique(df_p4['CBL_Filtering_Category'].astype(str)))
-
-
+# # now concatonate the files completely together
+# df_combined = pd.concat([df_dropped, df_keep])
+#
+# df_combined = df_combined.replace({'CBL_Filtering_Category': {'13C_soft_filter': 'PHASE2_13C_soft_filter',
+#                                                               'Discuss': 'PHASE2_needs_discussion',
+#                                                               'OK': 'PHASE2_OK',
+#                                                               'Remove': 'PHASE2_Remove',
+#                                                               'soft_filter': 'PHASE2_softfilter',
+#                                                               }})
+# # add a soft flag to those that say discuss
+# df_combined.loc[df_combined['CBL_Filtering_Category'] == 'PHASE2_needs_discussion', 'flag'] = '.X.'
+# df_combined.loc[df_combined['CBL_Filtering_Category'] == 'PHASE2_Remove', 'flag'] = 'X..'
+#
+# print(np.unique(df_combined['CBL_Filtering_Category'].astype(str)))
+#
+# df_combined.to_csv(f'C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_1_output/PHASE_2.csv')
+#
 # """
-# I'm now returning to this project a few months later (12/18/2023)
-# I can see in Phase3.csv, that all of the data are labeled, however, i cant find if I've removed any of the data yet for
-# the plots that are created in the segment just above. I can check that by just looking at the lenght of the files
-# from the original file to the phase3 file.
+# ><>><>><>><>><>><>><>><>
+# PHASE 3: Roughly check for outliers with plotly, and remove
+# ><>><>><>><>><>><>><>><>
 # """
-df = pd.read_csv(r'H:\Science\Datasets\Alberts_dataquality\simplified RLIMS dataset.csv')
-df_p1 = pd.read_csv(f'C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_1_output/PHASE_1.csv')
-df_p2 = pd.read_csv(f'C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_1_output/PHASE_2.csv')
-df_p3 = pd.read_csv(f'C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_1_output/PHASE_3.csv')
-df_p4 = pd.read_csv(f'C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_1_output/PHASE_4.csv')
-
-print(len(df))
-print(len(df_p1))
-print(len(df_p2))
-print(len(df_p3))
-print(len(df_p4))
-
+# # # TODO Check this section, no "test" samples exist in knowns? The plots don't change...
+# df_combined = pd.read_csv(f'C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_1_output/PHASE_2.csv')
+# # ONLY LOOK AT KNOWNS
+# knowns = ['CBOr','GB','CBAi','CBIn','UNSt']
+#
+# # Code for MPL
+# x = df_combined.loc[df_combined['AMScategID'].isin(knowns)]
+# x.set_index('TP', inplace=True)
+# x['RTS'] = x['RTS'].astype(float)
+#
+# fig = plt.figure(figsize=(20, 20))
+# x.groupby('sampleDESC')['RTS'].plot(legend=True)
+# plt.legend(loc='center left', bbox_to_anchor=(1, 0.5))
+# plt.savefig(r'C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_1_output/figures/roughplot.png')
+#
+# # Code for PLTLY
+# x = df_combined.loc[df_combined['AMScategID'].isin(knowns)]
+# fig = px.scatter(x, x="TP", y="RTS", color="sampleDESC",
+#                  labels={
+#                      "TP": "TP (Wheel Number)",
+#                      "RTS": "Ratio to standard",
+#                      "sampleDESC": "Sample Description"
+#                  },
+#                  title="Manually Specified Labels")
+# fig.write_html(r'C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_1_output/figures/LOCATE_OUTLIERS.html')
+#
+#
+# # REPEAT CODE FROM ABOVE, removing all things with "test"
+# df_combined = pd.read_csv(f'C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_1_output/PHASE_2.csv')
+# df_combined = df_combined.loc[df_combined['CBL_Filtering_Category'] != 3]
+#
+# # Code for MPL
+# x = df_combined.loc[df_combined['AMScategID'].isin(knowns)]
+# x.set_index('TP', inplace=True)
+# x['RTS'] = x['RTS'].astype(float)
+#
+# fig = plt.figure(figsize=(20, 20))
+# x.groupby('sampleDESC')['RTS'].plot(legend=True)
+# plt.legend(loc='center left', bbox_to_anchor=(1, 0.5))
+# plt.savefig(r'C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_1_output/figures/roughplot_notest.png')
+#
+# # Code for PLTLY
+# x = df_combined.loc[df_combined['AMScategID'].isin(knowns)]
+# fig = px.scatter(x, x="TP", y="RTS", color="sampleDESC",
+#                  labels={
+#                      "TP": "TP (Wheel Number)",
+#                      "RTS": "Ratio to standard",
+#                      "sampleDESC": "Sample Description"
+#                  },
+#                  title="Manually Specified Labels")
+# fig.write_html(r'C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_1_output/figures/LOCATE_OUTLIERS_notest.html')
+#
+# """
+# There's a few points that look in definite need of removal from the line Plotly line plots created above:
+# Here are their TP's:
+#
+# NBS Oxalic, 62379, 63982
+# Travertine, 67815, 67816
+# Kauri, 64942
+# """
+#
+# df_combined = pd.read_csv(f'C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_1_output/PHASE_2.csv')
+#
+# TPs_to_remove = [62379,63982, 67815, 67816, 64942]
+# for i in range(0, len(TPs_to_remove)):
+#     df_combined.loc[df_combined['TP'] == TPs_to_remove[i], 'CBL_Filtering_Category'] = 'PHASE3_PLOTLYoutlier'
+#     df_combined.loc[df_combined['flag'] == TPs_to_remove[i], 'CBL_Filtering_Category'] = 'X..'
+#
+# df_combined.to_csv(f'C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_1_output/PHASE_3.csv')
+#
+#
+# """
+# ><>><>><>><>><>><>><>><>
+# PHASE 4: Look for more data to flag by making individual plots of the "knowns" and running statistics
+# ><>><>><>><>><>><>><>><>
+# """
+# #
+# # read in the file from previous phase and isolate only the knowns
+# df_p4 = pd.read_csv(f'C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_1_output/PHASE_3.csv')
+# df_p4 = df_p4.loc[df_p4['RTS'] != 'Missing[]']
+#
+# # CHANGE SOME DESCRIPTIONS IF THEY'RE CAUSING ISSUES
+# df_p4.loc[df_p4['sampleDESC'] == 'Aliquot of SIL "Old Leucine" standard decanted into vial, used as a standard in EA combustion runs', 'sampleDESC'] = 'OLD_Leucine'
+# df_p4.loc[df_p4['sampleDESC'] == 'GAS-37257\x1d', 'sampleDESC'] = 'Gas-37257_noslash'
+# df_p4.loc[df_p4['sampleDESC'] == 'GAS-38265\x1d', 'sampleDESC'] = 'Gas-38265_noslash'
+# df_p4.loc[df_p4['sampleDESC'] == 'GAS-38921\x1d', 'sampleDESC'] = 'Gas-38921_noslash'
+# df_p4.loc[df_p4['sampleDESC'] == 'GAS35868\x1d', 'sampleDESC'] = 'Gas-35868_noslash'
+# df_p4.loc[df_p4['sampleDESC'] == 'Kapuni bubbled NaOH 0.01"ID tubing 30s 20140123', 'sampleDESC'] = 'Kapuni_bubbled'
+#
+# df_p4.loc[df_p4['sampleDESC'] == 'FIRI-C: turbidite', 'sampleDESC'] = 'firi_c_turbidite'
+# df_p4.loc[df_p4['sampleDESC'] == 'FIRI-D: wood', 'sampleDESC'] = 'firi_d_wood'
+# df_p4.loc[df_p4['sampleDESC'] == 'FIRI-E: humic acid', 'sampleDESC'] = 'firi_e_humicacid'
+# df_p4.loc[df_p4['sampleDESC'] == 'FIRI-F: wood', 'sampleDESC'] = 'firi_f_wood'
+# df_p4.loc[df_p4['sampleDESC'] == 'FIRI-G: Barley mash', 'sampleDESC'] = 'firi_g_barley_mash'
+# df_p4.loc[df_p4['sampleDESC'] == 'FIRI-H: wood', 'sampleDESC'] = 'firi_h_wood'
+# df_p4.loc[df_p4['sampleDESC'] == 'FIRI-I: cellulose', 'sampleDESC'] = 'firi_I_cellulose'
+# df_p4.loc[df_p4['sampleDESC'] == 'IAEA-C1: Carrara Marble', 'sampleDESC'] = 'iaea_c1_marble'
+# df_p4.loc[df_p4['sampleDESC'] == 'IAEA-C1: Carrara Marble WATER LINE', 'sampleDESC'] = 'iaea_c1_marble_waterline'
+# df_p4.loc[df_p4['sampleDESC'] == 'IAEA-C1: Carrara Marble WATER LINE COMBINED', 'sampleDESC'] = 'iaea_c1_marble_waterlinecombined'
+# df_p4.loc[df_p4['sampleDESC'] == 'IAEA-C2: Freshwater Travertine', 'sampleDESC'] = 'iaea_c2_travertine'
+#
+# df_p4.loc[df_p4['sampleDESC'] == 'TIRI H: Ellanmore Whole Peat', 'sampleDESC'] = 'tiri_h_peat'
+# df_p4.loc[df_p4['sampleDESC'] == 'TIRI I: Caerwys Quarry Travertine', 'sampleDESC'] = 'tiri_t_quarry_travertine'
+# df_p4.loc[df_p4['sampleDESC'] == 'TIRI J: Buiston Crannog Palisade - Wood', 'sampleDESC'] = 'tiri_j_wood'
+# df_p4.loc[df_p4['sampleDESC'] == 'TIRI K: Turbidite Carbonate (Mainly Coccolith Calcite)', 'sampleDESC'] = 'tiri_k_carbonate'
+# df_p4.loc[df_p4['sampleDESC'] == 'TIRI L: Whalebone', 'sampleDESC'] = 'tiri_l_whalebone'
+#
+# # replace all the R numbers from backslashes to underscores:
+# fin_array = []
+# for i in range(0, len(df_p4)):
+#     row = df_p4.iloc[i]
+#     R = str(row['R_number'])
+#     new_r = R.replace('/', '_')
+#     fin_array.append(new_r)
+# df_p4['New_R'] = fin_array
+#
+# # I ONLY WANT TO EDIT/LOOK AT DATA WHO ARE IN THE "KNOWNS"
+# # LETS CREATE A UNIQUE LIST OF R NUMBERS FOR THE KNOWNS
+# knowns = ['CBOr','GB','CBAi','CBIn','UNSt','GB','OX1','OX1_SM']
+# sub_list = df_p4.loc[df_p4['AMScategID'].isin(knowns)]
+# knowns_Rs = np.unique(sub_list['New_R'])
+#
+# df_p4['CBL_stat_flags'] = -999
+# for i in range(0, len(knowns_Rs)):
+#     # where-ever the data is 3-sigma greater than the mean,
+#     subset = df_p4.loc[df_p4['New_R'] == knowns_Rs[i]].reset_index(drop=True)
+#
+#     if len(subset) > 3:
+#         x = subset['TW'].astype(float)
+#         y = subset['RTS'].astype(float)
+#         yerr = subset['RTSerr'].astype(float)
+#         mean1 = np.mean(y)
+#         one_sig = np.std(y)
+#         two_sig = 2*one_sig
+#         three_sig = 3*one_sig
+#         desc = subset['sampleDESC']
+#
+#         tests = df_p4.loc[(df_p4['New_R'] == knowns_Rs[i]) & (df_p4['CBL_Filtering_Category'] == 'PHASE1_Contains_TEST')].sort_values(by=['TW'])
+#
+#         # FLAG ANNYTHING THAT IS GREATER THAN 3 SIGMA
+#         df_p4.loc[(df_p4['New_R'] == knowns_Rs[i]) & (df_p4['RTS'].astype(float) > (mean1+three_sig)).astype(float), 'flag'] = 'X..'
+#         df_p4.loc[(df_p4['New_R'] == knowns_Rs[i]) & (df_p4['RTS'].astype(float) < (mean1-three_sig)).astype(float), 'flag'] = 'X..'
+#         df_p4.loc[(df_p4['New_R'] == knowns_Rs[i]) & (df_p4['RTS'].astype(float) > (mean1+three_sig)).astype(float), 'CBL_Filtering_Category'] = 'Phase4_3_sigma_out'
+#         df_p4.loc[(df_p4['New_R'] == knowns_Rs[i]) & (df_p4['RTS'].astype(float) < (mean1-three_sig)).astype(float), 'CBL_Filtering_Category'] = 'Phase4_3_sigma_out'
+#
+#         flagged = df_p4.loc[(df_p4['New_R'] == knowns_Rs[i]) & (df_p4['CBL_Filtering_Category'] == 'Phase4_3_sigma_out')].sort_values(by=['TW'])
+#         not_flagged = df_p4.loc[(df_p4['New_R'] == knowns_Rs[i]) & (df_p4['CBL_Filtering_Category'] != 'Phase4_3_sigma_out')].sort_values(by=['TW'])
+#
+#         fig = plt.figure(figsize=(10, 8))
+#         scaling_fac = 6
+#         plt.ylim(mean1-(one_sig*scaling_fac), mean1+(one_sig*scaling_fac))
+#         plt.xlabel('TW')
+#         plt.ylabel('Ratio to Standard')
+#         plt.title(f'{knowns_Rs[i]}_{desc[0]}')
+#         plt.axhline(mean1, color='black')
+#         plt.fill_between(not_flagged['TW'], mean1-three_sig, mean1+three_sig, alpha=0.1)
+#         plt.fill_between(not_flagged['TW'], mean1-two_sig, mean1+two_sig, alpha=0.15)
+#         plt.fill_between(not_flagged['TW'], mean1-one_sig, mean1+one_sig, alpha=0.2)
+#
+#         plt.errorbar(flagged['TW'].astype(float), flagged['RTS'].astype(float), yerr=flagged['RTSerr'].astype(float), color='red', capsize=2, fmt='o', label='3-\u03C3 flag')
+#         plt.errorbar(not_flagged['TW'].astype(float), not_flagged['RTS'].astype(float), yerr=not_flagged['RTSerr'].astype(float), color='blue', capsize=2, fmt='o', label='No flag')
+#         plt.errorbar(tests['TW'].astype(float), tests['RTS'].astype(float), yerr=tests['RTSerr'].astype(float), color='yellow', capsize=2, fmt='o', label='Job Notes = Test')
+#         plt.legend()
+#         plt.savefig(f'C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_1_output/figures/stat_plots/{knowns_Rs[i]}_{desc[0]}.png', dpi=300, bbox_inches="tight")
+# df_p4.to_csv(f'C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_1_output/PHASE_4.csv')
+# print(len(df_p4))
+# print(np.unique(df_p4['CBL_Filtering_Category'].astype(str)))
+#
+#
+# # """
+# # I'm now returning to this project a few months later (12/18/2023)
+# # I can see in Phase3.csv, that all of the data are labeled, however, i cant find if I've removed any of the data yet for
+# # the plots that are created in the segment just above. I can check that by just looking at the lenght of the files
+# # from the original file to the phase3 file.
+# # """
+# df = pd.read_csv(r'H:\Science\Datasets\Alberts_dataquality\simplified RLIMS dataset.csv')
+# df_p1 = pd.read_csv(f'C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_1_output/PHASE_1.csv')
+# df_p2 = pd.read_csv(f'C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_1_output/PHASE_2.csv')
+# df_p3 = pd.read_csv(f'C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_1_output/PHASE_3.csv')
+# df_p4 = pd.read_csv(f'C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_1_output/PHASE_4.csv')
+#
+# print(len(df))
+# print(len(df_p1))
+# print(len(df_p2))
+# print(len(df_p3))
+# print(len(df_p4))
+#
 
 
 

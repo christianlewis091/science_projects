@@ -4,7 +4,6 @@ import pandas as pd
 """
 The following dataset was found here: 
 https://glodap.info/index.php/merged-and-adjusted-data-product-v2-2023/
-
 """
 
 df = pd.read_csv('H:\Science\Datasets\GLODAPv2.2023_Merged_Master_File.csv', dtype=str)
@@ -26,7 +25,7 @@ x1 = len(df)
 #        'G2tdnf', 'G2chla', 'G2chlaf', 'G2doi']]
 
 # I only want to keep SOME of the columns
-df = df[['G2expocode', 'G2cruise', 'G2station', 'G2region', 'G2cast', 'G2year', 'G2month', 'G2day', 'G2hour', 'G2minute', 'G2latitude', 'G2longitude','G2c14', 'G2c14f', 'G2c14err']]
+df = df[['G2expocode', 'G2cruise', 'G2station', 'G2region', 'G2cast', 'G2year', 'G2month', 'G2day', 'G2hour', 'G2minute', 'G2latitude', 'G2longitude','G2pressure','G2temperature','G2salinity', 'G2salinityf', 'G2salinityqc','G2c14', 'G2c14f', 'G2c14err','G2sigma0']]
 
 # and I only want to see rows where 14C is greater than the NAN setting.
 df = df.loc[df['G2c14'].astype(float) > -999]

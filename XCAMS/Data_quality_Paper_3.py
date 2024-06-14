@@ -7,26 +7,24 @@ This sheet (Data Quality Paper 3) calculate residuals of secondary standards and
 import pandas as pd
 import numpy as np
 import warnings
-import xlsxwriter
 from datetime import date
 warnings.simplefilter(action='ignore')
-import plotly.express as px
 import matplotlib.pyplot as plt
-import matplotlib.gridspec as gridspec
 today = date.today()
-from drawing import *
-import seaborn as sns
-import statsmodels.api as sm
 
 # read in the csv file that was created at the end of the last script
-df = pd.read_csv('C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_2_output/DF.csv')
+df = pd.read_excel('C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_1_output/11_3_sigma_drop.xlsx', sheet_name= 'Whole Dataframe')
 
+# grab only the keeps from now on
+df = df.loc[df['Keep_Remove'] == 'Keep']
 
-knowns = ['CBOr','GB','CBAi','CBIn','UNSt','GB','OX1','OX1_SM'] # although this script is meant for secondaries only, it doesn't huty to just run it for everything, cuz I"m going to filter on it later on to make specific plots of certain groups of secondaries
-sub_list = df.loc[df['AMScategID'].isin(knowns)]  # I'm keeping
-knowns_Rs = np.unique(sub_list['New_R'])
+df['Job::R'] = df['Job::R'].replace('/', '_', regex=True)#
 
-df['CBL_stat_flags'] = -999 # add a new column to filter on or change later
+# unique list to loop over later
+knowns_Rs = np.unique(df['Job::R'].astype(str))
+
+# add a new column to filter on or change later
+df['CBL_stat_flags'] = -999
 
 # create some arrays in which to store data later
 wmean = []
@@ -43,7 +41,7 @@ df_resdiuals = pd.DataFrame()
 for i in range(0, len(knowns_Rs)):
 
     # this line below actually grabs the subset based on the R number
-    subset = df.loc[df['New_R'] == knowns_Rs[i]].sort_values(by=['TP']).reset_index(drop=True)
+    subset = df.loc[df['Job::R'] == knowns_Rs[i]].sort_values(by=['TP']).reset_index(drop=True)
 
     # line below: we only want to do stats on R numbers where there's at least 3 data points. This also helps remove
     # loads of one-off R numbers that would clutter the analysis
@@ -101,3 +99,11 @@ res = pd.DataFrame({"Name": name, "R": knownR, "AMScategID": ams_cat, "Mean RTS"
 res.to_csv('C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_3_output/summary_table.csv')
 
 df_resdiuals.to_csv('C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_3_output/df_with_residuals.csv')
+
+
+
+
+
+#
+# knowns = ['CBOr','GB','CBAi','CBIn','UNSt','GB','OX1','OX1_SM'] # although this script is meant for secondaries only, it doesn't huty to just run it for everything, cuz I"m going to filter on it later on to make specific plots of certain groups of secondaries
+# sub_list = df.loc[df['AMScategID'].isin(knowns)]  # I'm keeping

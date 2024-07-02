@@ -82,7 +82,7 @@ chi2 is calculated using the 14/12he ratio and the data is reduced by taking the
 # df2.to_excel(r'H:\Science\Current_Projects\04_ams_data_quality\AMS_stats\test3.xlsx')  # checking concat works
 
 
-subset = pd.read_csv('C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_1_output/test_chi2.csv')
+subset = pd.read_csv('C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_1_output/old/test_chi2.csv')
 
 # caclulate chi2 reduced
 data_squared = (subset['FracMOD'] - (np.mean(subset['FracMOD'])))**2

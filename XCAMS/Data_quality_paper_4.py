@@ -1,91 +1,219 @@
 """
-Data Quality Paper 1 = adding descriptors and flagging
-Data Quality Ppaer 2 = looking at blanks and making plots
-Data Quality Paper 3 = calculate residuals of secondary standards and making plots
-Data Quality Paper 4 = this one = create a few figures that overlay different secondaries in a PUBLISHABLE figure.
+Recreate albert's figure from poster and see how he calcultes RES
 """
 import pandas as pd
 import numpy as np
 import warnings
-import xlsxwriter
-from datetime import date
 warnings.simplefilter(action='ignore')
-import plotly.express as px
-import matplotlib.pyplot as plt
-import matplotlib.gridspec as gridspec
-today = date.today()
-from drawing import *
-import seaborn as sns
-import statsmodels.api as sm
 
-df = pd.read_csv('C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_3_output/df_with_residuals.csv')
+"""
+July 1, 2024:
+I discussed the idea of sigma_res with JCT today. Essentially, sigma_res is an added error term in the chi2 equation
+Paper is updated now with the right equation
+
+BELOW, I tried to recreate some data from Albert's 2022 Radiocarbon Poster, but it was folly. I cant reproduce his sigma_res.
+I'm going to try to do that his "simplified_RLIMS_dataset by recreating the data in his "Tables.xlsx" that came with his data and v1 of paper
+"""
+
+df = pd.read_csv('H:/Science/Papers/In Prep Work/2023_Zondervan_DataQuality/Alberts_Version/simplified RLIMS dataset.csv')
+df = df.loc[df['FracMOD'] != 'Missing[]']
+cols = ['FracMOD','FerrNOwtw','FerrNOwtwNOsys','FracMODerr','RTSerr','MCC','MCCerr','RTS']
+df[cols] = df[cols].apply(pd.to_numeric, errors='coerce', axis=1)
+
+# data with the secondaries to filter on
+df2 = pd.read_excel('H:/Science/Papers/In Prep Work/2023_Zondervan_DataQuality/seconds.xlsx')
+
+# groups to filter on
+rs = np.unique(df2['R_number'])
 
 
 """
-2 plots vertical
+# lets loop through the R numbers and get means and stats assigned to each value in the database...
 """
-fig = plt.figure(figsize=(8, 8))
-gs = gridspec.GridSpec(2, 1)
-gs.update(wspace=0.1, hspace=0.3)
 
-"""
-We will make a plot of the carbonate's? Travertine , and the two corals
-"""
-#Travertine = 14047_2
-#LAC1 = 41347_2
-#LAA1 = 41347_3
-rs = ['14047_2','41347_2','41347_3']
-descrips = ['IAEA-C2 travertine','LAC1 Coral','LAA1 Coral']
-colors = sns.color_palette("mako", len(rs))
-colors2 = sns.color_palette("rocket", len(rs))
-markers = ['o','s','D','*','^','<','>']
-
-# plot structure
-xtr_subsplot = fig.add_subplot(gs[0:1, 0:1])
-
-for i in range(0, 3):
-    subset = df.loc[df['New_R'] == rs[i]]
-    plt.scatter(subset['TP'], subset['Residual'], alpha=0.5, label=descrips[i], marker=markers[i], color=colors[i])
-
-plt.axhline(y=0, color='black', linestyle='-', linewidth=1)
-plt.ylabel(f'Residual (x-\u0078\u0305/1-\u03c3)')
-plt.xlabel('TP, chronological lab identifier')
-plt.fill_between(df['TP'], -1, 1, alpha=.05, color='black')
-plt.fill_between(df['TP'], -2, 2, alpha=.05, color='black')
-plt.title(f'Add Title Later')
-plt.legend()
-
-"""
-Airs 
-"""
-rs = ['40430_1','40430_2']
-descrips = ['BHD Ambient Air','BHD Spiked']
-
-# plot structure
-xtr_subsplot = fig.add_subplot(gs[1:2, 0:1])
+group_name = []
+R_num = []
+length = []
+wmean_arr = []
+stdev_arr = []
+sterr_arr = []
+chi2_red_arr = []
+sig_res_arr = []
+opt_chi = []
 
 
-for i in range(0, 2):
-    subset = df.loc[df['New_R'] == rs[i]]
-    plt.scatter(subset['TP'], subset['Residual'], alpha=0.5, label=descrips[i], marker=markers[i], color=colors[i])
+for i in range(0, len(rs)):
+    subset1 = df.loc[df['R_number'] == rs[i]]
+    R_num.append(rs[i])
 
-plt.axhline(y=0, color='black', linestyle='-', linewidth=1)
-plt.ylabel(f'Residual (x-\u0078\u0305/1-\u03c3)')
-plt.xlabel('TP, chronological lab identifier')
-plt.fill_between(df['TP'], -1, 1, alpha=.05, color='black')
-plt.fill_between(df['TP'], -2, 2, alpha=.05, color='black')
-plt.title(f'Add Title Later')
-plt.legend()
+    group = df2.loc[df2['R_number'] == rs[i]]
+    group_name.append(np.unique(group['Group']).astype(str))
 
-plt.savefig(f'C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_4_output/Fig.png', dpi=300, bbox_inches="tight")
-plt.close()
+    length.append(len(subset1))
+
+    wmean_num = np.sum(subset1['FracMOD']/subset1['FerrNOwtwNOsys']**2)
+    wmean_dem = np.sum(1/subset1['FerrNOwtwNOsys']**2)
+    wmean = wmean_num / wmean_dem
+    wmean_arr.append(wmean)
+
+    stdev_arr.append(np.std(subset1['FracMOD']))
+    sterr_arr.append(np.sum(1/(subset1['FerrNOwtwNOsys']**2))**-0.5)
+
+    # calc chi2
+    chi2_red_num = np.sum((subset1['FracMOD']-wmean)**2/subset1['FerrNOwtwNOsys']**2)
+    chi2_red_denom = len(subset1)-1 # subtract number of groups in degrees of freedom calc.
+    chi2_red = chi2_red_num/chi2_red_denom
+    chi2_red_arr.append(chi2_red)
+
+    """
+    Optomize Chi2 to find sigma_residual
+    """
+    sig_res = np.linspace(0.00001, 0.010, 100)
+
+    # Variables to store the best result
+    best_sig_res = None
+    closest_chi2_red = float('inf')
+    target_chi2_red = 1.0
+
+    for i in range(len(sig_res)):
+        # Calculate chi2_red for the current sig_res
+        chi2_red_num = np.sum((subset1['FracMOD'] - wmean)**2 / (subset1['FerrNOwtwNOsys']**2 + sig_res[i]**2))
+        chi2_red_denom = len(subset1)-1
+        chi2_red = chi2_red_num / chi2_red_denom
+
+        # Check if this chi2_red is closer to 1
+        if abs(chi2_red - target_chi2_red) < abs(closest_chi2_red - target_chi2_red):
+            closest_chi2_red = chi2_red
+            best_sig_res = sig_res[i]
+
+    sig_res_arr.append(best_sig_res)
+    opt_chi .append(closest_chi2_red)
+
+output1 = pd.DataFrame({'R Numbers in Group': R_num, 'Data Length (n)': length,
+                        'Weighted Mean': wmean_arr,'Standard Deviation': stdev_arr,'Standard Error': sterr_arr,
+                        'Chi2 Reduced': chi2_red_arr, 'Sigma Residual': sig_res_arr, 'Optd Chi2': opt_chi, 'Group':group_name})
+
+output1.to_excel('H:/Science/Papers/In Prep Work/2023_Zondervan_DataQuality/statistics.xlsx')
 
 
 
 
 
-"""
-Airs 
-"""
+
+
+
+
+
+
+
+
+
+# attach group name later
+
+
+
+
+
+
+
+
+    # # assign these WMEANS onto the dataframe
+    # df.loc[(df['R_number'] == rs[i]), 'WMEAN_for_this_R'] = wmean
+    # df.loc[(df['R_number'] == rs[i]), 'STDEV_for_this_R'] = stdev
+    # df.loc[(df['R_number'] == rs[i]), 'RESIDUAL'] = ((subset1['FracMOD']-wmean)**2/subset1['FerrNOwtwNOsys']**2)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# we will loop through the groups, and calculate stats for each one
+# # below I make some arrays to put the data in later
+#
+# group_name = []
+# R_num_List = []
+# chi2_red_arr = []       # normal chi2 reduced
+# sig_res_arr = []        # sigma residual is found by adding error so that chi2 = 1
+# optomized_chi_arr = []  # sigma residual is found by adding error so that chi2 = 1, how close is the final chi2 value
+#
+#
+# for i in range(0, len(groups)):
+#     group1 = df2.loc[df2['Group'] == groups[i]]
+
+    # # how many unique R numbers are in this group?
+    # rs_in_group = np.unique(group1['R_number'])
+    #
+    # for j in range(0, len(rs_in_group)):
+    #     # find wherever these TP's are in the main data sheet
+    #     subset1 = df.loc[df['R_number'] == rs_in_group[i]]
+    #
+    #
+    #     # # append the name of this group
+    #     # group_name.append(groups[i])
+    #     #
+    #     # # append the list of rs in this group
+    #     # R_num_List.append(rs_in_group[i])
+    #     #
+    #     # # how many samples are there total?
+    #     # length_arr.append(len(subset1))
+    #
+    #     # append some of the stats
+    #     # straight_mean.append(np.mean(subset1['FracMOD']))
+    #     #
+    #     wmean_num = np.sum(subset1['FracMOD']/subset1['FerrNOwtwNOsys']**2)
+    #     wmean_dem = np.sum(1/subset1['FerrNOwtwNOsys']**2)
+    #     wmean = wmean_num / wmean_dem
+    #     #
+    #     #
+    #     # stdev_arr.append(np.std(subset1['FracMOD']))
+    #     # sterr_arr.append(np.sum(1/(subset1['FerrNOwtwNOsys']**2))**-0.5)
+    #
+    #     # calc chi2
+    #     chi2_red_num = np.sum((subset1['FracMOD']-wmean)**2/subset1['FerrNOwtwNOsys']**2)
+    #     chi2_red_denom = len(subset1)-len(rs_in_group) # subtract number of groups in degrees of freedom calc.
+    #     chi2_red = chi2_red_num/chi2_red_denom
+    #     chi2_red_arr.append(chi2_red)
+    #
+
+#
+#     """
+#     Optomize Chi2 to find sigma_residual
+#     """
+#     sig_res = np.linspace(0.0001, 0.0010, 50)
+#
+#     # Variables to store the best result
+#     best_sig_res = None
+#     closest_chi2_red = float('inf')
+#     target_chi2_red = 1.0
+#
+#     for i in range(len(sig_res)):
+#         # Calculate chi2_red for the current sig_res
+#         chi2_red_num = np.sum((subset1['FracMOD'] - wmean)**2 / (subset1['FerrNOwtwNOsys']**2 + sig_res[i]**2))
+#         chi2_red_denom = len(subset1)-len(rs_in_group)
+#         chi2_red = chi2_red_num / chi2_red_denom
+#
+#         # Check if this chi2_red is closer to 1
+#         if abs(chi2_red - target_chi2_red) < abs(closest_chi2_red - target_chi2_red):
+#             closest_chi2_red = chi2_red
+#             best_sig_res = sig_res[i]
+#
+#     sig_res_arr.append(best_sig_res)
+#     optomized_chi_arr.append(closest_chi2_red)
+#
+# output1 = pd.DataFrame({'Group Name': group_name, 'R Numbers in Group': R_num_List, 'Data Length (n)': length_arr,
+#                         'Mean': straight_mean, 'Weighted Mean': wmean_arr,'Standard Deviation': stdev_arr,'Standard Error': sterr_arr,
+#                         'Chi2 Reduced': chi2_red_arr, 'Sigma Residual': sig_res_arr, 'Optd Chi2': optomized_chi_arr})
+#
+# output1.to_excel('H:/Science/Papers/In Prep Work/2023_Zondervan_DataQuality/statistics.xlsx')
+
+
 
 

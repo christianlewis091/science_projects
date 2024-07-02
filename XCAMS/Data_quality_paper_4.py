@@ -5,6 +5,7 @@ import pandas as pd
 import numpy as np
 import warnings
 warnings.simplefilter(action='ignore')
+import math
 
 """
 July 1, 2024:
@@ -15,10 +16,12 @@ BELOW, I tried to recreate some data from Albert's 2022 Radiocarbon Poster, but 
 I'm going to try to do that his "simplified_RLIMS_dataset by recreating the data in his "Tables.xlsx" that came with his data and v1 of paper
 """
 
-df = pd.read_csv('H:/Science/Papers/In Prep Work/2023_Zondervan_DataQuality/Alberts_Version/simplified RLIMS dataset.csv')
-df = df.loc[df['FracMOD'] != 'Missing[]']
-cols = ['FracMOD','FerrNOwtw','FerrNOwtwNOsys','FracMODerr','RTSerr','MCC','MCCerr','RTS']
+df = pd.read_excel('C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_1_output/12_second_manual_check.xlsx', sheet_name= 'Whole Dataframe')
+df = df.rename(columns={'RTS_corrected': 'RTS', 'RTS_corrected_error': 'RTSerr','Samples::Sample Description':'sampleDESC'})
+print(df.columns)
+cols = ['F_corrected_normed', 'F_corrected_normed_error']
 df[cols] = df[cols].apply(pd.to_numeric, errors='coerce', axis=1)
+df['MCCerr'] = 0.45*df['MCC']
 
 # data with the secondaries to filter on
 df2 = pd.read_excel('H:/Science/Papers/In Prep Work/2023_Zondervan_DataQuality/seconds.xlsx')
@@ -40,10 +43,13 @@ sterr_arr = []
 chi2_red_arr = []
 sig_res_arr = []
 opt_chi = []
+mcc_err_arr = []
+FracMODerr_arr = []
+
 
 
 for i in range(0, len(rs)):
-    subset1 = df.loc[df['R_number'] == rs[i]]
+    subset1 = df.loc[df['Job::R'] == rs[i]]
     R_num.append(rs[i])
 
     group = df2.loc[df2['R_number'] == rs[i]]
@@ -51,19 +57,22 @@ for i in range(0, len(rs)):
 
     length.append(len(subset1))
 
-    wmean_num = np.sum(subset1['FracMOD']/subset1['FerrNOwtwNOsys']**2)
-    wmean_dem = np.sum(1/subset1['FerrNOwtwNOsys']**2)
+    wmean_num = np.sum(subset1['F_corrected_normed']/subset1['F_corrected_normed_error']**2)
+    wmean_dem = np.sum(1/subset1['F_corrected_normed_error']**2)
     wmean = wmean_num / wmean_dem
     wmean_arr.append(wmean)
 
-    stdev_arr.append(np.std(subset1['FracMOD']))
-    sterr_arr.append(np.sum(1/(subset1['FerrNOwtwNOsys']**2))**-0.5)
+    stdev_arr.append(np.std(subset1['F_corrected_normed']))
+    sterr_arr.append(np.sum(1/(subset1['F_corrected_normed_error']**2))**-0.5)
 
     # calc chi2
-    chi2_red_num = np.sum((subset1['FracMOD']-wmean)**2/subset1['FerrNOwtwNOsys']**2)
+    chi2_red_num = np.sum((subset1['F_corrected_normed']-wmean)**2/subset1['F_corrected_normed_error']**2)
     chi2_red_denom = len(subset1)-1 # subtract number of groups in degrees of freedom calc.
     chi2_red = chi2_red_num/chi2_red_denom
     chi2_red_arr.append(chi2_red)
+
+    mcc_err_arr.append(np.nanmean(subset1['MCCerr']))
+    FracMODerr_arr.append(np.nanmean(subset1['F_corrected_normed_error']))
 
     """
     Optomize Chi2 to find sigma_residual
@@ -77,7 +86,7 @@ for i in range(0, len(rs)):
 
     for i in range(len(sig_res)):
         # Calculate chi2_red for the current sig_res
-        chi2_red_num = np.sum((subset1['FracMOD'] - wmean)**2 / (subset1['FerrNOwtwNOsys']**2 + sig_res[i]**2))
+        chi2_red_num = np.sum((subset1['F_corrected_normed'] - wmean)**2 / (subset1['F_corrected_normed_error']**2 + sig_res[i]**2))
         chi2_red_denom = len(subset1)-1
         chi2_red = chi2_red_num / chi2_red_denom
 
@@ -87,11 +96,31 @@ for i in range(0, len(rs)):
             best_sig_res = sig_res[i]
 
     sig_res_arr.append(best_sig_res)
-    opt_chi .append(closest_chi2_red)
+    opt_chi.append(closest_chi2_red)
 
-output1 = pd.DataFrame({'R Numbers in Group': R_num, 'Data Length (n)': length,
-                        'Weighted Mean': wmean_arr,'Standard Deviation': stdev_arr,'Standard Error': sterr_arr,
-                        'Chi2 Reduced': chi2_red_arr, 'Sigma Residual': sig_res_arr, 'Optd Chi2': opt_chi, 'Group':group_name})
+output1 = pd.DataFrame({'R_number': R_num,
+                        'Group':group_name,
+                        'Data Length (n)': length,
+                        'FM (wmean)': wmean_arr,
+                        'Standard Deviation': stdev_arr,
+                        'Standard Error': sterr_arr,
+                        'Chi2 Reduced': chi2_red_arr,
+                        'Optd Chi2': opt_chi,
+                        'Sigma Residual': sig_res_arr,
+                        'Sigma_FM': FracMODerr_arr,
+                        'Sigma_blank': mcc_err_arr,
+ })
+
+output1['sigma_total_FM'] = np.sqrt(output1['Sigma_FM']**2 + output1['Sigma_blank']**2 + output1['Sigma Residual']**2)
+output1['sigma_total_CRA'] = 8033 * (output1['Sigma_FM']/output1['FM (wmean)'])
+output1['CRA (from FM wmean)'] = -8033 * np.log(output1['FM (wmean)'])
+
+df2 = df2[['Collection Date','R_number','Expected FM','Expected Age (CRA)','Expected Age Delta14C']]
+output1 = output1.merge(df2, on='R_number')
+
+# do this in excel beacuse of errors from those without collection dates.
+output1['Delta14C'] = ((output1['FM (wmean)']*np.exp(1950/output1['Collection Date']))-1)*1000
+
 
 output1.to_excel('H:/Science/Papers/In Prep Work/2023_Zondervan_DataQuality/statistics.xlsx')
 

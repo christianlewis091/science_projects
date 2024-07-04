@@ -303,7 +303,7 @@ df = pd.read_excel('C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_1_
 print(len(df))
 
 # I manually looked at every line and decided where flags needs to be added or not. double check moved to H drive in case of computer failure.
-checks = pd.read_excel((r'H:\Science\Papers\In Prep Work\2023_Zondervan_DataQuality/Double_Check.xlsx'))
+checks = pd.read_excel((r'H:/Science/Papers/In Prep Work/2023_Zondervan_DataQuality/Moved to IDrive/Double_check.xlsx'))
 
 # there were many cases in which flags need to be added.
 # here is the final list of where flags need to be added. This searches for 1) where the quality flag was empty and 2) where the NEW quality flag is NOT empty.
@@ -337,7 +337,8 @@ comments_to_keep = ['AMS is fine' 'Also Waikato tests',
                     'These were submitted as graphite, and are tests freom Waikato',
                     'This sample was run 3 times and this is one of the good repeats',
                     'ok - early tests of RG20',
-                    'this is a second calams analysis of the same wheel']
+                    'this is a second calams analysis of the same wheel',
+                    'JCT Either EA or sealed tube is fine - whichever is more convenient._x000B_For Waikato/GNS intercomparison test wheel - larger batch may be combusted and split for graphitization_x000B_']
 
 
 # the next three lines takes all TP's with Jocelyns comments above (which make the data seem fine) and changes the Keep Remove to Keep
@@ -348,5 +349,5 @@ print(len(df))
 
 flagging_status_check('12_second_manual_check')
 
-
+# NOTICED THAT THERE ARE STILL SOME ISSUES TO BE RESOLVED HERE...
 

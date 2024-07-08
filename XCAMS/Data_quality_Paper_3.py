@@ -25,20 +25,31 @@ def chi2red(subset):
 
 # read in the csv file that was created at the end of the last script
 df = pd.read_excel('C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_1_output/12_second_manual_check.xlsx', sheet_name= 'Whole Dataframe')
+df = df.loc[df['Keep_Remove'] == 'Keep']
 df = df.rename(columns={'RTS_corrected': 'RTS', 'RTS_corrected_error': 'RTSerr','Samples::Sample Description':'sampleDESC'})
 cols = ['F_corrected_normed', 'F_corrected_normed_error']
 df[cols] = df[cols].apply(pd.to_numeric, errors='coerce', axis=1)
+
+# TODO need to break up blanks by EA and ST like I did with the secondaries...
+firilist = ['40142/2','40142/1'] # here is the list of R numbers I want to check. I'm only checking FIRI D
+firis = df.loc[(df['Job::R'].isin(firilist))]        # make a subset dataframe where these FIRIs are found
+firis = firis[['EA Combustion::Run Numner','TP','TW','Job::R','Samples::Sample ID']]
+firis.to_excel(f'C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_3_output/firis.xlsx')  # write it to excel
+firis = pd.read_excel(f'C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_3_output/firis_edited.xlsx', comment='#') # I edited it by checking RLIMS. Read it back in
+firis = firis[['TP','EA_ST','AAA_CELL']]  # drop columns to prep for merge
+df = df.merge(firis, on='TP', how='outer')  # merge
+
+# edit the R numbers to be able to break up AAA ST and EA, and same for cellulose and prep for the mathematics below:
+df.loc[(df['Job::R'] == '40142/2') & (df['AAA_CELL'] =='AAA') & (df['EA_ST'] =='EA'), 'Job::R'] = '40142/2_AAA_EA'
+df.loc[(df['Job::R'] == '40142/2') & (df['AAA_CELL'] =='AAA') & (df['EA_ST'].isna()), 'Job::R'] = '40142/2_AAA_ST'
+df.loc[(df['Job::R'] == '40142/1') & (df['AAA_CELL'] =='Cellulose') & (df['EA_ST'] =='EA'), 'Job::R'] = '40142/1_CELL_EA'
+df.loc[(df['Job::R'] == '40142/1') & (df['AAA_CELL'] =='Cellulose') & (df['EA_ST'].isna()), 'Job::R'] = '40142/1_CELL_ST'
 
 
 """
 Print a report about what's in here for section 3.1
 """
 print(f"The whole dataset has length {len(df)}, with {len(np.unique(df['TW']))}")
-
-
-
-
-
 
 # grab only the keeps from now on
 df = df.loc[df['Keep_Remove'] == 'Keep']
@@ -56,12 +67,12 @@ knowns_Rs = np.unique(df['Job::R'].astype(str))
 ANALYZING THE BLANKS
 """
 # unique list of BLANKS R numbers that I'll use for BLANK analysis
-blank_r_list = ['40142_2','40142_1','40430_3','14047_1','14047_11','40699_1']
-names = ['Kauri Renton Road AAA','Kauri Renton Road Cellulose','Air Dead CO2','Carrera Marble Carbonate Line','Carrera Marble Water Line','Kapuni Comb-Graph']
-colors = ['#A52A2A', '#228B22', '#A0522D', '#6A5ACD','#008080','#CD853F']
+blank_r_list = [ '40142_2_AAA_EA','40142_2_AAA_ST','40142_1_CELL_EA','40142_1_CELL_ST','40430_3','14047_1','14047_11','40699_1']
+names = ['Kauri AAA_EA','Kauri AAA_ST', 'Kauri Cellulose_EA','Kauri Cellulose_ST','Air Dead CO2','Carrera Marble Carbonate Line','Carrera Marble Water Line','Kapuni Comb-Graph']
+colors = ['#A52A2A', '#228B22', '#A0522D', '#6A5ACD','#008080','#CD853F','#4682B4','#8B4513','#2E8B57']
 # labels = ['Subset 1', 'Subset 2', 'Subset 4', 'Subset 5',
 #           'Subset 6', 'Subset 7']
-markers = ['o','D','^','o','s','D']
+markers = ['o','D','^','o','s','D','o','s','D']
 blank_Rs = df.loc[df['Job::R'].isin(blank_r_list)].reset_index(drop=True)
 
 
@@ -134,7 +145,7 @@ plt.ylabel('Fraction Modern (FM)')
 plt.xlim(60000, 90000)
 plt.ylim(0, .015)
 
-plt.savefig(f'C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_3_output/Blanks.png', dpi=300, bbox_inches="tight")
+# plt.savefig(f'C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_3_output/Blanks.png', dpi=300, bbox_inches="tight")
 res = pd.DataFrame({"Name": name, "R": knownR,"Mean FM": wmean, "Mean FM 1sigma": one_sigma, "Chi2 Reduced": chi2_red, "n": n}).reset_index(drop=True)
 res.to_csv('C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_3_output/summary_table.csv')
 # plot structure
@@ -153,8 +164,8 @@ plt.legend()
 
 plt.savefig(f'C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_3_output/Blanks.png', dpi=300, bbox_inches="tight")
 
-
-
+#
+#
 
 
 

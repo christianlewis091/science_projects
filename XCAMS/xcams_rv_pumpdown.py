@@ -63,38 +63,38 @@ This section relates to testing the relationship between SCICS Ionizer voltage a
 This section relates to testing rotary backing pumps that come back from the workshop 
 ***************************************************************************************************
 """
-# df = pd.read_excel('I:/XCAMS/4_maintenance/vacuum pumps/Alcatel Adixen/RotaryPump_Testing_AfterMaintenance.xlsx')
+df = pd.read_excel('I:/XCAMS/4_maintenance/vacuum pumps/Alcatel Adixen/RotaryPump_Testing_AfterMaintenance.xlsx')
+
+# WHEN YOU TEST A NEW PUMP, ADD THE NAME OF THE COLUMNS BELOW
+vacuum_reading_columns = ['AM673883 Torr','AM673883 Torr 2','AM673883 Torr 3','Torr 4','Torr 5','Torr 6','Torr 7','Torr 8', 'Torr 9', 'Torr 10']
+time_reading_columns = ['AM673883 Time','AM673883 Time 2','AM673883 Time 3','AM673198 Time','AM673888 Time','AM672417 Time',' AS10988 Time','AM672414_083123 Time', 'SciTekScrewPump','AM673878_07032024_Time']
+labels = ['AM673883','AM673883','AM673883','AM673198','AM673888','AM672417',' AS10988','AM672414_083123','SciTekScrewPump','AM673878_July7,2024']
+
+# SETUP PARAMETERS TO MAKE PLOTTING RUN SMOOTHLY
+colors = ['b','g','r','c','m','y','k','b','g','r','c','m','y','k','b','g','r','c','m','y','k']
+
+# INITIALIZE THE FIGURE
+fig = plt.figure(1, figsize=(8, 8))
+
+# LOOP THROUGH THE PUMPS
+for i in range(0, len(vacuum_reading_columns)):
+    x = df[f'{time_reading_columns[i]}']
+    y = df[f'{vacuum_reading_columns[i]}']
+    x = x/60  # convert to minutes
+    label1 = labels[i]
+
+    plt.scatter(x,y, label=label1, marker=i)
+    plt.plot(x,y, marker=i)
+    plt.legend()
+
+plt.ylim(0.0001, 1000)
+plt.axhline(0.005, color='black', linestyle='-', alpha=0.1)
+
+plt.xlabel('Time (min)'), plt.ylabel('Convectron Reading (Torr)')
+plt.yscale("log"), plt.legend()
+plt.title(r'C:\Users\clewis\IdeaProjects\GNS\xcams\xcams_rv_pumpdown.py')
+plt.savefig('I:/XCAMS/4_maintenance/vacuum pumps/Alcatel Adixen/PUMPDOWNSPEED.png', dpi=300, bbox_inches="tight")
 #
-# # WHEN YOU TEST A NEW PUMP, ADD THE NAME OF THE COLUMNS BELOW
-# vacuum_reading_columns = ['AM673883 Torr','AM673883 Torr 2','AM673883 Torr 3','Torr 4','Torr 5','Torr 6','Torr 7','Torr 8', 'Torr 9']
-# time_reading_columns = ['AM673883 Time','AM673883 Time 2','AM673883 Time 3','AM673198 Time','AM673888 Time','AM672417 Time',' AS10988 Time','AM672414_083123 Time', 'SciTekScrewPump']
-# labels = ['AM673883','AM673883','AM673883','AM673198','AM673888','AM672417',' AS10988','AM672414_083123','SciTekScrewPump']
-#
-# # SETUP PARAMETERS TO MAKE PLOTTING RUN SMOOTHLY
-# colors = ['b','g','r','c','m','y','k','b','g','r','c','m','y','k','b','g','r','c','m','y','k']
-#
-# # INITIALIZE THE FIGURE
-# fig = plt.figure(1, figsize=(8, 8))
-#
-# # LOOP THROUGH THE PUMPS
-# for i in range(0, len(vacuum_reading_columns)):
-#     x = df[f'{time_reading_columns[i]}']
-#     y = df[f'{vacuum_reading_columns[i]}']
-#     x = x/60  # convert to minutes
-#     label1 = labels[i]
-#
-#     plt.scatter(x,y, label=label1, marker=i)
-#     plt.plot(x,y, marker=i)
-#     plt.legend()
-#
-# plt.ylim(0.0001, 1000)
-# plt.axhline(0.005, color='black', linestyle='-', alpha=0.1)
-#
-# plt.xlabel('Time (min)'), plt.ylabel('Convectron Reading (Torr)')
-# plt.yscale("log"), plt.legend()
-# plt.title(r'C:\Users\clewis\IdeaProjects\GNS\xcams\xcams_rv_pumpdown.py')
-# plt.savefig('I:/XCAMS/4_maintenance/vacuum pumps/Alcatel Adixen/PUMPDOWNSPEED.png', dpi=300, bbox_inches="tight")
-# #
 #
 """
 ***************************************************************************************************

@@ -48,7 +48,7 @@ df_new3['Comment'] = 'TW3522'
 
 df_new = pd.concat([df_new, df_new2])
 df_new = pd.concat([df_new, df_new3])
-# df_new.to_excel(r'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/Tree_Ring_Second_Check/test1.xlsx')
+
 
 # drop some columns for simplicity
 df_new = df_new[['Job::R','Quality Flag','F_corrected_normed','F_corrected_normed_error','DELTA14C', 'DELTA14C_Error','Comment','TP','TW']]
@@ -61,115 +61,151 @@ tree_core = tree_core[['R number','Ring code','Ring year','StudySites::Site name
 tree_core = tree_core.rename(columns={'StudySites::Site name':'Site'})
 #
 df_new_tree_core_merge = df_new.merge(tree_core, on='R number', how='outer')
+df_new_tree_core_merge = df_new_tree_core_merge.dropna(subset='Comment')
 df_new_tree_core_merge = df_new_tree_core_merge.dropna(subset='Site')
+df_new_tree_core_merge = df_new_tree_core_merge.dropna(subset='Ring year')
+# THE DATA BELOW WILL BE ADDED TO df = pd.read_excel(r'H:\Science\Datasets\SOARTreeRingData2022-02-01.xlsx') before reading into "tree_ring_analysis"
+df_new_tree_core_merge.to_excel(r'C:\Users\clewis\IdeaProjects\GNS\soar_tree_rings\data\penes_data.xlsx')
+
+
+
+
+
+
+
+# # set my old data to match the columns of the new data for clarity
+# df_old = df_old[['Ring code', 'R number', 'Site', 'F14C', 'F14Cerr',
+#                  'DecimalDate', '∆14C', '∆14Cerr', 'CBL_flag', 'Comment']].rename(columns={'DecimalDate':'Ring year'})
+# print(df_old.columns)
+# print(df_new_tree_core_merge.columns)
+#
+#
+# #THIS IS THE DATA FILE THATS COMPLETE AND WE CAN FILTER ON PROPERLY
+# df_total = pd.concat([df_old, df_new_tree_core_merge], join='outer')
+# df_total = df_total.dropna(subset='Site')  # there's still some data from primary ox's and tuning
+# df_total = df_total.dropna(subset='Ring code')
+# df_total = df_total.dropna(subset='F14C')  # this will drop data thats in the tree core database but wasn't measured for 14C
+# # df_total.to_excel(r'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/Tree_Ring_Second_Check/test1.xlsx')
+#
+# # Pene made some notes that I have to go through...
+# p_notes = pd.read_excel(r'C:\Users\clewis\IdeaProjects\GNS\soar_tree_rings\data\PENEnotes.xlsx')
+# p_notes = p_notes[['R number','notes from original sample bag ']]
+# df_total = df_total.merge(p_notes, on='R number', how='outer')
+#
+#
+# df_total.to_excel(r'C:\Users\clewis\IdeaProjects\GNS\soar_tree_rings\data\dftotal.xlsx')
 #
 
-# set my old data to match the columns of the new data for clarity
-df_old = df_old[['Ring code', 'R number', 'Site', 'F14C', 'F14Cerr',
-                 'DecimalDate', '∆14C', '∆14Cerr', 'CBL_flag', 'Comment']].rename(columns={'DecimalDate':'Ring year'})
-print(df_old.columns)
-print(df_new_tree_core_merge.columns)
 
 
-#THIS IS THE DATA FILE THATS COMPLETE AND WE CAN FILTER ON PROPERLY
-df_total = pd.concat([df_old, df_new_tree_core_merge], join='outer')
-df_total = df_total.dropna(subset='Site')  # there's still some data from primary ox's and tuning
-df_total = df_total.dropna(subset='Ring code')
-df_total = df_total.dropna(subset='F14C')  # this will drop data thats in the tree core database but wasn't measured for 14C
-# df_total.to_excel(r'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/Tree_Ring_Second_Check/test1.xlsx')
-
-# Pene made some notes that I have to go through...
-p_notes = pd.read_excel(r'C:\Users\clewis\IdeaProjects\GNS\soar_tree_rings\data\PENEnotes.xlsx')
-p_notes = p_notes[['R number','notes from original sample bag ']]
-df_total = df_total.merge(p_notes, on='R number', how='outer')
 
 
-df_total.to_excel(r'C:\Users\clewis\IdeaProjects\GNS\soar_tree_rings\data\dftotal.xlsx')
 
 
-# use the function from earlier to find Tree and Core
-df_total['TX_CY'] = df_total['Ring code'].apply(extract_text)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 #
-# create a list of sites from the new dataset
-new_sites = df_total.loc[(df_total['Comment'] == 'TW3516') | (df_total['Comment'] == 'TW3519')| (df_total['Comment'] == 'TW3522')]
-referral = df_total.loc[(df_total['TP'] == '88519')]
-pd.set_option('display.max_rows', None)
-
-
-sites = np.unique(new_sites['Site'])
 #
-# importing Reference 1 from the previous python file.
-harm_xs = reference1['Decimal_date']  # see dataset_harmonization.py
-harm_ys = reference1['D14C']  # see dataset_harmonization.py
-harm_y_errs = reference1['weightedstderr_D14C']
+#
+#
+#
+# # use the function from earlier to find Tree and Core
+# df_total['TX_CY'] = df_total['Ring code'].apply(extract_text)
 # #
+# # create a list of sites from the new dataset
+# new_sites = df_total.loc[(df_total['Comment'] == 'TW3516') | (df_total['Comment'] == 'TW3519')| (df_total['Comment'] == 'TW3522')]
+# referral = df_total.loc[(df_total['TP'] == '88519')]
+# pd.set_option('display.max_rows', None)
+#
+#
+# sites = np.unique(new_sites['Site'])
 # #
-for i in range(0, len(sites)):
-
-    # loop into the first site
-    this_site = df_total.loc[df_total['Site'] == sites[i]]
-    old = this_site.loc[this_site['Comment'] == 'Old Runs']
-    new = this_site.loc[this_site['Comment'] == 'TW3516']
-    new2 = this_site.loc[this_site['Comment'] == 'TW3519']
-    new3 = this_site.loc[this_site['Comment'] == 'TW3522']
-    #
-
-    # how many unique tree cores are in this site?
-    cores = np.unique(old['TX_CY'])
-    fig = plt.figure()
-    for j in range(0, len(cores)):
-        old = old.loc[old['TX_CY'] == cores[j]]
-        # used to do errorbar but they're too small to se anyway compared to the data
-        plt.errorbar(old['Ring year'], old['∆14C'], yerr=old['∆14Cerr'], label=f'{cores[j]}, OLD RUNS', color='red', marker=markers[j], linestyle='')
-
-    # how many unique tree cores are in this site?
-    cores = np.unique(new['TX_CY'])
-    for j in range(0, len(cores)):
-        new = new.loc[new['TX_CY'] == cores[j]]
-        # used to do errorbar but they're too small to se anyway compared to the data
-        plt.errorbar(new['Ring year'], new['∆14C'], yerr=new['∆14Cerr'], label=f'{cores[j]}, TW3516', color='blue', marker=markers[j], linestyle='')
-
-    cores = np.unique(new2['TX_CY'])
-    for j in range(0, len(cores)):
-        new = new2.loc[new2['TX_CY'] == cores[j]]
-        # used to do errorbar but they're too small to se anyway compared to the data
-        plt.errorbar(new['Ring year'], new['∆14C'], yerr=new['∆14Cerr'], label=f'{cores[j]}, TW3519', color='purple', marker=markers[j], linestyle='')
-        # plt.errorbar(referral['Ring year'], referral['∆14C'], yerr=referral['∆14Cerr'], label=f'Sample under referral', color='yellow', marker=markers[j], linestyle='')
-        if sites[i] == 'Monte Tarn, Punta Arenas':
-            plt.errorbar(2009, 50.5, yerr=2.39, label=f'SAMPLE REFERRAL 88519', color='yellow', marker=markers[j], linestyle='')
-
-    cores = np.unique(new3['TX_CY'])
-    for j in range(0, len(cores)):
-        new = new3.loc[new3['TX_CY'] == cores[j]]
-        # used to do errorbar but they're too small to se anyway compared to the data
-        plt.errorbar(new['Ring year'], new['∆14C'], yerr=new['∆14Cerr'], label=f'{cores[j]}, TW3522', color='green', marker='s', linestyle='')
-
-    plt.plot(harm_xs, harm_ys, label='SH Atmosphere \u0394$^1$$^4$CO$_2$ (\u2030)', color='black', alpha=0.2)
-    plt.legend()
-    plt.xlabel('Date', fontsize=14)
-    plt.xlim(1970, 2020)
-    plt.ylim(0, 400)
-    plt.title(f'{sites[i]}')
-    plt.ylabel('\u0394$^1$$^4$CO$_2$ (\u2030)', fontsize=14)  # label the y axis
-    plt.savefig(
-        f'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/Tree_Ring_Second_Check/{sites[i]}_errorbar_TRE3.png',
-        dpi=300, bbox_inches="tight")
-    plt.close()
-
-
-"""
-isolate and look at duplicates
-"""
-merged = df_old.merge(df_new, on='R number')
-# merged.to_excel(r'C:\Users\clewis\IdeaProjects\GNS\soar_tree_rings\data\test2.xlsx')
-# merged = merged.drop_duplicates(subset='R number')
-merged['diff_d14C'] = merged['∆14C_y'] - merged['∆14C_x']
-merged['diff_FM'] = merged['F14C_y'] - merged['F14C_x']
-merged.to_excel(r'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/Tree_Ring_Second_Check/Duplicatelook.xlsx')
-
-
-
-
+# # importing Reference 1 from the previous python file.
+# harm_xs = reference1['Decimal_date']  # see dataset_harmonization.py
+# harm_ys = reference1['D14C']  # see dataset_harmonization.py
+# harm_y_errs = reference1['weightedstderr_D14C']
+# # #
+# # #
+# for i in range(0, len(sites)):
+#
+#     # loop into the first site
+#     this_site = df_total.loc[df_total['Site'] == sites[i]]
+#     old = this_site.loc[this_site['Comment'] == 'Old Runs']
+#     new = this_site.loc[this_site['Comment'] == 'TW3516']
+#     new2 = this_site.loc[this_site['Comment'] == 'TW3519']
+#     new3 = this_site.loc[this_site['Comment'] == 'TW3522']
+#     #
+#
+#     # how many unique tree cores are in this site?
+#     cores = np.unique(old['TX_CY'])
+#     fig = plt.figure()
+#     for j in range(0, len(cores)):
+#         old = old.loc[old['TX_CY'] == cores[j]]
+#         # used to do errorbar but they're too small to se anyway compared to the data
+#         plt.errorbar(old['Ring year'], old['∆14C'], yerr=old['∆14Cerr'], label=f'{cores[j]}, OLD RUNS', color='red', marker=markers[j], linestyle='')
+#
+#     # how many unique tree cores are in this site?
+#     cores = np.unique(new['TX_CY'])
+#     for j in range(0, len(cores)):
+#         new = new.loc[new['TX_CY'] == cores[j]]
+#         # used to do errorbar but they're too small to se anyway compared to the data
+#         plt.errorbar(new['Ring year'], new['∆14C'], yerr=new['∆14Cerr'], label=f'{cores[j]}, TW3516', color='blue', marker=markers[j], linestyle='')
+#
+#     cores = np.unique(new2['TX_CY'])
+#     for j in range(0, len(cores)):
+#         new = new2.loc[new2['TX_CY'] == cores[j]]
+#         # used to do errorbar but they're too small to se anyway compared to the data
+#         plt.errorbar(new['Ring year'], new['∆14C'], yerr=new['∆14Cerr'], label=f'{cores[j]}, TW3519', color='purple', marker=markers[j], linestyle='')
+#         # plt.errorbar(referral['Ring year'], referral['∆14C'], yerr=referral['∆14Cerr'], label=f'Sample under referral', color='yellow', marker=markers[j], linestyle='')
+#         if sites[i] == 'Monte Tarn, Punta Arenas':
+#             plt.errorbar(2009, 50.5, yerr=2.39, label=f'SAMPLE REFERRAL 88519', color='yellow', marker=markers[j], linestyle='')
+#
+#     cores = np.unique(new3['TX_CY'])
+#     for j in range(0, len(cores)):
+#         new = new3.loc[new3['TX_CY'] == cores[j]]
+#         # used to do errorbar but they're too small to se anyway compared to the data
+#         plt.errorbar(new['Ring year'], new['∆14C'], yerr=new['∆14Cerr'], label=f'{cores[j]}, TW3522', color='green', marker='s', linestyle='')
+#
+#     plt.plot(harm_xs, harm_ys, label='SH Atmosphere \u0394$^1$$^4$CO$_2$ (\u2030)', color='black', alpha=0.2)
+#     plt.legend()
+#     plt.xlabel('Date', fontsize=14)
+#     plt.xlim(1970, 2020)
+#     plt.ylim(0, 400)
+#     plt.title(f'{sites[i]}')
+#     plt.ylabel('\u0394$^1$$^4$CO$_2$ (\u2030)', fontsize=14)  # label the y axis
+#     plt.savefig(
+#         f'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/Tree_Ring_Second_Check/{sites[i]}_errorbar_TRE3.png',
+#         dpi=300, bbox_inches="tight")
+#     plt.close()
+#
+#
+# """
+# isolate and look at duplicates
+# """
+# merged = df_old.merge(df_new, on='R number')
+# # merged.to_excel(r'C:\Users\clewis\IdeaProjects\GNS\soar_tree_rings\data\test2.xlsx')
+# # merged = merged.drop_duplicates(subset='R number')
+# merged['diff_d14C'] = merged['∆14C_y'] - merged['∆14C_x']
+# merged['diff_FM'] = merged['F14C_y'] - merged['F14C_x']
+# merged.to_excel(r'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/Tree_Ring_Second_Check/Duplicatelook.xlsx')
+#
+#
+#
+#
 
 
 

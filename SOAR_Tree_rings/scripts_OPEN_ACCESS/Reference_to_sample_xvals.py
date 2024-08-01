@@ -19,8 +19,8 @@ from X_my_functions import monte_carlo_randomization_smooth
 from X_my_functions import monte_carlo_randomization_trend
 from datetime import datetime
 import matplotlib.pyplot as plt
-# read in the list of all SAMPLES (SOAR, MCQ, NEU)
-samples = pd.read_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/from_tree_ring_analysis/SOARTreeRingData_CBL_cleaned.xlsx')
+# read in the list of all SAMPLES (SOAR)
+samples = pd.read_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/from_tree_ring_analysis/SOARTreeRingData_CBL_cleaned_aug_1_2024.xlsx')
 
 # 12/12/2023 I need to add MCQ comparison (to validate CMP) into the paper. Need to add these into the works here,
 # will add Heidelberg data now, and remove before main plots.
@@ -41,16 +41,6 @@ mcq = mcq[['#location', 'Average of Dates', 'D14C','1sigma_error']]
 mcq = mcq.rename(columns={'#location': 'Site', 'Average of Dates': 'DecimalDate', '1sigma_error':'∆14Cerr','D14C':'∆14C'})
 samples = pd.concat([samples, mcq])
 samples.to_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/from_tree_ring_analysis/SOARTreeRingData_CBL_cleaned.xlsx')
-
-
-# #
-# # # samples = samples[['Ring code', 'R number', 'Site', 'F14C', 'F14Cerr',
-# # #                   'Decimal_date', 'D14C', 'D14Cerr', 'Lat', 'Lon', '#location', 'Sample',
-# # #                   'Lab', 'Analysis', 'Sample ', 'Sample.1', 'Average of Dates', 'd13C',
-# # #                   'Flag', 'D14C_1', 'weightedstderr_D14C_1', 'sampler_id',
-# # #                   'wheightedanalyticalstdev_D14C']]
-#
-# # samples['Ref1'] = -999  # currently a placeholder
 
 # read in the references
 ref2 = pd.read_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/from_reference2/harmonized_dataset.xlsx')
@@ -88,3 +78,12 @@ montes.to_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_AC
 
 
 
+
+# #
+# # # samples = samples[['Ring code', 'R number', 'Site', 'F14C', 'F14Cerr',
+# # #                   'Decimal_date', 'D14C', 'D14Cerr', 'Lat', 'Lon', '#location', 'Sample',
+# # #                   'Lab', 'Analysis', 'Sample ', 'Sample.1', 'Average of Dates', 'd13C',
+# # #                   'Flag', 'D14C_1', 'weightedstderr_D14C_1', 'sampler_id',
+# # #                   'wheightedanalyticalstdev_D14C']]
+#
+# # samples['Ref1'] = -999  # currently a placeholder

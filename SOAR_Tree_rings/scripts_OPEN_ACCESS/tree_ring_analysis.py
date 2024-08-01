@@ -21,11 +21,12 @@ colors2 = sns.color_palette("mako", 6)  # import sns color pallet mako.
 mpl.rcParams['pdf.fonttype'] = 42
 mpl.rcParams['font.size'] = 10
 
-df = pd.read_excel(r'H:\Science\Datasets'
-                   r'\SOARTreeRingData2022-02-01.xlsx')  # read in the Tree Ring data.
+df = pd.read_excel(r'H:\Science\Datasets\SOARTreeRingData2022-02-01_August_1_2024.xlsx', comment='#')  # read in the Tree Ring data.
+
 df = df.drop_duplicates(subset='Ring code')
 df = df.dropna(subset='∆14C').reset_index(drop=True)  # drop any data rows that doesn't have 14C data.
 df = df.loc[(df['C14Flag']) != 'A..']
+
 
 # importing Reference 1 from the previous python file.
 harm_xs = reference1['Decimal_date']  # see dataset_harmonization.py
@@ -93,13 +94,15 @@ df.loc[(df['Site'] == "near Kapuni school field, NZ") & (df['TreeandCore'] == 'T
 df.loc[(df['Site'] == "Mason's Bay Homestead"), 'CBL_flag'] = 'REMOVED FROM ANALYSIS: Only one record exists, and is post-bomb spike - therefore cannot be validated.'
 df.loc[(df['Site'] == "Monte Tarn, Punta Arenas") & (df['TreeandCore'] == 'T5-C1'), 'CBL_flag'] = 'REMOVED FROM ANALYSIS: Tree 5 Core 1 does not match bomb spike.'
 df.loc[(df['Site'] == "Muriwai Beach Surf Club"), 'CBL_flag'] = 'REMOVED FROM ANALYSIS: Only one record exists, and is post-bomb spike - therefore cannot be validated.'
-df.loc[(df['Site'] == "Raul Marin Balmaceda") & (df['TreeandCore'] != 'T7-C1'), 'CBL_flag'] = 'REMOVED FROM ANALYSIS: Only Tree 7 Core 1 matches bomb spike, all others from this site are wrong.'
+# df.loc[(df['Site'] == "Raul Marin Balmaceda") & (df['TreeandCore'] != 'T7-C1'), 'CBL_flag'] = 'REMOVED FROM ANALYSIS: Only Tree 7 Core 1 matches bomb spike, all others from this site are wrong.'
+# the line below was added to simply remove all data from Raul Marin since we found in 2024 from Pene's work that there was a ring count error in the ones we thought were OK.
+df.loc[(df['Site'] == "Raul Marin Balmaceda"), 'CBL_flag'] = 'REMOVED FROM ANALYSIS: Only Tree 7 Core 1 matches bomb spike, all others from this site are wrong.'
 
-df.to_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/from_tree_ring_analysis/SOARTreeRingData_CBL_flags_jan2024.xlsx')
+df.to_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/from_tree_ring_analysis/SOARTreeRingData_CBL_flags_aug_1_2024.xlsx')
 print(len(df))
 
 df_cleaned = df.loc[(df['CBL_flag']) == '...']
-df_cleaned.to_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/from_tree_ring_analysis/SOARTreeRingData_CBL_cleaned_jan2024.xlsx')
+df_cleaned.to_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/from_tree_ring_analysis/SOARTreeRingData_CBL_cleaned_aug_1_2024.xlsx')
 print(len(df_cleaned))
 
 # re-write the plots with only the cleaned data

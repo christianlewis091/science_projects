@@ -4,9 +4,15 @@ Recreate albert's figure from poster and see how he calcultes RES
 import pandas as pd
 import numpy as np
 import warnings
+import matplotlib.gridspec as gridspec
 warnings.simplefilter(action='ignore')
 import matplotlib.pyplot as plt
 import plotly.express as px
+
+
+def calc_delta_14C(FM, colldate):
+    delta_14C = ((FM*np.exp((1950-colldate)/8267))-1)*1000
+    delta_14C_err = ((FM*np.exp((1950-colldate)/8267))-1)*1000
 
 """
 July 1, 2024:
@@ -18,10 +24,11 @@ I'm going to try to do that his "simplified_RLIMS_dataset by recreating the data
 """
 
 df = pd.read_excel('C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_1_output/12_second_manual_check.xlsx', sheet_name= 'Whole Dataframe')
+print(df.columns)
 df = df.loc[df['Keep_Remove'] == 'Keep']
 df = df.rename(columns={'RTS_corrected': 'RTS', 'RTS_corrected_error': 'RTSerr','Samples::Sample Description':'sampleDESC'})
 
-cols = ['F_corrected_normed', 'F_corrected_normed_error']
+cols = ['F_corrected_normed', 'F_corrected_normed_error','DELTA 14C']
 df[cols] = df[cols].apply(pd.to_numeric, errors='coerce', axis=1)
 df['MCCerr'] = 0.45*df['MCC']
 
@@ -56,7 +63,7 @@ df.loc[(df['Job::R'] == '24889/4') & (df['AAA_CELL'] =='Cellulose') & (df['EA_ST
 
 value_counts = df['Job::R'].value_counts()
 pd.set_option('display.max_rows', None)
-print(value_counts)
+# print(value_counts)
 
 # groups to filter on
 rs = np.unique(df2['R_number'])
@@ -76,13 +83,27 @@ sig_res_arr = []
 opt_chi = []
 mcc_err_arr = []
 FracMODerr_arr = []
+del14C = []
+del14Cstd = []
+bs_std = [] # bootstrap STD
 
 for i in range(0, len(rs)):
     subset1 = df.loc[df['Job::R'] == rs[i]]
     R_num.append(rs[i])
 
-    group = df2.loc[df2['R_number'] == rs[i]]
+    group = df2.loc[df2['R_number'] == rs[i]].reset_index(drop=True)
+    name = group['Name']
+    name = name[0]
     group_name.append(np.unique(group['Group']).astype(str))
+
+    colldate = group['Collection Date'].astype(str)
+    colldate = colldate[0]
+    if colldate != 'No collection date':
+        del14C.append(np.nanmean(subset1['DELTA 14C']))
+        del14Cstd.append(np.nanstd(subset1['DELTA 14C']))
+    else:
+        del14C.append(-999)
+        del14Cstd.append(-999)
 
     length.append(len(subset1))
 
@@ -103,6 +124,16 @@ for i in range(0, len(rs)):
 
     mcc_err_arr.append(np.nanmean(subset1['MCCerr']))
     FracMODerr_arr.append(np.nanmean(subset1['F_corrected_normed_error']))
+
+    # just want to see them each plotted over time to make sure nothing totally crazy is in there...
+    # plt.errorbar(subset1['TP'], subset1['F_corrected_normed'], yerr=subset1['F_corrected_normed_error'], linestyle='', marker='o')
+    # plt.axhline(y=wmean, color='black', linestyle='--')
+    # plt.title(f'{rs[i]}_{name}')
+    # plt.savefig(f'C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_4_output/{i}.png', dpi=300, bbox_inches="tight")
+    # plt.close()
+    fig = px.scatter(subset1, x="TP", y="F_corrected_normed", error_y='F_corrected_normed_error', title=f'{name}')
+    fig.write_html(f'C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_4_output/{name}.html')
+
 
     """
     Optomize Chi2 to find sigma_residual
@@ -128,6 +159,27 @@ for i in range(0, len(rs)):
     sig_res_arr.append(best_sig_res)
     opt_chi.append(closest_chi2_red)
 
+    # """
+    # Run a bootstrap to find the error on the sigma-residual
+    # """
+    #
+    #
+    # for i in range(len(sig_res)):
+    #     # Calculate chi2_red for the current sig_res
+    #     chi2_red_num = np.sum((subset1['F_corrected_normed'] - wmean)**2 / (subset1['F_corrected_normed_error']**2 + sig_res[i]**2))
+    #     chi2_red_denom = len(subset1)-1
+    #     chi2_red = chi2_red_num / chi2_red_denom
+    #
+    #     # Check if this chi2_red is closer to 1
+    #     if abs(chi2_red - target_chi2_red) < abs(closest_chi2_red - target_chi2_red):
+    #         closest_chi2_red = chi2_red
+    #         best_sig_res = sig_res[i]
+    #
+    # sig_res_arr.append(best_sig_res)
+    # opt_chi.append(closest_chi2_red)
+    #
+
+
 output1 = pd.DataFrame({'R_number': R_num,
                         'Group':group_name,
                         'Data Length (n)': length,
@@ -139,11 +191,15 @@ output1 = pd.DataFrame({'R_number': R_num,
                         'Sigma Residual': sig_res_arr,
                         'Sigma_FM': FracMODerr_arr,
                         'Sigma_blank': mcc_err_arr,
+                        'Delta 14C': del14C,
+                        'Delta 14C std': del14Cstd
  })
 
-output1['sigma_total_FM'] = np.sqrt(output1['Sigma_FM']**2 + output1['Sigma_blank']**2 + output1['Sigma Residual']**2)
+output1['sigma_total_FM'] = np.sqrt(output1['Sigma_FM']**2 + output1['Sigma_blank']**2 + (output1['Sigma Residual']**2)*(output1['FM (wmean)']**2))
 output1['sigma_total_CRA'] = 8033 * (output1['Sigma_FM']/output1['FM (wmean)'])
 output1['CRA (from FM wmean)'] = -8033 * np.log(output1['FM (wmean)'])
+
+
 
 # add some of the metadata from the secondary sheet.
 df2 = df2[['Name','Collection Date','R_number','Expected FM','Expected Age (CRA)','Expected Age Delta14C']]
@@ -166,6 +222,7 @@ def calc_residuals(subset1):
 
 # Create figure and subplots
 fig, (ax1, ax2, ax3) = plt.subplots(3, 1, figsize=(12, 12))
+
 x = np.linspace(0, 100000, 100)
 
 aa = 0.2
@@ -259,3 +316,114 @@ plt.tight_layout()
 
 # Show plot
 plt.savefig(f'C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_4_output/secondaries.png', dpi=300, bbox_inches="tight")
+
+
+"""
+do it again but with a histogram
+"""
+
+fig = plt.figure(figsize=(12, 12))
+gs = gridspec.GridSpec(3, 3, figure=fig)
+
+ax1 = fig.add_subplot(gs[0:1, 0:2])
+ax2 = fig.add_subplot(gs[1:2, 0:2])
+ax3 = fig.add_subplot(gs[2:3, 0:2])
+ax4 = fig.add_subplot(gs[0:1, 2:3])
+ax5 = fig.add_subplot(gs[1:2, 2:3])
+ax6 = fig.add_subplot(gs[2:3, 2:3])
+
+x = np.linspace(0, 100000, 100)
+
+aa = 0.2
+ab = .1
+c1 = 'gray'
+c2 = 'gray'
+x1 = 60000
+x2 = 90000
+
+
+# First subplot: AIRS
+# need to get the subset again:
+BHDamb = df.loc[df['Job::R'] == '40430/1']
+BHDspike = df.loc[df['Job::R'] == '40430/2']
+
+BHDamb['Res'] = calc_residuals(BHDamb)
+BHDspike['Res'] = calc_residuals(BHDspike)
+
+ax1.scatter(BHDamb['TP'], BHDamb['Res'], label=f'BHDamb')
+ax1.scatter(BHDspike['TP'], BHDspike['Res'], label=f'BHDspike')
+
+ax1.fill_between(x, -1, 1, color=c1, alpha=aa)
+ax1.fill_between(x, -2, 2, color=c2, alpha=ab)
+ax1.set_title('Air')
+ax1.set_ylabel('Residual')
+ax1.set_xlim(x1, x2)
+ax1.set_ylim(-3, 3)
+ax1.legend()
+
+ax4.hist(BHDamb['Res'], bins=10, alpha=0.75)
+ax4.hist(BHDspike['Res'], bins=10, alpha=0.75)
+
+# Second subplot: Organics
+FIRID_aaa_ea = df.loc[df['Job::R'] == '24889/4_AAA_EA']
+FIRID_aaa_st = df.loc[df['Job::R'] == '24889/4_AAA_ST']
+FIRID_cell_ea = df.loc[df['Job::R'] == '24889/4_CELL_EA']
+FIRID_cell_st = df.loc[df['Job::R'] == '24889/4_CELL_ST']
+
+FIRID_aaa_ea['Res'] = calc_residuals(FIRID_aaa_ea)
+FIRID_aaa_st['Res'] = calc_residuals(FIRID_aaa_st)
+FIRID_cell_ea['Res'] = calc_residuals(FIRID_cell_ea)
+FIRID_cell_st['Res'] = calc_residuals(FIRID_cell_st)
+
+ax2.scatter(FIRID_aaa_ea['TP'], FIRID_aaa_ea['Res'], label=f'FIRI-D (AAA-EA)')
+ax2.scatter(FIRID_aaa_st['TP'], FIRID_aaa_st['Res'], label=f'FIRI-D (AAA-ST)')
+ax2.scatter(FIRID_cell_ea['TP'], FIRID_cell_ea['Res'], label=f'FIRI-D (Cellulose-EA)')
+ax2.scatter(FIRID_cell_st['TP'], FIRID_cell_st['Res'], label=f'FIRI-D (Cellulose-ST)')
+
+ax2.fill_between(x, -1, 1, color=c1, alpha=aa)
+ax2.fill_between(x, -2, 2, color=c2, alpha=ab)
+ax2.set_title('Organic (Cellulose and AAA)')
+ax2.set_ylabel('Residual')
+ax2.set_xlim(x1, x2)
+ax2.set_ylim(-3, 3)
+ax2.legend()
+
+# Third subplot Inorganics
+trav_wat = df.loc[df['Job::R'] == '14047/12']
+lac_wat = df.loc[df['Job::R'] == '41347/12']
+laa_wat = df.loc[df['Job::R'] == '41347/13']
+
+trav_carb = df.loc[df['Job::R'] == '14047/2']
+lac_carb = df.loc[df['Job::R'] == '41347/2']
+laa_carb = df.loc[df['Job::R'] == '41347/3']
+
+trav_wat['Res'] = calc_residuals(trav_wat)
+lac_wat['Res'] = calc_residuals(lac_wat)
+laa_wat['Res'] = calc_residuals(laa_wat)
+
+trav_carb['Res'] = calc_residuals(trav_carb)
+lac_carb['Res'] = calc_residuals(lac_carb)
+laa_carb['Res'] = calc_residuals(laa_carb)
+
+ax3.scatter(trav_wat['TP'], trav_wat['Res'], label=f'Travertine (DIC)')
+ax3.scatter(lac_wat['TP'], lac_wat['Res'], label=f'LAC1-coral (DIC)')
+ax3.scatter(laa_wat['TP'], laa_wat['Res'], label=f'LAA-coral (DIC)')
+
+ax3.scatter(trav_carb['TP'], trav_carb['Res'], label=f'Travertine (Solid)')
+ax3.scatter(lac_carb['TP'], lac_carb['Res'], label=f'LAC1-coral (Solid)')
+ax3.scatter(laa_carb['TP'], laa_carb['Res'], label=f'LAA-coral (Solid)')
+
+ax3.fill_between(x, -1, 1, color=c1, alpha=aa)
+ax3.fill_between(x, -2, 2, color=c2, alpha=ab)
+ax3.set_title('Inorganic (DIC and Carbonate)')
+ax3.set_xlabel('TP Number (Lab Identifier)')
+ax3.set_ylabel('Residual')
+ax3.set_xlim(x1, x2)
+ax3.set_ylim(-3, 3)
+ax3.legend()
+
+# Adjust layout
+plt.tight_layout()
+
+# # Show plot
+plt.savefig(f'C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_4_output/secondaries_w_hist.png', dpi=300, bbox_inches="tight")

@@ -21,12 +21,34 @@ colors2 = sns.color_palette("mako", 6)  # import sns color pallet mako.
 mpl.rcParams['pdf.fonttype'] = 42
 mpl.rcParams['font.size'] = 10
 
-df = pd.read_excel(r'H:\Science\Datasets\SOARTreeRingData2022-02-01_August_1_2024.xlsx', comment='#')  # read in the Tree Ring data.
+df = pd.read_excel(r'H:\Science\Datasets\SOARTreeRingData2022-02-01_August_1_2024.xlsx', comment='#')  # read in the Tree Ring data.)
+"""
+August 5, 2024
+One of the comments I am currently dealing with in the fine tuning stage is that the site names need to be changed. for instance, 17 Nikau St Eastbourne is someone's address, 
+not appropriate for the paper.
+"""
 
-df = df.drop_duplicates(subset='Ring code')
+df = df.replace({'19 Nikau St, Eastbourne, NZ': "Eastbourne 1, NZ",
+                 '23 Nikau St, Eastbourne, NZ': "Eastbourne 2, NZ",
+                 'Bahia San Pedro, Chile': 'Bahia San Pedro, CH',
+                 'Baja Rosales, Isla Navarino':'Baja Rosales, Isla Navarino, CH',
+                 'Baring Head, NZ':'Baring Head, NZ',
+                 'Haast Beach, paddock near beach':'Haast Beach, NZ',
+                 "Mason's Bay Homestead":"Mason's Bay, NZ",
+                 'Monte Tarn, Punta Arenas':'Monte Tarn, Punta Arenas, CH',
+                 'Muriwai Beach Surf Club':'Muriwai Beach, NZ',
+                 'Oreti Beach': 'Oreti Beach, NZ',
+                 'Puerto Navarino, Isla Navarino':'Puerto Navarino, Isla Navarino, CH',
+                 'Raul Marin Balmaceda': 'Raul Marin Balmaceda, CH',
+                 'Seno Skyring': 'Seno Skyring, CH',
+                 'Tortel island': 'Tortel Island, CH',
+                 'Tortel river': 'Tortel River, CH',
+                 "World's Loneliest Tree, Camp Cove, Campbell island": "Campbell Island, NZ",
+                 'near Kapuni school field, NZ': 'Taranaki, NZ'})
+
+# df = df.drop_duplicates(subset='Ring code')
 df = df.dropna(subset='∆14C').reset_index(drop=True)  # drop any data rows that doesn't have 14C data.
 df = df.loc[(df['C14Flag']) != 'A..']
-
 
 # importing Reference 1 from the previous python file.
 harm_xs = reference1['Decimal_date']  # see dataset_harmonization.py
@@ -65,6 +87,7 @@ for i in range(0, len(df)):
 df['TreeandCore'] = newdesc
 
 sites = np.unique(df['Site'])
+
 for i in range(0, len(sites)):
 
     # loop into the first site
@@ -107,6 +130,7 @@ print(len(df_cleaned))
 
 # re-write the plots with only the cleaned data
 sites = np.unique(df_cleaned['Site'])
+print(sites)
 for i in range(0, len(sites)):
 
     # loop into the first site
@@ -129,6 +153,54 @@ for i in range(0, len(sites)):
         dpi=300, bbox_inches="tight")
     plt.close()
 
+
+"""
+August 5, 2024 JCT wants a side by side plot of Bahia San Pedro "Rachel had a nice figure that showed the difference between the two cores.  You could add that as a second panel below the figure you currently have.
+Say something about not being able to determine where the ring count error occurred, so both cores are discarded for >2005 ages.
+"
+"""
+
+bsp = df.loc[(df['Site']) == 'Bahia San Pedro, CH']
+bsp.to_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/from_tree_ring_analysis/bsp.xlsx')
+
+# I've elected to export this and manually do the differences quick in excel to save time. I've learned to balance excel and python more these days.
+bsp_in = pd.read_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/from_tree_ring_analysis/bsp_in.xlsx', sheet_name='Sheet2')
+bsp_in = bsp_in.loc[bsp_in['difference'] != -999]
+"""
+2 plots horizontal
+"""
+fig = plt.figure(figsize=(16, 8))
+gs = gridspec.GridSpec(1, 2)
+gs.update(wspace=0.2, hspace=0.35)
+
+# plot structure
+xtr_subsplot = fig.add_subplot(gs[0:1, 0:1])
+
+# how many unique tree cores are in this site?
+cores = np.unique(bsp['TreeandCore'])
+for j in range(0, len(cores)):
+    this_core = bsp.loc[bsp['TreeandCore'] == cores[j]]
+    # used to do errorbar but they're too small to se anyway compared to the data
+    plt.scatter(this_core['DecimalDate'], this_core['∆14C'], label=f'{cores[j]}')
+plt.plot(harm_xs, harm_ys, label='SH Atmosphere \u0394$^1$$^4$CO$_2$ (\u2030)', color='black', alpha=0.2)
+plt.legend()
+plt.xlim(1980,2020)
+plt.ylim(0,300)
+plt.xlabel('Date', fontsize=14)
+plt.title('Bahia San Pedro, Chile')
+plt.ylabel('\u0394$^1$$^4$CO$_2$ (\u2030)', fontsize=14)  # label the y axis
+
+# plot structure
+xtr_subsplot = fig.add_subplot(gs[0:1, 1:2])
+plt.title('Difference between cores: (T1-C2)-(T2-C1)')
+plt.errorbar(bsp_in['Year'], bsp_in['difference'], yerr=bsp_in['properr'], linestyle='', marker='o', color='black')
+plt.ylabel('Difference between cores: (T1-C2)-(T2-C1) (\u2030)', fontsize=14)  # label the y axis
+plt.xlim(1980,2020)
+plt.axhline(y=0, color='black')
+plt.savefig(
+    f'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/from_tree_ring_analysis/Fixing_in_Jan2024/cleaned_plots/Bahia_sidebar.png',
+    dpi=300, bbox_inches="tight")
+plt.close()
 
 
 

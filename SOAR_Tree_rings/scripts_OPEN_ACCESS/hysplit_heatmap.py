@@ -156,66 +156,144 @@ Recalculating the "Time Per Zone" using points, not means
 Sara M. Fletcher mentioned in our group meeting on June 20, 2024 that it would be nice to have this graphically displayed rather than
 just as a table. Lets see if we can do that below. 
 """
+
 import pandas as pd
+import matplotlib.pyplot as plt
+import numpy as np
 import seaborn as sns
 
-output1 = pd.read_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/hysplit_heatmap/time_per_zone_usingpoints.xlsx')
-output1['Percent Abundance'] = (output1['Length'] / 31265)*100
+# Read the data from the Excel file
+df = pd.read_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/hysplit_heatmap/time_per_zone_usingpoints_edited.xlsx', sheet_name='Summary')
 
-# get rid of the error column
-output1 = output1.loc[output1['Zone'] != 'Error']
+# df = df.replace({'19 Nikau St, Eastbourne, NZ': "Eastbourne 1, NZ",
+#                  '23 Nikau St, Eastbourne, NZ': "Eastbourne 2, NZ",
+#                  'Bahia San Pedro, Chile': 'Bahia San Pedro, CH',
+#                  'Baja Rosales, Isla Navarino':'Baja Rosales, Isla Navarino, CH',
+#                  'Baring Head, NZ':'Baring Head, NZ',
+#                  'Haast Beach, paddock near beach':'Haast Beach, NZ',
+#                  "Mason's Bay Homestead":"Mason's Bay, NZ",
+#                  'Monte Tarn, Punta Arenas':'Monte Tarn, Punta Arenas, CH',
+#                  'Muriwai Beach Surf Club':'Muriwai Beach, NZ',
+#                  'Oreti Beach': 'Oreti Beach, NZ',
+#                  'Puerto Navarino, Isla Navarino':'Puerto Navarino, Isla Navarino, CH',
+#                  'Raul Marin Balmaceda': 'Raul Marin Balmaceda, CH',
+#                  'Seno Skyring': 'Seno Skyring, CH',
+#                  'Tortel island': 'Tortel Island, CH',
+#                  'Tortel river': 'Tortel River, CH',
+#                  "World's Loneliest Tree, Camp Cove, Campbell island": "Campbell Island",
+#                  'near Kapuni school field, NZ': 'Taranaki, NZ'})
 
-# need to re-associate lat lons with the name
-easy_access = pd.read_excel(r'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/easy_access2.xlsx')
-easy_access = easy_access[['Codename','NewLat','Code']]
-easy_access = easy_access.rename(columns={'Codename': 'Site'})
-df = output1.merge(easy_access)
-df['NewLat'] = df['NewLat'].round(1)
+# Define the columns to plot
+df = df.rename(columns={"STZ": "Subtropical Zone",
+                 "SAZ": "Subantarctic Zone",
+                 "PFZ": "Polar Frontal Zone",
+                 "ASZ": "Antarctic-Southern Zone",
+                 "SIZ": "Sea Ice Zone"})
+print(df)
 
-list1 = ['CH','NZ']
-for i in range(0, len(list1)):
-    # Sort DataFrame by NewLat
-    df_sorted = df.sort_values('NewLat')
-    df_sorted_CH = df_sorted.loc[df_sorted['Code'] == f'{list1[i]}']
+zones = ["Subtropical Zone", "Subantarctic Zone", "Polar Frontal Zone", "Antarctic-Southern Zone", "Sea Ice Zone"]
+sites = df['Site']
 
-    # Convert 'Zone' to a categorical type with specified order
-    df_sorted_CH['Zone'] = pd.Categorical(df_sorted_CH['Zone'], categories=['STZ', 'SAZ', 'PFZ', 'ASZ', 'SIZ'], ordered=True)
+# Define the color palette
+colors = sns.color_palette("muted", len(zones))
 
-    # Create pivot table
-    pivot_table = df_sorted_CH.pivot_table(values='Percent Abundance', index='NewLat', columns='Zone', aggfunc='mean')
+# Plotting
+fig, ax = plt.subplots(figsize=(12, 8))
 
-    # Create the heatmap
-    plt.figure(figsize=(10, 8))
-    sns.heatmap(pivot_table, annot=True, cmap='viridis', cbar_kws={'label': 'Percent Abundance'})
-    plt.title(f'Heatmap of Percent Abundance by Zone and Latitude {list1[i]}')
-    plt.xlabel('Zone')
-    plt.ylabel('Latitude')
-    plt.yticks(rotation=0)
-    plt.gca().invert_yaxis()
+# Initialize the bottom array for the first stack
+bottom = np.zeros(len(sites))
 
-    plt.savefig(f'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/hysplit_heatmap/timeperzoneheatmap_{list1[i]}.png',
-                dpi=300, bbox_inches="tight")
+# Loop through each zone to create a stacked bar
+for i, zone in enumerate(zones):
+    ax.bar(sites, df[zone], bottom=bottom, label=zone, color=colors[i])
+    bottom += df[zone].values  # Update the bottom to include the current zone's height
+
+# Add some text for labels, title, and custom x-axis tick labels, etc.
+ax.set_xlabel('Site')
+ax.set_ylabel('Percent')
+ax.set_title('Percent of Back-Trajectory Spent in Each Zone')
+ax.set_xticks(np.arange(len(sites)))
+ax.set_xticklabels(sites, rotation=45)
+ax.legend()
+
+# Show the plot
+plt.savefig('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/hysplit_heatmap/stackedbar.png')
+
 plt.close()
-plt.close()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# import pandas as pd
+# import seaborn as sns
 #
-asz_n = df.loc[(df['Zone'] == f'ASZ') & (df['Code'] == 'NZ')].sort_values(by='NewLat')
-pfz_n = df.loc[(df['Zone'] == f'PFZ') & (df['Code'] == 'NZ')].sort_values(by='NewLat')
-asz_c = df.loc[(df['Zone'] == f'ASZ') & (df['Code'] == 'CH')].sort_values(by='NewLat')
-pfz_c = df.loc[(df['Zone'] == f'PFZ') & (df['Code'] == 'CH')].sort_values(by='NewLat')
-
-plt.scatter(asz_n['NewLat'], asz_n['Percent Abundance'], marker='o', label=f'ASZ (New Zealand Sites)', color='black')
-plt.plot(asz_n['NewLat'], asz_n['Percent Abundance'], color='black')
-
-plt.scatter(asz_c['NewLat'], asz_c['Percent Abundance'], marker='o', label=f'ASZ (Chile Sites)', color='black')
-plt.plot(asz_c['NewLat'], asz_c['Percent Abundance'], color='black')
-
-plt.xlabel('Site Latitude (Origin of HYSPLIT Backtrajectory)')
-plt.ylabel('Percent of Backtrajectory Spent in Zone')
-plt.xlim(-38, -57)
-plt.legend()
-
-plt.show()
-
+# output1 = pd.read_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/hysplit_heatmap/time_per_zone_usingpoints.xlsx')
+# output1['Percent Abundance'] = (output1['Length'] / 31265)*100
+#
+# # get rid of the error column
+# output1 = output1.loc[output1['Zone'] != 'Error']
+#
+# # need to re-associate lat lons with the name
+# easy_access = pd.read_excel(r'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/easy_access2.xlsx')
+# easy_access = easy_access[['Codename','NewLat','Code']]
+# easy_access = easy_access.rename(columns={'Codename': 'Site'})
+# df = output1.merge(easy_access)
+# df['NewLat'] = df['NewLat'].round(1)
+#
+# list1 = ['CH','NZ']
+# for i in range(0, len(list1)):
+#     # Sort DataFrame by NewLat
+#     df_sorted = df.sort_values('NewLat')
+#     df_sorted_CH = df_sorted.loc[df_sorted['Code'] == f'{list1[i]}']
+#
+#     # Convert 'Zone' to a categorical type with specified order
+#     df_sorted_CH['Zone'] = pd.Categorical(df_sorted_CH['Zone'], categories=['STZ', 'SAZ', 'PFZ', 'ASZ', 'SIZ'], ordered=True)
+#
+#     # Create pivot table
+#     pivot_table = df_sorted_CH.pivot_table(values='Percent Abundance', index='NewLat', columns='Zone', aggfunc='mean')
+#
+#     # Create the heatmap
+#     plt.figure(figsize=(10, 8))
+#     sns.heatmap(pivot_table, annot=True, cmap='viridis', cbar_kws={'label': 'Percent Abundance'})
+#     plt.title(f'Heatmap of Percent Abundance by Zone and Latitude {list1[i]}')
+#     plt.xlabel('Zone')
+#     plt.ylabel('Latitude')
+#     plt.yticks(rotation=0)
+#     plt.gca().invert_yaxis()
+#
+#     plt.savefig(f'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/hysplit_heatmap/timeperzoneheatmap_{list1[i]}.png',
+#                 dpi=300, bbox_inches="tight")
+# plt.close()
+# plt.close()
+# #
+# asz_n = df.loc[(df['Zone'] == f'ASZ') & (df['Code'] == 'NZ')].sort_values(by='NewLat')
+# pfz_n = df.loc[(df['Zone'] == f'PFZ') & (df['Code'] == 'NZ')].sort_values(by='NewLat')
+# asz_c = df.loc[(df['Zone'] == f'ASZ') & (df['Code'] == 'CH')].sort_values(by='NewLat')
+# pfz_c = df.loc[(df['Zone'] == f'PFZ') & (df['Code'] == 'CH')].sort_values(by='NewLat')
+#
+# plt.scatter(asz_n['NewLat'], asz_n['Percent Abundance'], marker='o', label=f'ASZ (New Zealand Sites)', color='black')
+# plt.plot(asz_n['NewLat'], asz_n['Percent Abundance'], color='black')
+#
+# plt.scatter(asz_c['NewLat'], asz_c['Percent Abundance'], marker='o', label=f'ASZ (Chile Sites)', color='black')
+# plt.plot(asz_c['NewLat'], asz_c['Percent Abundance'], color='black')
+#
+# plt.xlabel('Site Latitude (Origin of HYSPLIT Backtrajectory)')
+# plt.ylabel('Percent of Backtrajectory Spent in Zone')
+# plt.xlim(-38, -57)
+# plt.legend()
+#
+# plt.show()
+#
 
 
 

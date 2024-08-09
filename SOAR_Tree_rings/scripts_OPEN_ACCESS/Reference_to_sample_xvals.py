@@ -40,7 +40,7 @@ mcq['Average of Dates'] = res
 mcq = mcq[['#location', 'Average of Dates', 'D14C','1sigma_error']]
 mcq = mcq.rename(columns={'#location': 'Site', 'Average of Dates': 'DecimalDate', '1sigma_error':'∆14Cerr','D14C':'∆14C'})
 samples = pd.concat([samples, mcq])
-samples.to_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/from_tree_ring_analysis/SOARTreeRingData_CBL_cleaned.xlsx')
+# samples.to_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/from_tree_ring_analysis/SOARTreeRingData_CBL_cleaned.xlsx')
 
 # read in the references
 ref2 = pd.read_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/from_reference2/harmonized_dataset.xlsx')

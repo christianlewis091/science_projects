@@ -29,63 +29,63 @@ Block 1: Takes 262 seconds (4 minutes) to run
 """
 Block 2
 """
-# points = pd.read_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/hysplit_heatmap/points_concat.xlsx')
-# acc_fronts = pd.read_csv(r'H:\Science\Datasets\ACC_fronts\csv\antarctic_circumpolar_current_fronts.csv')
-# elapsed_time_section_1 = time.time() - start_time
-# locations = np.unique(points['location'])
+points = pd.read_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/hysplit_heatmap/points_concat.xlsx')
+acc_fronts = pd.read_csv(r'H:\Science\Datasets\ACC_fronts\csv\antarctic_circumpolar_current_fronts.csv')
+elapsed_time_section_1 = time.time() - start_time
+locations = np.unique(points['location'])
+
+for q in range(0, len(locations)):
+
+    # filter by location
+    midpoint_lat = []
+    midpoint_lon = []
+    loc_len = []
+    name = []
+    this_loc = points.loc[points['location'] == locations[q]]
+
+    lons = np.linspace(-180, 180, 361)
+    lats = np.linspace(-90,90, 181)
+
+    for i in range(0, len(lons)-1):
+        for j in range(0, len(lats)-1):
+            midpoint_lon.append((lons[i]+lons[i+1])/2)
+            midpoint_lat.append((lats[j]+lats[j+1])/2)
+
+            subdata = this_loc.loc[(this_loc['x'] > lons[i]) & (this_loc['x'] <= lons[i+1]) &
+                                   (this_loc['y'] > lats[j]) & (this_loc['y'] <= lats[j+1])]
+
+            loc_len.append(len(subdata))
+            name.append(locations[q])
+            # print(f'{locations[q]}, {lons[i]}, {lats[j]}')
+
+    results = pd.DataFrame({"location": name, "x": midpoint_lon, "y": midpoint_lat, "heat": loc_len})
+    results = results.loc[results['heat'] != 0]
+
+    fig = plt.figure(figsize=(4, 8))
+    m = Basemap(projection='ortho',lon_0=-150,lat_0=-90,resolution='l')
+    m.drawmapboundary(fill_color='lightgrey')
+    m.fillcontinents(color='darkgrey')
+    m.shadedrelief()
+    m.drawcoastlines(linewidth=0.1)
+
+    a, b = m(results['x'], results['y'])
+    m.scatter(a, b, c=results['heat'], cmap='coolwarm', s=5, linewidth=0.5, vmin=0, vmax=32, alpha=0.5)
+
+    fronts = np.unique(acc_fronts['front_name'])
+    fronts = ['PF','SAF','STF','Boundary']
+    line_sys = ['dotted','dashed','dashdot','solid','dotted','dashed','dashdot']
+
+    for g in range(0, len(fronts)):
+        this_one = acc_fronts.loc[acc_fronts['front_name'] == fronts[g]]
+        latitudes = this_one['latitude']
+        longitudes = this_one['longitude']
+        x, y = m(longitudes.values, latitudes.values)
+        m.plot(x, y, color='black', label=f'{fronts[g]}', linestyle=line_sys[g])
+        plt.colorbar()
+
+    plt.savefig(f'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/hysplit_heatmap/{locations[q]}_cbar.png',
+            dpi=300, bbox_inches="tight")
 #
-# for q in range(0, len(locations)):
-#
-#     # filter by location
-#     midpoint_lat = []
-#     midpoint_lon = []
-#     loc_len = []
-#     name = []
-#     this_loc = points.loc[points['location'] == locations[q]]
-#
-#     lons = np.linspace(-180, 180, 361)
-#     lats = np.linspace(-90,90, 181)
-#
-#     for i in range(0, len(lons)-1):
-#         for j in range(0, len(lats)-1):
-#             midpoint_lon.append((lons[i]+lons[i+1])/2)
-#             midpoint_lat.append((lats[j]+lats[j+1])/2)
-#
-#             subdata = this_loc.loc[(this_loc['x'] > lons[i]) & (this_loc['x'] <= lons[i+1]) &
-#                                    (this_loc['y'] > lats[j]) & (this_loc['y'] <= lats[j+1])]
-#
-#             loc_len.append(len(subdata))
-#             name.append(locations[q])
-#             # print(f'{locations[q]}, {lons[i]}, {lats[j]}')
-#
-#     results = pd.DataFrame({"location": name, "x": midpoint_lon, "y": midpoint_lat, "heat": loc_len})
-#     results = results.loc[results['heat'] != 0]
-#
-#     fig = plt.figure(figsize=(4, 8))
-#     m = Basemap(projection='ortho',lon_0=-150,lat_0=-90,resolution='l')
-#     m.drawmapboundary(fill_color='lightgrey')
-#     m.fillcontinents(color='darkgrey')
-#     m.shadedrelief()
-#     m.drawcoastlines(linewidth=0.1)
-#
-#     a, b = m(results['x'], results['y'])
-#     m.scatter(a, b, c=results['heat'], cmap='coolwarm', s=5, linewidth=0.5, vmin=0, vmax=32, alpha=0.5)
-#
-#     fronts = np.unique(acc_fronts['front_name'])
-#     fronts = ['PF','SAF','STF','Boundary']
-#     line_sys = ['dotted','dashed','dashdot','solid','dotted','dashed','dashdot']
-#
-#     for g in range(0, len(fronts)):
-#         this_one = acc_fronts.loc[acc_fronts['front_name'] == fronts[g]]
-#         latitudes = this_one['latitude']
-#         longitudes = this_one['longitude']
-#         x, y = m(longitudes.values, latitudes.values)
-#         m.plot(x, y, color='black', label=f'{fronts[g]}', linestyle=line_sys[g])
-#
-#
-#     plt.savefig(f'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/hysplit_heatmap/{locations[q]}.png',
-#             dpi=300, bbox_inches="tight")
-# #
 #
 """
 Recalculating the "Time Per Zone" using points, not means
@@ -165,33 +165,14 @@ import seaborn as sns
 # Read the data from the Excel file
 df = pd.read_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/hysplit_heatmap/time_per_zone_usingpoints_edited.xlsx', sheet_name='Summary')
 
-# df = df.replace({'19 Nikau St, Eastbourne, NZ': "Eastbourne 1, NZ",
-#                  '23 Nikau St, Eastbourne, NZ': "Eastbourne 2, NZ",
-#                  'Bahia San Pedro, Chile': 'Bahia San Pedro, CH',
-#                  'Baja Rosales, Isla Navarino':'Baja Rosales, Isla Navarino, CH',
-#                  'Baring Head, NZ':'Baring Head, NZ',
-#                  'Haast Beach, paddock near beach':'Haast Beach, NZ',
-#                  "Mason's Bay Homestead":"Mason's Bay, NZ",
-#                  'Monte Tarn, Punta Arenas':'Monte Tarn, Punta Arenas, CH',
-#                  'Muriwai Beach Surf Club':'Muriwai Beach, NZ',
-#                  'Oreti Beach': 'Oreti Beach, NZ',
-#                  'Puerto Navarino, Isla Navarino':'Puerto Navarino, Isla Navarino, CH',
-#                  'Raul Marin Balmaceda': 'Raul Marin Balmaceda, CH',
-#                  'Seno Skyring': 'Seno Skyring, CH',
-#                  'Tortel island': 'Tortel Island, CH',
-#                  'Tortel river': 'Tortel River, CH',
-#                  "World's Loneliest Tree, Camp Cove, Campbell island": "Campbell Island",
-#                  'near Kapuni school field, NZ': 'Taranaki, NZ'})
-
-# Define the columns to plot
 df = df.rename(columns={"STZ": "Subtropical Zone",
                  "SAZ": "Subantarctic Zone",
                  "PFZ": "Polar Frontal Zone",
                  "ASZ": "Antarctic-Southern Zone",
                  "SIZ": "Sea Ice Zone"})
-print(df)
 
 zones = ["Subtropical Zone", "Subantarctic Zone", "Polar Frontal Zone", "Antarctic-Southern Zone", "Sea Ice Zone"]
+zone_trans = [0.2, 0.2, 1,1,1]
 sites = df['Site']
 
 # Define the color palette
@@ -205,7 +186,7 @@ bottom = np.zeros(len(sites))
 
 # Loop through each zone to create a stacked bar
 for i, zone in enumerate(zones):
-    ax.bar(sites, df[zone], bottom=bottom, label=zone, color=colors[i])
+    ax.bar(sites, df[zone], bottom=bottom, label=zone, color=colors[i], alpha=zone_trans[i])
     bottom += df[zone].values  # Update the bottom to include the current zone's height
 
 # Add some text for labels, title, and custom x-axis tick labels, etc.
@@ -217,195 +198,7 @@ ax.set_xticklabels(sites, rotation=45)
 ax.legend()
 
 # Show the plot
-plt.savefig('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/hysplit_heatmap/stackedbar.png')
+plt.savefig('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/hysplit_heatmap/stackedbar.png', dpi=300, bbox_inches="tight")
 
 plt.close()
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-# import pandas as pd
-# import seaborn as sns
-#
-# output1 = pd.read_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/hysplit_heatmap/time_per_zone_usingpoints.xlsx')
-# output1['Percent Abundance'] = (output1['Length'] / 31265)*100
-#
-# # get rid of the error column
-# output1 = output1.loc[output1['Zone'] != 'Error']
-#
-# # need to re-associate lat lons with the name
-# easy_access = pd.read_excel(r'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/easy_access2.xlsx')
-# easy_access = easy_access[['Codename','NewLat','Code']]
-# easy_access = easy_access.rename(columns={'Codename': 'Site'})
-# df = output1.merge(easy_access)
-# df['NewLat'] = df['NewLat'].round(1)
-#
-# list1 = ['CH','NZ']
-# for i in range(0, len(list1)):
-#     # Sort DataFrame by NewLat
-#     df_sorted = df.sort_values('NewLat')
-#     df_sorted_CH = df_sorted.loc[df_sorted['Code'] == f'{list1[i]}']
-#
-#     # Convert 'Zone' to a categorical type with specified order
-#     df_sorted_CH['Zone'] = pd.Categorical(df_sorted_CH['Zone'], categories=['STZ', 'SAZ', 'PFZ', 'ASZ', 'SIZ'], ordered=True)
-#
-#     # Create pivot table
-#     pivot_table = df_sorted_CH.pivot_table(values='Percent Abundance', index='NewLat', columns='Zone', aggfunc='mean')
-#
-#     # Create the heatmap
-#     plt.figure(figsize=(10, 8))
-#     sns.heatmap(pivot_table, annot=True, cmap='viridis', cbar_kws={'label': 'Percent Abundance'})
-#     plt.title(f'Heatmap of Percent Abundance by Zone and Latitude {list1[i]}')
-#     plt.xlabel('Zone')
-#     plt.ylabel('Latitude')
-#     plt.yticks(rotation=0)
-#     plt.gca().invert_yaxis()
-#
-#     plt.savefig(f'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/hysplit_heatmap/timeperzoneheatmap_{list1[i]}.png',
-#                 dpi=300, bbox_inches="tight")
-# plt.close()
-# plt.close()
-# #
-# asz_n = df.loc[(df['Zone'] == f'ASZ') & (df['Code'] == 'NZ')].sort_values(by='NewLat')
-# pfz_n = df.loc[(df['Zone'] == f'PFZ') & (df['Code'] == 'NZ')].sort_values(by='NewLat')
-# asz_c = df.loc[(df['Zone'] == f'ASZ') & (df['Code'] == 'CH')].sort_values(by='NewLat')
-# pfz_c = df.loc[(df['Zone'] == f'PFZ') & (df['Code'] == 'CH')].sort_values(by='NewLat')
-#
-# plt.scatter(asz_n['NewLat'], asz_n['Percent Abundance'], marker='o', label=f'ASZ (New Zealand Sites)', color='black')
-# plt.plot(asz_n['NewLat'], asz_n['Percent Abundance'], color='black')
-#
-# plt.scatter(asz_c['NewLat'], asz_c['Percent Abundance'], marker='o', label=f'ASZ (Chile Sites)', color='black')
-# plt.plot(asz_c['NewLat'], asz_c['Percent Abundance'], color='black')
-#
-# plt.xlabel('Site Latitude (Origin of HYSPLIT Backtrajectory)')
-# plt.ylabel('Percent of Backtrajectory Spent in Zone')
-# plt.xlim(-38, -57)
-# plt.legend()
-#
-# plt.show()
-#
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# """
-# 2x2 for the paper
-# """
-#
-#
-# # define a function to use in the gridspec tempaltes below
-# def heatmap_plot(this_location):
-#     # filter by location
-#     midpoint_lat = []
-#     midpoint_lon = []
-#     loc_len = []
-#     name = []
-#     this_loc = points.loc[points['location'] == this_location]
-#
-#     lons = np.linspace(-180, 180, 361)
-#     lats = np.linspace(-90,90, 181)
-#
-#     for i in range(0, len(lons)-1):
-#         for j in range(0, len(lats)-1):
-#             midpoint_lon.append((lons[i]+lons[i+1])/2)
-#             midpoint_lat.append((lats[j]+lats[j+1])/2)
-#
-#             subdata = this_loc.loc[(this_loc['x'] > lons[i]) & (this_loc['x'] <= lons[i+1]) &
-#                                    (this_loc['y'] > lats[j]) & (this_loc['y'] <= lats[j+1])]
-#
-#             loc_len.append(len(subdata))
-#             name.append(this_location)
-#             print(f'{this_location}, {lons[i]}, {lats[j]}')
-#
-#     results = pd.DataFrame({"location": name, "x": midpoint_lon, "y": midpoint_lat, "heat": loc_len})
-#     results = results.loc[results['heat'] != 0]
-#
-#     m = Basemap(projection='ortho',lon_0=-150,lat_0=-90,resolution='l')
-#     m.drawmapboundary(fill_color='lightgrey')
-#     m.fillcontinents(color='darkgrey')
-#     m.shadedrelief()
-#     m.drawcoastlines(linewidth=0.1)
-#
-#     a, b = m(results['x'], results['y'])
-#     m.scatter(a, b, c=results['heat'], cmap='coolwarm', s=5, linewidth=0.5, vmin=0, vmax=32, alpha=0.5)
-#
-#     fronts = np.unique(acc_fronts['front_name'])
-#     fronts = ['PF','SAF','STF','Boundary']
-#     line_sys = ['dotted','dashed','dashdot','solid','dotted','dashed','dashdot']
-#
-#     for g in range(0, len(fronts)):
-#         this_one = acc_fronts.loc[acc_fronts['front_name'] == fronts[g]]
-#         latitudes = this_one['latitude']
-#         longitudes = this_one['longitude']
-#         x, y = m(longitudes.values, latitudes.values)
-#         m.plot(x, y, color='black', label=f'{fronts[g]}', linestyle=line_sys[g])
-#     plt.title(f'{str(this_location)}')
-#
-#
-# fig = plt.figure(figsize=(8, 8))
-# gs = gridspec.GridSpec(2, 2)
-# gs.update(wspace=0.1, hspace=0.15)
-#
-# # TOP ROW
-#
-# xtr_subsplot = fig.add_subplot(gs[0:1, 0:1])
-# heatmap_plot('Lonely')
-#
-# xtr_subsplot = fig.add_subplot(gs[0:1, 1:2])
-# heatmap_plot('Monte')
-#
-#
-# xtr_subsplot = fig.add_subplot(gs[1:2, 0:1])
-# heatmap_plot('Haast')
-#
-#
-# xtr_subsplot = fig.add_subplot(gs[1:2, 1:2])
-# heatmap_plot('Seno')
-#
-#
-# plt.savefig(f'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/hysplit_heatmap/2x2_edited.png',
-#             dpi=300, bbox_inches="tight")
-# plt.close()
-
-#
-# end_time = time.time()
-# elapsed_time = end_time - start_time
-# print(f"Script executed in {elapsed_time:.2f} seconds")

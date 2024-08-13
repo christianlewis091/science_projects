@@ -290,6 +290,7 @@ https://github.com/christianlewis091/radiocarbon_intercomparison/blob/dev/interl
 
 
 def monte_carlo_randomization_smooth(x_init, fake_x, y_init, y_error, cutoff, n):  # explanation of arguments above
+    # reference3_trend = monte_carlo(ref1['Decimal_date'], output_xvals['x'], ref1['D14C'], ref1['weightedstderr_D14C'], cutoff, n)
     # THE WAY I AM WRITING THE CODE:
     # ALL VARIABLES MUST BE EXTRACTED FROM A PANDAS DATAFRAME. If your code doesn't work, try checking the format.
 

@@ -11,24 +11,33 @@ df = df.loc[df['Qflag'] != '.X.']
 """
 DIC concentrations
 """
+colors = ['sienna','SeaGreen','Teal','deepskyblue','Blue']
+dudes = ['o','D','^','s','X']
 
-fig = plt.figure(figsize=(16, 8))
-gs = gridspec.GridSpec(1, 2)
-gs.update(wspace=0.2, hspace=0.35)
+
+
+fig = plt.figure(figsize=(8, 8))
+gs = gridspec.GridSpec(2, 2)
+gs.update(wspace=0.1, hspace=0.25)
+
+"""
+DOUBTFUL SOUND
+"""
 
 # first subplot, concentrations
 xtr_subsplot = fig.add_subplot(gs[0:1, 0:1])
 
-dic = df.loc[(df['Sample'] == 'DIC') | (df['Sample'] == 'DIC Duplicate')]
+dbt_station = [1,2,3,4]
+dic = df.loc[((df['Sample'] == 'DIC') | (df['Sample'] == 'DIC Duplicate')) & (df['My Station Name'].isin(dbt_station))]
 dic = dic.dropna(subset='TDIC (mmol kgH20)')
 stations = np.unique(dic['My Station Name'])
 
-
 for i in range(0, len(stations)):
-    this_stn = dic.loc[dic['My Station Name'] == stations[i]]
-    plt.plot(this_stn['TDIC (mmol kgH20)'], this_stn['Depth'], marker='o', label=f'{stations[i]}')
+    this_stn = dic.loc[dic['My Station Name'] == stations[i]].sort_values(by='Depth')
+    plt.plot(this_stn['TDIC (mmol kgH20)'], this_stn['Depth'], color=colors[i])
+    plt.errorbar(this_stn['TDIC (mmol kgH20)'], this_stn['Depth'], xerr=this_stn['TDICerr'], marker='o', label=f'{stations[i]}', color=colors[i])
 plt.ylim(350,-10)
-plt.xlim(0, 3)
+plt.xlim(.5, 2.5)
 plt.axhline(y=0, color='black', alpha=0.15) #note the surface
 plt.xlabel('TDIC (mmol kgH20)')
 plt.ylabel('Depth (m)')
@@ -43,7 +52,7 @@ nz_min_lon = 166.25
 map = Basemap(llcrnrlat=minlat, urcrnrlat=maxlat, llcrnrlon=nz_min_lon, urcrnrlon=nz_max_lon, resolution='h')
 map.drawparallels(np.arange(-90, 90, 0.25), labels=[False, True, True, False], linewidth=0.1)
 map.drawmeridians(np.arange(-180, 180, 0.25), labels=[True, False, False, True], linewidth=0.1)
-map.fillcontinents(color="mediumaquamarine", lake_color='#DDEEFF')
+map.fillcontinents(color="darkseagreen", lake_color='#DDEEFF')
 map.drawmapboundary(fill_color="#DDEEFF")
 map.drawcoastlines()
 for i in range(0, len(stations)):
@@ -54,10 +63,57 @@ for i in range(0, len(stations)):
     lat = lat[0]
     lon = lon[0]
     x, y = map(lon, lat)
-    map.scatter(x, y, label=f'{stations[i]}')
+    map.scatter(x, y, label=f'{stations[i]}', color=colors[i])
 plt.legend()
+
+xtr_subsplot = fig.add_subplot(gs[1:2, 0:1])
+
+
+"""
+DUSKY SOUND
+"""
+dbt_station = [5,6,7,8,9]
+dic = df.loc[((df['Sample'] == 'DIC') | (df['Sample'] == 'DIC Duplicate')) & (df['My Station Name'].isin(dbt_station))]
+dic = dic.dropna(subset='TDIC (mmol kgH20)')
+stations = np.unique(dic['My Station Name'])
+
+for i in range(0, len(stations)):
+    this_stn = dic.loc[dic['My Station Name'] == stations[i]].sort_values(by='Depth')
+    plt.plot(this_stn['TDIC (mmol kgH20)'], this_stn['Depth'], color=colors[i])
+    plt.errorbar(this_stn['TDIC (mmol kgH20)'], this_stn['Depth'], xerr=this_stn['TDICerr'], marker='o', label=f'{stations[i]}', color=colors[i])
+plt.ylim(350,-10)
+plt.xlim(.5, 2.5)
+plt.axhline(y=0, color='black', alpha=0.15) #note the surface
+plt.xlabel('TDIC (mmol kgH20)')
+plt.ylabel('Depth (m)')
+plt.legend()
+
+
+xtr_subsplot = fig.add_subplot(gs[1:2, 1:2])
+maxlat = -45.0
+minlat = -46
+nz_max_lon = 167.25
+nz_min_lon = 166.25
+map = Basemap(llcrnrlat=minlat, urcrnrlat=maxlat, llcrnrlon=nz_min_lon, urcrnrlon=nz_max_lon, resolution='h')
+map.drawparallels(np.arange(-90, 90, 0.25), labels=[False, True, True, False], linewidth=0.1)
+map.drawmeridians(np.arange(-180, 180, 0.25), labels=[True, False, False, True], linewidth=0.1)
+map.fillcontinents(color="darkseagreen", lake_color='#DDEEFF')
+map.drawmapboundary(fill_color="#DDEEFF")
+map.drawcoastlines()
+for i in range(0, len(stations)):
+    this_stn = dic.loc[dic['My Station Name'] == stations[i]].reset_index(drop=True)
+
+    lat = this_stn['Latitude_N_decimal']
+    lon = this_stn['Longitude_E_decimal']
+    lat = lat[0]
+    lon = lon[0]
+    x, y = map(lon, lat)
+    map.scatter(x, y, label=f'{stations[i]}', color=colors[i])
+plt.legend()
+
 plt.savefig('C:/Users/clewis/IdeaProjects/GNS/Fiordland/OUTPUT/Basic_Figures/DIC_conc.png', dpi=300, bbox_inches="tight")
 plt.close()
+
 
 
 """

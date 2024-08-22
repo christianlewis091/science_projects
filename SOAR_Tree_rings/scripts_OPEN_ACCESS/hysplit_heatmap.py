@@ -63,10 +63,8 @@ for q in range(0, len(locations)):
 
     fig = plt.figure(figsize=(4, 8))
     m = Basemap(projection='ortho',lon_0=-150,lat_0=-90,resolution='l')
-    m.drawmapboundary(fill_color='lightgrey')
-    m.fillcontinents(color='darkgrey')
+    m.drawcoastlines()
     m.shadedrelief()
-    m.drawcoastlines(linewidth=0.1)
 
     a, b = m(results['x'], results['y'])
     m.scatter(a, b, c=results['heat'], cmap='coolwarm', s=5, linewidth=0.5, vmin=0, vmax=32, alpha=0.5)
@@ -81,11 +79,10 @@ for q in range(0, len(locations)):
         longitudes = this_one['longitude']
         x, y = m(longitudes.values, latitudes.values)
         m.plot(x, y, color='black', label=f'{fronts[g]}', linestyle=line_sys[g])
-        plt.colorbar()
 
-    plt.savefig(f'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/hysplit_heatmap/{locations[q]}_cbar.png',
+    plt.savefig(f'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/hysplit_heatmap/{locations[q]}.png',
             dpi=300, bbox_inches="tight")
-#
+# #
 #
 """
 Recalculating the "Time Per Zone" using points, not means
@@ -163,42 +160,93 @@ import numpy as np
 import seaborn as sns
 
 # Read the data from the Excel file
-df = pd.read_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/hysplit_heatmap/time_per_zone_usingpoints_edited.xlsx', sheet_name='Summary')
+df = pd.read_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/hysplit_heatmap/time_per_zone_usingpoints_edited.xlsx', sheet_name='Summary', comment='#')
 
-df = df.rename(columns={"STZ": "Subtropical Zone",
-                 "SAZ": "Subantarctic Zone",
-                 "PFZ": "Polar Frontal Zone",
-                 "ASZ": "Antarctic-Southern Zone",
-                 "SIZ": "Sea Ice Zone"})
+# make the plot twice and edit
 
-zones = ["Subtropical Zone", "Subantarctic Zone", "Polar Frontal Zone", "Antarctic-Southern Zone", "Sea Ice Zone"]
-zone_trans = [0.2, 0.2, 1,1,1]
-sites = df['Site']
+blah = np.unique(df['Country'])
+for h in range(0, len(blah)):
 
-# Define the color palette
-colors = sns.color_palette("muted", len(zones))
+    df1 = df.loc[df['Country'] == blah[h]]
+    # print(df)
 
-# Plotting
-fig, ax = plt.subplots(figsize=(12, 8))
+    df1 = df1.rename(columns={"STZ": "Subtropical Zone",
+                     "SAZ": "Subantarctic Zone",
+                     "PFZ": "Polar Frontal Zone",
+                     "ASZ": "Antarctic-Southern Zone",
+                     "SIZ": "Sea Ice Zone"})
 
-# Initialize the bottom array for the first stack
-bottom = np.zeros(len(sites))
+    zones = ["Subtropical Zone", "Subantarctic Zone", "Polar Frontal Zone", "Antarctic-Southern Zone", "Sea Ice Zone"]
+    zone_trans = [0.2, 0.2, 1,1,1]
+    sites = df1['Site']
 
-# Loop through each zone to create a stacked bar
-for i, zone in enumerate(zones):
-    ax.bar(sites, df[zone], bottom=bottom, label=zone, color=colors[i], alpha=zone_trans[i])
-    bottom += df[zone].values  # Update the bottom to include the current zone's height
+    # Define the color palette
+    colors = sns.color_palette("muted", len(zones))
 
-# Add some text for labels, title, and custom x-axis tick labels, etc.
-ax.set_xlabel('Site')
-ax.set_ylabel('Percent')
-ax.set_title('Percent of Back-Trajectory Spent in Each Zone')
-ax.set_xticks(np.arange(len(sites)))
-ax.set_xticklabels(sites, rotation=45)
-ax.legend()
+    # Plotting
+    fig, ax = plt.subplots(figsize=(6, 8))
 
-# Show the plot
-plt.savefig('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/hysplit_heatmap/stackedbar.png', dpi=300, bbox_inches="tight")
+    # Initialize the bottom array for the first stack
+    bottom = np.zeros(len(sites))
+
+    # Loop through each zone to create a stacked bar
+    for i, zone in enumerate(zones):
+        ax.bar(sites, df1[zone], bottom=bottom, label=zone, color=colors[i], alpha=zone_trans[i])
+        bottom += df1[zone].values  # Update the bottom to include the current zone's height
+
+    # Add some text for labels, title, and custom x-axis tick labels, etc.
+    ax.set_xlabel('Site')
+    ax.set_ylabel('Percent')
+    ax.set_title('Percent of Back-Trajectory Spent in Each Zone')
+    ax.set_xticks(np.arange(len(sites)))
+    ax.set_xticklabels(sites, rotation=65)
+    if h == 1:
+        ax.legend()
+    # Show the plot
+    plt.savefig(f"C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/hysplit_heatmap/stackedbar_{blah[h]}.png", dpi=300, bbox_inches="tight")
 
 plt.close()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

@@ -34,7 +34,7 @@ Collate Final Data sheet by mergeing my sampling log with RLIMS OUTPUT!
 Re-read in sheet and make plots
 """
 df = pd.read_excel('H:/Science/Datasets/Fiordland/Fiordland_DIC_14C_2024.xlsx', sheet_name='Duplicates_Removed', comment='#')
-df = df.rename(columns={'Latitude_N_decimal': 'lat', 'Longitude_E_decimal': 'lon'})
+df = df.rename(columns={'Latitude_N_decimal': 'lat', 'Longitude_E_decimal': 'lon','Water Carbonate CO2 Evolution::TDIC':'tdic_processing'})
 
 # I need to analyze these data, at least initally, as seperate "things" as 1) river water and 2) marine water
 df['River_Ocean'] = 'Ocean' # set inital status to ocean
@@ -66,31 +66,36 @@ print("Dusky Surface: y=%.3fx+%.3f\R$^2$=%.3f"%(slope, intercept,rvalue**2))
 sslope, sintercept, srvalue, spvalue, sstderr = stats.linregress(dbt_riv_x, dbt_riv_y)
 print("Doubtful Surface: y=%.3fx+%.3f\R$^2$=%.3f"%(sslope, sintercept,srvalue**2))
 
-# quick look at surface data:
-fig = plt.figure()
-plt.errorbar(dus_riv['lon'], dus_riv['DELTA14C'], yerr=dus_riv['DELTA14C_Error'], label='Dusky', marker='o', linestyle='', color='black', capsize=5)
-plt.errorbar(dbt_riv['lon'], dbt_riv['DELTA14C'], yerr=dbt_riv['DELTA14C_Error'], label='Doubtful', marker='D', linestyle='', color='seagreen', capsize=5)
-plt.plot(dus_riv_x, slope*dus_riv_x+intercept, color='black', alpha= 0.5)
-plt.plot(dbt_riv_x, sslope*dbt_riv_x+sintercept, color='seagreen', alpha= 0.5)
-plt.xlabel('Longitude (E)')
-plt.ylabel('DELTA14C')
-plt.legend()
-plt.ylabel('\u0394$^1$$^4$C (\u2030)')  # label the y axis
-plt.savefig('C:/Users/clewis/IdeaProjects/GNS/Fiordland/OUTPUT/Basic_Figures/Figure1.png', dpi=300, bbox_inches="tight")
-plt.close()
 
-fig = plt.figure()
-plt.errorbar(dus_riv['delta13C_IRMS'], dus_riv['DELTA14C'], yerr=dus_riv['DELTA14C_Error'], label='Dusky', marker='o', linestyle='', color='black', capsize=5)
-plt.errorbar(dbt_riv['delta13C_IRMS'], dbt_riv['DELTA14C'], yerr=dbt_riv['DELTA14C_Error'], label='Doubtful', marker='D', linestyle='', color='seagreen', capsize=5)
-plt.plot(dus_riv_x, slope*dus_riv_x+intercept, color='black', alpha= 0.5)
-plt.plot(dbt_riv_x, sslope*dbt_riv_x+sintercept, color='seagreen', alpha= 0.5)
-plt.xlabel('13C IRMS')
-plt.ylabel('DELTA14C')
-plt.xlim(-2, 1)
-plt.legend()
-plt.ylabel('\u0394$^1$$^4$C (\u2030)')  # label the y axis
-plt.savefig('C:/Users/clewis/IdeaProjects/GNS/Fiordland/OUTPUT/Basic_Figures/Figure2.png', dpi=300, bbox_inches="tight")
-plt.close()
+# quick look at surface data:
+# plotting a few things in a loop:
+xs = ['lon','delta13C_IRMS','tdic_processing']
+for i in range(0, len(xs)):
+    fig = plt.figure()
+    plt.errorbar(dus_riv[f"{xs[i]}"], dus_riv['DELTA14C'], yerr=dus_riv['DELTA14C_Error'], label='Dusky', marker='o', linestyle='', color='black', capsize=5)
+    plt.errorbar(dbt_riv[f"{xs[i]}"], dbt_riv['DELTA14C'], yerr=dbt_riv['DELTA14C_Error'], label='Doubtful', marker='D', linestyle='', color='seagreen', capsize=5)
+    if i==0:
+        plt.plot(dus_riv_x, slope*dus_riv_x+intercept, color='black', alpha= 0.5) # ONLY PLOT TRENDLINES FOR lon
+        plt.plot(dbt_riv_x, sslope*dbt_riv_x+sintercept, color='seagreen', alpha= 0.5)
+    plt.xlabel(f"{xs[i]}")
+    plt.ylabel('DELTA14C')
+    plt.legend()
+    plt.ylabel('\u0394$^1$$^4$C (\u2030)')  # label the y axis
+    plt.savefig(f"C:/Users/clewis/IdeaProjects/GNS/Fiordland/OUTPUT/Basic_Figures/DELTA14C_vs_{xs[i]}_surface.png", dpi=300, bbox_inches="tight")
+    plt.close()
+
+# fig = plt.figure()
+# plt.errorbar(dus_riv['delta13C_IRMS'], dus_riv['DELTA14C'], yerr=dus_riv['DELTA14C_Error'], label='Dusky', marker='o', linestyle='', color='black', capsize=5)
+# plt.errorbar(dbt_riv['delta13C_IRMS'], dbt_riv['DELTA14C'], yerr=dbt_riv['DELTA14C_Error'], label='Doubtful', marker='D', linestyle='', color='seagreen', capsize=5)
+# plt.plot(dus_riv_x, slope*dus_riv_x+intercept, color='black', alpha= 0.5)
+# plt.plot(dbt_riv_x, sslope*dbt_riv_x+sintercept, color='seagreen', alpha= 0.5)
+# plt.xlabel('13C IRMS')
+# plt.ylabel('DELTA14C')
+# plt.xlim(-2, 1)
+# plt.legend()
+# plt.ylabel('\u0394$^1$$^4$C (\u2030)')  # label the y axis
+# plt.savefig('C:/Users/clewis/IdeaProjects/GNS/Fiordland/OUTPUT/Basic_Figures/Figure2.png', dpi=300, bbox_inches="tight")
+# plt.close()
 
 """
 Now lets look closer at the deeper water...
@@ -102,74 +107,76 @@ dbt_station = [1, 2, 3, 4]  # arranging in longirude order, not sampling order, 
 dus_station = [7, 5, 6, 9, 8]
 size1 = 70
 
-fig = plt.figure(figsize=(10, 10))
+xs = ['Depth','delta13C_IRMS','tdic_processing']
+for j in range(0, len(xs)):
+    fig = plt.figure(figsize=(10, 10))
 
-# Create a GridSpec with 3 rows and 2 columns
-gs = gridspec.GridSpec(2, 2)
-gs.update(wspace=.2, hspace=0.05)
+    # Create a GridSpec with 3 rows and 2 columns
+    gs = gridspec.GridSpec(2, 2)
+    gs.update(wspace=.2, hspace=0.05)
 
-# Add subplots to the GridSpec
-ax3 = fig.add_subplot(gs[0, 0])
-ax4 = fig.add_subplot(gs[0, 1])
-ax1 = fig.add_subplot(gs[1, 0])
-ax2 = fig.add_subplot(gs[1, 1])
-
-
-for i in range(0, len(dbt_station)):
-    site = dbt_oc.loc[dbt_oc['My Station Name'] == dbt_station[i]]
-    ax1.errorbar(site['DELTA14C'], site['Depth'], xerr=site['DELTA14C_Error'], color=colors_dbt[i], marker=marks[i], label=f'{dbt_station[i]}', capsize=5)
-
-    # Plotting map on ax3
-    # dbt
-    maxlat = -45.1
-    minlat = -45.5
-    nz_max_lon = 167.25
-    nz_min_lon = 166.75
-
-    map = Basemap(llcrnrlat=minlat, urcrnrlat=maxlat, llcrnrlon=nz_min_lon, urcrnrlon=nz_max_lon, resolution='h', ax=ax3)
-    map.drawparallels(np.arange(-90, 90, 0.25), labels=[False, True, True, False], linewidth=0.1)
-    map.drawmeridians(np.arange(-180, 180, 0.25), labels=[True, False, False, True], linewidth=0.1)
-    map.fillcontinents(color="darkseagreen", lake_color='#DDEEFF')
-    map.drawmapboundary(fill_color="#DDEEFF")
-    map.drawcoastlines()
-
-    lat = site['lat']
-    lon = site['lon']
-    x, y = map(lon, lat)
-    ax3.scatter(x, y, label=f'{dbt_station[i]}', color=colors_dbt[i], s=size1, zorder=2, marker=marks[i])
-
-for i in range(0, len(dus_station)):
-    site = dus_oc.loc[dus_oc['My Station Name'] == dus_station[i]]
-    ax2.errorbar(site['DELTA14C'], site['Depth'],  xerr=site['DELTA14C_Error'], color=colors_dus[i], marker=marks[i], label=f'{dus_station[i]}', capsize=5)
-
-    # Plotting map on ax4
-    # dbt
-    maxlat = -45.5
-    minlat = -45.9
-    nz_max_lon = (166.3+.75)
-    nz_min_lon = 166.3
-    map = Basemap(llcrnrlat=minlat, urcrnrlat=maxlat, llcrnrlon=nz_min_lon, urcrnrlon=nz_max_lon, resolution='h', ax=ax4)
-    map.drawparallels(np.arange(-90, 90, 0.25), labels=[False, True, True, False], linewidth=0.1)
-    map.drawmeridians(np.arange(-180, 180, 0.25), labels=[True, False, False, True], linewidth=0.1)
-    map.fillcontinents(color="darkseagreen", lake_color='#DDEEFF')
-    map.drawmapboundary(fill_color="#DDEEFF")
-    map.drawcoastlines()
-
-    lat = site['lat']
-    lon = site['lon']
-    x, y = map(lon, lat)
-    ax4.scatter(x, y, label=f'{dus_station[i]}', color=colors_dus[i], s=size1, zorder=2, marker=marks[i])
+    # Add subplots to the GridSpec
+    ax3 = fig.add_subplot(gs[0, 0])
+    ax4 = fig.add_subplot(gs[0, 1])
+    ax1 = fig.add_subplot(gs[1, 0])
+    ax2 = fig.add_subplot(gs[1, 1])
 
 
-ax1.set_ylabel('Depth')
-ax1.set_ylim(350, 0)
-ax1.set_xlim(22, 36)
-ax1.set_xlabel('\u0394$^1$$^4$C (\u2030)')
-ax1.legend()
+    for i in range(0, len(dbt_station)):
+        site = dbt_oc.loc[dbt_oc['My Station Name'] == dbt_station[i]]
+        ax1.errorbar(site['DELTA14C'], site[f"{xs[j]}"], xerr=site['DELTA14C_Error'], color=colors_dbt[i], marker=marks[i], label=f'{dbt_station[i]}', capsize=5)
 
-ax2.set_ylim(350, 0)
-ax2.set_xlim(22, 36)
-ax2.set_xlabel('\u0394$^1$$^4$C (\u2030)')
-ax2.legend()
-plt.savefig('C:/Users/clewis/IdeaProjects/GNS/Fiordland/OUTPUT/Basic_Figures/Figure3.png', dpi=300, bbox_inches="tight")
-plt.close()
+        # Plotting map on ax3
+        # dbt
+        maxlat = -45.1
+        minlat = -45.5
+        nz_max_lon = 167.25
+        nz_min_lon = 166.75
+
+        map = Basemap(llcrnrlat=minlat, urcrnrlat=maxlat, llcrnrlon=nz_min_lon, urcrnrlon=nz_max_lon, resolution='h', ax=ax3)
+        map.drawparallels(np.arange(-90, 90, 0.25), labels=[False, True, True, False], linewidth=0.1)
+        map.drawmeridians(np.arange(-180, 180, 0.25), labels=[True, False, False, True], linewidth=0.1)
+        map.fillcontinents(color="darkseagreen", lake_color='#DDEEFF')
+        map.drawmapboundary(fill_color="#DDEEFF")
+        map.drawcoastlines()
+
+        lat = site['lat']
+        lon = site['lon']
+        x, y = map(lon, lat)
+        ax3.scatter(x, y, label=f'{dbt_station[i]}', color=colors_dbt[i], s=size1, zorder=2, marker=marks[i])
+
+    for i in range(0, len(dus_station)):
+        site = dus_oc.loc[dus_oc['My Station Name'] == dus_station[i]]
+        ax2.errorbar(site['DELTA14C'], site[f"{xs[j]}"],  xerr=site['DELTA14C_Error'], color=colors_dus[i], marker=marks[i], label=f'{dus_station[i]}', capsize=5)
+
+        # Plotting map on ax4
+        # dbt
+        maxlat = -45.5
+        minlat = -45.9
+        nz_max_lon = (166.3+.75)
+        nz_min_lon = 166.3
+        map = Basemap(llcrnrlat=minlat, urcrnrlat=maxlat, llcrnrlon=nz_min_lon, urcrnrlon=nz_max_lon, resolution='h', ax=ax4)
+        map.drawparallels(np.arange(-90, 90, 0.25), labels=[False, True, True, False], linewidth=0.1)
+        map.drawmeridians(np.arange(-180, 180, 0.25), labels=[True, False, False, True], linewidth=0.1)
+        map.fillcontinents(color="darkseagreen", lake_color='#DDEEFF')
+        map.drawmapboundary(fill_color="#DDEEFF")
+        map.drawcoastlines()
+
+        lat = site['lat']
+        lon = site['lon']
+        x, y = map(lon, lat)
+        ax4.scatter(x, y, label=f'{dus_station[i]}', color=colors_dus[i], s=size1, zorder=2, marker=marks[i])
+
+
+    ax1.set_ylabel(f"{xs[j]}")
+    # ax1.set_ylim(350, 0)
+    ax1.set_xlim(22, 36)
+    ax1.set_xlabel('\u0394$^1$$^4$C (\u2030)')
+    ax1.legend()
+
+    # ax2.set_ylim(350, 0)
+    ax2.set_xlim(22, 36)
+    ax2.set_xlabel('\u0394$^1$$^4$C (\u2030)')
+    ax2.legend()
+    plt.savefig(f"C:/Users/clewis/IdeaProjects/GNS/Fiordland/OUTPUT/Basic_Figures/DELTA14C_vs_{xs[j]}_subsurface.png", dpi=300, bbox_inches="tight")
+    plt.close()

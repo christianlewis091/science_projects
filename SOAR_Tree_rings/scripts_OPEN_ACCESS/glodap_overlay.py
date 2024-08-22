@@ -32,125 +32,125 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.basemap import Basemap
 import matplotlib.gridspec as gridspec
 from X_my_functions import monte_carlo_randomization_trend
-from main_analysis import *
+# from main_analysis import *
 #
-df = pd.read_excel(r'H:\Science\Datasets\Hydrographic\raw_data_watermassproject_ALLDATA100m.xlsx')
+df = pd.read_excel(r'C:/Users/clewis/IdeaProjects/GNS/Water_mass_dataset/output_OPEN_ACCESS/STEP2_assign_masses/STEP2_WATER_MASSES_ASSIGNED.xlsx')
 acc_fronts = pd.read_csv(r'H:\Science\Datasets\ACC_fronts\csv\antarctic_circumpolar_current_fronts.csv')
 
-"""
-I'll need to smooth the acc fronts to the lat/lons where there is data in order to do the differeceing.
-"""
-# the smoothing will output latitude data wherever it sees longitude data on X
-datas = pd.DataFrame({'x': df['LONGITUDE'], 'y': df['LATITUDE']}).sort_values(by=['x'], ascending=True).reset_index(drop=True)
-
-n = 3 # set the amount of times the code will iterate (set to 10,000 once everything is final)
-cutoff = 667  # FFT filter cutoff
-
-# Do this for each front
-fronts = np.unique(acc_fronts['front_name'])
-fronts = ['PF','SAF','STF','Boundary']
-line_sys = ['dotted','dashed','dashdot','solid','dotted','dashed','dashdot']
-
+# """
+# I'll need to smooth the acc fronts to the lat/lons where there is data in order to do the differeceing.
+# """
+# # the smoothing will output latitude data wherever it sees longitude data on X
+# datas = pd.DataFrame({'x': df['LONGITUDE'], 'y': df['LATITUDE']}).sort_values(by=['x'], ascending=True).reset_index(drop=True)
 #
-# m = Basemap(projection='ortho',lon_0=-150,lat_0=-90,resolution='l')
-# m.drawcoastlines()
-# m.shadedrelief()
-
-# create a smoothed front
-for i in range(0, len(fronts)):
-    this_one = acc_fronts.loc[acc_fronts['front_name'] == fronts[i]]
-    latitudes = this_one['latitude'].reset_index(drop=True)
-    longitudes = this_one['longitude'].reset_index(drop=True)
-    yerr = latitudes*.01
-
-    #dynamically name a variable
-    smoothed = ccgFilter(longitudes, latitudes, cutoff).getSmoothValue(datas['x'])
-    df[f'{fronts[i]}+smoothed'] = smoothed
-
-    # # test it by showing in a plot / works so i'm removing this
-    # x, y = m(datas['x'], smoothed)
-    # m.plot(x, y, color='black', label=f'{fronts[i]}', linestyle=line_sys[i])
-
-# df.to_excel(r'H:\Science\Datasets\Hydrographic\test.xlsx')
-# df = pd.read_excel(r'H:\Science\Datasets\Hydrographic\test.xlsx')
-
-# I need to make sure that the northernmost front isn't calculating everyting in the northern
-# hemispehre so I index only to include everything souht of 5S.
-
-df = df.loc[df['LATITUDE'] <= -5]
-cruise_names = np.unique(df['EXPOCODE'].astype(str))
-cruise_names = pd.DataFrame({"EXPOCODES": cruise_names})
-print(min(df['DATE']))
-print(max(df['DATE']))
-cruise_names.to_excel(r'H:\Science\Datasets\Hydrographic\names.xlsx')
-# subset data so that I only see data where the latitude of the pont is lower than STF
-# columns_to_dropna = ['Boundary+smoothed', 'PF+smoothed','SAF+smoothed','STF+smoothed']
-# df = df.dropna(subset=columns_to_dropna, inplace=True)
-
-# loop through the DF and assign a "SURFACE FRONT" to each point based on its lat and lon...
-result_array = []
-results_array_sectors1 = []
-results_array_sectors2 = []
-for j in range(0, len(df)):
-    row = df.iloc[j]
-    # print(row['LATITUDE'])
-    # print(row['Boundary+smoothed'])
-    # print(row['PF+smoothed'])
-    # print(row['SAF+smoothed'])
-    # print(row['STF+smoothed'])
-
-    # assign label based on latitude
-    if (row['LATITUDE'] >= row['STF+smoothed']):
-        res = 'STZ'
-    elif (row['LATITUDE'] >= row['Boundary+smoothed']) & (row['LATITUDE'] <= row['PF+smoothed']):
-        res = 'ASZ'
-    elif (row['LATITUDE'] >= row['PF+smoothed']) & (row['LATITUDE'] <= row['SAF+smoothed']):
-        res = 'PFZ'
-    elif (row['LATITUDE'] >= row['SAF+smoothed']) & (row['LATITUDE'] <= row['STF+smoothed']):
-        res = 'SAZ'
-    elif (row['LATITUDE'] <= row['Boundary+smoothed']):
-        res = 'SIZ'
-    else:
-        res = 'Error'
-
-    # assign label based on latitude and longitude (PACIFIC SIDE FOR CHILEAN DATA)
-    if (row['LATITUDE'] >= row['STF+smoothed']) & (-150 <= row['LONGITUDE'] <= -90):
-        res2 = 'STZ'
-    elif (row['LATITUDE'] >= row['Boundary+smoothed']) & (row['LATITUDE'] <= row['PF+smoothed']) & (-150 <= row['LONGITUDE'] <= -90):
-        res2 = 'ASZ'
-    elif (row['LATITUDE'] >= row['PF+smoothed']) & (row['LATITUDE'] <= row['SAF+smoothed']) & (-150 <= row['LONGITUDE'] <= -90):
-        res2 = 'PFZ'
-    elif (row['LATITUDE'] >= row['SAF+smoothed']) & (row['LATITUDE'] <= row['STF+smoothed']) & (-150 <= row['LONGITUDE'] <= -90):
-        res2 = 'SAZ'
-    elif (row['LATITUDE'] <= row['Boundary+smoothed']):
-        res2 = 'SIZ'
-    else:
-        res2 = 'Error'
-    # INDIAN SIDE FOR NZ ORIGIN
-    if (row['LATITUDE'] >= row['STF+smoothed']) & (60 <= row['LONGITUDE'] <= 120):
-        res3 = 'STZ'
-    elif (row['LATITUDE'] >= row['Boundary+smoothed']) & (row['LATITUDE'] <= row['PF+smoothed']) & (60 <= row['LONGITUDE'] <= 120):
-        res3 = 'ASZ'
-    elif (row['LATITUDE'] >= row['PF+smoothed']) & (row['LATITUDE'] <= row['SAF+smoothed']) & (60 <= row['LONGITUDE'] <= 120):
-        res3 = 'PFZ'
-    elif (row['LATITUDE'] >= row['SAF+smoothed']) & (row['LATITUDE'] <= row['STF+smoothed']) & (60 <= row['LONGITUDE'] <= 120):
-        res3 = 'SAZ'
-    elif (row['LATITUDE'] <= row['Boundary+smoothed']):
-        res3 = 'SIZ'
-    else:
-        res3 = 'Error'
-
-    # append the total zone
-    result_array.append(res)
-    # append the Pac zone
-    results_array_sectors1.append(res2)
-    # append the indian zone
-    results_array_sectors2.append(res3)
-df['CBL_zones'] = result_array
-df['CBL_zones_sectored_CH'] = results_array_sectors1
-df['CBL_zones_sectored_NZ'] = results_array_sectors2
-df.to_excel(r'H:\Science\Datasets\Hydrographic\cbl_zones.xlsx')
-
+# n = 3 # set the amount of times the code will iterate (set to 10,000 once everything is final)
+# cutoff = 667  # FFT filter cutoff
+#
+# # Do this for each front
+# fronts = np.unique(acc_fronts['front_name'])
+# fronts = ['PF','SAF','STF','Boundary']
+# line_sys = ['dotted','dashed','dashdot','solid','dotted','dashed','dashdot']
+#
+# #
+# # m = Basemap(projection='ortho',lon_0=-150,lat_0=-90,resolution='l')
+# # m.drawcoastlines()
+# # m.shadedrelief()
+#
+# # create a smoothed front
+# for i in range(0, len(fronts)):
+#     this_one = acc_fronts.loc[acc_fronts['front_name'] == fronts[i]]
+#     latitudes = this_one['latitude'].reset_index(drop=True)
+#     longitudes = this_one['longitude'].reset_index(drop=True)
+#     yerr = latitudes*.01
+#
+#     #dynamically name a variable
+#     smoothed = ccgFilter(longitudes, latitudes, cutoff).getSmoothValue(datas['x'])
+#     df[f'{fronts[i]}+smoothed'] = smoothed
+#
+#     # # test it by showing in a plot / works so i'm removing this
+#     # x, y = m(datas['x'], smoothed)
+#     # m.plot(x, y, color='black', label=f'{fronts[i]}', linestyle=line_sys[i])
+#
+# # df.to_excel(r'H:\Science\Datasets\Hydrographic\test.xlsx')
+# # df = pd.read_excel(r'H:\Science\Datasets\Hydrographic\test.xlsx')
+#
+# # I need to make sure that the northernmost front isn't calculating everyting in the northern
+# # hemispehre so I index only to include everything souht of 5S.
+#
+# df = df.loc[df['LATITUDE'] <= -5]
+# cruise_names = np.unique(df['EXPOCODE'].astype(str))
+# cruise_names = pd.DataFrame({"EXPOCODES": cruise_names})
+# print(min(df['DATE']))
+# print(max(df['DATE']))
+# cruise_names.to_excel(r'H:\Science\Datasets\Hydrographic\names.xlsx')
+# # subset data so that I only see data where the latitude of the pont is lower than STF
+# # columns_to_dropna = ['Boundary+smoothed', 'PF+smoothed','SAF+smoothed','STF+smoothed']
+# # df = df.dropna(subset=columns_to_dropna, inplace=True)
+#
+# # loop through the DF and assign a "SURFACE FRONT" to each point based on its lat and lon...
+# result_array = []
+# results_array_sectors1 = []
+# results_array_sectors2 = []
+# for j in range(0, len(df)):
+#     row = df.iloc[j]
+#     # print(row['LATITUDE'])
+#     # print(row['Boundary+smoothed'])
+#     # print(row['PF+smoothed'])
+#     # print(row['SAF+smoothed'])
+#     # print(row['STF+smoothed'])
+#
+#     # assign label based on latitude
+#     if (row['LATITUDE'] >= row['STF+smoothed']):
+#         res = 'STZ'
+#     elif (row['LATITUDE'] >= row['Boundary+smoothed']) & (row['LATITUDE'] <= row['PF+smoothed']):
+#         res = 'ASZ'
+#     elif (row['LATITUDE'] >= row['PF+smoothed']) & (row['LATITUDE'] <= row['SAF+smoothed']):
+#         res = 'PFZ'
+#     elif (row['LATITUDE'] >= row['SAF+smoothed']) & (row['LATITUDE'] <= row['STF+smoothed']):
+#         res = 'SAZ'
+#     elif (row['LATITUDE'] <= row['Boundary+smoothed']):
+#         res = 'SIZ'
+#     else:
+#         res = 'Error'
+#
+#     # assign label based on latitude and longitude (PACIFIC SIDE FOR CHILEAN DATA)
+#     if (row['LATITUDE'] >= row['STF+smoothed']) & (-150 <= row['LONGITUDE'] <= -90):
+#         res2 = 'STZ'
+#     elif (row['LATITUDE'] >= row['Boundary+smoothed']) & (row['LATITUDE'] <= row['PF+smoothed']) & (-150 <= row['LONGITUDE'] <= -90):
+#         res2 = 'ASZ'
+#     elif (row['LATITUDE'] >= row['PF+smoothed']) & (row['LATITUDE'] <= row['SAF+smoothed']) & (-150 <= row['LONGITUDE'] <= -90):
+#         res2 = 'PFZ'
+#     elif (row['LATITUDE'] >= row['SAF+smoothed']) & (row['LATITUDE'] <= row['STF+smoothed']) & (-150 <= row['LONGITUDE'] <= -90):
+#         res2 = 'SAZ'
+#     elif (row['LATITUDE'] <= row['Boundary+smoothed']):
+#         res2 = 'SIZ'
+#     else:
+#         res2 = 'Error'
+#     # INDIAN SIDE FOR NZ ORIGIN
+#     if (row['LATITUDE'] >= row['STF+smoothed']) & (60 <= row['LONGITUDE'] <= 120):
+#         res3 = 'STZ'
+#     elif (row['LATITUDE'] >= row['Boundary+smoothed']) & (row['LATITUDE'] <= row['PF+smoothed']) & (60 <= row['LONGITUDE'] <= 120):
+#         res3 = 'ASZ'
+#     elif (row['LATITUDE'] >= row['PF+smoothed']) & (row['LATITUDE'] <= row['SAF+smoothed']) & (60 <= row['LONGITUDE'] <= 120):
+#         res3 = 'PFZ'
+#     elif (row['LATITUDE'] >= row['SAF+smoothed']) & (row['LATITUDE'] <= row['STF+smoothed']) & (60 <= row['LONGITUDE'] <= 120):
+#         res3 = 'SAZ'
+#     elif (row['LATITUDE'] <= row['Boundary+smoothed']):
+#         res3 = 'SIZ'
+#     else:
+#         res3 = 'Error'
+#
+#     # append the total zone
+#     result_array.append(res)
+#     # append the Pac zone
+#     results_array_sectors1.append(res2)
+#     # append the indian zone
+#     results_array_sectors2.append(res3)
+# df['CBL_zones'] = result_array
+# df['CBL_zones_sectored_CH'] = results_array_sectors1
+# df['CBL_zones_sectored_NZ'] = results_array_sectors2
+# df.to_excel(r'H:\Science\Datasets\Hydrographic\cbl_zones.xlsx')
+#
 
 """
 FIGURE SECTION
@@ -165,7 +165,9 @@ import matplotlib.gridspec as gridspec
 
 # # READ IN THE _ALLDATA FILE
 # df = pd.read_excel(r'H:\Science\Datasets\Hydrographic\raw_data_watermassproject_ALLDATA.xlsx')
-df = pd.read_excel(r'H:\Science\Datasets\Hydrographic\raw_data_watermassproject_ALLDATA100m.xlsx')
+# df = pd.read_excel(r'H:\Science\Datasets\Hydrographic\raw_data_watermassproject_ALLDATA100m.xlsx')
+# data read in above
+
 # FILTER TO ONLY GRAB SURFACE SAMPLES
 df = df.loc[df['CTDPRS'] < 100] # ONLY GRAB SURFACE SAMPLES
 
@@ -184,11 +186,10 @@ acc_fronts = pd.read_csv(r'H:\Science\Datasets\ACC_fronts\csv\antarctic_circumpo
 #
 #
 # # CREATE THE MAP
-fib = 18 # goldenr atio
-fig = plt.figure(figsize=(fib, fib/1.618))
-gs = gridspec.GridSpec(4, 4)
-gs.update(wspace=.4, hspace=0.01)
 
+fig = plt.figure(figsize=(12, 8))
+gs = gridspec.GridSpec(4, 4)
+gs.update(wspace=.4, hspace=0.1)
 # # set colorbar boundaries
 #
 #
@@ -253,93 +254,6 @@ for i in range(0, len(fronts)):
     longitudes = this_one['longitude']
     x, y = m(longitudes.values, latitudes.values)
     m.plot(x, y, color='black', label=f'{fronts[i]}', linestyle=line_sys[i])
-
-# """
-# THIRD SUBPLOT: hyspliy
-# """
-# xtr_subsplot = fig.add_subplot(gs[2:4, 2:4])
-# m = Basemap(projection='ortho',lon_0=-150,lat_0=-90,resolution='l')
-# m.drawcoastlines()
-# m.shadedrelief()
-# m.drawparallels(np.arange(-90, 90, 30), labels=[True, False, False, False], fontsize=7, linewidth=0.5)
-# m.drawmeridians(np.arange(-180, 180, 30), labels=[1, 1, 0, 1], fontsize=7, linewidth=0.5)
-# # """
-# # COPIED AND PASTED THE MAP FROM THE BOTTOM OF MAIN_ANALYSIS.PY
-# # THE BELOW CODE WORKS. I'm going to test plotting the glodap data above and then bring it into the plot below
-# # """
-# # LOAD HYSPLOT DATA
-# easy_access = pd.read_excel(r'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/hysplit/output_data/easy_access2 - Copy.xlsx')
-# acc_fronts = pd.read_csv(r'H:\Science\Datasets\ACC_fronts\csv\antarctic_circumpolar_current_fronts.csv')
-# means = pd.read_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/hysplit_make_plots/means_concat.xlsx')
-# fronts = np.unique(acc_fronts['front_name'])
-# fronts = ['PF','SAF','STF','Boundary']
-#
-# """
-# BEGIN PLOTTING THE FIGURE
-# """
-# from main_analysis import locs1, chile, markers, colors, size1, locs2, nz
-# line_sys = ['dotted','dashed','dashdot','solid','dotted','dashed','dashdot']
-#
-#
-# # codenames = np.unique(easy_access['Codename'])
-# # for i in range(0,len(codenames)):
-# #
-# #     # LOCATE FIRST SITE
-# #     site1 = means.loc[means['location'] == codenames[i]]
-# #     latitudes = site1['y']
-# #     longitudes = site1['x']
-# #     x, y = m(longitudes.values, latitudes.values)
-# #     m.scatter(x, y, marker=markers[i],color=colors[i], s=size1*10, edgecolor='black')
-# #     print(locs1[i])
-#
-# fronts = np.unique(acc_fronts['front_name'])
-# fronts = ['PF','SAF','STF','Boundary']
-# line_sys = ['dotted','dashed','dashdot','solid','dotted','dashed','dashdot']
-#
-# for i in range(0, len(fronts)):
-#     this_one = acc_fronts.loc[acc_fronts['front_name'] == fronts[i]]
-#     latitudes = this_one['latitude']
-#     longitudes = this_one['longitude']
-#     x, y = m(longitudes.values, latitudes.values)
-#     m.plot(x, y, color='black', label=f'{fronts[i]}', linestyle=line_sys[i])
-#
-#     # PLOTTING CHILEAN SITES
-# for i in range(0, len(locs1)):
-#     slice = chile.loc[chile['Site'] == str(locs1[i])].reset_index(drop=True)  # grab the first data to plot, based on location
-#     lat = slice['NewLat']
-#     lat = lat[0]
-#     lon = slice['new_Lon']
-#     lon = lon[0]
-#     x, y = m(lon, lat)
-#     m.scatter(x, y, marker=markers[i],color=colors[i], s=size1*10, edgecolor='black')
-#
-#     site1 = means.loc[means['location'] == str(locs1[i])]
-#     # print(locs1[i])
-#     latitudes = site1['y']
-#     longitudes = site1['x']
-#     x, y = m(longitudes.values, latitudes.values)
-#     m.scatter(x, y, color=colors[i], s=5)
-#
-#     # PLOTTING NZ SITES
-# for i in range(0, len(locs2)):
-#     slice = nz.loc[nz['Site'] == str(locs2[i])].reset_index(drop=True)  # grab the first data to plot, based on location
-#     lat = slice['NewLat']
-#     lat = lat[0]
-#     lon = slice['NewLon']
-#     lon = lon[0]
-#     x, y = m(lon, lat)
-#     # print(x, y)
-#     m.scatter(x, y, marker=markers[i],color=colors[i], s=size1*10, edgecolor='black')
-#
-#     site1 = means.loc[means['location'] == str(locs2[i])]
-#     latitudes = site1['y']
-#     longitudes = site1['x']
-#     x, y = m(longitudes.values, latitudes.values)
-#     m.scatter(x, y, color=colors[i], s=5)
-
-
-plt.title('HYSPLIT')
-#
 
 df = pd.read_excel(r'H:\Science\Datasets\Hydrographic\cbl_zones.xlsx')
 df = df.loc[df['CBL_zones'] != 'Error']

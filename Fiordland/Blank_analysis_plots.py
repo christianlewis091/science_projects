@@ -49,7 +49,7 @@ df['STD_CORR'] = (df['DCC']/1000)*((1/df['mg C'])- (1/.89))  # approximate stand
 
 # FM
 df['FM'] = (df['STD_MULT']*(df['Ratio to Standard'] - df['BKGD']))/(1-df['STD_CORR']-df['BKGD'])
-df.to_excel('C:/Users/clewis/IdeaProjects/GNS/Fiordland/OUTPUT/Blank_analysis_plots/out.xlsx')
+# df.to_excel('C:/Users/clewis/IdeaProjects/GNS/Fiordland/OUTPUT/Blank_analysis_plots/out.xlsx')
 
 
 """
@@ -89,7 +89,7 @@ ax[0].set_xticks(ticks=[0.001, 0.01, 0.1, 1, 10], labels=['0.001', '0.01', '0.1'
 ax[1].set_xticks(ticks=[0.001, 0.01, 0.1, 1, 10], labels=['0.001', '0.01', '0.1', '1','10'])
 ax[0].set_xlim(.001, 10)
 ax[1].set_xlim(.001, 10)
-ax[0].set_ylim(.75, 1.05)
+# ax[0].set_ylim(.75, 1.05)
 # ax[1].set_ylim(.075, .2)
 
 ax[0].set_title('Tannic Acid Indirect Blank Analysis')
@@ -133,7 +133,6 @@ gns_sa = df.loc[(df['Site'] == 'GNS') & (df['ID'] == 'salicylic acid')].dropna(s
 ax[1].scatter(gns_sa['mg C'], gns_sa['FM'], label='GNS Salicylic Acid, Corrected', color='red', edgecolor='black', s= 60)
 ax[1].scatter(gns_sa['mg C'], gns_sa['Ratio to Standard'], color='white', edgecolor='black', s= 60)
 ax[1].legend()
-plt.show()
 plt.savefig('C:/Users/clewis/IdeaProjects/GNS/Fiordland/OUTPUT/Blank_analysis_plots/Figure1.png', dpi=300, bbox_inches="tight")
 plt.close()
 

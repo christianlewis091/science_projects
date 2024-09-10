@@ -2,7 +2,7 @@
 Updated: 29 November 2022
 
 This file does the following:
-1. Breaks up the data based on certain latitudinal bands defined in analysis1.py.
+1. Breaks up the data based on certain latitudinal bands defined in Analysis_V1.py.
 2. Calculates broad data for each latitudinal band, for different time intervals.
 3. Creates plot 4.
 

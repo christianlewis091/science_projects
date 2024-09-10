@@ -19,9 +19,9 @@ from mpl_toolkits.basemap import Basemap
 STEP1. Change to txt
 """
 
-# input_directory = r'H:\Science\Datasets\Fiordland\SFCS2405_CTD'
-# out_directory = r'H:\Science\Datasets\Fiordland\SFCS2405_CTD\STEP1'
-# #
+input_directory = r'H:\Science\Datasets\Fiordland\SFCS2405_CTD\CTD_CNVFiles'
+out_directory = r'H:\Science\Datasets\Fiordland\SFCS2405_CTD\STEP1'
+#
 # def copy_and_rename_files(source_directory, destination_directory):
 #     # Change the current working directory to the source directory
 #     os.chdir(source_directory)
@@ -119,7 +119,7 @@ Now we'll run the concat STEP3
 #     concat_df = pd.concat([concat_df, sub_df]).reset_index(drop=True)
 #
 # concat_df.to_excel(f'H:\Science\Datasets\Fiordland\SFCS2405_CTD\STEP3/Concatonated_Data.xlsx')
-
+#
 
 
 """
@@ -127,6 +127,7 @@ Check the CTD data I was given matches where we were
 """
 # # first a rough check I was sent the propoer profiles. Do they aligm on the maP?
 # mets = pd.read_excel(r'H:\Science\Datasets\Fiordland\SFCS2405_CTD\metadata.xlsx')
+# mets = mets.dropna(subset='My Station Name')
 # df = pd.read_excel('C:/2024_Polaris_II/Sampling_Log.xlsx')
 # stns = np.unique(df['My Station Name'])
 #
@@ -149,7 +150,7 @@ Check the CTD data I was given matches where we were
 # lat = df['Latitude_N_decimal']
 # lon = df['Longitude_E_decimal']
 # x, y = map(lon, lat)
-# map.scatter(x, y, color='red', edgecolor='black', label='CBL Sheet lat lons', s=size2, marker='^')
+# map.scatter(x, y, color='red', edgecolor='black', label='CBL Sheet lat lons', s=size2, marker='^', zorder=2, alpha=0.5)
 #
 # lat = mets['Lat']
 # lon = mets['Lon']
@@ -157,7 +158,6 @@ Check the CTD data I was given matches where we were
 # map.scatter(x, y, color='blue', edgecolor='black', label='Otago Lat lons', s=60, marker='o')
 # plt.legend()
 #
-# # plt.show()
 # plt.savefig('H:\Science\Datasets\Fiordland\SFCS2405_CTD/Spothceck.png',
 #             dpi=300, bbox_inches="tight")
 
@@ -165,13 +165,58 @@ Check the CTD data I was given matches where we were
 """
 Add lat lons
 """
-mets = pd.read_excel(r'H:\Science\Datasets\Fiordland\SFCS2405_CTD\metadata.xlsx')
-df = pd.read_excel(f'H:\Science\Datasets\Fiordland\SFCS2405_CTD\STEP3/Concatonated_Data.xlsx')
+# mets = pd.read_excel(r'H:\Science\Datasets\Fiordland\SFCS2405_CTD\metadata.xlsx')
+# df = pd.read_excel(f'H:\Science\Datasets\Fiordland\SFCS2405_CTD\STEP3/Concatonated_Data.xlsx')
+#
+# df = df.merge(mets, on='FileName')
+# df.to_excel(r'H:\Science\Datasets\Fiordland\SFCS2405_CTD\STEP4\merge_all.xlsx')
+#
+# df = df.dropna(subset='My Station Name')
+# df.to_excel(r'H:\Science\Datasets\Fiordland\SFCS2405_CTD\STEP4\mystations.xlsx')
+#
+#
+# """
+# Edit the file to read only one transect each so its easier to deal with in ODV
+# """
+#
+# df = pd.read_excel(r'H:\Science\Datasets\Fiordland\SFCS2405_CTD\STEP4\merge_all.xlsx')
+# names = np.unique(df['FileName'])
+#
+# dbt_stn =['DBT001_01CTD','DBT002_01CTD', 'DBT003_01CTD','DBT004_01CTD', 'DBT006_01CTD', 'DBT007_01CTD', 'DBT008_01CTD' , 'DBT031_01CTD']
+# dus_stn =['DUS019_01CTD','DUS020_01CTD','DUS022_01CTD', 'DUS023_01CTD', 'DUS056_01CTD','DBT011_02CTD', 'DBT012_01CTD','DBT017_01CTD', 'DBT010_02CTD']
+# dbt = df.loc[df['FileName'].isin(dbt_stn)]
+# dus = df.loc[df['FileName'].isin(dus_stn)]
+#
+# dbt = dbt[['DepSM', 'bpos', 'T090C', 'Sal00', 'Sbeox0Mg/L', 'sbeox0PS', 'FileName', 'Lat', 'Lon']]
+# dus = dus[['DepSM', 'bpos', 'T090C', 'Sal00', 'Sbeox0Mg/L', 'sbeox0PS', 'FileName', 'Lat', 'Lon']]
+#
+# dbt.to_excel(r'H:\Science\Datasets\Fiordland\SFCS2405_CTD\STEP4\edited_files_for_ODV\DBT.xlsx')
+# dus.to_excel(r'H:\Science\Datasets\Fiordland\SFCS2405_CTD\STEP4\edited_files_for_ODV\dus.xlsx')
 
-df = df.merge(mets, on='FileName')
-df.to_excel(r'H:\Science\Datasets\Fiordland\SFCS2405_CTD\STEP4\merge.xlsx')
-
-
+# # check on a map that they're right
+# plt.figure(figsize=(10, 8))
+# maxlat = -45.0
+# minlat = -46
+# nz_max_lon = 167.25
+# nz_min_lon = 166.25
+# map = Basemap(llcrnrlat=minlat, urcrnrlat=maxlat, llcrnrlon=nz_min_lon, urcrnrlon=nz_max_lon, resolution='h')
+# map.fillcontinents(color="darkseagreen", lake_color='#DDEEFF')
+# map.drawmapboundary(fill_color="#DDEEFF")
+# map.drawcoastlines()
+# plt.text(167.1, -45.5, 'Doubtful S.', fontsize=12)
+# plt.text(167, -45.75, 'Dusky S.', fontsize=12)
+#
+# lat_dbt = dbt['Lat']
+# lon_dbt = dbt['Lon']
+# x_dbt, y_dbt = map(lon_dbt, lat_dbt)
+# map.scatter(x_dbt, y_dbt, edgecolor='black', zorder=2, s=50, color='blue', marker='o', label='Existing')
+#
+# lat_dus = dus['Lat']
+# lon_dus = dus['Lon']
+# x_dus, y_dus = map(lon_dus, lat_dus)
+# map.scatter(x_dus, y_dus, edgecolor='red', zorder=2, s=50, color='red', marker='o', label='Existing')
+#
+# plt.show()
 
 
 

@@ -75,7 +75,6 @@ colors = ['#A52A2A', '#228B22', '#A0522D', '#6A5ACD','#008080','#CD853F','#4682B
 markers = ['o','D','^','o','s','D','o','s','D']
 blank_Rs = df.loc[df['Job::R'].isin(blank_r_list)].reset_index(drop=True)
 
-
 # DATA FOR THE GLOBAL MEAN
 wmean = []
 one_sigma = []
@@ -85,19 +84,23 @@ name = []
 chi2_red = []
 knownR = []
 ams_cat = []
+mean_wtgraph = []
+mean_RTS = []
+mean_RTS_sig = []
 
 # DATA EMPTY ARRAYS FOR THE ROLLING DATA
 roll_step = []
 
 # SETUP THE PLOT
 xlen =8
+yylim = 0.012
 grat = 1.618*xlen
 fig = plt.figure(figsize=(16,8))
-gs = gridspec.GridSpec(1, 2)
+gs = gridspec.GridSpec(1, 9)
 gs.update(wspace=0.15, hspace=0.35)
 
 # plot structure
-xtr_subsplot = fig.add_subplot(gs[0:1, 0:1])
+xtr_subsplot = fig.add_subplot(gs[0:1, 0:4])
 plt.title('Fraction Modern over time')
 
 for i in range(0, len(blank_r_list)):
@@ -106,6 +109,11 @@ for i in range(0, len(blank_r_list)):
     wmean.append(np.mean(subset['F_corrected_normed'].astype(float)))  # calculate and append average FM
     # one_sigma.append(np.std(subset['F_corrected_normed'].astype(float))) # calc and append standard deviation
     one_sigma.append((np.mean(subset['F_corrected_normed'].astype(float)))*0.45) # See COMMENT IN MANUSCRIPT REGARDING 45% error
+
+    mean_wtgraph.append((np.mean(subset['wtgraph'].astype(float)))) # adding graphitization mass average for XXU plot
+    mean_RTS.append((np.mean(subset['RTS'].astype(float)))) # adding RTS average for XXU plot
+    mean_RTS_sig.append((np.std(subset['RTS'].astype(float)))) # adding RTS std for XXU plot
+
     n.append(len(subset))
     name.append(names[i])
     chi2 = chi2red(subset)
@@ -143,32 +151,103 @@ plt.legend(loc='upper right')
 plt.xlabel('TP: Chronological Lab Identifier')
 plt.ylabel('Fraction Modern (FM)')
 plt.xlim(60000, 90000)
-plt.ylim(0, .015)
+plt.ylim(0, yylim)
 
 # plt.savefig(f'C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_3_output/Blanks.png', dpi=300, bbox_inches="tight")
-res = pd.DataFrame({"Name": name, "R": knownR,"Mean FM": wmean, "Mean FM 1sigma": one_sigma, "Chi2 Reduced": chi2_red, "n": n}).reset_index(drop=True)
+res = pd.DataFrame({"Name": name, "R": knownR,"Mean FM": wmean, "Mean FM 1sigma": one_sigma, "Chi2 Reduced": chi2_red, "n": n, "wtgraph_mean": mean_wtgraph, 'mean_RTS':mean_RTS, 'mean_RTS_SIG': mean_RTS_sig}).reset_index(drop=True)
 res.to_csv('C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_3_output/summary_table.csv')
 # plot structure
-xtr_subsplot = fig.add_subplot(gs[0:1, 1:2])
+xtr_subsplot = fig.add_subplot(gs[0:1, 4:8])
 
 for i in range(0, len(blank_r_list)):
     subset = res.loc[res['R'] == blank_r_list[i]].reset_index(drop=True)
     plt.errorbar(subset['Name'], subset['Mean FM'], yerr=subset['Mean FM 1sigma'], fmt=markers[i], color=f'{colors[i]}', ecolor=f'{colors[i]}', capsize=5)
 
 plt.xticks(rotation=45, ha='right')
-plt.xlabel('Sample Description')
-plt.ylabel('Mean Fraction Modern')
 plt.title('Mean FM with 1σ Error')
-plt.ylim(0, .015)
+plt.ylim(0, yylim)
+plt.yticks([], [])
 plt.legend()
 
+# September 6, 2024
+# add another subplot showing water blank before and after
+xtr_subsplot = fig.add_subplot(gs[0:1, 8:9])
+
+# from above for reference
+# blank_Rs = df.loc[df['Job::R'].isin(blank_r_list)].reset_index(drop=True)
+# we can filter before and after water blanks based on TP#
+b4 = blank_Rs.loc[(blank_Rs['Job::R'] == '14047_11') & (blank_Rs['TP'] < 87423)]
+aft = blank_Rs.loc[(blank_Rs['Job::R'] == '14047_11') & (blank_Rs['TP'] > 87422)]
+
+b4_mean = np.mean(b4['F_corrected_normed'].astype(float))
+b4_std = np.std(b4['F_corrected_normed'].astype(float))
+
+aft_mean = np.mean(aft['F_corrected_normed'].astype(float))
+aft_std = np.std(aft['F_corrected_normed'].astype(float))
+
+plt.errorbar('Carrera Marble Water Line Historical', b4_mean, yerr=b4_std, fmt=markers[6], color=f'{colors[6]}', ecolor=f'{colors[6]}', capsize=5)
+plt.errorbar('Carrera Marble Water Line Current', aft_mean, yerr=aft_std, fmt=markers[6], color=f'{colors[6]}', ecolor=f'{colors[6]}', capsize=5)
+plt.ylim(0,yylim)
+plt.yticks([], [])
+plt.xticks(rotation=45, ha='right')
+# plt.show()
 plt.savefig(f'C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_3_output/Blanks.png', dpi=300, bbox_inches="tight")
-
-#
-#
+plt.close()
 
 
+"""
+PLOTS THE BLANKS AGAIN BUT WITH XXU PLOT
+"""
+from matplotlib.ticker import ScalarFormatter
 
+# Create a figure and a set of subplots
+fig, ax = plt.subplots()
+
+# Set the x and y scales to logarithmic
+ax.set_xscale('log')
+ax.set_yscale('log')
+
+# Set the limits for x and y axes
+ax.set_xlim(0.1, 10)
+ax.set_ylim(0.0001, .1)
+
+# Add labels to the axes
+ax.set_xlabel('Sample Size (mg)')
+ax.set_ylabel('Ratio to OX-1')
+ax.xaxis.set_major_formatter(ScalarFormatter())
+ax.yaxis.set_major_formatter(ScalarFormatter())
+ax.xaxis.get_major_formatter().set_scientific(False)
+ax.yaxis.get_major_formatter().set_scientific(False)
+# Add a grid for better readability
+ax.grid(True, which="both", ls="--")
+
+# add the diagonal lines
+x = [0.001, 10]
+# y1 = [0.2, .00002]
+# y2 = [0.3, .00003]
+# y3 = [0.4, .00004]
+# y4 = [0.5, .00005]
+# y5 = [0.6, .00006]
+# y6 = [0.8, .00008]
+y7 = [1, .0001]
+y8 = [2, .0002]
+y9 = [5, .0005]
+# ys = [y1, y2, y3, y4, y5, y6, y7, y8, y9]
+ys = [y7, y8, y9]
+labels = ['0.2','0.3','0.4','0.5','0.6','0.8','1','2','5']
+for i in range(0, len(ys)):
+    plt.plot(x, ys[i], color='k')
+
+for i in range(0, len(blank_r_list)):
+    subset = res.loc[res['R'] == blank_r_list[i]].reset_index(drop=True)
+    plt.errorbar(subset['wtgraph_mean'], subset['mean_RTS'], yerr=subset['mean_RTS_SIG'], fmt=markers[i], color=f'{colors[i]}', ecolor=f'{colors[i]}', capsize=5, label=f"{names[i]}" )
+plt.errorbar(np.mean(aft['wtgraph']), np.mean(aft['RTS']), yerr=np.std(aft['RTS']), fmt=markers[6], color=f'{colors[6]}', ecolor=f'{colors[6]}', capsize=5, label="Water Line AFTER" )
+
+plt.legend(loc='center left', bbox_to_anchor=(1, 0.5))
+
+plt.savefig(f'C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_3_output/Blanks_XXU.png', dpi=300, bbox_inches="tight")
+
+plt.close()
 
 
 

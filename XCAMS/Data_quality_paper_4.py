@@ -32,7 +32,7 @@ cols = ['F_corrected_normed', 'F_corrected_normed_error','DELTA 14C']
 df[cols] = df[cols].apply(pd.to_numeric, errors='coerce', axis=1)
 df['MCCerr'] = 0.45*df['MCC']
 
-# data with the secondaries to filter on
+# data with the secondaries to filter on: THIS LINE IMPORTS THE CONCENSUS VALUES
 df2 = pd.read_excel('H:/Science/Papers/In Prep Work/2023_Zondervan_DataQuality/seconds.xlsx', comment='#')
 
 """
@@ -199,15 +199,12 @@ output1['sigma_total_FM'] = np.sqrt(output1['Sigma_FM']**2 + output1['Sigma_blan
 output1['sigma_total_CRA'] = 8033 * (output1['Sigma_FM']/output1['FM (wmean)'])
 output1['CRA (from FM wmean)'] = -8033 * np.log(output1['FM (wmean)'])
 
-
-
 # add some of the metadata from the secondary sheet.
 df2 = df2[['Name','Collection Date','R_number','Expected FM','Expected Age (CRA)','Expected Age Delta14C']]
 output1 = output1.merge(df2, on='R_number')
 
 # do this in excel beacuse of errors from those without collection dates.
 # output1['Delta14C'] = ((output1['FM (wmean)']*np.exp(1950/output1['Collection Date']))-1)*1000
-
 
 output1.to_excel(f'C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_4_output/statistics.xlsx')
 

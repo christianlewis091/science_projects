@@ -43,6 +43,10 @@ df = pd.read_excel('H:/Science/Current_Projects/03_CCE_24_25/02_Results_and_Data
 df = df.rename(columns={'Latitude_N_decimal': 'lat', 'Longitude_E_decimal': 'lon','Water Carbonate CO2 Evolution::TDIC':'tdic_processing'})
 ctd = pd.read_excel('H:\Science\Datasets\Fiordland\SFCS2405_CTD\STEP4\mystations.xlsx')
 
+df['Sound'] = 'Dusky' # set initial status to Dusky
+dbt_station = [1,2,3,4]
+df.loc[(df['My Station Name'].isin(dbt_station)), 'Sound'] = 'Doubtful'
+
 """
 I'm going to spend a few lines briefly adding some columns to the data, based on common oceanograpic 
 metrics used for plotting. 
@@ -68,6 +72,18 @@ df['Pot_density_anomaly'] = gsw.sigma0(df['SA'], df['CT'])
 df['satO2_ml_l'] = seawater.extras.satO2(df['Sal00'], df['T090C']) # returns in mL/L! # see https://www.ices.dk/data/tools/Pages/Unit-conversions.aspx
 df['satO2_Mg/L'] = df['satO2_ml_l']/0.7
 df['AOU'] = df['satO2_Mg/L'] - df['Sbeox0Mg/L']
+
+def calc_straight_line_dist(row, reflat, reflon):
+    lat, lon = row['lat'], row['lon']
+    dist = np.arccos(np.sin(np.radians(reflat)) * np.sin(np.radians(lat)) +
+                     np.cos(np.radians(reflat)) * np.cos(np.radians(lat)) *
+                     np.cos(np.radians(lon - reflon))) * 6371
+    return dist
+
+# Calculate distances for Doubtful and Dusky sounds
+df.loc[df['Sound'] == 'Doubtful', 'Straight_Line_Dist'] = df.apply(calc_straight_line_dist, axis=1, reflat=-45.46149, reflon=167.15852)
+df.loc[df['Sound'] == 'Dusky', 'Straight_Line_Dist'] = df.apply(calc_straight_line_dist, axis=1, reflat=-45.7285833, reflon=166.940366)
+
 
 # What percentage of water came from terrestrial remineralization, versus original "marine" water
 def o2_mass_balance(m, d1, d2, tDIC):
@@ -124,7 +140,93 @@ PLAY AROUND WITH MASS BALANCE BY HAND ABOVE IF YOU WANT
 """
 
 """
-Make a new plot for my Hobart talk...
+PLOTSPLOTPLOTSPLOTSPLOTS
+PLOTSPLOTPLOTSPLOTSPLOTS
+PLOTSPLOTPLOTSPLOTSPLOTS
+PLOTSPLOTPLOTSPLOTSPLOTS
+PLOTSPLOTPLOTSPLOTSPLOTS
+PLOTSPLOTPLOTSPLOTSPLOTS
+PLOTSPLOTPLOTSPLOTSPLOTS
+PLOTSPLOTPLOTSPLOTSPLOTS
+"""
+
+# """
+# Surface_DIC_vs_Longitude
+# """
+
+dbt_surfs = df.loc[(df['Depth'] == 1) & (df['Sound'] == 'Doubtful')]
+dbt_else = df.loc[(df['Depth'] > 1) & (df['Sound'] == 'Doubtful')]
+dus_surfs = df.loc[(df['Depth'] == 1) & (df['Sound'] == 'Dusky')]
+dus_else = df.loc[(df['Depth'] > 1) & (df['Sound'] == 'Dusky')]
+
+# Regression of surface data
+dus_surfs_x = dus_surfs['Straight_Line_Dist']
+dus_surfs_x = np.array(dus_surfs_x)
+dus_surfs_y = dus_surfs['DELTA14C']
+dus_surfs_y = np.array(dus_surfs_y)
+#
+dbt_surfs_x = dbt_surfs['Straight_Line_Dist']
+dbt_surfs_x = np.array(dbt_surfs_x)
+dbt_surfs_y = dbt_surfs['DELTA14C']
+dbt_surfs_y = np.array(dbt_surfs_y)
+
+# regress the data
+slope, intercept, rvalue, pvalue, stderr = stats.linregress(dus_surfs_x, dus_surfs_y)
+print("Dusky Surface: y=%.3fx+%.3f\R$^2$=%.3f"%(slope, intercept,rvalue**2))
+
+sslope, sintercept, srvalue, spvalue, sstderr = stats.linregress(dbt_surfs_x, dbt_surfs_y)
+print("Doubtful Surface: y=%.3fx+%.3f\R$^2$=%.3f"%(sslope, sintercept,srvalue**2))
+
+fig = plt.figure()
+plt.errorbar(dus_surfs['Straight_Line_Dist'], dus_surfs['DELTA14C'], yerr=dus_surfs['DELTA14C_Error'], label='Dusky', marker='o', linestyle='', color='black', capsize=5)
+plt.errorbar(dbt_surfs['Straight_Line_Dist'], dbt_surfs['DELTA14C'], yerr=dbt_surfs['DELTA14C_Error'], label='Doubtful', marker='D', linestyle='', color='seagreen', capsize=5)
+plt.plot(dus_surfs_x, slope*dus_surfs_x+intercept, color='black', alpha= 0.5) # ONLY PLOT TRENDLINES FOR lon
+plt.plot(dbt_surfs_x, sslope*dbt_surfs_x+sintercept, color='seagreen', alpha= 0.5)
+plt.xlabel('Distance from Fiord Head')
+plt.title('Surface Data (1m)')
+plt.legend()
+plt.ylabel('\u0394$^1$$^4$C (\u2030)')  # label the y axis
+plt.savefig(f"C:/Users/clewis/IdeaProjects/GNS/Fiordland/OUTPUT/Analysis_V1/Surface_DIC_vs_straight_dist.png", dpi=300, bbox_inches="tight")
+plt.close()
+
+"""
+DIC vs Salinity
+"""
+
+# Regression of surface data
+dus_surfs_x = dus_surfs['Sal00']
+dus_surfs_x = np.array(dus_surfs_x)
+dus_surfs_y = dus_surfs['DELTA14C']
+dus_surfs_y = np.array(dus_surfs_y)
+#
+dbt_surfs_x = dbt_surfs['Sal00']
+dbt_surfs_x = np.array(dbt_surfs_x)
+dbt_surfs_y = dbt_surfs['DELTA14C']
+dbt_surfs_y = np.array(dbt_surfs_y)
+
+# regress the data
+slope, intercept, rvalue, pvalue, stderr = stats.linregress(dus_surfs_x, dus_surfs_y)
+print("Dusky Surface: y=%.3fx+%.3f\R$^2$=%.3f"%(slope, intercept,rvalue**2))
+
+sslope, sintercept, srvalue, spvalue, sstderr = stats.linregress(dbt_surfs_x, dbt_surfs_y)
+print("Doubtful Surface: y=%.3fx+%.3f\R$^2$=%.3f"%(sslope, sintercept,srvalue**2))
+
+fig = plt.figure()
+plt.errorbar(dus_surfs['Sal00'], dus_surfs['DELTA14C'], yerr=dus_surfs['DELTA14C_Error'], label='Dusky', marker='o', linestyle='', color='black', capsize=5)
+plt.errorbar(dbt_surfs['Sal00'], dbt_surfs['DELTA14C'], yerr=dbt_surfs['DELTA14C_Error'], label='Doubtful', marker='D', linestyle='', color='seagreen', capsize=5)
+plt.plot(dus_surfs_x, slope*dus_surfs_x+intercept, color='black', alpha= 0.5) # ONLY PLOT TRENDLINES FOR lon
+plt.plot(dbt_surfs_x, sslope*dbt_surfs_x+sintercept, color='seagreen', alpha= 0.5)
+plt.xlabel('Sal00')
+plt.title('Surface Data (1m)')
+plt.legend()
+plt.ylabel('\u0394$^1$$^4$C (\u2030)')  # label the y axis
+plt.savefig(f"C:/Users/clewis/IdeaProjects/GNS/Fiordland/OUTPUT/Analysis_V1/Surface_DIC_vs_Sal00.png", dpi=300, bbox_inches="tight")
+plt.close()
+
+
+
+"""
+AOU PLOT
 """
 
 fig = plt.figure(figsize=(7,5))
@@ -132,10 +234,6 @@ mako = sns.color_palette("mako", 6)
 colors_dbt = ['SeaGreen','Teal','deepskyblue','Blue']
 colors_dus = ['SeaGreen','Teal','Sienna','deepskyblue','Blue']
 marks = ['o','D','^','s','X']
-
-df['Sound'] = 'Dusky' # set initial status to Dusky
-dbt_station = [1,2,3,4]
-df.loc[(df['My Station Name'].isin(dbt_station)), 'Sound'] = 'Doubtful'
 
 # AOU plot
 dbt_surfs = df.loc[(df['Depth'] == 1) & (df['Sound'] == 'Doubtful')]

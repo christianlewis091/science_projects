@@ -15,6 +15,9 @@ def calc_delta_14C(FM, colldate):
     delta_14C_err = ((FM*np.exp((1950-colldate)/8267))-1)*1000
 
 """
+September 12, 2024
+Seperating oxalics befoer and after change to using flask OX. 
+
 July 1, 2024:
 I discussed the idea of sigma_res with JCT today. Essentially, sigma_res is an added error term in the chi2 equation
 Paper is updated now with the right equation
@@ -24,9 +27,17 @@ I'm going to try to do that his "simplified_RLIMS_dataset by recreating the data
 """
 
 df = pd.read_excel('C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_1_output/12_second_manual_check.xlsx', sheet_name= 'Whole Dataframe')
-print(df.columns)
 df = df.loc[df['Keep_Remove'] == 'Keep']
 df = df.rename(columns={'RTS_corrected': 'RTS', 'RTS_corrected_error': 'RTSerr','Samples::Sample Description':'sampleDESC'})
+
+
+# September 12, merge with STD prep type: We only want air secondaries run with Flask OX
+spt = pd.read_excel('C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_4_output/flask_ox_label.xlsx')
+tp_for_spt = np.unique(df['TP'])
+spt = spt.loc[spt['TP'].isin(tp_for_spt)].drop_duplicates()
+df = df.merge(spt, on='TP')
+# df.to_excel('C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_4_output/test.xlsx')
+
 
 cols = ['F_corrected_normed', 'F_corrected_normed_error','DELTA 14C']
 df[cols] = df[cols].apply(pd.to_numeric, errors='coerce', axis=1)
@@ -60,6 +71,10 @@ df.loc[(df['Job::R'] == '24889/4') & (df['AAA_CELL'] =='AAA') & (df['EA_ST'] =='
 df.loc[(df['Job::R'] == '24889/4') & (df['AAA_CELL'] =='AAA') & (df['EA_ST'].isna()), 'Job::R'] = '24889/4_AAA_ST'
 df.loc[(df['Job::R'] == '24889/4') & (df['AAA_CELL'] =='Cellulose') & (df['EA_ST'] =='EA'), 'Job::R'] = '24889/4_CELL_EA'
 df.loc[(df['Job::R'] == '24889/4') & (df['AAA_CELL'] =='Cellulose') & (df['EA_ST'].isna()), 'Job::R'] = '24889/4_CELL_ST'
+
+#make distinction between pre and post flask ox according to JCT comments September 11, 2024
+df.loc[(df['Job::R'] == '40430/2') & (df['preptype'] == 'FLASK') & (df['TW'] >= 3211) & (df['TW'] <= 3533), 'Job::R'] = '40430/2_flask'
+df.loc[(df['Job::R'] == '40430/1') & (df['preptype'] == 'FLASK') & (df['TW'] >= 3211) & (df['TW'] <= 3533), 'Job::R'] = '40430/1_flask'
 
 value_counts = df['Job::R'].value_counts()
 pd.set_option('display.max_rows', None)
@@ -195,7 +210,9 @@ output1 = pd.DataFrame({'R_number': R_num,
                         'Delta 14C std': del14Cstd
  })
 
-output1['sigma_total_FM'] = np.sqrt(output1['Sigma_FM']**2 + output1['Sigma_blank']**2 + (output1['Sigma Residual']**2)*(output1['FM (wmean)']**2))
+# output1['sigma_total_FM'] = np.sqrt(output1['Sigma_FM']**2 + output1['Sigma_blank']**2 + (output1['Sigma Residual']**2)*(output1['FM (wmean)']**2))
+# october 14 2024 sigma_blank removed from totla uncertainty budget
+output1['sigma_total_FM'] = np.sqrt(output1['Sigma_FM']**2 + (output1['Sigma Residual']**2)*(output1['FM (wmean)']**2))
 output1['sigma_total_CRA'] = 8033 * (output1['Sigma_FM']/output1['FM (wmean)'])
 output1['CRA (from FM wmean)'] = -8033 * np.log(output1['FM (wmean)'])
 
@@ -232,12 +249,19 @@ x2 = 90000
 
 # First subplot: AIRS
 # need to get the subset again:
-BHDamb = df.loc[df['Job::R'] == '40430/1']
-BHDspike = df.loc[df['Job::R'] == '40430/2']
 
+BHDambp = df.loc[df['Job::R'] == '40430/1_preFlask']
+BHDspikep = df.loc[df['Job::R'] == '40430/2_preFlask']
+BHDamb = df.loc[df['Job::R'] == '40430/1_Flask']
+BHDspike = df.loc[df['Job::R'] == '40430/2_Flask']
+
+BHDambp['Res'] = calc_residuals(BHDambp)
+BHDspikep['Res'] = calc_residuals(BHDspikep)
 BHDamb['Res'] = calc_residuals(BHDamb)
 BHDspike['Res'] = calc_residuals(BHDspike)
 
+ax1.scatter(BHDambp['TP'], BHDambp['Res'], label=f'BHDamb_pre-flask OX', alpha=0.5)
+ax1.scatter(BHDspikep['TP'], BHDspikep['Res'], label=f'BHDspike_pre-flask OX', alpha=0.5)
 ax1.scatter(BHDamb['TP'], BHDamb['Res'], label=f'BHDamb')
 ax1.scatter(BHDspike['TP'], BHDspike['Res'], label=f'BHDspike')
 

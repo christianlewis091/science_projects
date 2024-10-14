@@ -7,41 +7,41 @@ from matplotlib.patches import Polygon
 import seaborn as sns
 import pandas as pd
 import re
-# size1 = 90
-# size2 = 1.5*size1
-# colors2 = sns.color_palette("mako", 30)
-# colors2 = list(reversed(colors2))
-# markers = ['o', '^', '8', 's', 'p', '*', 'X', 'D','o', '^', '8', 's', 'p', '*', 'X', 'D','o', '^', '8', 's', 'p', '*', 'X', 'D','o', '^', '8', 's', 'p', '*', 'X', 'D']
-#
-# df = pd.read_excel('C:/2024_Polaris_II/Sampling_Log.xlsx')
-# stns = np.unique(df['My Station Name'])
-#
-# # we'll loop through the filenames and create a marker for each one
-# stn_names = np.unique(df['My Station Name'])
-#
-# plt.figure(figsize=(10, 8))
-# maxlat = -45.0
-# minlat = -46
-# nz_max_lon = 167.25
-# nz_min_lon = 166.25
-# map = Basemap(llcrnrlat=minlat, urcrnrlat=maxlat, llcrnrlon=nz_min_lon, urcrnrlon=nz_max_lon, resolution='h')
-# map.fillcontinents(color="darkseagreen", lake_color='#DDEEFF')
-# map.drawmapboundary(fill_color="#DDEEFF")
-# map.drawcoastlines()
-#
-# plt.text(167.1, -45.5, 'Doubtful S.', fontsize=12)
-# plt.text(167, -45.75, 'Dusky S.', fontsize=12)
-#
-# lat = df['Latitude_N_decimal']
-# lon = df['Longitude_E_decimal']
-# x, y = map(lon, lat)
-# map.scatter(x, y, edgecolor='black', zorder=2, s=50, color='blue')
-#
-# maxlat2 = -30
-# minlat2 = -50
-# nz_max_lon2 = 180
-# nz_min_lon2 = 160
-#
+size1 = 90
+size2 = 1.5*size1
+colors2 = sns.color_palette("mako", 30)
+colors2 = list(reversed(colors2))
+markers = ['o', '^', '8', 's', 'p', '*', 'X', 'D','o', '^', '8', 's', 'p', '*', 'X', 'D','o', '^', '8', 's', 'p', '*', 'X', 'D','o', '^', '8', 's', 'p', '*', 'X', 'D']
+
+df = pd.read_excel('C:/2024_Polaris_II/Sampling_Log.xlsx')
+stns = np.unique(df['My Station Name'])
+
+# we'll loop through the filenames and create a marker for each one
+stn_names = np.unique(df['My Station Name'])
+
+plt.figure(figsize=(10, 8))
+maxlat = -45.0
+minlat = -46
+nz_max_lon = 167.25
+nz_min_lon = 166.25
+map = Basemap(llcrnrlat=minlat, urcrnrlat=maxlat, llcrnrlon=nz_min_lon, urcrnrlon=nz_max_lon, resolution='h')
+map.fillcontinents(color="darkseagreen", lake_color='#DDEEFF')
+map.drawmapboundary(fill_color="#DDEEFF")
+map.drawcoastlines()
+
+plt.text(167.1, -45.5, 'Doubtful S.', fontsize=12)
+plt.text(167, -45.75, 'Dusky S.', fontsize=12)
+
+lat = df['Latitude_N_decimal']
+lon = df['Longitude_E_decimal']
+x, y = map(lon, lat)
+map.scatter(x, y, edgecolor='black', zorder=2, s=50, color='blue')
+
+maxlat2 = -30
+minlat2 = -50
+nz_max_lon2 = 180
+nz_min_lon2 = 160
+
 # # Create the inset map
 # ax = plt.gca()
 # axin = ax.inset_axes([0.06, 0.65, 0.4, 0.4])  # [left, bottom, width, height]
@@ -64,10 +64,10 @@ import re
 # # Plot the polygon on the inset map
 # poly = Polygon([(x2, y2), (x1, y1), (x3, y3), (x4, y4)], facecolor='blue', edgecolor='black', linewidth=1)
 # axin.add_patch(poly)
-#
-# plt.savefig('C:/Users/clewis/IdeaProjects/GNS/Fiordland/OUTPUT/May_2024_Field_Actual/Fiordland_Sampling.png',
-#             dpi=300, bbox_inches="tight")
-#
+
+plt.savefig('C:/Users/clewis/IdeaProjects/GNS/Fiordland/OUTPUT/May_2024_Field_Actual/Fiordland_Sampling_noinset.png',
+            dpi=300, bbox_inches="tight")
+
 
 """
 Making a plot for cathy

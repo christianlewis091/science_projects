@@ -25,6 +25,8 @@ def chi2red(subset):
 
 # read in the csv file that was created at the end of the last script
 df = pd.read_excel('C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_1_output/12_second_manual_check.xlsx', sheet_name= 'Whole Dataframe')
+
+
 df = df.loc[df['Keep_Remove'] == 'Keep']
 df = df.rename(columns={'RTS_corrected': 'RTS', 'RTS_corrected_error': 'RTSerr','Samples::Sample Description':'sampleDESC'})
 cols = ['F_corrected_normed', 'F_corrected_normed_error']
@@ -45,6 +47,11 @@ df.loc[(df['Job::R'] == '40142/2') & (df['AAA_CELL'] =='AAA') & (df['EA_ST'].isn
 df.loc[(df['Job::R'] == '40142/1') & (df['AAA_CELL'] =='Cellulose') & (df['EA_ST'] =='EA'), 'Job::R'] = '40142/1_CELL_EA'
 df.loc[(df['Job::R'] == '40142/1') & (df['AAA_CELL'] =='Cellulose') & (df['EA_ST'].isna()), 'Job::R'] = '40142/1_CELL_ST'
 
+# editing some flags in the above excel sheet on October 14, 2024 based on some extra analysis
+df.loc[(df['Job::R'] == '40142/1_CELL_ST') & (df['TP'] > 63764) & (df['TP'] < 65183), 'Keep_Remove'] = 'Remove'
+length123 = df.loc[(df['Job::R'] == '40142/1_CELL_ST') & (df['Keep_Remove'] == 'Keep')]
+df = df.loc[df['Keep_Remove'] == 'Keep']
+df.to_excel('C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_1_output/13_found_some_more.xlsx')
 
 """
 Print a report about what's in here for section 3.1
@@ -56,6 +63,11 @@ df = df.loc[df['Keep_Remove'] == 'Keep']
 
 # get rid of pesky separators
 df['Job::R'] = df['Job::R'].replace('/', '_', regex=True)#
+
+# trying to address JCT's comment about high Kauri's (October 14, 2025)
+# export_kauri = df.loc[(df['Job::R'] == '40142_1_CELL_EA') | (df['Job::R'] == '40142_1_CELL_ST')]
+# export_kauri.to_excel('C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_3_output/kauri_check.xlsx')
+
 
 # add a new column to filter on or change later
 df['CBL_stat_flags'] = -999
@@ -129,7 +141,8 @@ for i in range(0, len(blank_r_list)):
     fm = subset['F_corrected_normed']
     tps = subset['TP']
     x = fm.rolling(2)
-    inc = 50
+    # TODO the line below decides
+    inc = int(len(subset)/10)
     roll_fm = fm.rolling(inc, center=True).mean()
     roll_fm_std = fm.rolling(inc, center=True).std()
     roll_tps = tps.rolling(inc, center=True).mean()

@@ -34,7 +34,8 @@ import matplotlib.gridspec as gridspec
 from X_my_functions import monte_carlo_randomization_trend
 # from main_analysis import *
 #
-df = pd.read_excel(r'C:/Users/clewis/IdeaProjects/GNS/Water_mass_dataset/output_OPEN_ACCESS/STEP2_assign_masses/STEP2_WATER_MASSES_ASSIGNED.xlsx')
+# df = pd.read_excel(r'C:/Users/clewis/IdeaProjects/GNS/Water_mass_dataset/output_OPEN_ACCESS/STEP2_assign_masses/STEP2_WATER_MASSES_ASSIGNED.xlsx')
+df = pd.read_csv('C:/Users/clewis/IdeaProjects/GNS/Water_mass_dataset/output_OPEN_ACCESS/STEP1_reboot/STEP1_GLODAP_C14.csv')
 acc_fronts = pd.read_csv(r'H:\Science\Datasets\ACC_fronts\csv\antarctic_circumpolar_current_fronts.csv')
 
 # """
@@ -169,6 +170,9 @@ import matplotlib.gridspec as gridspec
 # data read in above
 
 # FILTER TO ONLY GRAB SURFACE SAMPLES
+df = df.rename(columns={'G2pressure':'CTDPRS', 'G2nitrate':'NITRAT','G2c14':'DELC14','G2latitude':'LATITUDE','G2longitude':'LONGITUDE'})
+
+
 df = df.loc[df['CTDPRS'] < 100] # ONLY GRAB SURFACE SAMPLES
 
 # WRITE TO A NEW FILE FOR FASTER PRODUCTION OF THIS CODE (insert to above later)
@@ -176,7 +180,7 @@ df = df.loc[df['CTDPRS'] < 100] # ONLY GRAB SURFACE SAMPLES
 
 # CREATE SUBSETS OF DATA FOR SUBPLOTS 1, 2, and 3
 df_sub1 = df.loc[df['NITRAT'] > -990]
-df_sub1 = df_sub1[::100]
+df_sub1 = df_sub1[::10]
 df_sub2 = df.loc[df['DELC14'] > -990]
 df_sub2 = df_sub2[::10]
 # df_sub3 will be produced later.
@@ -189,7 +193,7 @@ acc_fronts = pd.read_csv(r'H:\Science\Datasets\ACC_fronts\csv\antarctic_circumpo
 
 fig = plt.figure(figsize=(12, 8))
 gs = gridspec.GridSpec(4, 4)
-gs.update(wspace=.4, hspace=0.1)
+gs.update(wspace=.55, hspace=0.1)
 # # set colorbar boundaries
 #
 #
@@ -203,7 +207,7 @@ m.drawcoastlines()
 m.shadedrelief()
 latitudes = df_sub1['LATITUDE']
 longitudes = df_sub1['LONGITUDE']
-nitrate = df_sub1['NITRAT']  # SST values (sea surface temperature)
+nitrate = df_sub1['NITRAT']
 # # Convert latitudes and longitudes to map coordinates
 x, y = m(longitudes.values, latitudes.values)
 # Plot the SST data as scatter points, color-coded by temperature
@@ -327,7 +331,7 @@ plt.scatter(results['zone'], results['mean_nitrate_pac'], c=results['mean_nitrat
 
 plt.errorbar(results['zone'], results['mean_nitrate_ind'], yerr=results['stdnitrate_ind'], fmt='', ecolor='black', elinewidth=1, capsize=2, alpha=1, linestyle='', zorder=0)
 plt.scatter(results['zone'], results['mean_nitrate_ind'], c=results['mean_nitrate_ind'], cmap='coolwarm', s=blah, edgecolor='k', linewidth=0.5, vmin=0, vmax=32, zorder=10, marker='s')
-
+plt.ylabel('Nitrate (\u03BCM)')
 # cbar = plt.colorbar(orientation='vertical', fraction=0.046, pad=0.04)
 
 xtr_subsplot = fig.add_subplot(gs[2:4, 2:4])
@@ -339,7 +343,7 @@ plt.scatter(results['zone'], results['mean_14C_pac'], c=results['mean_14C_pac'],
 
 plt.errorbar(results['zone'], results['mean_14C_ind'], yerr=results['std14C_ind'], fmt='', ecolor='black', elinewidth=1, capsize=2, alpha=1, linestyle='', zorder=0)
 plt.scatter(results['zone'], results['mean_14C_ind'], c=results['mean_14C_ind'], cmap=cmap_reversed, s=blah, edgecolor='k', linewidth=0.5, vmin=-150, vmax=150, zorder=10, marker='s', label='Indian Sector')
-
+plt.ylabel('DIC \u0394$^1$$^4$C (\u2030)')
 # cbar = plt.colorbar(orientation='vertical', fraction=0.046, pad=0.04)
 plt.legend()
 

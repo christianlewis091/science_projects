@@ -66,9 +66,9 @@ This section relates to testing rotary backing pumps that come back from the wor
 df = pd.read_excel('I:/XCAMS/4_maintenance/vacuum pumps/Alcatel Adixen/RotaryPump_Testing_AfterMaintenance.xlsx')
 
 # WHEN YOU TEST A NEW PUMP, ADD THE NAME OF THE COLUMNS BELOW
-vacuum_reading_columns = ['AM673883 Torr','AM673883 Torr 2','AM673883 Torr 3','Torr 4','Torr 5','Torr 6','Torr 7','Torr 8', 'Torr 9', 'Torr 10','Torr_11', 'Torr_12', 'Torr_13']
-time_reading_columns = ['AM673883 Time','AM673883 Time 2','AM673883 Time 3','AM673198 Time','AM673888 Time','AM672417 Time',' AS10988 Time','AM672414_083123 Time', 'SciTekScrewPump','AM673878_07032024_Time','AM673883_290724','AM673198_08082024','AM673888_100824']
-labels = ['AM673883','AM673883','AM673883','AM673198','AM673888','AM672417',' AS10988','AM672414_083123','SciTekScrewPump','AM673878_July7,2024','AM673883_290724','AM673198_08082024','AM673888_100824']
+vacuum_reading_columns = ['AM673883 Torr','AM673883 Torr 2','AM673883 Torr 3','Torr 4','Torr 5','Torr 6','Torr 7','Torr 8', 'Torr 9', 'Torr 10','Torr_11', 'Torr_12', 'Torr_13','Torr_14']
+time_reading_columns = ['AM673883 Time','AM673883 Time 2','AM673883 Time 3','AM673198 Time','AM673888 Time','AM672417 Time',' AS10988 Time','AM672414_083123 Time', 'SciTekScrewPump','AM673878_07032024_Time','AM673883_290724','AM673198_08082024','AM673888_100824','AM672414_Oct24']
+labels = ['AM673883','AM673883','AM673883','AM673198','AM673888','AM672417',' AS10988','AM672414_083123','SciTekScrewPump','AM673878_July7,2024','AM673883_290724','AM673198_08082024','AM673888_100824','AM672414_Oct24']
 
 # SETUP PARAMETERS TO MAKE PLOTTING RUN SMOOTHLY
 colors = ['b','g','r','c','m','y','k','b','g','r','c','m','y','k','b','g','r','c','m','y','k']
@@ -121,9 +121,12 @@ for i in range(0, len(vacuum_reading_columns)):
     x = x/60  # convert to minutes
     label1 = labels[i]
 
-    plt.scatter(x,y, label=label1, marker=marker_styles[i])
-    plt.plot(x,y, marker=marker_styles[i])
+    plt.scatter(x,y, label=label1, marker=marker_styles[i], alpha= 0.3)
+    plt.plot(x,y, marker=marker_styles[i], alpha= 0.3)
     plt.legend()
+
+# plt.scatter(df['AM672414_Oct24'], df['Torr_14'])
+# plt.plot(df['AM672414_Oct24'], df['Torr_14'])
 
 plt.ylim(0.0001, 1000)
 plt.axhline(0.005, color='black', linestyle='-', alpha=0.1)
@@ -132,7 +135,7 @@ plt.xlabel('Time (min)'), plt.ylabel('Convectron Reading (Torr)')
 plt.yscale("log"), plt.legend()
 plt.title(r'C:\Users\clewis\IdeaProjects\GNS\xcams\xcams_rv_pumpdown.py')
 plt.savefig('I:/XCAMS/4_maintenance/vacuum pumps/Alcatel Adixen/PUMPDOWNSPEED.png', dpi=300, bbox_inches="tight")
-#
+plt.show()
 #
 """
 ***************************************************************************************************

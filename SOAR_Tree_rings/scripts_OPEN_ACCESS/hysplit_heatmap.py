@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 from mpl_toolkits.basemap import Basemap
 import matplotlib.gridspec as gridspec
-from X_miller_curve_algorithm import ccgFilter
+# from X_miller_curve_algorithm import ccgFilter
 import time
 import openpyxl
 start_time = time.time()
@@ -25,14 +25,42 @@ Block 1: Takes 262 seconds (4 minutes) to run
 # elapsed_time_section_1 = time.time() - start_time
 # print(f"Code section 1 took {elapsed_time_section_1} seconds")
 #
+# #
 
 """
 Block 2
 """
-points = pd.read_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/hysplit_heatmap/points_concat.xlsx')
+# points = pd.read_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/hysplit_heatmap/points_concat.xlsx')
 acc_fronts = pd.read_csv(r'H:\Science\Datasets\ACC_fronts\csv\antarctic_circumpolar_current_fronts.csv')
 elapsed_time_section_1 = time.time() - start_time
-locations = np.unique(points['location'])
+# locations = np.unique(points['location'])
+
+"""
+make an empty map
+"""
+fronts = np.unique(acc_fronts['front_name'])
+fronts = ['PF','SAF','STF','Boundary']
+line_sys = ['dotted','dashed','dashdot','solid','dotted','dashed','dashdot']
+fig = plt.figure(figsize=(4, 8))
+m = Basemap(projection='ortho',lon_0=-150,lat_0=-90,resolution='l')
+
+m.drawcoastlines()
+# m.shadedrelief()
+
+for g in range(0, len(fronts)):
+    this_one = acc_fronts.loc[acc_fronts['front_name'] == fronts[g]]
+    latitudes = this_one['latitude']
+    longitudes = this_one['longitude']
+    x, y = m(longitudes.values, latitudes.values)
+    m.plot(x, y, color='black', label=f'{fronts[g]}', linestyle=line_sys[g])
+
+plt.savefig(f'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/hysplit_heatmap/emptymap.png',
+            dpi=300, bbox_inches="tight")
+
+
+
+
+
 
 for q in range(0, len(locations)):
 
@@ -170,13 +198,13 @@ for h in range(0, len(blah)):
     df1 = df.loc[df['Country'] == blah[h]]
     # print(df)
 
-    df1 = df1.rename(columns={"STZ": "Subtropical Zone",
-                     "SAZ": "Subantarctic Zone",
-                     "PFZ": "Polar Frontal Zone",
-                     "ASZ": "Antarctic-Southern Zone",
-                     "SIZ": "Sea Ice Zone"})
+    df1 = df1.rename(columns={"STZ": "Subtropical Zone (STZ)",
+                     "SAZ": "Subantarctic Zone (SAZ)",
+                     "PFZ": "Polar Frontal Zone (PFZ)",
+                     "ASZ": "Antarctic-Southern Zone (ASZ)",
+                     "SIZ": "Seasonal Ice Zone (SIZ)"})
 
-    zones = ["Subtropical Zone", "Subantarctic Zone", "Polar Frontal Zone", "Antarctic-Southern Zone", "Sea Ice Zone"]
+    zones = ["Subtropical Zone (STZ)", "Subantarctic Zone (SAZ)", "Polar Frontal Zone (PFZ)", "Antarctic-Southern Zone (ASZ)", "Seasonal Ice Zone (SIZ)"]
     zone_trans = [0.2, 0.2, 1,1,1]
     sites = df1['Site']
 
@@ -199,7 +227,7 @@ for h in range(0, len(blah)):
     ax.set_ylabel('Percent')
     ax.set_title('Percent of Back-Trajectory Spent in Each Zone')
     ax.set_xticks(np.arange(len(sites)))
-    ax.set_xticklabels(sites, rotation=65)
+    ax.set_xticklabels(sites, rotation=65, ha='right')
     if h == 1:
         ax.legend()
     # Show the plot

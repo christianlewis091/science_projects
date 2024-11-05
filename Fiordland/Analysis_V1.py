@@ -10,6 +10,9 @@ from mpl_toolkits.basemap import Basemap
 import warnings
 warnings.simplefilter("ignore")
 
+# This is a test to see if my new commit works, on my new GNS PC. If this works, I think I'll be pretty much set up to continue working.
+print('This is a test')
+
 """
 September 10, 2024
 I'm editing/re-structuring this to make it more complete and clean for my talk and future writing of the paper or proposal based on this data;

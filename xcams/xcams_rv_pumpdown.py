@@ -165,29 +165,85 @@ Plotting issue from standy more Febraury 3-4 2023
 Plotting pumpdowns after Ion suorce cleans
 ***************************************************************************************************
 """
+# import numpy as np
+# import matplotlib.pyplot as plt
+# import pandas as pd
+# df = pd.read_excel('I:/XCAMS/4_maintenance/SNICS ion source/SNICS OPENINGS/SORX reports/2024/November_11_2024/Pumpdowns.xlsx')
+#
+# fig = plt.figure(1, figsize=(8, 8))
+#
+# cleans = np.unique(df['Opening Event'])
+#
+# for i in range(0, len(cleans)):
+#     this_clean = df.loc[(df['Opening Event'] == cleans[i]) & (df['Turbo Pump'] > -999)]  # grab only after gate valve is open
+#     x = this_clean['Time_Min'].reset_index(drop=True)
+#     x = x - x[0]
+#
+#     y = this_clean['Turbo Pump']
+#
+#     plt.scatter(x,y, label=f'{cleans[i]}')
+#     plt.plot(x,y)
+# plt.xlabel('Time (min)')
+# plt.ylabel('Vacuum (Torr)')
+# plt.legend()
+# plt.yscale('log')
+# plt.title('Turbo Pump Vacuum After Ion Source Rebuilds')
+# plt.show()
+# plt.savefig('I:/XCAMS/4_maintenance/SNICS ion source/SNICS OPENINGS/SORX reports/2024/1_July_2024/Pumpdowns.png',
+#             dpi=300, bbox_inches="tight")
+# plt.close()
+
 import numpy as np
+import matplotlib.pyplot as plt
+import pandas as pd
+from matplotlib.gridspec import GridSpec
 
-df = pd.read_excel('I:/XCAMS/4_maintenance/SNICS ion source/SNICS OPENINGS/SORX reports/2024/1_July_2024/Pumpdowns.xlsx')
+# Load data
+df = pd.read_excel('I:/XCAMS/4_maintenance/SNICS ion source/SNICS OPENINGS/SORX reports/2024/November_11_2024/Pumpdowns.xlsx')
 
-fig = plt.figure(1, figsize=(8, 8))
+# Set up the figure and GridSpec layout
+fig = plt.figure(figsize=(12, 8))
+gs = GridSpec(1, 2, width_ratios=[1, 2], figure=fig)
 
+# First plot on the left
+ax1 = fig.add_subplot(gs[0, 0])
 cleans = np.unique(df['Opening Event'])
-
-for i in range(0, len(cleans)):
-    this_clean = df.loc[(df['Opening Event'] == cleans[i]) & (df['Turbo Pump'] > -999)]  # grab only after gate valve is open
+for i in range(len(cleans)):
+    this_clean = df.loc[(df['Opening Event'] == cleans[i]) & (df['Turbo Pump'] > -999)]
     x = this_clean['Time_Min'].reset_index(drop=True)
     x = x - x[0]
+    y = this_clean['Rough Pump']
 
+    ax1.scatter(x, y, label=f'{cleans[i]}')
+    ax1.plot(x, y)
+
+ax1.set_xlabel('Time (min)')
+ax1.set_ylabel('Vacuum (Torr)')
+ax1.set_yscale('log')
+ax1.set_title('Rough Pump Vacuum After Ion Source Rebuilds')
+ax1.legend()
+
+# Second plot on the right
+ax2 = fig.add_subplot(gs[0, 1])
+
+for i in range(len(cleans)):
+    this_clean = df.loc[(df['Opening Event'] == cleans[i]) & (df['Turbo Pump'] > -999)]
+    x = this_clean['Time_Min'].reset_index(drop=True)
+    x = x - x[0]
     y = this_clean['Turbo Pump']
 
-    plt.scatter(x,y, label=f'{cleans[i]}')
-    plt.plot(x,y)
-plt.xlabel('Time (min)')
-plt.ylabel('Vacuum (Torr)')
-plt.legend()
-plt.yscale('log')
-plt.title('Turbo Pump Vacuum After Ion Source Rebuilds')
+    ax2.scatter(x, y, label=f'{cleans[i]}')
+    ax2.plot(x, y)
 
-plt.savefig('I:/XCAMS/4_maintenance/SNICS ion source/SNICS OPENINGS/SORX reports/2024/1_July_2024/Pumpdowns.png',
+ax2.set_xlabel('Time (min)')
+ax2.set_ylabel('Vacuum (Torr)')
+ax2.set_yscale('log')
+ax2.set_title('Turbo Pump Vacuum After Ion Source Rebuilds')
+ax2.legend()
+
+# Show and save the plot
+plt.tight_layout()
+plt.savefig('I:/XCAMS/4_maintenance/SNICS ion source/SNICS OPENINGS/SORX reports/2024/November_11_2024/Pumpdowns.png',
             dpi=300, bbox_inches="tight")
+plt.show()
 plt.close()

@@ -176,10 +176,6 @@ import seaborn as sns
 #     plt.close()
 #
 #
-#
-#
-#
-
 """
 Altering the plots slightly. I only want to se Doubtful and Dusky! 
 """

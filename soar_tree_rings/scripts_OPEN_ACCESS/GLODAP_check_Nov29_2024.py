@@ -135,7 +135,7 @@ for j in range(0, len(df)):
         res = 'Error'
 
     # assign label based on latitude and longitude (PACIFIC SIDE FOR CHILEAN DATA)
-    if (row['LATITUDE'] >= row['STF+smoothed']) & (-150 <= row['LONGITUDE'] <= -90):
+    if (row['LATITUDE'] >= row['STF+smoothed']) & (-120 <= row['LONGITUDE'] <= -70):
         res2 = 'STZ'
     elif (row['LATITUDE'] >= row['Boundary+smoothed']) & (row['LATITUDE'] <= row['PF+smoothed']) & (-150 <= row['LONGITUDE'] <= -90):
         res2 = 'ASZ'
@@ -148,7 +148,7 @@ for j in range(0, len(df)):
     else:
         res2 = 'Error'
     # INDIAN SIDE FOR NZ ORIGIN
-    if (row['LATITUDE'] >= row['STF+smoothed']) & (60 <= row['LONGITUDE'] <= 120):
+    if (row['LATITUDE'] >= row['STF+smoothed']) & (21 <= row['LONGITUDE'] <= 120):
         res3 = 'STZ'
     elif (row['LATITUDE'] >= row['Boundary+smoothed']) & (row['LATITUDE'] <= row['PF+smoothed']) & (60 <= row['LONGITUDE'] <= 120):
         res3 = 'ASZ'
@@ -324,7 +324,7 @@ sc = ax2.scatter(
     transform=ccrs.PlateCarree())  # Data is in lat/lon format)
 
 cb = plt.colorbar(sc, ax=ax2, orientation='vertical', pad=0.05, label='DIC \u0394$^1$$^4$C (\u2030)')
-cb.set_ticks(np.linspace(-150, 100, 5))
+
 # Show the plot
 
 

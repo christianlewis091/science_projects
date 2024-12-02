@@ -21,157 +21,210 @@ I WILL filter for only those that contain 14C for the second subplot.
 The third will be hyplsit data
 """
 
+# #
+# import pandas as pd
+# import numpy as np
+# from X_miller_curve_algorithm import ccgFilter
+# import cartopy.crs as ccrs
+# import cartopy.feature as cf
+# import matplotlib.pyplot as plt
+# from map_function import map1, map2, map3
 #
+#
+# df = pd.read_csv('C:/Users/clewis/IdeaProjects/GNS/Water_mass_dataset/output_OPEN_ACCESS/STEP1_reboot/STEP1_GLODAP_C14.csv')
+# acc_fronts = pd.read_csv(r'H:\Science\Datasets\ACC_fronts\csv\antarctic_circumpolar_current_fronts.csv')
+# #
+# # FILTER TO ONLY GRAB SURFACE SAMPLES
+# df = df.rename(columns={'G2expocode':'EXPOCODE', 'G2year':'DATE', 'G2pressure':'CTDPRS', 'G2nitrate':'NITRAT','G2c14':'DELC14','G2latitude':'LATITUDE','G2longitude':'LONGITUDE'})
+# df = df.loc[df['CTDPRS'] < 100] # ONLY GRAB SURFACE SAMPLES
+# df = df.loc[df['DELC14'] > -990]
+# df = df.loc[df['NITRAT'] > -990]
+# df = df.loc[df['DATE'] > 1979]
+# df = df.loc[df['LATITUDE'] <= -5]
+# print(f'{len(df)} is original length of data after inital filtering for time, depth, and latitude') #for later report
+#
+# """
+# In order to figure out where each point lies relative to the Southern Hemispheric frontal zones, I need to find the frontal zones
+# not only at the given longitudes from ORSI, but at the longitudes or my samples.
+# """
+# # THIS BIT OF CODE WAS WRITTEN BY CHAT GPT
+# reference = pd.DataFrame()
+# reference['LONGITUDE'] = df['LONGITUDE']
+#
+# # Iterate over each front
+# fronts = acc_fronts['front_name'].unique()
+# for front in fronts:
+#     # Extract latitude and longitude for the current front
+#     this_one = acc_fronts[acc_fronts['front_name'] == front]
+#     front_longitudes = this_one['longitude'].values
+#     front_latitudes = this_one['latitude'].values
+#
+#     # Ensure the front data is sorted by longitude
+#     sorted_indices = np.argsort(front_longitudes)
+#     front_longitudes = front_longitudes[sorted_indices]
+#     front_latitudes = front_latitudes[sorted_indices]
+#
+#     # Interpolate the front latitudes to match the longitudes of the data
+#     smoothed_latitudes = np.interp(reference['LONGITUDE'], front_longitudes, front_latitudes)
+#
+#     # Add interpolated latitudes as a new column in the data
+#     reference[f'{front}_smoothed_LAT'] = smoothed_latitudes
+#
+#     # Optional: Plot if required
+#     map2(reference['LONGITUDE'], smoothed_latitudes, f'{front}_smoothed_LAT')
+#
+# # here is the dataframe of the smoothed fronts, on the sampled longitudes
+# # reference.to_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/from_GLODAP_check_Nov29_2024/checking_results3/smoothed_fronts_sample_lons.xlsx')
+# # print(len(reference))
+#
+# """
+# NOW,
+# I WANT TO PUT THE DATA INTO BINS, OF FRONT, AND OCEAN ZONE
+# """
+#
+# results = []
+# for i in range(0, len(df)):
+#     row = df.iloc[i]
+#     sample_lat = row['LATITUDE']
+#     sample_lon = row['LONGITUDE']
+#
+#     for j in range(0,len(reference)):
+#         # WE WANT TO COMPARE THE SAMPLE LAT, TO FRONTS AT SAMPLE LONGITUIDES
+#         ref_row = reference.iloc[j]
+#         ref_lon = ref_row['LONGITUDE']
+#
+#         if sample_lon == ref_lon:
+#             abc = 1 # find a way to break to outer loop
+#             # print('YAY!')
+#             # print(sample_lon)
+#             # print(ref_lon)
+#             # print(sample_lat)
+#
+#             # IF LONS MATCH, COMEPARE SAMPLE LAT, to FRONT LATS
+#             stf = ref_row['STF_smoothed_LAT']
+#             saf = ref_row['SAF_smoothed_LAT']
+#             pf = ref_row['PF_smoothed_LAT']
+#             boundary = ref_row['Boundary_smoothed_LAT']
+#             # print(f'STF IS {stf}')
+#             # print(f'SAF IS {saf}')
+#             # print(f'PF IS {pf}')
+#             # print(f'Bound IS {boundary}')
+#
+#             if sample_lat >= stf: #above the subtropical front is the subtropical zone
+#                 a = 'STZ'
+#             elif sample_lat <= boundary:
+#                 a = 'SIZ'
+#             elif boundary < sample_lat < pf:
+#                 a = 'ASZ'
+#             elif pf < sample_lat < saf:
+#                 a = 'PFZ'
+#             elif saf < sample_lat < stf:
+#                 a = 'SAZ'
+#             else:
+#                 a= 'ERROR'
+#             results.append(a)
+#             # print(results)
+#             # print()
+#             break
+#
+# # print(len(results))
+# # print(len(df))
+# df['Assigned_Zone'] = results
+#
+# df.to_excel(r'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/from_GLODAP_check_Nov29_2024/checking_results4/cbl_zones.xlsx')
+
+"""
+Check the assignments work via a map
+"""
+
 import pandas as pd
 import numpy as np
-from X_miller_curve_algorithm import ccgFilter
 import cartopy.crs as ccrs
 import cartopy.feature as cf
 import matplotlib.pyplot as plt
 
-df = pd.read_csv('C:/Users/clewis/IdeaProjects/GNS/Water_mass_dataset/output_OPEN_ACCESS/STEP1_reboot/STEP1_GLODAP_C14.csv')
+
 acc_fronts = pd.read_csv(r'H:\Science\Datasets\ACC_fronts\csv\antarctic_circumpolar_current_fronts.csv')
+df= pd.read_excel(r'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/from_GLODAP_check_Nov29_2024/checking_results4/cbl_zones.xlsx')
 
-# FILTER TO ONLY GRAB SURFACE SAMPLES
-df = df.rename(columns={'G2expocode':'EXPOCODE', 'G2year':'DATE', 'G2pressure':'CTDPRS', 'G2nitrate':'NITRAT','G2c14':'DELC14','G2latitude':'LATITUDE','G2longitude':'LONGITUDE'})
-df = df.loc[df['CTDPRS'] < 100] # ONLY GRAB SURFACE SAMPLES
-df = df.loc[df['DELC14'] > -990]
-df = df.loc[df['NITRAT'] > -990]
-df = df.loc[df['DATE'] > 1979]
+# assign ocean basin
+df['Basin'] = 'Atlantic'
+# start at the top of africa
+df.loc[(df['LONGITUDE'] >= 21) & (df['LONGITUDE'] <= 120), 'Basin'] = 'Indian'
+df.loc[(df['LONGITUDE'] >= 120), 'Basin'] = 'Pacific'
+df.loc[(df['LONGITUDE'] >= -180) & (df['LONGITUDE'] <= -70), 'Basin'] = 'Pacific'
 
-"""
-I'll need to smooth the acc fronts to the lat/lons where there is data in order to do the differeceing.
-"""
-# the smoothing will output latitude data wherever it sees longitude data on X
-datas = pd.DataFrame({'x': df['LONGITUDE'], 'y': df['LATITUDE']}).sort_values(by=['x'], ascending=True).reset_index(drop=True)
+df.to_excel(r'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/from_GLODAP_check_Nov29_2024/checking_results4/cbl_zones_assigned.xlsx')
+print(len(df))
 
-n = 1000 # set the amount of times the code will iterate (set to 10,000 once everything is final)
-cutoff = 667  # FFT filter cutoff
+zones = ['STZ','SIZ','ASZ','PFZ','SAZ']
+basins = ['Pacific','Indian','Atlantic']
 
-# Do this for each front
-fronts = np.unique(acc_fronts['front_name'])
-fronts = ['PF','SAF','STF','Boundary']
-line_sys = ['dotted','dashed','dashdot','solid','dotted','dashed','dashdot']
+for b in range(0, len(basins)):
 
-# Create a Cartopy plot
-projection = ccrs.PlateCarree()
-fig, ax = plt.subplots(figsize=(10, 6), subplot_kw={'projection': projection})
+    df2 = df.loc[df['Basin'] == basins[b]]
 
-# Add features like coastlines and borders
-ax.coastlines(resolution='110m')
-ax.add_feature(cf.BORDERS, linestyle=':')
-ax.set_extent([-180, 180, -90, 90], crs=ccrs.PlateCarree())  # Set global extent
+    for g in range(0, len(zones)):
+        df3 = df2.loc[df2['Assigned_Zone'] == zones[g]]
 
-# Iterate over each front to create and plot the smoothed data
-for i in range(len(fronts)):
-    this_one = acc_fronts.loc[acc_fronts['front_name'] == fronts[i]]
-    latitudes = this_one['latitude'].reset_index(drop=True)
-    longitudes = this_one['longitude'].reset_index(drop=True)
-    yerr = latitudes * 0.01
+        # ADD FIGURE TO CHECK
+        plt.figure(figsize=(10, 10))
+        ax = plt.axes(projection=ccrs.Orthographic(central_longitude=-155, central_latitude=-90))
+        ax.add_feature(cf.OCEAN)
+        ax.add_feature(cf.LAND, edgecolor='black')
+        ax.gridlines()
 
-    # Dynamically name a variable
-    smoothed = ccgFilter(longitudes, latitudes, cutoff).getSmoothValue(datas['x'])
-    df[f'{fronts[i]}+smoothed'] = smoothed
+        fronts = np.unique(acc_fronts['front_name'])
+        fronts = ['PF', 'SAF', 'STF', 'Boundary']
+        line_sys = ['dotted', 'dashed', 'dashdot', 'solid']
 
-    # Test it by showing in a plot
-    ax.plot(
-        datas['x'], smoothed,
-        transform=ccrs.Geodetic(),  # Specify the CRS of the data
-        color='black',
-        label=f'{fronts[i]}',
-        linestyle=line_sys[i]
-    )
+        # ORSI FRONTS
+        for p in range(len(fronts)):
+            this_one = acc_fronts.loc[acc_fronts['front_name'] == fronts[p]]
+            latitudes = this_one['latitude'].values  # Convert to numpy array if necessary
+            longitudes = this_one['longitude'].values
 
-# Add legend and show the plot
-ax.legend(loc='upper left')
-ax.gridlines()
-gl = ax.gridlines(crs=ccrs.PlateCarree(), draw_labels=True,
-                  linewidth=2, color='gray', alpha=0.5, linestyle='--')
-plt.savefig(f'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/from_GLODAP_check_Nov29_2024/testmap.png', dpi=300, bbox_inches="tight")
+            ax.plot(
+                longitudes,
+                latitudes,
+                transform=ccrs.PlateCarree(),  # Data is in lat/lon format
+                linestyle=line_sys[p % len(line_sys)],  # Cycle through line styles
+                label=fronts[p], color='black')
 
-#
-# I need to make sure that the northernmost front isn't calculating everyting in the northern
-# hemispehre so I index only to include everything souht of 5S.
-df = df.loc[df['LATITUDE'] <= -5]
-cruise_names = np.unique(df['EXPOCODE'].astype(str))
-cruise_names = pd.DataFrame({"EXPOCODES": cruise_names})
-print(min(df['DATE']))
-print(max(df['DATE']))
-cruise_names.to_excel(r'H:\Science\Datasets\Hydrographic\names.xlsx')
+        # add the nitrate and 14C data
 
-# subset data so that I only see data where the latitude of the pont is lower than STF
-# columns_to_dropna = ['Boundary+smoothed', 'PF+smoothed','SAF+smoothed','STF+smoothed']
-# df = df.dropna(subset=columns_to_dropna, inplace=True)
+        latitudes_data = df3['LATITUDE'].values
+        longitudes_data = df3['LONGITUDE'].values
+        nitrate_data = df3['DELC14'].values
+        sc = ax.scatter(
+            longitudes_data,
+            latitudes_data,
+            c=nitrate_data,
+            cmap='coolwarm',
+            transform=ccrs.PlateCarree())  # Data is in lat/lon format)
+        # Add gridlines
+        gridlines = ax.gridlines(draw_labels=True, linestyle='--', color='gray', alpha=0.7)
 
-# loop through the DF and assign a "SURFACE FRONT" to each point based on its lat and lon...
-result_array = []
-results_array_sectors1 = []
-results_array_sectors2 = []
-for j in range(0, len(df)):
-    row = df.iloc[j]
+        # Customize gridlines
+        gridlines.xlabels_top = False  # Don't show longitude labels at the top
+        gridlines.ylabels_right = False  # Don't show latitude labels on the right
+        gridlines.xlabel_style = {'size': 10, 'color': 'blue'}
+        gridlines.ylabel_style = {'size': 10, 'color': 'blue'}
 
-    # assign label based on latitude
-    if (row['LATITUDE'] >= row['STF+smoothed']):  # IF NORTH OF SUBTROPICAL FRONT, ITS THE SUBTROPICAL ZONE
-        res = 'STZ'
-    elif (row['LATITUDE'] >= row['Boundary+smoothed']) & (row['LATITUDE'] <= row['PF+smoothed']):
-        res = 'ASZ'
-    elif (row['LATITUDE'] >= row['PF+smoothed']) & (row['LATITUDE'] <= row['SAF+smoothed']):
-        res = 'PFZ'
-    elif (row['LATITUDE'] >= row['SAF+smoothed']) & (row['LATITUDE'] <= row['STF+smoothed']):
-        res = 'SAZ'
-    elif (row['LATITUDE'] <= row['Boundary+smoothed']):
-        res = 'SIZ'
-    else:
-        res = 'Error'
-
-    # assign label based on latitude and longitude (PACIFIC SIDE FOR CHILEAN DATA)
-    if (row['LATITUDE'] >= row['STF+smoothed']) & (-120 <= row['LONGITUDE'] <= -70):
-        res2 = 'STZ'
-    elif (row['LATITUDE'] >= row['Boundary+smoothed']) & (row['LATITUDE'] <= row['PF+smoothed']) & (-120 <= row['LONGITUDE'] <= -70):
-        res2 = 'ASZ'
-    elif (row['LATITUDE'] >= row['PF+smoothed']) & (row['LATITUDE'] <= row['SAF+smoothed']) & (-120 <= row['LONGITUDE'] <= -70):
-        res2 = 'PFZ'
-    elif (row['LATITUDE'] >= row['SAF+smoothed']) & (row['LATITUDE'] <= row['STF+smoothed']) & (-120 <= row['LONGITUDE'] <= -70):
-        res2 = 'SAZ'
-    elif (row['LATITUDE'] <= row['Boundary+smoothed']):
-        res2 = 'SIZ'
-    else:
-        res2 = 'Error'
-    # INDIAN SIDE FOR NZ ORIGIN
-    if (row['LATITUDE'] >= row['STF+smoothed']) & (21 <= row['LONGITUDE'] <= 120):
-        res3 = 'STZ'
-    elif (row['LATITUDE'] >= row['Boundary+smoothed']) & (row['LATITUDE'] <= row['PF+smoothed']) & (21 <= row['LONGITUDE'] <= 120):
-        res3 = 'ASZ'
-    elif (row['LATITUDE'] >= row['PF+smoothed']) & (row['LATITUDE'] <= row['SAF+smoothed']) & (21 <= row['LONGITUDE'] <= 120):
-        res3 = 'PFZ'
-    elif (row['LATITUDE'] >= row['SAF+smoothed']) & (row['LATITUDE'] <= row['STF+smoothed']) & (21 <= row['LONGITUDE'] <= 120):
-        res3 = 'SAZ'
-    elif (row['LATITUDE'] <= row['Boundary+smoothed']):
-        res3 = 'SIZ'
-    else:
-        res3 = 'Error'
-
-    # append the total zone
-    result_array.append(res)
-    # append the Pac zone
-    results_array_sectors1.append(res2)
-    # append the indian zone
-    results_array_sectors2.append(res3)
-df['CBL_zones'] = result_array
-df['CBL_zones_sectored_CH'] = results_array_sectors1
-df['CBL_zones_sectored_NZ'] = results_array_sectors2
-df.to_excel(r'H:\Science\Datasets\Hydrographic\cbl_zones.xlsx')
+        cb = plt.colorbar(sc, ax=ax, orientation='vertical', pad=0.05, label='Nitrate (\u03BCM)')
+        plt.title(f'{zones[g]}_{basins[b]}')
+        # plt.show()
+        plt.savefig(f'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/from_GLODAP_check_Nov29_2024/checking_results4/{zones[g]}_{basins[b]}.png', dpi=300, bbox_inches="tight")
 
 
 """
 Compile the sectional averages
 """
-df = df.loc[df['CBL_zones'] != 'Error']
+# df = df.loc[df['CBL_zones'] != 'Error']
 
 results = pd.DataFrame()
-zones = np.unique(df['CBL_zones'])
-zones = ['STZ','SAZ','PFZ','ASZ','SIZ']
-# total data
+
+# atlantic data
 mean14C = []
 std14C = []
 meannit = []
@@ -192,31 +245,25 @@ meannit_ind = []
 stdnit_ind = []
 zone_ind = []
 
-from map_function import map1
-
 for i in range(0, len(zones)):
-    df1 = df.loc[df['CBL_zones'] == zones[i]]
+    df1 = df.loc[(df['Assigned_Zone'] == zones[i]) & (df['Basin'] == 'Atlantic') ]
     mean14C.append(np.nanmean(df1['DELC14']))
     std14C.append(np.nanstd(df1['DELC14']))
     meannit.append(np.nanmean(df1['NITRAT']))
     stdnit.append(np.nanstd(df1['NITRAT']))
     zone.append(zones[i])
-    map1(df1, 'DELC14',f'total_{zones[i]}')
 
-
-    df2 = df.loc[df['CBL_zones_sectored_CH'] == zones[i]]
+    df2 = df.loc[(df['Assigned_Zone'] == zones[i]) & (df['Basin'] == 'Pacific') ]
     mean14C_pac.append(np.nanmean(df2['DELC14']))
     std14C_pac.append(np.nanstd(df2['DELC14']))
     meannit_pac.append(np.nanmean(df2['NITRAT']))
     stdnit_pac.append(np.nanstd(df2['NITRAT']))
-    map1(df2, 'DELC14',f'pacific_{zones[i]}')
 
-    df3 = df.loc[df['CBL_zones_sectored_NZ'] == zones[i]]
+    df3 = df.loc[(df['Assigned_Zone'] == zones[i]) & (df['Basin'] == 'Indian') ]
     mean14C_ind.append(np.nanmean(df3['DELC14']))
     std14C_ind.append(np.nanstd(df3['DELC14']))
     meannit_ind.append(np.nanmean(df3['NITRAT']))
     stdnit_ind.append(np.nanstd(df3['NITRAT']))
-    map1(df3, 'DELC14',f'indian_{zones[i]}')
 
 
 results = pd.DataFrame({"zone": zone,
@@ -224,7 +271,7 @@ results = pd.DataFrame({"zone": zone,
                         "mean_14C_pac": mean14C_pac, "std14C_pac":std14C_pac, "mean_nitrate_pac": meannit_pac, "stdnitrate_pac":stdnit_pac,
                         "mean_14C_ind": mean14C_ind, "std14C_ind":std14C_ind, "mean_nitrate_ind": meannit_ind, "stdnitrate_ind":stdnit_ind,
                         })
-results.to_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/from_GLODAP_check_Nov29_2024/glodap_goship_results_DEC1_24.xlsx')
+results.to_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/from_GLODAP_check_Nov29_2024/glodap_goship_results_DEC2_24.xlsx')
 
 
 """
@@ -348,4 +395,4 @@ plt.legend()
 
 # Display the plots
 plt.tight_layout()
-plt.savefig(f'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/from_GLODAP_check_Nov29_2024/bulkfigtest_DEC1.png', dpi=300, bbox_inches="tight")
+plt.savefig(f'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/from_GLODAP_check_Nov29_2024/bulkfigtest_DEC2.png', dpi=300, bbox_inches="tight")

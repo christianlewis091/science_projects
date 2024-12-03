@@ -245,6 +245,7 @@ meannit_ind = []
 stdnit_ind = []
 zone_ind = []
 
+zones = ['STZ','SAZ','PFZ','ASZ','SIZ']
 for i in range(0, len(zones)):
     df1 = df.loc[(df['Assigned_Zone'] == zones[i]) & (df['Basin'] == 'Atlantic') ]
     mean14C.append(np.nanmean(df1['DELC14']))
@@ -271,7 +272,7 @@ results = pd.DataFrame({"zone": zone,
                         "mean_14C_pac": mean14C_pac, "std14C_pac":std14C_pac, "mean_nitrate_pac": meannit_pac, "stdnitrate_pac":stdnit_pac,
                         "mean_14C_ind": mean14C_ind, "std14C_ind":std14C_ind, "mean_nitrate_ind": meannit_ind, "stdnitrate_ind":stdnit_ind,
                         })
-results.to_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/from_GLODAP_check_Nov29_2024/glodap_goship_results_DEC2_24.xlsx')
+results.to_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/from_GLODAP_check_Nov29_2024/RESULTS_FINAL_DEC2_24.xlsx')
 
 
 """
@@ -383,7 +384,7 @@ ax3.legend()
 
 
 ax4.errorbar(results['zone'], results['mean_14C'], yerr=results['std14C'], fmt='', ecolor='black', elinewidth=1, capsize=2, alpha=1, linestyle='', zorder=0)
-ax4.scatter(results['zone'], results['mean_14C'], c=results['mean_14C'], cmap=cmap_reversed, s=blah, edgecolor='k', linewidth=0.5, vmin=-150, vmax=150, zorder=10, label='Total')
+ax4.scatter(results['zone'], results['mean_14C'], c=results['mean_14C'], cmap=cmap_reversed, s=blah, edgecolor='k', linewidth=0.5, vmin=-150, vmax=150, zorder=10, label='Atlantic Sector')
 
 ax4.errorbar(results['zone'], results['mean_14C_pac'], yerr=results['std14C_pac'], fmt='', ecolor='black', elinewidth=1, capsize=2, alpha=1, linestyle='', zorder=0)
 ax4.scatter(results['zone'], results['mean_14C_pac'], c=results['mean_14C_pac'], cmap=cmap_reversed, s=blah, edgecolor='k', linewidth=0.5, vmin=-150, vmax=150, zorder=10, marker='D', label='Pacific Sector')
@@ -395,4 +396,4 @@ plt.legend()
 
 # Display the plots
 plt.tight_layout()
-plt.savefig(f'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/from_GLODAP_check_Nov29_2024/bulkfigtest_DEC2.png', dpi=300, bbox_inches="tight")
+plt.savefig(f'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/from_GLODAP_check_Nov29_2024/FIGURE_FINAL_DEC2.png', dpi=300, bbox_inches="tight")

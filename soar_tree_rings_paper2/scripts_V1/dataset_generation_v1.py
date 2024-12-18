@@ -7,7 +7,8 @@ add data included in Graven et. al 2012. I'll also include JCT's drake passage d
 processed, and live in one file for me to be happy with continuing it into a further stage of the project.
 """
 
-from functions_v1 import glodap_C14, cchdo_C14, cchdo_cleaning, glodap_cchdo_compare, glodap_cchdo_merge, map_check
+import pandas as pd
+from functions_v1 import glodap_C14, cchdo_C14, cchdo_cleaning, glodap_cchdo_merge, map_check
 
 maindir = 'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings_paper2' # store the main directory for this work for ease of later use
 
@@ -42,24 +43,19 @@ and exports a cleaned version of CCHDO expocodes without random white spaces
 # cchdo_cleaning()
 
 """
-Next function compares the EXPOCODES output from CCHDO and GLODAP, and outputs a list of where the EXPOCODES overlap. 
-The expocodes that are in the returned data below must be REMOVED! from CCHDO data.
-
-The function removes it and writes a new CSV file with only expocodes that do not overlap with GLODAP 
-"""
-
-# overlap = glodap_cchdo_compare()
-
-"""
 So now, overlapping datasets have been removed. it's time to merge the GLODAP and CCHDO files. 
 """
 
-glodap_cchdo_merge()
+# glodap_cchdo_merge()
 
 """
-Check it all looks OK on a map! 
+Have a look at the maps. 
 """
 
-map_check()
-# TODO why are there multiple cruises from GLODAP and CCHDO in the same place? Are they indeed unique? Are we sure we didn't create overlapping duplicate data?
-# TODO need to be visually sure.
+# map_check()
+
+# TODO
+"""
+From looking at the maps generated above, I can tell that there only a few years where CCHDO has data that GLODAP doesn't. 
+That is in 2016, 2017, 2018, and 2019. For these years, I can figure out what those EXPOCODES are, and specifically include that CCHDO data, the rest will be removed. 
+"""

@@ -103,7 +103,7 @@ x = long_date_to_decimal_date(x)
 bhdcgo['Date'] = x
 c = stats.ttest_rel(bhdcgo['BHD_D14C'], bhdcgo['CGO_D14C'])
 ax3.errorbar(bhdcgo['Date'], bhdcgo['BHD_D14C'], yerr=bhdcgo['standard deviation1'], fmt='o',  elinewidth=1, capsize=2, label='Baring Head measured by RRL/NIWA', color='green',  markersize = 4)
-ax3.errorbar(bhdcgo['Date'], bhdcgo['CGO_D14C'], yerr=bhdcgo['standard deviation2'], fmt='o',  elinewidth=1, capsize=2, label='Cape Grim measured by RRL/NIWA', color='purple',  markersize = 4)
+ax3.errorbar(bhdcgo['Date'], bhdcgo['CGO_D14C'], yerr=bhdcgo['standard deviation2'], fmt='x',  elinewidth=1, capsize=2, label='Cape Grim measured by RRL/NIWA', color='purple',  markersize = 4)
 ax3.set_title('Site Intercomparison')
 ax3.set_ylabel('\u0394$^1$$^4$C (\u2030)')  # label the y axis
 ax3.set_xlabel('Year')

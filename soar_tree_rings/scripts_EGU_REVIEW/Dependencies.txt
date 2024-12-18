@@ -1,0 +1,47 @@
+PS C:\Users\clewis> cd .\IdeaProjects\
+PS C:\Users\clewis\IdeaProjects> cd GNS
+PS C:\Users\clewis\IdeaProjects\GNS> .\venv\Scripts\Activate
+(venv) PS C:\Users\clewis\IdeaProjects\GNS> pip list
+Package             Version
+------------------- -----------
+basemap             1.4.1
+basemap-data        1.3.2
+basemap-data-hires  1.3.2
+bidict              0.23.1
+Cartopy             0.23.0
+certifi             2024.8.30
+contourpy           1.3.0
+cycler              0.12.1
+et_xmlfile          2.0.0
+fonttools           4.54.1
+geopandas           1.0.1
+gsw                 3.6.19
+importlib_resources 6.4.5
+kiwisolver          1.4.7
+matplotlib          3.8.4
+numpy               1.26.4
+openpyxl            3.1.5
+packaging           23.2
+pandas              2.2.3
+pillow              11.0.0
+pip                 23.2.1
+plotly              5.24.1
+PyAstronomy         0.22.0
+pyogrio             0.10.0
+pyparsing           3.2.0
+pyproj              3.6.1
+pyshp               2.3.1
+python-dateutil     2.9.0.post0
+pytz                2024.2
+quantities          0.16.1
+scipy               1.13.1
+seaborn             0.13.2
+seawater            3.3.5
+setuptools          68.2.0
+shapely             2.0.6
+six                 1.16.0
+tabulate            0.9.0
+tenacity            9.0.0
+tzdata              2024.2
+wheel               0.41.2
+zipp                3.20.2

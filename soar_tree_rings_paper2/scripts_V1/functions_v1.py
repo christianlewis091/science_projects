@@ -149,45 +149,11 @@ def cchdo_cleaning():
       f'Lat ranges from {np.min(cchdo["LATITUDE"].astype(float))} to {np.max(cchdo["LATITUDE"].astype(float))}\n'
       )
 
-
-def glodap_cchdo_compare():
-    """
-    # Reads in GLODAP and CCHDO expocodes from above and compares: where does CCHDO expocodes overlap with GLODAP?
-    # The overlaps need to be removed. Otherwise we'll have duplicate data
-
-    Args:
-        None
-
-    Returns:
-        A list of expocodes where the datasets OVERLAP
-
-    """
-    cchdo_codes = pd.read_csv(f'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings_paper2/output_V1/dataset_generation_v1/cchdo_expocodes.csv', dtype={'EXPOCODE': str}, low_memory=False)
-    glodap_codes = pd.read_csv(f'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings_paper2/output_V1/dataset_generation_v1/glodap_expocodes.csv', dtype={'G2expocode': str}, low_memory=False)
-
-    cchdo_codes = np.unique(cchdo_codes['EXPOCODE'])
-    glodap_codes = np.unique(glodap_codes['G2expocode'])
-
-    differ = set(cchdo_codes).difference(set(glodap_codes))
-    overlap = set(cchdo_codes).intersection(set(glodap_codes))
-
-    # read in CCHDO full dataset so we can remove overlapping expocodes
-    cchdo = pd.read_csv(f'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings_paper2/output_V1/dataset_generation_v1/cchdo_clean.csv')
-    t0 = len(cchdo)
-
-    # locate only the expocodes that DO NOT overlap with GLODAP
-    cchdo = cchdo.loc[cchdo['EXPOCODE'].isin(differ)]
-    t1 = len(cchdo)
-
-    # re-write the CCHDO data to csv
-    cchdo.to_csv(f'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings_paper2/output_V1/dataset_generation_v1/cchdo_clean_OVERLAPS_OMITTED.csv')
-
-    print()
-    print(f'GLODAP_CCHDO_COMPARE REPORT.\n '
-          f'CCHDO had {len(cchdo_codes)} EXPOCODES after filtering for DELC14, and a total dataset lenght of {t0} (after previous filtrations for lat, depth, dates).\n '
-          f'{len(overlap)} of these expocodes overlaps with GLODAP expocodes\n'
-          f'After locating only non-overlapping expcodes, the new final dataset length is {t1},\n'
-          )
+# TODO
+"""
+When checking via the map, I found a lot of duplicate GLODAP CCHDO cruises that WERE duplicates and not captured here. I may be better off just dealing with it manually...
+Make one map per year, make sure nothing looks crazy
+"""
 
 def glodap_cchdo_merge():
     """
@@ -199,7 +165,7 @@ def glodap_cchdo_merge():
     Returns:
         merged dataset of GLODAP and CCHDO
     """
-    cchdo = pd.read_csv(f'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings_paper2/output_V1/dataset_generation_v1/cchdo_clean_OVERLAPS_OMITTED.csv')
+    cchdo = pd.read_csv(f'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings_paper2/output_V1/dataset_generation_v1/cchdo_clean.csv')
     glodap = pd.read_csv(f'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings_paper2/output_V1/dataset_generation_v1/glodap_v1.csv')
 
     # the column names need to be made the same
@@ -208,9 +174,9 @@ def glodap_cchdo_merge():
 
     # here is the list of GLODAP columns
     glodap = glodap[['Unnamed: 0', 'G2expocode', 'G2cruise', 'G2station', 'G2region',
-                      'G2cast', 'G2year', 'G2month', 'G2day', 'G2hour', 'G2minute',
-                      'G2latitude', 'G2longitude', 'G2pressure', 'G2temperature', 'G2salinity',
-                      'G2salinityf', 'G2nitrate', 'G2salinityqc', 'G2c14', 'G2c14f', 'G2c14err', 'G2sigma0']]
+                     'G2cast', 'G2year', 'G2month', 'G2day', 'G2hour', 'G2minute',
+                     'G2latitude', 'G2longitude', 'G2pressure', 'G2temperature', 'G2salinity',
+                     'G2salinityf', 'G2nitrate', 'G2salinityqc', 'G2c14', 'G2c14f', 'G2c14err', 'G2sigma0']]
     glodap['Origin'] = 'GLODAP'
     # First, I'll cut off loads of columns to simplify working with CCHDO dataset.
     cchdo = cchdo[['EXPOCODE', 'SECT_ID', 'STNNBR','DATE','LATITUDE',
@@ -232,38 +198,18 @@ def glodap_cchdo_merge():
 
     df = glodap.merge(cchdo, how='outer')
 
+    # fix date formatting so each one has a simply year
+    to_fix_date = df['G2year'].astype(str)
+    to_fix_date = to_fix_date.str.slice(0,4)
+    df['Date_sliced'] = to_fix_date
+
     # Use CSV file for future work
     df.to_csv(f'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings_paper2/output_V1/dataset_generation_v1/cchdo_glodap_merged.csv')
 
 
-    c = df.loc[df['Origin'] == 'CCHDO']
-    c = np.unique(c['G2expocode'])
-    c = pd.DataFrame({'G2expocode': c})
-
-    g = df.loc[df['Origin'] == 'GLODAP']
-    g = np.unique(g['G2expocode'])
-    g = pd.DataFrame({'G2expocode': g})
-
-
-    # use Excel file for reference. Takes too long to load into python
-    with pd.ExcelWriter("C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings_paper2/output_V1/dataset_generation_v1/final_merged_output_w_metadata.xlsx") as writer:
-
-        # use to_excel function and specify the sheet_name and index
-        # to store the dataframe in specified sheet
-        df.to_excel(writer, sheet_name="GLODAP_CCHDO_Merge", index=False)
-        g.to_excel(writer, sheet_name="GLODAP_EXPOCODES", index=False)
-        c.to_excel(writer, sheet_name="CCHDO_EXPOCODES", index=False)
-
-    print()
-    print(f'GLODAP_CCHDO_MERGE REPORT.\n '
-          f'Use cchdo_glodap_merged.csv for loading into next scripts. Excel file is for reference/Future Supp infos\n '
-          f'See output from scripts above showing the max/mins of data to make sure that they look right \n'
-          f'Unique expocodes for GLODAP and CCHDO are listed in output to excel\n'
-      )
-
 def map_check():
     """
-    # Reads merged data file from above and check visually that all the data isn't looking weird or anything
+    # Reads merged data file from above. Look through each year, find where there are duplicate cruises
 
     Args:
         None
@@ -271,26 +217,48 @@ def map_check():
     Returns:
         merged dataset of GLODAP and CCHDO
     """
-
     df = pd.read_csv(f'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings_paper2/output_V1/dataset_generation_v1/cchdo_glodap_merged.csv')
-    print(np.unique(df['Origin']))
+    years = np.unique(df['Date_sliced'].astype(float))
 
-    df_c = df.loc[df['Origin'] == 'CCHDO']
-    df_g = df.loc[df['Origin'] == 'GLODAP']
+    # Loop through the years and plot maps in each subplot
+    for i in range(0, len(years)):
+        plt.figure(figsize=(10, 10))
+        ax = plt.axes(projection=ccrs.Orthographic(central_longitude=-155, central_latitude=-90))
 
-    plt.figure(figsize=(10, 10))
-    ax = plt.axes(projection=ccrs.Orthographic(central_longitude=-155, central_latitude=-90))
+        this_year_cchdo = df.loc[(df['Date_sliced'] == years[i].astype(float)) & (df['Origin'] == 'CCHDO')]
+        c_c = np.unique(this_year_cchdo['G2expocode'])
 
-    # First Subplot: Nitrate Map
-    ax.add_feature(cf.OCEAN)
-    ax.add_feature(cf.LAND, edgecolor='black')
-    ax.gridlines()
 
-    ax.scatter(df['G2longitude'].values, df['G2latitude'].values, s=10, linewidth=0.5, vmin=0, vmax=32, alpha=0.9, transform=ccrs.PlateCarree())  # Data is in lat/lon format))
-    ax.scatter(df_c['G2longitude'].values, df_c['G2latitude'].values, s=10, linewidth=0.5, vmin=0, vmax=32, alpha=0.9, transform=ccrs.PlateCarree(), color='red')  # Data is in lat/lon format))
-    ax.scatter(df_g['G2longitude'].values, df_g['G2latitude'].values, s=10, linewidth=0.5, vmin=0, vmax=32, alpha=0.9, transform=ccrs.PlateCarree(), color='green')  # Data is in lat/lon format))
+        this_year_glodap = df.loc[(df['Date_sliced'] == years[i].astype(float)) & (df['Origin'] == 'GLODAP')]
+        g_c = np.unique(this_year_glodap['G2expocode'])
 
-    plt.show()
 
-    # TODO why are there multiple cruises from GLODAP and CCHDO in the same place? Are they indeed unique? Are we sure we didn't create overlapping duplicate data?
-    # TODO need to be visually sure.
+        ax.add_feature(cf.OCEAN)
+        ax.add_feature(cf.LAND, edgecolor='black')
+        ax.gridlines()
+        ax.set_title(f"Year: {years[i]}", fontsize=8)  # Add year as title to each subplot
+
+        ax.scatter(this_year_cchdo['G2longitude'].values, this_year_cchdo['G2latitude'].values, transform=ccrs.PlateCarree(), label='CCHDO')  # Data is in lat/lon format))
+        ax.scatter(this_year_glodap['G2longitude'].values, this_year_glodap['G2latitude'].values, transform=ccrs.PlateCarree(), label='GLODAP')  # Data is in lat/lon format))
+        ax.set_global()
+        ax.legend()
+        print()
+        print(f"Year is {years[i]}")
+        print(f"This years CCHDO cruises: {c_c}")
+        print(f"This years glodap cruises: {g_c}")
+        # Adjust layout for better spacing
+        plt.tight_layout()
+        plt.savefig(f'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings_paper2/output_V1/dataset_generation_v1/map_check/{years[i]}.png',
+                    dpi=300, bbox_inches="tight")
+        plt.close()
+
+
+
+
+
+
+
+
+
+
+

@@ -1,94 +1,505 @@
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+import matplotlib.gridspec as gridspec
+# from X_miller_curve_algorithm import ccgFilter
+import time
+import cartopy.crs as ccrs
+import cartopy.feature as cf
+import openpyxl
+start_time = time.time()
+
 """
-Quick final comparison of MCQ, Cambpell Island, Neumauyer
+Block 1: Takes 262 seconds (4 minutes) to run
+"""
+# # READ IN SOME EXCEL DATA
+# easy_access = pd.read_excel(r'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/easy_access2.xlsx')
+# landfrac = pd.read_excel(r'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/hysplit/output_data//landfracresults.xlsx')
+# points1 = pd.read_excel(f'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/hysplit/output_data/points_2005_2006.xlsx')
+# points2 = pd.read_excel(f'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/hysplit/output_data/points_2010_2011.xlsx')
+# points3 = pd.read_excel(f'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/hysplit/output_data/points_2015_2016.xlsx')
+# points4 = pd.read_excel(f'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/hysplit/output_data/points_2020_2021.xlsx')
+# points = pd.concat([points1, points2, points3, points4])
+# points = points.loc[points['starting_height'] == 100]
+# # #
+# points.to_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/hysplit_heatmap/points_concat.xlsx')
+# elapsed_time_section_1 = time.time() - start_time
+# print(f"Code section 1 took {elapsed_time_section_1} seconds")
+#
+# #
+
+"""
+Block 2
+"""
+points = pd.read_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/hysplit_heatmap/points_concat.xlsx')
+acc_fronts = pd.read_csv(r'H:\Science\Datasets\ACC_fronts\csv\antarctic_circumpolar_current_fronts.csv')
+elapsed_time_section_1 = time.time() - start_time
+locations = np.unique(points['location'])
+
+"""
+make an empty map
+"""
+
+for q in range(0, len(locations)):
+
+    # filter by location
+    midpoint_lat = []
+    midpoint_lon = []
+    loc_len = []
+    name = []
+    this_loc = points.loc[points['location'] == locations[q]]
+
+    lons = np.linspace(-180, 180, 361)
+    lats = np.linspace(-90,90, 181)
+
+    for i in range(0, len(lons)-1):
+        for j in range(0, len(lats)-1):
+            midpoint_lon.append((lons[i]+lons[i+1])/2)
+            midpoint_lat.append((lats[j]+lats[j+1])/2)
+
+            subdata = this_loc.loc[(this_loc['x'] > lons[i]) & (this_loc['x'] <= lons[i+1]) &
+                                   (this_loc['y'] > lats[j]) & (this_loc['y'] <= lats[j+1])]
+
+            loc_len.append(len(subdata))
+            name.append(locations[q])
+            # print(f'{locations[q]}, {lons[i]}, {lats[j]}')
+
+    results = pd.DataFrame({"location": name, "x": midpoint_lon, "y": midpoint_lat, "heat": loc_len})
+    results = results.loc[results['heat'] != 0]
+
+    plt.figure(figsize=(10, 10))
+    ax = plt.axes(projection=ccrs.Orthographic(central_longitude=-155, central_latitude=-90))
+
+    # Plot the HEATMAP on top of the ORSI lines
+    ax.scatter(
+        results['x'].values,
+        results['y'].values,
+        c=results['heat'].values, cmap='coolwarm', s=5, linewidth=0.5, vmin=0, vmax=32, alpha=0.5, transform=ccrs.PlateCarree())  # Data is in lat/lon format))
+
+    plt.savefig(f'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/hysplit_heatmap/{locations[q]}.png',
+                dpi=300, bbox_inches="tight")
+# #
+#
+"""
+Recalculating the "Time Per Zone" using points, not means
+"""
+# n = 3 # set the amount of times the code will iterate (set to 10,000 once everything is final)
+# cutoff = 667  # FFT filter cutoff
+#
+# # Do this for each front
+# fronts = np.unique(acc_fronts['front_name'])
+# fronts = ['PF','SAF','STF','Boundary']
+# line_sys = ['dotted','dashed','dashdot','solid','dotted','dashed','dashdot']
+#
+# # create a smoothed front
+# for i in range(0, len(fronts)):
+#     this_one = acc_fronts.loc[acc_fronts['front_name'] == fronts[i]]
+#     latitudes = this_one['latitude'].reset_index(drop=True)
+#     longitudes = this_one['longitude'].reset_index(drop=True)
+#     yerr = latitudes*.01
+#
+#     #dynamically name a variable
+#     # GET SMOOTH VALUE: SET OUTPUT TO WHEREVER WE LAVE LONGUITUDE DATA FOR THE MEANS
+#     smoothed = ccgFilter(longitudes, latitudes, cutoff).getSmoothValue(points['x'])
+#     points[f'{fronts[i]}+smoothed'] = smoothed
+#
+# result_array = []
+# for j in range(0, len(points)):
+#     row = points.iloc[j]
+#     # assign label based on latitude
+#     if (row['y'] >= row['STF+smoothed']):
+#         res = 'STZ'
+#     elif (row['y'] >= row['Boundary+smoothed']) & (row['y'] <= row['PF+smoothed']):
+#         res = 'ASZ'
+#     elif (row['y'] >= row['PF+smoothed']) & (row['y'] <= row['SAF+smoothed']):
+#         res = 'PFZ'
+#     elif (row['y'] >= row['SAF+smoothed']) & (row['y'] <= row['STF+smoothed']):
+#         res = 'SAZ'
+#     elif (row['y'] <= row['Boundary+smoothed']):
+#         res = 'SIZ'
+#     else:
+#         res = 'Error'
+#
+#     result_array.append(res)
+#
+# points['zones'] = result_array
+# points.to_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/hysplit_heatmap/test.xlsx')
+# points = pd.read_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/hysplit_heatmap/test.xlsx')
+#
+# zones = np.unique(points['zones'])
+# sites = np.unique(points['location'])
+#
+# out1 = []
+# out2 = []
+# out3 = []
+#
+# for i in range(0, len(sites)):
+#     this_site = points.loc[points['location'] == sites[i]]
+#     for u in range(0, len(zones)):
+#         how_many = this_site.loc[this_site['zones'] == zones[u]]
+#         out1.append(sites[i])
+#         out2.append(zones[u])
+#         out3.append(len(how_many))
+# output1 = pd.DataFrame({"Site": out1, "Zone": out2, "Length": out3})
+# print(output1)
+# output1.to_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/hysplit_heatmap/time_per_zone_usingpoints.xlsx')
+#
+
+"""
+Sara M. Fletcher mentioned in our group meeting on June 20, 2024 that it would be nice to have this graphically displayed rather than
+just as a table. Lets see if we can do that below. 
 """
 
 import pandas as pd
-from X_my_functions import monte_carlo_randomization_trend
+import matplotlib.pyplot as plt
+import numpy as np
+import seaborn as sns
 
-df = pd.read_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/from_reference_to_sample_xvals2/samples_with_references10000.xlsx')
-cmp = df.loc[df['Site'] == 'Campbell Island, NZ']
-mcq = pd.read_excel('H:/Science/Datasets/heidelberg_MQA.xlsx')
-nmy = pd.read_excel('H:/Science/Datasets/heidelberg_neumayer.xlsx', sheet_name='DataOnly')
+# Read the data from the Excel file
+df = pd.read_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/hysplit_heatmap/time_per_zone_usingpoints_edited.xlsx', sheet_name='Summary', comment='#')
 
-cmp = cmp[['DecimalDate','∆14C']]
-nmy = nmy[['DecimalDate','D14C']]
-mcq = mcq[['Average of Dates','D14C']]
+# make the plot twice and edit
 
-cmp['Site'] = 'Campbell'
-nmy['Site'] = 'Neumayer'
-mcq['Site'] = 'Mac'
+blah = np.unique(df['Country'])
+for h in range(0, len(blah)):
 
-cmp = cmp.rename(columns={'∆14C':'Delta14C'})
-nmy = nmy.rename(columns={'D14C':'Delta14C'})
-mcq = mcq.rename(columns={'D14C':'Delta14C', 'Average of Dates': 'DecimalDate'})
+    df1 = df.loc[df['Country'] == blah[h]]
+    # print(df)
+
+    df1 = df1.rename(columns={"STZ": "Subtropical Zone (STZ)",
+                              "SAZ": "Subantarctic Zone (SAZ)",
+                              "PFZ": "Polar Frontal Zone (PFZ)",
+                              "ASZ": "Antarctic-Southern Zone (ASZ)",
+                              "SIZ": "Seasonal Ice Zone (SIZ)"})
+
+    zones = ["Subtropical Zone (STZ)", "Subantarctic Zone (SAZ)", "Polar Frontal Zone (PFZ)", "Antarctic-Southern Zone (ASZ)", "Seasonal Ice Zone (SIZ)"]
+    zone_trans = [0.2, 0.2, 1,1,1]
+    sites = df1['Site']
+
+    # Define the color palette
+    colors = sns.color_palette("muted", len(zones))
+
+    # Plotting
+    fig, ax = plt.subplots(figsize=(6, 8))
+
+    # Initialize the bottom array for the first stack
+    bottom = np.zeros(len(sites))
+
+    # Loop through each zone to create a stacked bar
+    for i, zone in enumerate(zones):
+        ax.bar(sites, df1[zone], bottom=bottom, label=zone, color=colors[i], alpha=zone_trans[i])
+        bottom += df1[zone].values  # Update the bottom to include the current zone's height
+
+    # Add some text for labels, title, and custom x-axis tick labels, etc.
+    ax.set_xlabel('Site')
+    ax.set_ylabel('Percent')
+    ax.set_title('Percent of Back-Trajectory Spent in Each Zone')
+    ax.set_xticks(np.arange(len(sites)))
+    ax.set_xticklabels(sites, rotation=65, ha='right')
+    if h == 1:
+        ax.legend()
+    # Show the plot
+    plt.savefig(f"C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/hysplit_heatmap/stackedbar_{blah[h]}.png", dpi=300, bbox_inches="tight")
+
+plt.close()
 
 
-def convert_to_decimal_date(date_series):
-    """
-    Converts a pandas Series of datetime objects to a Series of decimal dates.
 
-    Parameters:
-    date_series (pd.Series): Series of datetime objects
 
-    Returns:
-    pd.Series: Series of decimal dates
-    """
-    # Function to convert a single datetime object to decimal date
-    def to_decimal_date(dt):
-        # Number of days passed in the year (Julian day) - 1
-        day_of_year = float(dt.strftime("%j")) - 1
-        # Number of days in the year (considering leap year)
-        days_in_year = 366 if dt.year % 4 == 0 and (dt.year % 100 != 0 or dt.year % 400 == 0) else 365
-        # Calculate the decimal date
-        return dt.year + day_of_year / days_in_year
 
-    # Apply the conversion function to the pandas Series
-    return date_series.apply(to_decimal_date)
 
-# Example usage:
-# Assuming you have a pandas Series of datetime objects
-# dates = pd.Series(pd.to_datetime(["1992-12-12 00:00:00", "2007-04-14 11:42:50"]))
-# print(mcq['DecimalDate'])
-mcq['DecimalDate'] = convert_to_decimal_date(mcq['DecimalDate'])
-nmy['DecimalDate'] = convert_to_decimal_date(nmy['DecimalDate'])
 
-df = pd.concat([cmp, nmy, mcq])
-output_xvals = df['DecimalDate'].sort_values()
-print(df)
 
-# MOST OF THIS IS COPIED FROM "REFERENCE TO SAMPLE XVALS.py:
-ref3 = pd.read_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/from_reference1/reference1.xlsx')
 
-n = 10  # set the amount of times the code will iterate (set to 10,000 once everything is final)
-cutoff = 667  # FFT filter cutoff
 
-# output the reference at the X-values that match the data
-reference3_trend = monte_carlo_randomization_trend(ref3['Decimal_date'], output_xvals, ref3['D14C'], ref3['weightedstderr_D14C'], cutoff, n)
-reference3_trend = reference3_trend[2]
 
-montes = pd.DataFrame({'Decimal_date': output_xvals,
-                       'D14C_ref3t_mean': reference3_trend['Means'], 'D14C_ref3t_std': reference3_trend['stdevs']}).drop_duplicates(subset='Decimal_date')
 
-# BELOW IS COPIED FROM REFRENCE TO SAMPLE XVALS2.py
-D14C_ref3t_mean = []  # initialize an empty array
-D14C_ref3t_std = []  # initialize an empty array
 
-for i in range(0, len(df)):
-    samples_row = df.iloc[i]
-    sample_date = samples_row['DecimalDate']
 
-    for k in range(0, len(montes)):
-        df_row = montes.iloc[k]
-        df_date = df_row['Decimal_date']
 
-        if sample_date == df_date:
-            D14C_ref3t_mean.append(df_row['D14C_ref3t_mean'])
-            D14C_ref3t_std.append(df_row['D14C_ref3t_std'])
 
-df['D14C_ref3t_mean'] = D14C_ref3t_mean
-df['D14C_ref3t_std'] = D14C_ref3t_std
 
-df.to_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/from_reference_to_sample_xvals2/nmy_mcq_cmp_comparison.xlsx')
+
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+from mpl_toolkits.basemap import Basemap
+import matplotlib.gridspec as gridspec
+# from X_miller_curve_algorithm import ccgFilter
+import time
+import openpyxl
+start_time = time.time()
+
+"""
+Block 1: Takes 262 seconds (4 minutes) to run
+"""
+# # READ IN SOME EXCEL DATA
+# easy_access = pd.read_excel(r'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/easy_access2.xlsx')
+# landfrac = pd.read_excel(r'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/hysplit/output_data//landfracresults.xlsx')
+# points1 = pd.read_excel(f'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/hysplit/output_data/points_2005_2006.xlsx')
+# points2 = pd.read_excel(f'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/hysplit/output_data/points_2010_2011.xlsx')
+# points3 = pd.read_excel(f'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/hysplit/output_data/points_2015_2016.xlsx')
+# points4 = pd.read_excel(f'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output/hysplit/output_data/points_2020_2021.xlsx')
+# points = pd.concat([points1, points2, points3, points4])
+# points = points.loc[points['starting_height'] == 100]
+# # #
+# points.to_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/hysplit_heatmap/points_concat.xlsx')
+# elapsed_time_section_1 = time.time() - start_time
+# print(f"Code section 1 took {elapsed_time_section_1} seconds")
+#
+# #
+
+"""
+Block 2
+"""
+points = pd.read_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/hysplit_heatmap/points_concat.xlsx')
+acc_fronts = pd.read_csv(r'H:\Science\Datasets\ACC_fronts\csv\antarctic_circumpolar_current_fronts.csv')
+elapsed_time_section_1 = time.time() - start_time
+locations = np.unique(points['location'])
+
+"""
+make an empty map
+"""
+fronts = np.unique(acc_fronts['front_name'])
+fronts = ['PF','SAF','STF','Boundary']
+line_sys = ['dotted','dashed','dashdot','solid','dotted','dashed','dashdot']
+fig = plt.figure(figsize=(4, 8))
+m = Basemap(projection='ortho',lon_0=-150,lat_0=-90,resolution='l')
+
+m.drawcoastlines()
+# m.shadedrelief()
+
+for g in range(0, len(fronts)):
+    this_one = acc_fronts.loc[acc_fronts['front_name'] == fronts[g]]
+    latitudes = this_one['latitude']
+    longitudes = this_one['longitude']
+    x, y = m(longitudes.values, latitudes.values)
+    m.plot(x, y, color='black', label=f'{fronts[g]}', linestyle=line_sys[g])
+
+plt.savefig(f'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/hysplit_heatmap/emptymap.png',
+            dpi=300, bbox_inches="tight")
+
+
+for q in range(0, len(locations)):
+
+    # filter by location
+    midpoint_lat = []
+    midpoint_lon = []
+    loc_len = []
+    name = []
+    this_loc = points.loc[points['location'] == locations[q]]
+
+    lons = np.linspace(-180, 180, 361)
+    lats = np.linspace(-90,90, 181)
+
+    for i in range(0, len(lons)-1):
+        for j in range(0, len(lats)-1):
+            midpoint_lon.append((lons[i]+lons[i+1])/2)
+            midpoint_lat.append((lats[j]+lats[j+1])/2)
+
+            subdata = this_loc.loc[(this_loc['x'] > lons[i]) & (this_loc['x'] <= lons[i+1]) &
+                                   (this_loc['y'] > lats[j]) & (this_loc['y'] <= lats[j+1])]
+
+            loc_len.append(len(subdata))
+            name.append(locations[q])
+            # print(f'{locations[q]}, {lons[i]}, {lats[j]}')
+
+    results = pd.DataFrame({"location": name, "x": midpoint_lon, "y": midpoint_lat, "heat": loc_len})
+    results = results.loc[results['heat'] != 0]
+
+    fig = plt.figure(figsize=(4, 8))
+    m = Basemap(projection='ortho',lon_0=-150,lat_0=-90,resolution='l')
+    m.drawcoastlines()
+    m.shadedrelief()
+
+    a, b = m(results['x'], results['y'])
+    m.scatter(a, b, c=results['heat'], cmap='coolwarm', s=5, linewidth=0.5, vmin=0, vmax=32, alpha=0.5)
+
+    fronts = np.unique(acc_fronts['front_name'])
+    fronts = ['PF','SAF','STF','Boundary']
+    line_sys = ['dotted','dashed','dashdot','solid','dotted','dashed','dashdot']
+
+    for g in range(0, len(fronts)):
+        this_one = acc_fronts.loc[acc_fronts['front_name'] == fronts[g]]
+        latitudes = this_one['latitude']
+        longitudes = this_one['longitude']
+        x, y = m(longitudes.values, latitudes.values)
+        m.plot(x, y, color='black', label=f'{fronts[g]}', linestyle=line_sys[g])
+
+    plt.savefig(f'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/hysplit_heatmap/{locations[q]}.png',
+                dpi=300, bbox_inches="tight")
+# #
+#
+"""
+Recalculating the "Time Per Zone" using points, not means
+"""
+# n = 3 # set the amount of times the code will iterate (set to 10,000 once everything is final)
+# cutoff = 667  # FFT filter cutoff
+#
+# # Do this for each front
+# fronts = np.unique(acc_fronts['front_name'])
+# fronts = ['PF','SAF','STF','Boundary']
+# line_sys = ['dotted','dashed','dashdot','solid','dotted','dashed','dashdot']
+#
+# # create a smoothed front
+# for i in range(0, len(fronts)):
+#     this_one = acc_fronts.loc[acc_fronts['front_name'] == fronts[i]]
+#     latitudes = this_one['latitude'].reset_index(drop=True)
+#     longitudes = this_one['longitude'].reset_index(drop=True)
+#     yerr = latitudes*.01
+#
+#     #dynamically name a variable
+#     # GET SMOOTH VALUE: SET OUTPUT TO WHEREVER WE LAVE LONGUITUDE DATA FOR THE MEANS
+#     smoothed = ccgFilter(longitudes, latitudes, cutoff).getSmoothValue(points['x'])
+#     points[f'{fronts[i]}+smoothed'] = smoothed
+#
+# result_array = []
+# for j in range(0, len(points)):
+#     row = points.iloc[j]
+#     # assign label based on latitude
+#     if (row['y'] >= row['STF+smoothed']):
+#         res = 'STZ'
+#     elif (row['y'] >= row['Boundary+smoothed']) & (row['y'] <= row['PF+smoothed']):
+#         res = 'ASZ'
+#     elif (row['y'] >= row['PF+smoothed']) & (row['y'] <= row['SAF+smoothed']):
+#         res = 'PFZ'
+#     elif (row['y'] >= row['SAF+smoothed']) & (row['y'] <= row['STF+smoothed']):
+#         res = 'SAZ'
+#     elif (row['y'] <= row['Boundary+smoothed']):
+#         res = 'SIZ'
+#     else:
+#         res = 'Error'
+#
+#     result_array.append(res)
+#
+# points['zones'] = result_array
+# points.to_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/hysplit_heatmap/test.xlsx')
+# points = pd.read_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/hysplit_heatmap/test.xlsx')
+#
+# zones = np.unique(points['zones'])
+# sites = np.unique(points['location'])
+#
+# out1 = []
+# out2 = []
+# out3 = []
+#
+# for i in range(0, len(sites)):
+#     this_site = points.loc[points['location'] == sites[i]]
+#     for u in range(0, len(zones)):
+#         how_many = this_site.loc[this_site['zones'] == zones[u]]
+#         out1.append(sites[i])
+#         out2.append(zones[u])
+#         out3.append(len(how_many))
+# output1 = pd.DataFrame({"Site": out1, "Zone": out2, "Length": out3})
+# print(output1)
+# output1.to_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/hysplit_heatmap/time_per_zone_usingpoints.xlsx')
+#
+
+"""
+Sara M. Fletcher mentioned in our group meeting on June 20, 2024 that it would be nice to have this graphically displayed rather than
+just as a table. Lets see if we can do that below. 
+"""
+
+import pandas as pd
+import matplotlib.pyplot as plt
+import numpy as np
+import seaborn as sns
+
+# Read the data from the Excel file
+df = pd.read_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/hysplit_heatmap/time_per_zone_usingpoints_edited.xlsx', sheet_name='Summary', comment='#')
+
+# make the plot twice and edit
+
+blah = np.unique(df['Country'])
+for h in range(0, len(blah)):
+
+    df1 = df.loc[df['Country'] == blah[h]]
+    # print(df)
+
+    df1 = df1.rename(columns={"STZ": "Subtropical Zone (STZ)",
+                              "SAZ": "Subantarctic Zone (SAZ)",
+                              "PFZ": "Polar Frontal Zone (PFZ)",
+                              "ASZ": "Antarctic-Southern Zone (ASZ)",
+                              "SIZ": "Seasonal Ice Zone (SIZ)"})
+
+    zones = ["Subtropical Zone (STZ)", "Subantarctic Zone (SAZ)", "Polar Frontal Zone (PFZ)", "Antarctic-Southern Zone (ASZ)", "Seasonal Ice Zone (SIZ)"]
+    zone_trans = [0.2, 0.2, 1,1,1]
+    sites = df1['Site']
+
+    # Define the color palette
+    colors = sns.color_palette("muted", len(zones))
+
+    # Plotting
+    fig, ax = plt.subplots(figsize=(6, 8))
+
+    # Initialize the bottom array for the first stack
+    bottom = np.zeros(len(sites))
+
+    # Loop through each zone to create a stacked bar
+    for i, zone in enumerate(zones):
+        ax.bar(sites, df1[zone], bottom=bottom, label=zone, color=colors[i], alpha=zone_trans[i])
+        bottom += df1[zone].values  # Update the bottom to include the current zone's height
+
+    # Add some text for labels, title, and custom x-axis tick labels, etc.
+    ax.set_xlabel('Site')
+    ax.set_ylabel('Percent')
+    ax.set_title('Percent of Back-Trajectory Spent in Each Zone')
+    ax.set_xticks(np.arange(len(sites)))
+    ax.set_xticklabels(sites, rotation=65, ha='right')
+    if h == 1:
+        ax.legend()
+    # Show the plot
+    plt.savefig(f"C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/hysplit_heatmap/stackedbar_{blah[h]}.png", dpi=300, bbox_inches="tight")
+
+plt.close()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

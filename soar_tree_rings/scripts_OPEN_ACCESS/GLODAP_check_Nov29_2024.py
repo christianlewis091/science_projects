@@ -22,116 +22,118 @@ The third will be hyplsit data
 """
 
 # #
-# import pandas as pd
-# import numpy as np
-# from X_miller_curve_algorithm import ccgFilter
-# import cartopy.crs as ccrs
-# import cartopy.feature as cf
-# import matplotlib.pyplot as plt
-# from map_function import map1, map2, map3
+import pandas as pd
+import numpy as np
+from X_miller_curve_algorithm import ccgFilter
+import cartopy.crs as ccrs
+import cartopy.feature as cf
+import matplotlib.pyplot as plt
+from map_function import map1, map2, map3
 #
 #
-# df = pd.read_csv('C:/Users/clewis/IdeaProjects/GNS/Water_mass_dataset/output_OPEN_ACCESS/STEP1_reboot/STEP1_GLODAP_C14.csv')
-# acc_fronts = pd.read_csv(r'H:\Science\Datasets\ACC_fronts\csv\antarctic_circumpolar_current_fronts.csv')
-# #
-# # FILTER TO ONLY GRAB SURFACE SAMPLES
-# df = df.rename(columns={'G2expocode':'EXPOCODE', 'G2year':'DATE', 'G2pressure':'CTDPRS', 'G2nitrate':'NITRAT','G2c14':'DELC14','G2latitude':'LATITUDE','G2longitude':'LONGITUDE'})
-# df = df.loc[df['CTDPRS'] < 100] # ONLY GRAB SURFACE SAMPLES
-# df = df.loc[df['DELC14'] > -990]
-# df = df.loc[df['NITRAT'] > -990]
-# df = df.loc[df['DATE'] > 1979]
-# df = df.loc[df['LATITUDE'] <= -5]
-# print(f'{len(df)} is original length of data after inital filtering for time, depth, and latitude') #for later report
+df = pd.read_csv('C:/Users/clewis/IdeaProjects/GNS/Water_mass_dataset/output_OPEN_ACCESS/STEP1_reboot/STEP1_GLODAP_C14.csv')
+acc_fronts = pd.read_csv(r'H:\Science\Datasets\ACC_fronts\csv\antarctic_circumpolar_current_fronts.csv')
 #
-# """
-# In order to figure out where each point lies relative to the Southern Hemispheric frontal zones, I need to find the frontal zones
-# not only at the given longitudes from ORSI, but at the longitudes or my samples.
-# """
-# # THIS BIT OF CODE WAS WRITTEN BY CHAT GPT
-# reference = pd.DataFrame()
-# reference['LONGITUDE'] = df['LONGITUDE']
-#
-# # Iterate over each front
-# fronts = acc_fronts['front_name'].unique()
-# for front in fronts:
-#     # Extract latitude and longitude for the current front
-#     this_one = acc_fronts[acc_fronts['front_name'] == front]
-#     front_longitudes = this_one['longitude'].values
-#     front_latitudes = this_one['latitude'].values
-#
-#     # Ensure the front data is sorted by longitude
-#     sorted_indices = np.argsort(front_longitudes)
-#     front_longitudes = front_longitudes[sorted_indices]
-#     front_latitudes = front_latitudes[sorted_indices]
-#
-#     # Interpolate the front latitudes to match the longitudes of the data
-#     smoothed_latitudes = np.interp(reference['LONGITUDE'], front_longitudes, front_latitudes)
-#
-#     # Add interpolated latitudes as a new column in the data
-#     reference[f'{front}_smoothed_LAT'] = smoothed_latitudes
-#
-#     # Optional: Plot if required
-#     map2(reference['LONGITUDE'], smoothed_latitudes, f'{front}_smoothed_LAT')
-#
-# # here is the dataframe of the smoothed fronts, on the sampled longitudes
-# # reference.to_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/from_GLODAP_check_Nov29_2024/checking_results3/smoothed_fronts_sample_lons.xlsx')
-# # print(len(reference))
-#
-# """
-# NOW,
-# I WANT TO PUT THE DATA INTO BINS, OF FRONT, AND OCEAN ZONE
-# """
-#
-# results = []
-# for i in range(0, len(df)):
-#     row = df.iloc[i]
-#     sample_lat = row['LATITUDE']
-#     sample_lon = row['LONGITUDE']
-#
-#     for j in range(0,len(reference)):
-#         # WE WANT TO COMPARE THE SAMPLE LAT, TO FRONTS AT SAMPLE LONGITUIDES
-#         ref_row = reference.iloc[j]
-#         ref_lon = ref_row['LONGITUDE']
-#
-#         if sample_lon == ref_lon:
-#             abc = 1 # find a way to break to outer loop
-#             # print('YAY!')
-#             # print(sample_lon)
-#             # print(ref_lon)
-#             # print(sample_lat)
-#
-#             # IF LONS MATCH, COMEPARE SAMPLE LAT, to FRONT LATS
-#             stf = ref_row['STF_smoothed_LAT']
-#             saf = ref_row['SAF_smoothed_LAT']
-#             pf = ref_row['PF_smoothed_LAT']
-#             boundary = ref_row['Boundary_smoothed_LAT']
-#             # print(f'STF IS {stf}')
-#             # print(f'SAF IS {saf}')
-#             # print(f'PF IS {pf}')
-#             # print(f'Bound IS {boundary}')
-#
-#             if sample_lat >= stf: #above the subtropical front is the subtropical zone
-#                 a = 'STZ'
-#             elif sample_lat <= boundary:
-#                 a = 'SIZ'
-#             elif boundary < sample_lat < pf:
-#                 a = 'ASZ'
-#             elif pf < sample_lat < saf:
-#                 a = 'PFZ'
-#             elif saf < sample_lat < stf:
-#                 a = 'SAZ'
-#             else:
-#                 a= 'ERROR'
-#             results.append(a)
-#             # print(results)
-#             # print()
-#             break
-#
-# # print(len(results))
-# # print(len(df))
-# df['Assigned_Zone'] = results
-#
-# df.to_excel(r'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/from_GLODAP_check_Nov29_2024/checking_results4/cbl_zones.xlsx')
+# FILTER TO ONLY GRAB SURFACE SAMPLES
+df = df.rename(columns={'G2expocode':'EXPOCODE', 'G2year':'DATE', 'G2pressure':'CTDPRS', 'G2nitrate':'NITRAT','G2c14':'DELC14','G2latitude':'LATITUDE','G2longitude':'LONGITUDE'})
+df = df.loc[df['CTDPRS'] < 100] # ONLY GRAB SURFACE SAMPLES
+df = df.loc[df['DELC14'] > -990]
+df = df.loc[df['NITRAT'] > -990]
+df = df.loc[df['DATE'] > 1979]
+df = df.loc[df['LATITUDE'] <= -5]
+print(f'{len(df)} is original length of data after inital filtering for time, depth, and latitude') #for later report
+plt.scatter(1,2)
+plt.show()
+
+"""
+In order to figure out where each point lies relative to the Southern Hemispheric frontal zones, I need to find the frontal zones
+not only at the given longitudes from ORSI, but at the longitudes or my samples.
+"""
+# THIS BIT OF CODE WAS WRITTEN BY CHAT GPT
+reference = pd.DataFrame()
+reference['LONGITUDE'] = df['LONGITUDE']
+
+# Iterate over each front
+fronts = acc_fronts['front_name'].unique()
+for front in fronts:
+    # Extract latitude and longitude for the current front
+    this_one = acc_fronts[acc_fronts['front_name'] == front]
+    front_longitudes = this_one['longitude'].values
+    front_latitudes = this_one['latitude'].values
+
+    # Ensure the front data is sorted by longitude
+    sorted_indices = np.argsort(front_longitudes)
+    front_longitudes = front_longitudes[sorted_indices]
+    front_latitudes = front_latitudes[sorted_indices]
+
+    # Interpolate the front latitudes to match the longitudes of the data
+    smoothed_latitudes = np.interp(reference['LONGITUDE'], front_longitudes, front_latitudes)
+
+    # Add interpolated latitudes as a new column in the data
+    reference[f'{front}_smoothed_LAT'] = smoothed_latitudes
+
+    # Optional: Plot if required
+    map2(reference['LONGITUDE'], smoothed_latitudes, f'{front}_smoothed_LAT')
+
+# here is the dataframe of the smoothed fronts, on the sampled longitudes
+# reference.to_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/from_GLODAP_check_Nov29_2024/checking_results3/smoothed_fronts_sample_lons.xlsx')
+# print(len(reference))
+
+"""
+NOW,
+I WANT TO PUT THE DATA INTO BINS, OF FRONT, AND OCEAN ZONE
+"""
+
+results = []
+for i in range(0, len(df)):
+    row = df.iloc[i]
+    sample_lat = row['LATITUDE']
+    sample_lon = row['LONGITUDE']
+
+    for j in range(0,len(reference)):
+        # WE WANT TO COMPARE THE SAMPLE LAT, TO FRONTS AT SAMPLE LONGITUIDES
+        ref_row = reference.iloc[j]
+        ref_lon = ref_row['LONGITUDE']
+
+        if sample_lon == ref_lon:
+            abc = 1 # find a way to break to outer loop
+            # print('YAY!')
+            # print(sample_lon)
+            # print(ref_lon)
+            # print(sample_lat)
+
+            # IF LONS MATCH, COMEPARE SAMPLE LAT, to FRONT LATS
+            stf = ref_row['STF_smoothed_LAT']
+            saf = ref_row['SAF_smoothed_LAT']
+            pf = ref_row['PF_smoothed_LAT']
+            boundary = ref_row['Boundary_smoothed_LAT']
+            # print(f'STF IS {stf}')
+            # print(f'SAF IS {saf}')
+            # print(f'PF IS {pf}')
+            # print(f'Bound IS {boundary}')
+
+            if sample_lat >= stf: #above the subtropical front is the subtropical zone
+                a = 'STZ'
+            elif sample_lat <= boundary:
+                a = 'SIZ'
+            elif boundary < sample_lat < pf:
+                a = 'ASZ'
+            elif pf < sample_lat < saf:
+                a = 'PFZ'
+            elif saf < sample_lat < stf:
+                a = 'SAZ'
+            else:
+                a= 'ERROR'
+            results.append(a)
+            # print(results)
+            # print()
+            break
+
+# print(len(results))
+# print(len(df))
+df['Assigned_Zone'] = results
+
+df.to_excel(r'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/from_GLODAP_check_Nov29_2024/checking_results4/cbl_zones.xlsx')
 
 """
 Check the assignments work via a map
@@ -192,7 +194,7 @@ for b in range(0, len(basins)):
                 label=fronts[p], color='black')
 
         # add the nitrate and 14C data
-
+        cmap_reversed = plt.cm.get_cmap('coolwarm_r')
         latitudes_data = df3['LATITUDE'].values
         longitudes_data = df3['LONGITUDE'].values
         nitrate_data = df3['DELC14'].values
@@ -200,7 +202,7 @@ for b in range(0, len(basins)):
             longitudes_data,
             latitudes_data,
             c=nitrate_data,
-            cmap='coolwarm',
+            cmap=cmap_reversed, vmin=-150, vmax=150,
             transform=ccrs.PlateCarree())  # Data is in lat/lon format)
         # Add gridlines
         gridlines = ax.gridlines(draw_labels=True, linestyle='--', color='gray', alpha=0.7)
@@ -211,7 +213,7 @@ for b in range(0, len(basins)):
         gridlines.xlabel_style = {'size': 10, 'color': 'blue'}
         gridlines.ylabel_style = {'size': 10, 'color': 'blue'}
 
-        cb = plt.colorbar(sc, ax=ax, orientation='vertical', pad=0.05, label='Nitrate (\u03BCM)')
+        cb = plt.colorbar(sc, ax=ax, orientation='vertical', pad=0.05, label='DIC \u0394$^1$$^4$C (\u2030)')
         plt.title(f'{zones[g]}_{basins[b]}')
         # plt.show()
         plt.savefig(f'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/from_GLODAP_check_Nov29_2024/checking_results4/{zones[g]}_{basins[b]}.png', dpi=300, bbox_inches="tight")

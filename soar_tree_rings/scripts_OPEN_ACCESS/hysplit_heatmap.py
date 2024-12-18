@@ -1,10 +1,11 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from mpl_toolkits.basemap import Basemap
+# from mpl_toolkits.basemap import Basemap
 import matplotlib.gridspec as gridspec
-# from X_miller_curve_algorithm import ccgFilter
+from X_miller_curve_algorithm import ccgFilter
 import time
+
 import openpyxl
 start_time = time.time()
 
@@ -30,10 +31,10 @@ Block 1: Takes 262 seconds (4 minutes) to run
 """
 Block 2
 """
-# points = pd.read_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/hysplit_heatmap/points_concat.xlsx')
+points = pd.read_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/hysplit_heatmap/points_concat.xlsx')
 acc_fronts = pd.read_csv(r'H:\Science\Datasets\ACC_fronts\csv\antarctic_circumpolar_current_fronts.csv')
 elapsed_time_section_1 = time.time() - start_time
-# locations = np.unique(points['location'])
+locations = np.unique(points['location'])
 
 """
 make an empty map
@@ -56,10 +57,6 @@ for g in range(0, len(fronts)):
 
 plt.savefig(f'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/hysplit_heatmap/emptymap.png',
             dpi=300, bbox_inches="tight")
-
-
-
-
 
 
 for q in range(0, len(locations)):
@@ -108,8 +105,9 @@ for q in range(0, len(locations)):
         x, y = m(longitudes.values, latitudes.values)
         m.plot(x, y, color='black', label=f'{fronts[g]}', linestyle=line_sys[g])
 
-    plt.savefig(f'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/hysplit_heatmap/{locations[q]}.png',
-            dpi=300, bbox_inches="tight")
+    plt.savefig(f'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/HYSPLIT_check_Dec3_2024/{locations[q]}.png',
+                dpi=300, bbox_inches="tight")
+# #
 # #
 #
 """

@@ -7,6 +7,10 @@ this could have also cited Fig. 6, as it is identical to those shown in Figs 4 a
 
 First, lets compute the climatological location as she suggests, and then re-run the HYSPLIT scripts to see how much
 difference it makes.
+
+12/3/25 - Script works to reanalyze HYSPLIT data.
+A second script will be made to re analyze the GLODAP data.
+
 """
 import pandas as pd
 import netCDF4 as nc
@@ -148,9 +152,8 @@ gl.top_labels = False  # Hide labels at the top
 gl.right_labels = False  # Hide labels on the right
 
 fronts = ['PF', 'SAF', 'STF', 'Boundary','Freeman_PF']
-line_sys = ['solid', 'dashed', 'dashdot', 'solid','solid']
+line_sys = ['solid', 'dashed', 'dashdot', 'dotted', 'solid']
 c1 = ['blue', 'black', 'black', 'black','red']
-l1 = ['PF', 'SAF', 'STF', 'Boundary','PF (Freeman and Lovenduski, 2016)']
 # Loop through each front and plot
 for i in range(len(fronts)):
     this_one = acc_w_freeman.loc[acc_w_freeman['front_name'] == fronts[i]]
@@ -163,13 +166,13 @@ for i in range(len(fronts)):
         latitudes,
         transform=ccrs.PlateCarree(),  # Data is in lat/lon format
         linestyle=line_sys[i % len(line_sys)],  # Cycle through line styles
-        label=l1[i], color=c1[i])
+        color=c1[i])
 plt.legend()
 plt.savefig(f'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_EGU_REVIEW/Images_and_Figures/polar_front_question/PF_comparison.png',
             dpi=300, bbox_inches="tight")
 
 acc_w_freeman.to_csv('C:/Users\clewis\IdeaProjects\GNS\soar_tree_rings\output_EGU_REVIEW\Data_Files/acc_w_freeman_FINAL.csv')
-
+print('IM DONE!')
 
 """
 RESTART RUNNING BLOCK 2!
@@ -178,8 +181,11 @@ points = pd.read_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_
 
 locations = np.unique(points['location'])
 
-for q in range(0, len(locations)):
+from cmcrameri import cm
+colors = getattr(cm, 'vanimo')(np.linspace(.8, .2, 5))
 
+for q in range(0, len(locations)):
+    print('Hey!')
     # filter by location
     midpoint_lat = []
     midpoint_lon = []
@@ -213,9 +219,19 @@ for q in range(0, len(locations)):
     ax.add_feature(cf.OCEAN)
     ax.add_feature(cf.LAND, edgecolor='black')
 
-    fronts = ['Freeman_PF', 'SAF', 'STF', 'Boundary']
-    line_sys = ['dotted', 'dashed', 'dashdot', 'solid']
-    c1 = ['red', 'black', 'black', 'black']
+    """
+    THIS CODE BELOW WILL USE FREEMAN POLAR FRONT LOCATION. BOTH ARE ADDED ON HEATMAPS TO DISPLAY AND COMPARE.
+    """
+    # fronts = ['PF', 'SAF', 'STF', 'Boundary','Freeman_PF']
+    # line_sys = ['solid', 'dashed', 'dashdot', 'dotted', 'solid']
+    # color1 = [colors[0], 'black', 'black', 'black', colors[4]]
+    fronts = ['PF', 'SAF', 'STF', 'Boundary','Freeman_PF']
+    line_sys = ['solid', 'dashed', 'dashdot', 'dotted', 'solid']
+    color1 = ['black', 'black', 'black', 'black', 'black']
+    transpar = [1,1,1,1,0.5]
+
+    # I'm adding ORSI BACK in so that I can make a final figure with both polar fronts on there...
+
     # Loop through each front and plot
     for i in range(len(fronts)):
         this_one = acc_w_freeman.loc[acc_w_freeman['front_name'] == fronts[i]]
@@ -228,7 +244,7 @@ for q in range(0, len(locations)):
             latitudes,
             transform=ccrs.PlateCarree(),  # Data is in lat/lon format
             linestyle=line_sys[i % len(line_sys)],  # Cycle through line styles
-            label=fronts[i], color=c1[i])
+            label=fronts[i], color=color1[i], alpha=transpar[i])
 
     ax.scatter(
         results['x'].values,
@@ -396,108 +412,110 @@ for g in range(0, len(zones)):
 PARSE CHECK WORKED!!!
 """
 
-sites = np.unique(points['location'])
-zones = np.unique(points['Assigned Zone'])
+# sites = np.unique(points['location'])
+# zones = np.unique(points['Assigned Zone'])
+#
+# out1 = []
+# out2 = []
+# out3 = []
+#
+# for i in range(0, len(sites)):
+#     this_site = points.loc[points['location'] == sites[i]]
+#
+#     for u in range(0, len(zones)):
+#         how_many = this_site.loc[this_site['Assigned Zone'] == zones[u]]
+#         out1.append(sites[i])
+#         out2.append(zones[u])
+#         out3.append(len(how_many))
+# output1 = pd.DataFrame({"Site": out1, "Zone": out2, "Length": out3})
+# output1.to_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_EGU_REVIEW/Data_Files/polar_front_question/hysplit_time_per_zone_usingpoints_FREEMANPF.xlsx')
 
-out1 = []
-out2 = []
-out3 = []
 
-for i in range(0, len(sites)):
-    this_site = points.loc[points['location'] == sites[i]]
+"""
+Sara M. Fletcher mentioned in our group meeting on June 20, 2024 that it would be nice to have this graphically displayed rather than
+just as a table. Lets see if we can do that below.
 
-    for u in range(0, len(zones)):
-        how_many = this_site.loc[this_site['Assigned Zone'] == zones[u]]
-        out1.append(sites[i])
-        out2.append(zones[u])
-        out3.append(len(how_many))
-output1 = pd.DataFrame({"Site": out1, "Zone": out2, "Length": out3})
-output1.to_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_EGU_REVIEW/Images_and_Figures/polar_front_question/hysplit_time_per_zone_usingpoints_FREEMANPF.xlsx')
+Running this script again with the correct, averaged doto that will go into the paper 14/3/25
+"""
 
-#
-# """
-# Sara M. Fletcher mentioned in our group meeting on June 20, 2024 that it would be nice to have this graphically displayed rather than
-# just as a table. Lets see if we can do that below.
-# """
-#
-# import pandas as pd
-# import matplotlib.pyplot as plt
-# import numpy as np
-# import seaborn as sns
-# from cmcrameri import cm
-#
-# cmcrameri_colormaps = ["batlow",
-#                        "batlowW",
-#                        "batlowK",
-#                        "glasgow",
-#                        "lipari",
-#                        "navia",
-#                        "hawaii",
-#                        "buda",
-#                        "imola",
-#                        "oslo",
-#                        "grayC",
-#                        "nuuk",
-#                        "devon",
-#                        "lajolla",
-#                        "bamako",
-#                        "davos",
-#                        "bilbao",
-#                        "lapaz",
-#                        "acton",
-#                        "turku",
-#                        "tokyo",
-#                        ]
-#
-# # Read the data from the Excel file
-# df = pd.read_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/HYSPLIT_check_Dec3_2024/FINAL_OUTPUT_AND_GRAPHS/time_per_zone_usingpoints_edited_Dec3_2024.xlsx', sheet_name='New_Fixed_data', comment='#')
-#
-# # make the plot twice and edit
-# for cmap_name in cmcrameri_colormaps:
-#
-#     blah = np.unique(df['Country'])
-#     for h in range(0, len(blah)):
-#
-#         df1 = df.loc[df['Country'] == blah[h]]
-#         # print(df)
-#
-#         df1 = df1.rename(columns={"STZ": "Subtropical Zone (STZ)",
-#                                   "SAZ": "Subantarctic Zone (SAZ)",
-#                                   "PF": "Polar Frontal Zone (PFZ)",
-#                                   "ASZ": "Antarctic-Southern Zone (ASZ)",
-#                                   "SIZ": "Seasonal Ice Zone (SIZ)"})
-#
-#         zones = ["Subtropical Zone (STZ)", "Subantarctic Zone (SAZ)", "Polar Frontal Zone (PFZ)", "Antarctic-Southern Zone (ASZ)", "Seasonal Ice Zone (SIZ)"]
-#         # zone_trans = [0.2, 0.2, 1,1,1]
-#         sites = df1['Site']
-#
-#         # Define the color palette
-#         colors = getattr(cm, cmap_name)(np.linspace(.8, .2, len(zones)))
-#
-#         # Plotting
-#         fig, ax = plt.subplots(figsize=(6, 8))
-#
-#         # Initialize the bottom array for the first stack
-#         bottom = np.zeros(len(sites))
-#
-#         # Loop through each zone to create a stacked bar
-#         for i, zone in enumerate(zones):
-#             ax.bar(sites, df1[zone], bottom=bottom, label=zone, color=colors[i]) # , alpha=zone_trans[i]
-#             bottom += df1[zone].values  # Update the bottom to include the current zone's height
-#
-#         # Add some text for labels, title, and custom x-axis tick labels, etc.
-#         ax.set_xlabel('Site')
-#         ax.set_ylabel('Percent')
-#         ax.set_title(f'Percent of Back-Trajectory Spent in Each Zone')
-#         ax.set_xticks(np.arange(len(sites)))
-#         ax.set_xticklabels(sites, rotation=65, ha='right')
-#         if h == 1:
-#             ax.legend()
-#         # Show the plot
-#         plt.savefig(f"C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_EGU_submission/Images_and_Figures/HYSPLIT/cmcrameri_colortesting/stackedbar_{blah[h]}_{cmap_name}.png", dpi=300, bbox_inches="tight")
-#         plt.close()
-#
-#
+import pandas as pd
+import matplotlib.pyplot as plt
+import numpy as np
+import seaborn as sns
+from cmcrameri import cm
+
+cmcrameri_colormaps = ["batlow",
+                       "batlowW",
+                       "batlowK",
+                       "glasgow",
+                       "lipari",
+                       "navia",
+                       "hawaii",
+                       "buda",
+                       "imola",
+                       "oslo",
+                       "grayC",
+                       "nuuk",
+                       "devon",
+                       "lajolla",
+                       "bamako",
+                       "davos",
+                       "bilbao",
+                       "lapaz",
+                       "acton",
+                       "turku",
+                       "tokyo",
+                       ]
+
+# Read the data from the Excel file
+df = pd.read_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_EGU_REVIEW/Data_Files/hysplit_time_per_zone_usingpoints_FREEMANPF.xlsx', sheet_name='readin_nounc', comment='#')
+
+# make the plot twice and edit
+for cmap_name in cmcrameri_colormaps:
+
+    blah = np.unique(df['Country'])
+    for h in range(0, len(blah)):
+
+        df1 = df.loc[df['Country'] == blah[h]]
+        # print(df)
+
+        df1 = df1.rename(columns={"STZ": "Subtropical Zone (STZ)",
+                                  "SAZ": "Subantarctic Zone (SAZ)",
+                                  "PF": "Polar Frontal Zone (PFZ)",
+                                  "ASZ": "Antarctic-Southern Zone (ASZ)",
+                                  "SIZ": "Seasonal Ice Zone (SIZ)"})
+
+        zones = ["Subtropical Zone (STZ)", "Subantarctic Zone (SAZ)", "Polar Frontal Zone (PFZ)", "Antarctic-Southern Zone (ASZ)", "Seasonal Ice Zone (SIZ)"]
+        # zone_trans = [0.2, 0.2, 1,1,1]
+        sites = df1['Site']
+
+        # Define the color palette
+        colors = getattr(cm, cmap_name)(np.linspace(.8, .2, len(zones)))
+
+        # Plotting
+        fig, ax = plt.subplots(figsize=(6, 8))
+
+        # Initialize the bottom array for the first stack
+        bottom = np.zeros(len(sites))
+
+        # Loop through each zone to create a stacked bar
+        for i, zone in enumerate(zones):
+            ax.bar(sites, df1[zone], bottom=bottom, label=zone, color=colors[i]) # , alpha=zone_trans[i]
+            bottom += df1[zone].values  # Update the bottom to include the current zone's height
+
+        # Add some text for labels, title, and custom x-axis tick labels, etc.
+        ax.set_xlabel('Site')
+        ax.set_ylabel('Percent')
+        ax.set_title(f'Percent of Back-Trajectory Spent in Each Zone')
+        ax.set_xticks(np.arange(len(sites)))
+        ax.set_xticklabels(sites, rotation=65, ha='right')
+        if h == 1:
+            ax.legend()
+        # Show the plot
+        plt.savefig(f"C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_EGU_REVIEW/Images_and_Figures/HYSPLIT/cmcrameri_colortesting/stackedbar_{blah[h]}_{cmap_name}_140325.png", dpi=300, bbox_inches="tight")
+        plt.close()
+
+
 #
 #
 

@@ -63,70 +63,31 @@ This section relates to testing the relationship between SCICS Ionizer voltage a
 This section relates to testing rotary backing pumps that come back from the workshop 
 ***************************************************************************************************
 """
-df = pd.read_excel('I:/XCAMS/4_maintenance/vacuum pumps/Alcatel Adixen/RotaryPump_Testing_AfterMaintenance.xlsx')
+import numpy as np
+df = pd.read_excel('I:\XCAMS/4_maintenance/01_Vacuum_Pumps\Alcatel Adixen/RotaryPump_Testing_AfterMaintenance.xlsx', sheet_name='TidyVersion', comment='#')
+its = np.unique(df['Number'])
 
-# WHEN YOU TEST A NEW PUMP, ADD THE NAME OF THE COLUMNS BELOW
-vacuum_reading_columns = ['AM673883 Torr','AM673883 Torr 2','AM673883 Torr 3','Torr 4','Torr 5','Torr 6','Torr 7','Torr 8', 'Torr 9', 'Torr 10','Torr_11', 'Torr_12', 'Torr_13','Torr_14']
-time_reading_columns = ['AM673883 Time','AM673883 Time 2','AM673883 Time 3','AM673198 Time','AM673888 Time','AM672417 Time',' AS10988 Time','AM672414_083123 Time', 'SciTekScrewPump','AM673878_07032024_Time','AM673883_290724','AM673198_08082024','AM673888_100824','AM672414_Oct24']
-labels = ['AM673883','AM673883','AM673883','AM673198','AM673888','AM672417',' AS10988','AM672414_083123','SciTekScrewPump','AM673878_July7,2024','AM673883_290724','AM673198_08082024','AM673888_100824','AM672414_Oct24']
+# edit this line to determine which one is bold and which are transpoaret.
+x = 14 # which number pump change are you on MINUS ONE! beacuse of the way python counts
+date = 'April8_2025'
 
-# SETUP PARAMETERS TO MAKE PLOTTING RUN SMOOTHLY
-colors = ['b','g','r','c','m','y','k','b','g','r','c','m','y','k','b','g','r','c','m','y','k']
-marker_styles = [
-    ".",  # point marker
-    ",",  # pixel marker
-    "o",  # circle marker
-    "v",  # triangle_down marker
-    "^",  # triangle_up marker
-    "<",  # triangle_left marker
-    ">",  # triangle_right marker
-    "1",  # tri_down marker
-    "2",  # tri_up marker
-    "3",  # tri_left marker
-    "4",  # tri_right marker
-    "s",  # square marker
-    "p",  # pentagon marker
-    "*",  # star marker
-    "h",  # hexagon1 marker
-    "H",  # hexagon2 marker
-    "+",  # plus marker
-    "x",  # x marker
-    "D",  # diamond marker
-    "d",  # thin_diamond marker
-    "|",  # vline marker
-    "_",  # hline marker
-    "P",  # plus (filled) marker
-    "X",  # x (filled) marker
-    "None",  # no marker
-    " ",  # no marker
-    "",  # no marker
-    0,   # tickleft marker
-    1,   # tickright marker
-    2,   # tickup marker
-    3,   # tickdown marker
-    4,   # caretleft marker
-    5,   # caretright marker
-    6,   # caretup marker
-    7,   # caretdown marker
-    8,   # octagon marker
-]
+fig = plt.figure(1, figsize=(12, 8))
 
-# INITIALIZE THE FIGURE
-fig = plt.figure(1, figsize=(8, 8))
+for i in range(0, len(its)):
+    df_i = df.loc[df['Number'] == its[i]].reset_index(drop=True)
 
-# LOOP THROUGH THE PUMPS
-for i in range(0, len(vacuum_reading_columns)):
-    x = df[f'{time_reading_columns[i]}']
-    y = df[f'{vacuum_reading_columns[i]}']
-    x = x/60  # convert to minutes
-    label1 = labels[i]
+    # extract name for plot title
+    id_tag = df_i['MaintenanceID']
+    id_tag = id_tag[0]
 
-    plt.scatter(x,y, label=label1, marker=marker_styles[i], alpha= 0.3)
-    plt.plot(x,y, marker=marker_styles[i], alpha= 0.3)
-    plt.legend()
+    # plot this one
+    if i == x:
+        a = 1
+    else:
+        a = 0.2
+    plt.scatter(df_i['Time'], df_i['Vacuum'], label=id_tag, alpha=a)
+    plt.plot(df_i['Time'], df_i['Vacuum'], alpha=a)
 
-# plt.scatter(df['AM672414_Oct24'], df['Torr_14'])
-# plt.plot(df['AM672414_Oct24'], df['Torr_14'])
 
 plt.ylim(0.0001, 1000)
 plt.axhline(0.005, color='black', linestyle='-', alpha=0.1)
@@ -134,8 +95,10 @@ plt.axhline(0.005, color='black', linestyle='-', alpha=0.1)
 plt.xlabel('Time (min)'), plt.ylabel('Convectron Reading (Torr)')
 plt.yscale("log"), plt.legend()
 plt.title(r'C:\Users\clewis\IdeaProjects\GNS\xcams\xcams_rv_pumpdown.py')
-plt.savefig('I:/XCAMS/4_maintenance/vacuum pumps/Alcatel Adixen/PUMPDOWNSPEED.png', dpi=300, bbox_inches="tight")
-# plt.show()
+plt.savefig(f'I:\XCAMS/4_maintenance/01_Vacuum_Pumps\Alcatel Adixen/PUMPDOWNSPEED_{date}.png', dpi=300, bbox_inches="tight")
+
+
+
 #
 """
 ***************************************************************************************************
@@ -166,55 +129,55 @@ Plotting pumpdowns after Ion suorce cleans
 ***************************************************************************************************
 """
 
-import numpy as np
-import matplotlib.pyplot as plt
-import pandas as pd
-from matplotlib.gridspec import GridSpec
-
-# Load data
-df = pd.read_excel('I:/XCAMS/4_maintenance/SNICS ion source/SNICS OPENINGS/SORX reports/2024/November_11_2024/Pumpdowns.xlsx')
-df = df[['Opening Event','Time_Min','Rough Pump','Turbo Pump']]
-
-fig = plt.figure(figsize=(12, 8))
-gs = GridSpec(1, 2, width_ratios=[1, 2], figure=fig)
-
-ax1 = fig.add_subplot(gs[0, 0])
-cleans = np.unique(df['Opening Event'])
-
-for i in range(len(cleans)):
-    this_clean = df.loc[(df['Opening Event'] == cleans[i]) & (df['Turbo Pump'] > -999)]
-    x = this_clean['Time_Min'].reset_index(drop=True)
-    y = this_clean['Rough Pump']
-
-    ax1.scatter(x, y, label=f'{cleans[i]}')
-    ax1.plot(x, y)
-ax1.set_xlim(-10, 400)
-ax1.set_xlabel('Time (min)')
-ax1.set_ylabel('Vacuum (Torr)')
-ax1.set_yscale('log')
-ax1.set_title('Rough Pump Vacuum After Ion Source Rebuilds')
-ax1.legend()
-
-# Second plot on the right
-ax2 = fig.add_subplot(gs[0, 1])
-
-for i in range(len(cleans)):
-    this_clean = df.loc[(df['Opening Event'] == cleans[i]) & (df['Turbo Pump'] > -999)]
-    x = this_clean['Time_Min'].reset_index(drop=True)
-    y = this_clean['Turbo Pump']
-
-    ax2.scatter(x, y, label=f'{cleans[i]}')
-    ax2.plot(x, y)
-ax2.set_xlim(-10, 400)
-ax2.set_xlabel('Time (min)')
-ax2.set_ylabel('Vacuum (Torr)')
-ax2.set_yscale('log')
-ax2.set_title('Turbo Pump Vacuum After Ion Source Rebuilds')
-ax2.legend()
-
-# Show and save the plot
-plt.tight_layout()
-plt.savefig('I:/XCAMS/4_maintenance/SNICS ion source/SNICS OPENINGS/SORX reports/2024/November_11_2024/Pumpdowns.png',
-            dpi=300, bbox_inches="tight")
-# plt.show()
-plt.close()
+# import numpy as np
+# import matplotlib.pyplot as plt
+# import pandas as pd
+# from matplotlib.gridspec import GridSpec
+#
+# # Load data
+# df = pd.read_excel('H:/Science/Pumpdowns.xlsx', comment='#')
+# df = df[['Opening Event','Time_Min','Rough Pump','Turbo Pump']]
+#
+# fig = plt.figure(figsize=(12, 8))
+# gs = GridSpec(1, 2, width_ratios=[1, 2], figure=fig)
+#
+# ax1 = fig.add_subplot(gs[0, 0])
+# cleans = np.unique(df['Opening Event'])
+#
+# for i in range(len(cleans)):
+#     this_clean = df.loc[(df['Opening Event'] == cleans[i]) & (df['Turbo Pump'] > -999)]
+#     x = this_clean['Time_Min'].reset_index(drop=True)
+#     y = this_clean['Rough Pump']
+#
+#     ax1.scatter(x, y, label=f'{cleans[i]}')
+#     ax1.plot(x, y)
+# ax1.set_xlim(-10, 400)
+# ax1.set_xlabel('Time (min)')
+# ax1.set_ylabel('Vacuum (Torr)')
+# ax1.set_yscale('log')
+# ax1.set_title('Rough Pump Vacuum After Ion Source Rebuilds')
+# ax1.legend()
+#
+# # Second plot on the right
+# ax2 = fig.add_subplot(gs[0, 1])
+#
+# for i in range(len(cleans)):
+#     this_clean = df.loc[(df['Opening Event'] == cleans[i]) & (df['Turbo Pump'] > -999)]
+#     x = this_clean['Time_Min'].reset_index(drop=True)
+#     y = this_clean['Turbo Pump']
+#
+#     ax2.scatter(x, y, label=f'{cleans[i]}')
+#     ax2.plot(x, y)
+# ax2.set_xlim(-10, 400)
+# ax2.set_xlabel('Time (min)')
+# ax2.set_ylabel('Vacuum (Torr)')
+# ax2.set_yscale('log')
+# ax2.set_title('Turbo Pump Vacuum After Ion Source Rebuilds')
+# ax2.legend()
+#
+# # Show and save the plot
+# plt.tight_layout()
+# plt.savefig('H:/Science/Pumpdowns.png',
+#             dpi=300, bbox_inches="tight")
+# # plt.show()
+# plt.close()

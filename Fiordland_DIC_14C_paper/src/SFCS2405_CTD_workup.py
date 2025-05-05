@@ -14,6 +14,8 @@ import shutil
 import csv
 import pandas as pd
 import numpy as np
+import cartopy.crs as ccrs
+import cartopy.feature as cf
 
 """
 STEP1. Change to txt
@@ -120,69 +122,80 @@ for i in range(0, len(file_list)):
 
 concat_df.to_excel(f'C:/Users\clewis\IdeaProjects\GNS\Fiordland_DIC_14C_paper\data\intermediate\sfcs2405_step3/Concatonated_Data.xlsx')
 
+"""
+Add lat lons from a metadata file
+"""
+
+# # first a rough check I was sent the propoer profiles. Do they aligm on the maP?
+# lat lons are not in original CTD profiles, so I have to mereg them from a metadata file
+mets = pd.read_excel(r'H:\Science\Datasets\Fiordland\SFCS2405_CTD\metadata.xlsx', comment='#')
+concat_df = pd.read_excel(f'C:/Users\clewis\IdeaProjects\GNS\Fiordland_DIC_14C_paper\data\intermediate\sfcs2405_step3/Concatonated_Data.xlsx')
+concat_df2 = pd.merge(mets, concat_df, on='FileName')
+concat_df2.to_csv(f'C:/Users\clewis\IdeaProjects\GNS\Fiordland_DIC_14C_paper\data\processed/SFCS2405_CTD_DATA_FINAL.csv')
 
 """
-Add lat lons
+Check they match the right locations on the map
 """
 
-mets = pd.read_excel(r'C:\Users\clewis\IdeaProjects\GNS\Fiordland_DIC_14C_paper\data\raw\sfcs2405_CTD_metadata.xlsx')
-df = pd.read_excel(f'C:/Users\clewis\IdeaProjects\GNS\Fiordland_DIC_14C_paper\data\intermediate\sfcs2405_step3/Concatonated_Data.xlsx')
+concat_df = pd.read_csv(f'C:/Users\clewis\IdeaProjects\GNS\Fiordland_DIC_14C_paper\data\processed/SFCS2405_CTD_DATA_FINAL.csv')
+print(concat_df.columns)
 
-df = df.merge(mets, on='FileName')
-df.to_excel(r'C:/Users\clewis\IdeaProjects\GNS\Fiordland_DIC_14C_paper\data\intermediate\sfcs2405_step4\merge_all.xlsx')
+filenames = np.unique(concat_df['FileName'])
 
-df = df.dropna(subset='My Station Name')
-df.to_excel(r'C:/Users\clewis\IdeaProjects\GNS\Fiordland_DIC_14C_paper\data\intermediate\sfcs2405_step4\mystations.xlsx')
+for i in range(0, len(filenames)):
+
+    fig = plt.figure(figsize=(16, 8))
+    ax = plt.axes(projection=ccrs.PlateCarree())
+    ax.set_extent((166.3, 168.25, -46.0, -44))
+    coast = cf.GSHHSFeature(scale="l")
+    ax.add_feature(coast)
+
+    sub1 = concat_df.loc[concat_df['FileName'] == filenames[i]].reset_index()
+    lat1 = sub1['Lat']
+    lat1 = lat1[0]
+    lon1 = sub1['Lon']
+    lon1 = lon1[0]
+
+    sc = ax.scatter(lon1, lat1, transform=ccrs.PlateCarree(), label=f'{filenames[i]}')
+    plt.legend()
+
+    plt.savefig(f'C:/Users\clewis\IdeaProjects\GNS\Fiordland_DIC_14C_paper\data\intermediate\sfcs2405_step3/map_checks/{filenames[i]}', dpi=300, bbox_inches="tight")
+    plt.close()
+
+
+"""
+Greer is debating with me about whether or not there is an error
+"""
+
+mets = pd.read_excel(r'H:\Science\Datasets\Fiordland\SFCS2405_CTD\metadata.xlsx', comment='#')
+filenames = np.unique(mets['FileName'])
+
+for i in range(0, len(filenames)):
+
+    fig = plt.figure(figsize=(16, 8))
+    ax = plt.axes(projection=ccrs.PlateCarree())
+    ax.set_extent((166.3, 168.25, -46.0, -44))
+    coast = cf.GSHHSFeature(scale="l")
+    ax.add_feature(coast)
+
+    sub1 = mets.loc[mets['FileName'] == filenames[i]].reset_index()
+    lat1 = sub1['Lat']
+    lat1 = lat1[0]
+    lon1 = sub1['Lon']
+    lon1 = lon1[0]
+
+    sc = ax.scatter(lon1, lat1, transform=ccrs.PlateCarree(), label=f'{filenames[i]}')
+    plt.legend()
+
+    plt.savefig(f'C:/Users\clewis\IdeaProjects\GNS\Fiordland_DIC_14C_paper\data\intermediate\sfcs2405_step3/map_checks/gg_cbl/{filenames[i]}', dpi=300, bbox_inches="tight")
+    plt.close()
+
+
+
+
+
 
 
 
 
 #
-#
-# """
-# Edit the file to read only one transect each so its easier to deal with in ODV
-# """
-#
-# df = pd.read_excel(r'H:\Science\Datasets\Fiordland\SFCS2405_CTD\STEP4\merge_all.xlsx')
-# names = np.unique(df['FileName'])
-#
-# dbt_stn =['DBT001_01CTD','DBT002_01CTD', 'DBT003_01CTD','DBT004_01CTD', 'DBT006_01CTD', 'DBT007_01CTD', 'DBT008_01CTD' , 'DBT031_01CTD']
-# dus_stn =['DUS019_01CTD','DUS020_01CTD','DUS022_01CTD', 'DUS023_01CTD', 'DUS056_01CTD','DBT011_02CTD', 'DBT012_01CTD','DBT017_01CTD', 'DBT010_02CTD']
-# dbt = df.loc[df['FileName'].isin(dbt_stn)]
-# dus = df.loc[df['FileName'].isin(dus_stn)]
-#
-# dbt = dbt[['DepSM', 'bpos', 'T090C', 'Sal00', 'Sbeox0Mg/L', 'sbeox0PS', 'FileName', 'Lat', 'Lon']]
-# dus = dus[['DepSM', 'bpos', 'T090C', 'Sal00', 'Sbeox0Mg/L', 'sbeox0PS', 'FileName', 'Lat', 'Lon']]
-#
-# dbt.to_excel(r'H:\Science\Datasets\Fiordland\SFCS2405_CTD\STEP4\edited_files_for_ODV\DBT.xlsx')
-# dus.to_excel(r'H:\Science\Datasets\Fiordland\SFCS2405_CTD\STEP4\edited_files_for_ODV\dus.xlsx')
-
-# # check on a map that they're right
-# plt.figure(figsize=(10, 8))
-# maxlat = -45.0
-# minlat = -46
-# nz_max_lon = 167.25
-# nz_min_lon = 166.25
-# map = Basemap(llcrnrlat=minlat, urcrnrlat=maxlat, llcrnrlon=nz_min_lon, urcrnrlon=nz_max_lon, resolution='h')
-# map.fillcontinents(color="darkseagreen", lake_color='#DDEEFF')
-# map.drawmapboundary(fill_color="#DDEEFF")
-# map.drawcoastlines()
-# plt.text(167.1, -45.5, 'Doubtful S.', fontsize=12)
-# plt.text(167, -45.75, 'Dusky S.', fontsize=12)
-#
-# lat_dbt = dbt['Lat']
-# lon_dbt = dbt['Lon']
-# x_dbt, y_dbt = map(lon_dbt, lat_dbt)
-# map.scatter(x_dbt, y_dbt, edgecolor='black', zorder=2, s=50, color='blue', marker='o', label='Existing')
-#
-# lat_dus = dus['Lat']
-# lon_dus = dus['Lon']
-# x_dus, y_dus = map(lon_dus, lat_dus)
-# map.scatter(x_dus, y_dus, edgecolor='red', zorder=2, s=50, color='red', marker='o', label='Existing')
-#
-# plt.show()
-
-
-
-
-

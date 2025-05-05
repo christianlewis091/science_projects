@@ -1,5 +1,6 @@
 """
 This script procseses the CTD data from S309 for later use.
+Verified and run on May 2 2025
 """
 
 """
@@ -9,18 +10,33 @@ https://ctroupin.github.io/posts/2019-09-02-fine-coast/
 
 import matplotlib.pyplot as plt
 import cartopy.crs as ccrs
+import cartopy.feature as cf
+import os
+import glob
+import shutil
 import pandas as pd
 import numpy as np
-import cartopy.feature as cf
-import matplotlib.gridspec as gridspec
 
+def copy_and_rename_files(source_directory, destination_directory):
+    # Change the current working directory to the source directory
+    os.chdir(source_directory)
+
+    # Find all files with the .asc extension in the source directory
+    for file in glob.glob("*.cnv"):
+        # Change the file extension from .asc to .csv
+        new_name = os.path.splitext(file)[0] + ".txt"
+        # Construct the full path for the destination file
+        destination_path = os.path.join(destination_directory, new_name)
+        # Copy the file with the new extension to the destination directory
+        shutil.copy(file, destination_path)
+        print(f"Copied {file} to {destination_path}")
+
+# # Call the function to rename the files
+# copy_and_rename_files(input_directory, out_directory)
 
 """
 I'm drawing functions from my SFCS2405_CTD_dataworkup.py to analyze the CTD data
 """
-
-from SFCS2405_CTD_workup import copy_and_rename_files
-import os
 
 input_directory1 = r'C:\Users\clewis\IdeaProjects\GNS\Fiordland_DIC_14C_paper\data\raw\S309_CTD_raw'
 out_directory1 = r'C:\Users\clewis\IdeaProjects\GNS\Fiordland_DIC_14C_paper\data\intermediate\s309_step1'
@@ -107,6 +123,7 @@ for i in range(0, len(file_list)):
     concat_df = pd.concat([concat_df, sub_df]).reset_index(drop=True)
 
 concat_df.to_excel(f'C:/Users\clewis\IdeaProjects\GNS\Fiordland_DIC_14C_paper\data\intermediate\s309_step3/Concatonated_CTD_SONNE.xlsx')
+concat_df.to_excel(f'C:/Users\clewis\IdeaProjects\GNS\Fiordland_DIC_14C_paper\data\processed/S309_CTD_DATA_FINAL.xlsx')
 
 """
 Check they match the right locations on the map

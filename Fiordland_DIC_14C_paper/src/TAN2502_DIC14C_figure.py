@@ -39,3 +39,15 @@ plt.tight_layout()
 plt.savefig(f'C:/Users/clewis/IdeaProjects/GNS/Fiordland_DIC_14C_paper/output/figures/TAN2502_DIC14C.png', dpi=300, bbox_inches="tight")
 plt.show()
 
+"""
+Junk delete later
+"""
+primox_mg = [.55, .42, .42, .44, .49]
+primox_mg
+pos = [1, 15, 27, 29]
+y = [.95089, .9899, .97172, .89105]
+mg = [.55, .45, .18, .18]
+plt.ylim(0.85, 1)
+plt.scatter(mg, y)
+plt.show()
+

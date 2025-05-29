@@ -137,18 +137,6 @@ plt.savefig(f'C:/Users/clewis/IdeaProjects/GNS/Fiordland_DIC_14C_paper/output/fi
 plt.show()
 
 
-
-
-
-
-
-
-
-
-
-
-
-
 # # Second subplot: T-S diagram:
 # # TODO needs isopycnals
 # ax2 = fig.add_subplot(gs[1])

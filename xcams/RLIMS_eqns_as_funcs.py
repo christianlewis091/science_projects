@@ -3,6 +3,8 @@ Coding up some RLIMS eqns as functions for various future purposes.
 r"C:/Users/clewis/IdeaProjects/GNS/xcams/November_2024_fractionation_analysis shows the RLIMS eqns in an easy to understand format.
 """
 import numpy as np
+import matplotlib.pyplot as plt
+from matplotlib.ticker import ScalarFormatter
 
 def rts_corrected(rts, mcc, dcc, dcc_std):
     rts_corr = (rts-mcc)/(1+dcc_std-dcc-mcc)
@@ -32,6 +34,53 @@ def f_normed_corrected(rts_corr, Std_13C_val_const):
 def f_corr_norm_err(rts_corr, rts_corr_err, wtw_err):
     f_corr_norm_error =  np.sqrt(rts_corr_err**2 +(wtw_err*.01*rts_corr)**2) / 0.95
     return f_corr_norm_error
+
+"""
+Diagonal blank plot
+"""
+def UCI_MCC_plot(wtgraph, rts, savelocation, title):
+    # Create a figure and a set of subplots
+    fig, ax = plt.subplots()
+
+    # Set the x and y scales to logarithmic
+    ax.set_xscale('log')
+    ax.set_yscale('log')
+
+    # Set the limits for x and y axes
+    ax.set_xlim(0.001, 10)
+    ax.set_ylim(0.0001, 1)
+
+    # Add labels to the axes
+    ax.set_xlabel('Sample Size (mg)')
+    ax.set_ylabel('Ratio to OX-1')
+    ax.xaxis.set_major_formatter(ScalarFormatter())
+    ax.yaxis.set_major_formatter(ScalarFormatter())
+    ax.xaxis.get_major_formatter().set_scientific(False)
+    ax.yaxis.get_major_formatter().set_scientific(False)
+    # Add a grid for better readability
+    ax.grid(True, which="both", ls="--")
+
+    # add the diagonal lines
+    x = [0.001, 10]
+    y1 = [0.2, .00002]
+    y2 = [0.3, .00003]
+    y3 = [0.4, .00004]
+    y4 = [0.5, .00005]
+    y5 = [0.6, .00006]
+    y6 = [0.8, .00008]
+    y7 = [1, .0001]
+    y8 = [2, .0002]
+    y9 = [5, .0005]
+    ys = [y1, y2, y3, y4, y5, y6, y7, y8, y9]
+    labels = ['0.2','0.3','0.4','0.5','0.6','0.8','1','2','5']
+    for i in range(0, len(ys)):
+        plt.plot(x, ys[i], label=f'{labels[i]}')
+
+
+    plt.scatter(wtgraph, rts, label='', zorder=0)
+
+    plt.savefig(f'{savelocation}/{title}.png', dpi=300, bbox_inches="tight")
+    plt.close()
 
 """
 Testing

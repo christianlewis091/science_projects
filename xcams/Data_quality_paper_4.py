@@ -16,7 +16,7 @@ def calc_delta_14C(FM, colldate):
 
 """
 September 12, 2024
-Seperating oxalics befoer and after change to using flask OX. 
+Seperating oxalics before and after change to using flask OX. 
 
 July 1, 2024:
 I discussed the idea of sigma_res with JCT today. Essentially, sigma_res is an added error term in the chi2 equation

@@ -293,7 +293,6 @@ def flagging_status_check(comment):
 # checks = df.loc[df['Keep_Remove'] == 'Remove']
 # checks.to_excel((r'C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_1_output/Double_Check.xlsx'))
 
-
 """
 I can reimport everything from here so the script doesnt have to run all over again...
 """
@@ -342,6 +341,9 @@ comments_to_keep = ['AMS is fine' 'Also Waikato tests',
 
 
 # the next three lines takes all TP's with Jocelyns comments above (which make the data seem fine) and changes the Keep Remove to Keep
+# TODO these lines take TP numbers where JCT checked it and was happy, and changes Keep_Remove to Keep. However, the manual check notes, or the flag,
+# TODO or the rest of the information gets lost. This needs to be done a bit cleaner...
+# TODO additionally, this process can likely be re-written to be smoother in a second go-around (if I'm re-doing this stuff)
 TPs_for_keeping = checks_final.loc[checks_final['JCT'].isin(comments_to_keep)]
 TPs_for_keeping = TPs_for_keeping['TP']
 df.loc[df['TP'].isin(TPs_for_keeping), 'Keep_Remove'] = 'Keep'

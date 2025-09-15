@@ -277,20 +277,24 @@ rs.to_excel(r'C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_1_output
 rs = pd.read_excel(r'C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_1_output/Rs_more_than_10_fixed.xlsx') # why did this line exist? Change column name
 rs = rs['Job::R']
 
-# Initialize Figure
-# Create 2x2 grid of subplots
-fig, axes = plt.subplots(2, 2, figsize=(10, 8))
+# Initialize an empty list to collect all the outlier TPs
+outlier_TPs = []
 
-# Access each subplot
-ax1 = axes[0, 0]  # top left
-ax2 = axes[0, 1]  # top right
-ax3 = axes[1, 0]  # bottom left
-ax4 = axes[1, 1]  # bottom right
 
 # TODO continue here making the figure
 # TODO If >3 sigma, add it to a growing list, and then I can just set all those TP's to remove later.
 # Now we'll loop, calculate the mean of each R, and set a flag for data where the value is > 3 sigma
 for i in range(0, len(rs)):
+
+    # Initialize Figure
+    # Create 2x2 grid of subplots
+    fig, axes = plt.subplots(2, 2, figsize=(10, 8))
+
+    # Access each subplot
+    ax1 = axes[0, 0]  # top left
+    ax2 = axes[0, 1]  # top right
+    ax3 = axes[1, 0]  # bottom left
+    ax4 = axes[1, 1]  # bottom right
 
     # get the data with this R value
     this_R_set = df_keep.loc[(df_keep['Job::R'] == rs[i])].reset_index(drop=True)
@@ -298,29 +302,60 @@ for i in range(0, len(rs)):
     ax1.errorbar(this_R_set['TP'], this_R_set['F_corrected_normed'], yerr=this_R_set['F_corrected_normed_error'], marker='o', linestyle='')
 
     # find the average for the R number
-    data = this_R_set['F_corrected_normed'] # data needed to be forced to float)
+    data = this_R_set['F_corrected_normed'].astype(float) # data needed to be forced to float)
+    unc = this_R_set['F_corrected_normed_error'].astype(float)
     average = np.mean(data)
     sig1 = np.std(data)
+    ax1.axhline(average, color='k', linestyle='--', linewidth=1)               # mean
+    ax1.axhline(average + 3*sig1, color='r', linestyle=':', linewidth=1)       # +3 sigma
+    ax1.axhline(average - 3*sig1, color='r', linestyle=':', linewidth=1)       # -3 sigma
 
+# calculate the residual for this one
     this_R_set['residual'] = (this_R_set['F_corrected_normed'] - average)/this_R_set['F_corrected_normed_error']
+
+    # find outliers (more than 3 sigma from mean)
+    mask = ((data - unc) > (average + 3*sig1)) | ((data+unc) < (average - 3*sig1))
+
+    # collect the TPs from those rows
+    outlier_TPs.extend(this_R_set.loc[mask, 'TP'].tolist())
 
     ax3.scatter(this_R_set['TP'], this_R_set['residual'])
 
-    plt.show()
+    # print(outlier_TPs)
+    ax1.set_title(f'{rs[i]}')
+    ax3.set_xlabel('TP Number')
+    ax1.set_ylabel('F_corrected_normed')
+    ax3.set_ylabel('Residual')
+
+    """
+    make right side 2 plots after the removal of the data
+    """
+    this_R_set2 = this_R_set.loc[~this_R_set['TP'].isin(outlier_TPs)].reset_index(drop=True)
+
+    ax2.errorbar(this_R_set2['TP'], this_R_set2['F_corrected_normed'], yerr=this_R_set2['F_corrected_normed_error'], marker='o', linestyle='')
+    ax4.scatter(this_R_set2['TP'], this_R_set2['residual'])
+
+    plt.savefig((f'C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_1_output/3_sigma_flag/{rs[i]}.png'))
+    # TODO RESIDUALS NOT RECALCULATED AFTER OUTLIERS ARE REMOVED...
+    # TODO RECALCULATE RESIDUAL AFTER REMOVING OUTLIERS
+    # TODO CHANGE KEEP/REMOVES AND COMMENTS FOR THOSE IN TP_OUTLIER LIST GENERATED IN LOOP ABOVE
+    # TODO CHECK ALL PLOTS FOR MORE MANUAL POINTS TO REMOVE (14047_2 (MADE IT THROUGH FILTER BECAUSE OF LARGE ERROR BARS)) AND 24779_1
+
+
 
 #
-#     # the maximum allowed value is the average + 3 sigma, min is average - 3 sigma
-#     max_allowed = average+(3*sig1)
-#     min_allowed = average-(3*sig1)
-#
-#     # where do outliers exist?
-#     # where is the measured value - the 1-sigma, still higher than allowed max?
-#     df_keep.loc[((df_keep['Job::R'] == rs[i]) &
-#                  ((df_keep['F_corrected_normed']-df_keep['F_corrected_normed_error']) > max_allowed)),
-#                 'Keep_Remove'] = 'Remove'
-#     df_keep.loc[((df_keep['Job::R'] == rs[i]) &
-#                  ((df_keep['F_corrected_normed']-df_keep['F_corrected_normed_error']) > max_allowed)),
-#                 'Comment'] = 'Removed because the value greater than 3-sigma including error'
+    # # the maximum allowed value is the average + 3 sigma, min is average - 3 sigma
+    # max_allowed = average+(3*sig1)
+    # min_allowed = average-(3*sig1)
+    #
+    # # where do outliers exist?
+    # # where is the measured value - the 1-sigma, still higher than allowed max?
+    # df_keep.loc[((df_keep['Job::R'] == rs[i]) &
+    #              ((df_keep['F_corrected_normed']-df_keep['F_corrected_normed_error']) > max_allowed)),
+    #             'Keep_Remove'] = 'Remove'
+    # df_keep.loc[((df_keep['Job::R'] == rs[i]) &
+    #              ((df_keep['F_corrected_normed']-df_keep['F_corrected_normed_error']) > max_allowed)),
+    #             'Comment'] = 'Removed because the value greater than 3-sigma including error'
 #
 #     # where is the measured value - the 1+sigma, still lower than allowed max?
 #     df_keep.loc[((df_keep['Job::R'] == rs[i]) &

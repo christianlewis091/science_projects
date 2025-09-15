@@ -1,5 +1,8 @@
 
 """
+Sept 15 2024,
+We changed a few things. Editing step 7
+
 We are working on an AMS data quality paper that was originally started by Albert Zondervan, who is not at uOttawa.
 Jocelyn wants to rerun the scripts that created the plots, and numbers for the data quality paper; however, we
 are concerned that many data in the record should have quality flags, and currently do not. This script's goal is to
@@ -82,22 +85,24 @@ Phase 4 outliers/labels overwrite those from phase 3.
 import pandas as pd
 import numpy as np
 import warnings
-import xlsxwriter
+
 from datetime import date
 warnings.simplefilter(action='ignore')
 import plotly.express as px
 import matplotlib.pyplot as plt
 today = date.today()
 
-# # # IMPORT THE DATA FILE
+# """
+# IMPORT THE DATA FILE
+# """
 # # # this file contains all of RLIMS as downloaded from one of our most recent wheels (today is 21/12/2023; Dec 21),
-# # # but the file was moved to my C: drive
 # df = pd.read_csv(r'H:\Science\Datasets\Alberts_dataquality\FINAL_WORKING_DATASET.csv').dropna(subset='TP')
 # df = df.dropna(subset='RTS_corrected')
-# print(f'The original length of the datafram is {len(df)}')
+# print(f'The original length of the dataframe is {len(df)}')
 #
+# #
 # """
-# I'm having trouble with the flagging, so I need to be able to generate continous status reports as I flag. I don't
+# I'm having trouble with the flagging, so I need to be able to generate continuous status reports as I flag. I don't
 # want to keep repeating the code, so I'll write a function to do it.
 # """
 def flagging_status_check(comment):
@@ -113,40 +118,40 @@ def flagging_status_check(comment):
 
     removes = df.loc[df['Keep_Remove'] == 'Remove']
 
-    with pd.ExcelWriter(f'C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_1_output/{comment}.xlsx', engine='xlsxwriter') as writer:
+    with pd.ExcelWriter(f'C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_1_output/{comment}.xlsx', engine="openpyxl") as writer:
         df.to_excel(writer, sheet_name='Whole Dataframe')
         removes.to_excel(writer, sheet_name='Set For Removal')
         qfs.to_excel(writer, sheet_name='Quality Flags')
         krs.to_excel(writer, sheet_name='Keep Remove Counts')
         comms.to_excel(writer, sheet_name='Comments')
 
-#
 # """
 # Output initial description file for this dataframe
 # """
 # # initalize this category
 # df['Keep_Remove'] = 'NYC' # not yet categorized
 # df['Comment'] = 'NAN'
-# # flagging_status_check('01_Initial_State')
+# flagging_status_check('01_Initial_State')
 #
+# #
 # """
 # Label those that have been manually checked for removal
-# In June 2024, I went full steam ahead on this; however, after the end of categorizing all the data, I realized loads of
-# the codes were broken. However, I had already manually selected loads for removal. Those TP's are here below...
+# In June 2024, I had already manually selected loads for removal. Those TP's are here below...
 # """
 # # put all those that have already been manually checked as labeled for REMOVAL
 # for_removal = pd.read_excel(r'C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_1_output/Manually_checked_data.xlsx')
 # df.loc[df['TP'].isin(for_removal['TP']), 'Keep_Remove'] = 'Remove'
-# df.loc[df['TP'].isin(for_removal['TP']), 'Comment'] = 'Manually checked in previous iteration of screening work. Labeled for removal here'
-# # flagging_status_check('02_Manual_Checks_Removed')
+# df.loc[df['TP'].isin(for_removal['TP']), 'Comment'] = 'Manually checked in previous iteration of screening work. Labelled for removal here'
+# flagging_status_check('02_Manual_Checks_Removed')
 #
+# #
 # """
 # Set all the hard flags for removal
 # """
 # hards = ['A..','N..','X..','P..','O..','E..','T..','x..']
 # df.loc[df['Quality Flag'].isin(hards), 'Keep_Remove'] = 'Remove'
 # df.loc[df['Quality Flag'].isin(hards), 'Comment'] = 'Hard Flag Found. Set for removal'
-# # flagging_status_check('03_Hard_flags_removed')
+# flagging_status_check('03_Hard_flags_removed')
 #
 # """
 # I've already gone through and manaully screened for all the middle "soft" flags that need to be categorized,
@@ -173,22 +178,45 @@ def flagging_status_check(comment):
 # df.loc[(df['Quality Flag'].isin(odd)) & (df['Keep_Remove'] == 'Keep'), 'Comment'] = 'Odd quality Flag, but set for keeping at this point'
 # # flagging_status_check('06_odd_flags')
 #
-#
 # # whats left are the NON flagged data that need to be checked for flags requried, but first I need to fix a few of the flags
 # df = df.replace({'Quality Flag': {'.....': '...'}})
-#
+# #
 # """
-# # Flag all samples that contain the word "test" in job notes, set the
+# # Flag all samples that contain the word "test" in job notes
 # """
+# df = pd.read_excel(r"C:\Users\clewis\IdeaProjects\GNS\xcams\Data_Quality_Paper_1_output\06_odd_flags.xlsx", sheet_name='Whole Dataframe')
 # tests = ['TEST','test','Test']
 # for i in range(len(tests)):
-#     df.loc[(df['Job::Job notes'].str.contains(tests[i], na=False)) & (df['Keep_Remove'] == 'NYC') & (df['Quality Flag'] == '...'), 'Keep_Remove'] = 'Remove'
-#     df.loc[(df['Job::Job notes'].str.contains(tests[i], na=False)) & (df['Keep_Remove'] == 'Keep') & (df['Quality Flag'] == '..T'), 'Keep_Remove'] = 'Remove'
+#     df.loc[(df['Job::Job notes'].str.contains(tests[i], na=False)) & (df['Keep_Remove'] == 'NYC') & (df['Quality Flag'] == '...'), 'Keep_Remove'] = 'Keep' # edited from Remove to Keep on Sept 15 2025
+#     df.loc[(df['Job::Job notes'].str.contains(tests[i], na=False)) & (df['Keep_Remove'] == 'Keep') & (df['Quality Flag'] == '..T'), 'Keep_Remove'] = 'Keep' # edited from Remove to Keep on Sept 15 2025
 #     df.loc[(df['Job::Job notes'].str.contains(tests[i], na=False)) & (df['Keep_Remove'] == 'Remove'), 'Comment'] = 'Removed because the keyword test was found in job notes, quality flag should be added!'
-# # flagging_status_check('07_test_found')
+# flagging_status_check('07_test_found')
+
+"""
+On June 21, 2024, I received an email with these “test” jobs manually checked by Jocelyn, but there were only 590 rows with the “test” keyword comment. Where are the rest? I'm going to check the difference 
+"""
+# import pandas as pd
+#
+# df1 = pd.read_excel(r"C:\Users\clewis\IdeaProjects\GNS\xcams\Data_Quality_Paper_1_output\07_test_found.xlsx")
+# df1 = df1.loc[df1['Comment'] == 'Removed because the keyword test was found in job notes, quality flag should be added!']
+# df2 = pd.read_excel(r"C:\Users\clewis\IdeaProjects\GNS\xcams\Data_Quality_Paper_1_output\Final_RLIMS_IMPORT_toshare.xlsx")
+# df2 = df2.loc[df2['Comment'] == 'Removed because the keyword test was found in job notes, quality flag should be added!']
+# diff = df1[~df1["TP"].isin(df2["TP"])]
+# diff.to_excel(r"C:\Users\clewis\IdeaProjects\GNS\xcams\Data_Quality_Paper_1_output\diff_test.xlsx")
+
+# """
+# Merge Jocelyn's Manual Comments with my dataframe
+# """
+#
+# jct = pd.read_excel(r"C:\Users\clewis\IdeaProjects\GNS\xcams\Data_Quality_Paper_1_output\Final_RLIMS_IMPORT_toshare.xlsx")
+# print(np.unique(jct['Should a new flag be added? ']))
+# df = df.merge(jct[['TP', 'JCT','Manual Check Comment','Should a new flag be added? ']], on='TP', how='left')
+# # change keep-remove status based on Jocleny's suggsted flagging
+# df.loc[(df['Should a new flag be added? '] == 'X..'), 'Keep_Remove'] = 'Remove'
+# df.loc[(df['Should a new flag be added? '] == 'X..'), 'Comment'] = 'Removed beacuse of Jocelyns manual check'
+# flagging_status_check('07_and_a_half_JCT_manualcheck')
 #
 # """
-# Now I'm going to do flagging based on statistics.
 # First, I want to make sure there are no werid values or other strings in FM column. I'm having a lot of trouble
 # with random '?' characters...
 # """
@@ -201,55 +229,85 @@ def flagging_status_check(comment):
 # # print("Positions of '?':", positions)
 # df.loc[mask.any(axis=1), 'Keep_Remove'] = 'Remove'
 # df.loc[mask.any(axis=1), 'Comment'] = 'Annoying ? character is breaking my code'
-# # flagging_status_check('08_questionmark_found_removed')
+# flagging_status_check('08_questionmark_found_removed')
 #
 # """
 # Set rest of positions not yet characterized to keep
 # """
 # df.loc[(df['Keep_Remove'] == 'NYC'), 'Keep_Remove'] = 'Keep'
-# # flagging_status_check('09_NYC_changed_to_keep')
+# flagging_status_check('09_NYC_changed_to_keep')
 #
 # """
-# Set rest of positions not yet characterized to keep
+# Remove where there is no FM data
 # """
 # df.loc[(df['F_corrected_normed'] == ''), 'Comment'] = 'Removed because absence of FM data'
 # df.loc[(df['F_corrected_normed'] == ''), 'Keep_Remove'] = 'Remove'
 #
 # df.loc[(df['F_corrected_normed_error'] == ''), 'Comment'] = 'Removed because absence of FM data'
 # df.loc[(df['F_corrected_normed_error'] == ''), 'Keep_Remove'] = 'Remove'
-# # flagging_status_check('10_FM_dropna')
 #
-# """
-# SPLITTING DATAFRAME INTO KEEP AND REMOVE, WILL MERGE BACK LATER
-# """
-# df_keep = df.loc[df['Keep_Remove'] == 'Keep']
-# df_rem = df.loc[df['Keep_Remove'] == 'Remove']
-#
-# df_keep['F_corrected_normed'] = df_keep['F_corrected_normed'].astype(float)
-# df_keep['F_corrected_normed_error'] = df_keep['F_corrected_normed_error'].astype(float)
-#
-# # how many different R numbers are there in the dataset?
-# df_keep['Job::R'] = df['Job::R'].replace('/', '_', regex=True)#
-# rs = df_keep['Job::R'].value_counts()
-#
-# # Filter to get only those with 10 or more counts
-# rs = rs[rs >= 10]
-# rs = pd.DataFrame(rs)
-# rs.to_excel(r'C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_1_output/Rs_more_than_10.xlsx')
-# rs = pd.read_excel(r'C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_1_output/Rs_more_than_10_fixed.xlsx')
-# rs = rs['Job::R']
-#
-# #
-# # Now we'll loop, calculate the mean of each R, and set a flag for data where the value is > 3 sigma
-# for i in range(0, len(rs)):
-#
-#     # get the data with this R value
-#     this_R_set = df_keep.loc[(df_keep['Job::R'] == rs[i])].reset_index(drop=True)
-#
-#     # find the average for the R number
-#     data = this_R_set['F_corrected_normed'] # data needed to be forced to float)
-#     average = np.mean(data)
-#     sig1 = np.std(data)
+# # editing some flags in the above excel sheet on October 14, 2024 based on some extra analysis
+# # This chunk used to be in Data_quality_paper3.py but has now been moved
+# df.loc[(df['Job::R'] == '40142/1_CELL_ST') & (df['TP'] > 63764) & (df['TP'] < 65183), 'Keep_Remove'] = 'Remove'
+# df.loc[(df['Job::R'] == '40142/1_CELL_ST') & (df['TP'] > 63764) & (df['TP'] < 65183), 'Comment'] = 'editing some flags in the above excel sheet on October 14, 2024 based on some extra analysis'
+# # length123 = df.loc[(df['Job::R'] == '40142/1_CELL_ST') & (df['Keep_Remove'] == 'Keep')]
+# flagging_status_check('10_FM_dropna')
+df = pd.read_excel(r'C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_1_output/10_FM_dropna.xlsx')
+
+"""
+SPLITTING DATAFRAME INTO KEEP AND REMOVE, WILL MERGE BACK LATER. FLAGGING BASED ON STATISTUCS
+We're going to create a 4-panel plot. FM over time, and residual (left top and bottom), 
+Then FM over time and residual after 3-sigma flag removes. 
+
+"""
+df_keep = df.loc[df['Keep_Remove'] == 'Keep']
+df_rem = df.loc[df['Keep_Remove'] == 'Remove']
+
+df_keep['F_corrected_normed'] = df_keep['F_corrected_normed'].astype(float)
+df_keep['F_corrected_normed_error'] = df_keep['F_corrected_normed_error'].astype(float)
+
+# how many different R numbers are there in the dataset?
+df_keep['Job::R'] = df['Job::R'].replace('/', '_', regex=True)#
+rs = df_keep['Job::R'].value_counts()
+
+# Filter to get only those with 10 or more counts
+rs = rs[rs >= 10]
+rs = pd.DataFrame(rs)
+rs.to_excel(r'C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_1_output/Rs_more_than_10.xlsx')
+rs = pd.read_excel(r'C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_1_output/Rs_more_than_10_fixed.xlsx') # why did this line exist? Change column name
+rs = rs['Job::R']
+
+# Initialize Figure
+# Create 2x2 grid of subplots
+fig, axes = plt.subplots(2, 2, figsize=(10, 8))
+
+# Access each subplot
+ax1 = axes[0, 0]  # top left
+ax2 = axes[0, 1]  # top right
+ax3 = axes[1, 0]  # bottom left
+ax4 = axes[1, 1]  # bottom right
+
+# TODO continue here making the figure
+# TODO If >3 sigma, add it to a growing list, and then I can just set all those TP's to remove later.
+# Now we'll loop, calculate the mean of each R, and set a flag for data where the value is > 3 sigma
+for i in range(0, len(rs)):
+
+    # get the data with this R value
+    this_R_set = df_keep.loc[(df_keep['Job::R'] == rs[i])].reset_index(drop=True)
+
+    ax1.errorbar(this_R_set['TP'], this_R_set['F_corrected_normed'], yerr=this_R_set['F_corrected_normed_error'], marker='o', linestyle='')
+
+    # find the average for the R number
+    data = this_R_set['F_corrected_normed'] # data needed to be forced to float)
+    average = np.mean(data)
+    sig1 = np.std(data)
+
+    this_R_set['residual'] = (this_R_set['F_corrected_normed'] - average)/this_R_set['F_corrected_normed_error']
+
+    ax3.scatter(this_R_set['TP'], this_R_set['residual'])
+
+    plt.show()
+
 #
 #     # the maximum allowed value is the average + 3 sigma, min is average - 3 sigma
 #     max_allowed = average+(3*sig1)
@@ -271,7 +329,7 @@ def flagging_status_check(comment):
 #     df_keep.loc[((df_keep['Job::R'] == rs[i]) &
 #                  ((df_keep['F_corrected_normed']+df_keep['F_corrected_normed_error']) < min_allowed)),
 #                 'Comment'] = 'Removed because the value less than 3-sigma including error'
-#
+# #
 # # where were REMOVES and COMMENTS added in the Keep DF from the 3-sigma change?
 # high_removes = df_keep.loc[df_keep['Comment'] == 'Removed because the value greater than 3-sigma including error']
 # low_removes = df_keep.loc[df_keep['Comment'] == 'Removed because the value less than 3-sigma including error']
@@ -292,64 +350,64 @@ def flagging_status_check(comment):
 #
 # checks = df.loc[df['Keep_Remove'] == 'Remove']
 # checks.to_excel((r'C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_1_output/Double_Check.xlsx'))
-
-"""
-I can reimport everything from here so the script doesnt have to run all over again...
-"""
-import pandas as pd
-
-df = pd.read_excel('C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_1_output/11_3_sigma_drop.xlsx', sheet_name= 'Whole Dataframe')
-print(len(df))
-
-# I manually looked at every line and decided where flags needs to be added or not. double check moved to H drive in case of computer failure.
-checks = pd.read_excel((r'H:/Science/Papers/In Prep Work/2023_Zondervan_DataQuality/Moved to IDrive/Double_check.xlsx'))
-
-# there were many cases in which flags need to be added.
-# here is the final list of where flags need to be added. This searches for 1) where the quality flag was empty and 2) where the NEW quality flag is NOT empty.
-final_import_to_rlims = checks.loc[(checks['Quality Flag'] == '...') & (checks['Should a new flag be added? '] != -999)]
-# print(len(final_import_to_rlims))
-final_import_to_rlims.to_excel((r'C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_1_output/Final_RLIMS_IMPORT.xlsx'))
-
-# here is the file that Jocelyn has manually checked.
-checks_final = pd.read_excel(r'C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_1_output/Final_RLIMS_IMPORT_toshare.xlsx', sheet_name= 'SelectColumns')
-
-JTs_comments = np.unique(checks_final['JCT'].astype(str))
-# print(JTs_comments)
-
-comments_to_keep = ['AMS is fine' 'Also Waikato tests',
-                    'Checked RLIMS - no problem' ,
-                    'Good result',
-                    'I think these are fine, it was a problem with 13C not AMS',
-                    "I think this is fine - one of Mr Potato Chips' samples",
-                    'I think this one is fine' "Just didn't get a 13C" 'LG1 not RG20',
-                    'Mr Potato Chips' ,
-                    'No flag needed',
-                    'No flag needed - this was a test that demonstrated that doing single combustions gives different results than splitting a large combustion and this is how we do things now',
-                    'Notes show it is fine',
-                    'Ok but different treatment than usual',
-                    'Probably ok - these are where we changed the amount of CuO in combustion tubes',
-                    'RPO complexities' 'Repeat - this one is ok',
-                    'Result agrees for both measurements of this sample',
-                    'Result is fine',
-                    'ST was repeated - no problem',
-                    'These were sent to ANU (SSAMS) to make sure we can run our samples there',
-                    'These were submitted as graphite, and are tests freom Waikato',
-                    'This sample was run 3 times and this is one of the good repeats',
-                    'ok - early tests of RG20',
-                    'this is a second calams analysis of the same wheel',
-                    'JCT Either EA or sealed tube is fine - whichever is more convenient._x000B_For Waikato/GNS intercomparison test wheel - larger batch may be combusted and split for graphitization_x000B_']
-
-
-# the next three lines takes all TP's with Jocelyns comments above (which make the data seem fine) and changes the Keep Remove to Keep
-# TODO these lines take TP numbers where JCT checked it and was happy, and changes Keep_Remove to Keep. However, the manual check notes, or the flag,
-# TODO or the rest of the information gets lost. This needs to be done a bit cleaner...
-# TODO additionally, this process can likely be re-written to be smoother in a second go-around (if I'm re-doing this stuff)
-TPs_for_keeping = checks_final.loc[checks_final['JCT'].isin(comments_to_keep)]
-TPs_for_keeping = TPs_for_keeping['TP']
-df.loc[df['TP'].isin(TPs_for_keeping), 'Keep_Remove'] = 'Keep'
-print(len(df))
-
-flagging_status_check('12_second_manual_check')
+#
+# """
+# I can reimport everything from here so the script doesnt have to run all over again...
+# """
+# import pandas as pd
+#
+# df = pd.read_excel('C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_1_output/11_3_sigma_drop.xlsx', sheet_name= 'Whole Dataframe')
+# print(len(df))
+#
+# # I manually looked at every line and decided where flags needs to be added or not. double check moved to H drive in case of computer failure.
+# checks = pd.read_excel((r'H:/Science/Papers/In Prep Work/2023_Zondervan_DataQuality/Moved to IDrive/Double_check.xlsx'))
+#
+# # there were many cases in which flags need to be added.
+# # here is the final list of where flags need to be added. This searches for 1) where the quality flag was empty and 2) where the NEW quality flag is NOT empty.
+# final_import_to_rlims = checks.loc[(checks['Quality Flag'] == '...') & (checks['Should a new flag be added? '] != -999)]
+# # print(len(final_import_to_rlims))
+# final_import_to_rlims.to_excel((r'C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_1_output/Final_RLIMS_IMPORT.xlsx'))
+#
+# # here is the file that Jocelyn has manually checked.
+# checks_final = pd.read_excel(r'C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_1_output/Final_RLIMS_IMPORT_toshare.xlsx', sheet_name= 'SelectColumns')
+#
+# JTs_comments = np.unique(checks_final['JCT'].astype(str))
+# # print(JTs_comments)
+#
+# comments_to_keep = ['AMS is fine' 'Also Waikato tests',
+#                     'Checked RLIMS - no problem' ,
+#                     'Good result',
+#                     'I think these are fine, it was a problem with 13C not AMS',
+#                     "I think this is fine - one of Mr Potato Chips' samples",
+#                     'I think this one is fine' "Just didn't get a 13C" 'LG1 not RG20',
+#                     'Mr Potato Chips' ,
+#                     'No flag needed',
+#                     'No flag needed - this was a test that demonstrated that doing single combustions gives different results than splitting a large combustion and this is how we do things now',
+#                     'Notes show it is fine',
+#                     'Ok but different treatment than usual',
+#                     'Probably ok - these are where we changed the amount of CuO in combustion tubes',
+#                     'RPO complexities' 'Repeat - this one is ok',
+#                     'Result agrees for both measurements of this sample',
+#                     'Result is fine',
+#                     'ST was repeated - no problem',
+#                     'These were sent to ANU (SSAMS) to make sure we can run our samples there',
+#                     'These were submitted as graphite, and are tests freom Waikato',
+#                     'This sample was run 3 times and this is one of the good repeats',
+#                     'ok - early tests of RG20',
+#                     'this is a second calams analysis of the same wheel',
+#                     'JCT Either EA or sealed tube is fine - whichever is more convenient._x000B_For Waikato/GNS intercomparison test wheel - larger batch may be combusted and split for graphitization_x000B_']
+#
+#
+# # the next three lines takes all TP's with Jocelyns comments above (which make the data seem fine) and changes the Keep Remove to Keep
+# # TODO these lines take TP numbers where JCT checked it and was happy, and changes Keep_Remove to Keep. However, the manual check notes, or the flag,
+# # TODO or the rest of the information gets lost. This needs to be done a bit cleaner...
+# # TODO additionally, this process can likely be re-written to be smoother in a second go-around (if I'm re-doing this stuff)
+# TPs_for_keeping = checks_final.loc[checks_final['JCT'].isin(comments_to_keep)]
+# TPs_for_keeping = TPs_for_keeping['TP']
+# df.loc[df['TP'].isin(TPs_for_keeping), 'Keep_Remove'] = 'Keep'
+# print(len(df))
+#
+# flagging_status_check('12_second_manual_check')
 
 # NOTICED THAT THERE ARE STILL SOME ISSUES TO BE RESOLVED HERE...
 

@@ -85,7 +85,7 @@ Phase 4 outliers/labels overwrite those from phase 3.
 import pandas as pd
 import numpy as np
 import warnings
-
+import os
 from datetime import date
 warnings.simplefilter(action='ignore')
 import plotly.express as px
@@ -256,8 +256,8 @@ df = pd.read_excel(r'C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_1
 
 """
 SPLITTING DATAFRAME INTO KEEP AND REMOVE, WILL MERGE BACK LATER. FLAGGING BASED ON STATISTUCS
-We're going to create a 4-panel plot. FM over time, and residual (left top and bottom), 
-Then FM over time and residual after 3-sigma flag removes. 
+We're going to create a 4-panel plot. FM over time, and residual (left top and bottom),
+Then FM over time and residual after 3-sigma flag removes.
 
 """
 df_keep = df.loc[df['Keep_Remove'] == 'Keep']
@@ -274,12 +274,14 @@ rs = df_keep['Job::R'].value_counts()
 rs = rs[rs >= 10]
 rs = pd.DataFrame(rs)
 rs.to_excel(r'C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_1_output/Rs_more_than_10.xlsx')
-rs = pd.read_excel(r'C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_1_output/Rs_more_than_10_fixed.xlsx') # why did this line exist? Change column name
+rs = pd.read_excel(r'C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_1_output/Rs_more_than_10.xlsx')
 rs = rs['Job::R']
 
 # Initialize an empty list to collect all the outlier TPs
 outlier_TPs = []
 
+# set output for plotly file later
+outdir = r"C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_1_output/plotly_manual_flag"
 
 # TODO continue here making the figure
 # TODO If >3 sigma, add it to a growing list, and then I can just set all those TP's to remove later.
@@ -289,7 +291,7 @@ for i in range(0, len(rs)):
     # Initialize Figure
     # Create 2x2 grid of subplots
     fig, axes = plt.subplots(2, 2, figsize=(10, 8))
-
+    plt.subplots_adjust(wspace=0.4, hspace=0.3)
     # Access each subplot
     ax1 = axes[0, 0]  # top left
     ax2 = axes[0, 1]  # top right
@@ -298,8 +300,11 @@ for i in range(0, len(rs)):
 
     # get the data with this R value
     this_R_set = df_keep.loc[(df_keep['Job::R'] == rs[i])].reset_index(drop=True)
-
-    ax1.errorbar(this_R_set['TP'], this_R_set['F_corrected_normed'], yerr=this_R_set['F_corrected_normed_error'], marker='o', linestyle='')
+    descrip = this_R_set['Samples::Sample Description']
+    descrip = descrip.replace('-', '_', regex=True)#
+    descrip = descrip.replace(':', '_', regex=True)#
+    descrip=descrip[0]
+    ax1.errorbar(this_R_set['TP'], this_R_set['F_corrected_normed'], yerr=this_R_set['F_corrected_normed_error'], marker='o', linestyle='', color='black', alpha=0.5)
 
     # find the average for the R number
     data = this_R_set['F_corrected_normed'].astype(float) # data needed to be forced to float)
@@ -310,7 +315,7 @@ for i in range(0, len(rs)):
     ax1.axhline(average + 3*sig1, color='r', linestyle=':', linewidth=1)       # +3 sigma
     ax1.axhline(average - 3*sig1, color='r', linestyle=':', linewidth=1)       # -3 sigma
 
-# calculate the residual for this one
+    # calculate the residual for this one
     this_R_set['residual'] = (this_R_set['F_corrected_normed'] - average)/this_R_set['F_corrected_normed_error']
 
     # find outliers (more than 3 sigma from mean)
@@ -319,10 +324,10 @@ for i in range(0, len(rs)):
     # collect the TPs from those rows
     outlier_TPs.extend(this_R_set.loc[mask, 'TP'].tolist())
 
-    ax3.scatter(this_R_set['TP'], this_R_set['residual'])
+    ax3.scatter(this_R_set['TP'], this_R_set['residual'], color='black', alpha=0.5)
 
     # print(outlier_TPs)
-    ax1.set_title(f'{rs[i]}')
+    ax1.set_title(f'Before Statistical Flagging')
     ax3.set_xlabel('TP Number')
     ax1.set_ylabel('F_corrected_normed')
     ax3.set_ylabel('Residual')
@@ -330,16 +335,81 @@ for i in range(0, len(rs)):
     """
     make right side 2 plots after the removal of the data
     """
+
+    # make a second subset of this TP number, where those TP's that were highlighted as outliers are removed
     this_R_set2 = this_R_set.loc[~this_R_set['TP'].isin(outlier_TPs)].reset_index(drop=True)
 
-    ax2.errorbar(this_R_set2['TP'], this_R_set2['F_corrected_normed'], yerr=this_R_set2['F_corrected_normed_error'], marker='o', linestyle='')
-    ax4.scatter(this_R_set2['TP'], this_R_set2['residual'])
+    # find the average for the R number
+    data2 = this_R_set2['F_corrected_normed'].astype(float) # data needed to be forced to float)
+    unc2 = this_R_set2['F_corrected_normed_error'].astype(float)
+    average2 = np.mean(data2)
+    sig1_2 = np.std(data2) # 1-sigma for this secondary subset after outliers are removed
+    ax2.axhline(average, color='k', linestyle='--', linewidth=1)               # mean
+    ax2.axhline(average + 3*sig1_2, color='r', linestyle=':', linewidth=1)       # +3 sigma
+    ax2.axhline(average - 3*sig1_2, color='r', linestyle=':', linewidth=1)       # -3 sigma
+
+    # calculate the residual for this one
+    this_R_set2['residual'] = (this_R_set2['F_corrected_normed'] - average2)/this_R_set2['F_corrected_normed_error']
+    ax2.errorbar(this_R_set2['TP'], this_R_set2['F_corrected_normed'], yerr=this_R_set2['F_corrected_normed_error'], marker='o', linestyle='', color='black', alpha=0.5)
+    ax4.scatter(this_R_set2['TP'], this_R_set2['residual'], color='black', alpha=0.5)
+
+    # print(outlier_TPs)
+    ax2.set_title(f'After Statistical Flagging')
+    ax4.set_xlabel('TP Number')
+    ax2.set_ylabel('F_corrected_normed')
+    ax4.set_ylabel('Residual')
+
+    # strike line through residuals
+    ax3.axhline(0, color='k', linestyle='--', linewidth=1)               # mean
+    ax4.axhline(0, color='k', linestyle='--', linewidth=1)               # mean
+
+
+    # Add subplot labels
+    ax1.text(-0.1, 1.05, "A", transform=ax1.transAxes,
+             fontsize=14, fontweight="bold", va="top", ha="right")
+    ax2.text(-0.1, 1.05, "B", transform=ax2.transAxes,
+             fontsize=14, fontweight="bold", va="top", ha="right")
+    ax3.text(-0.1, 1.05, "C", transform=ax3.transAxes,
+             fontsize=14, fontweight="bold", va="top", ha="right")
+    ax4.text(-0.1, 1.05, "D", transform=ax4.transAxes,
+             fontsize=14, fontweight="bold", va="top", ha="right")
 
     plt.savefig((f'C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_1_output/3_sigma_flag/{rs[i]}.png'))
-    # TODO RESIDUALS NOT RECALCULATED AFTER OUTLIERS ARE REMOVED...
-    # TODO RECALCULATE RESIDUAL AFTER REMOVING OUTLIERS
     # TODO CHANGE KEEP/REMOVES AND COMMENTS FOR THOSE IN TP_OUTLIER LIST GENERATED IN LOOP ABOVE
     # TODO CHECK ALL PLOTS FOR MORE MANUAL POINTS TO REMOVE (14047_2 (MADE IT THROUGH FILTER BECAUSE OF LARGE ERROR BARS)) AND 24779_1
+
+    plt.close()
+
+    # use plotly created now for next manual filtering step (see later)
+    fig = px.scatter(this_R_set2, x="TP", y="F_corrected_normed", error_y="F_corrected_normed_error", hover_data=["TP"],title=f"R = {rs[i]}")
+    outfile = os.path.join(outdir, f"{rs[i]}.html")
+    # Save as interactive HTML
+    fig.write_html(outfile)
+
+"""
+So, to create the plots above, we created new dataframes called DF_keep and DF_remove, but we dno't need to recombine
+them or anything, we just needed to create a list of new TP's to flag.
+"""
+df.loc[(df['TP'].isin(outlier_TPs)), 'Comment'] = 'Caught in 3-sigma statistical flag, see plot. Sept 18, 2025 CBL'
+df.loc[(df['TP'].isin(outlier_TPs)), 'Keep_Remove'] = 'Remove'
+flagging_status_check('11_3_sigma_drop')
+
+"""
+Even after the plots and 3 sigma flag, I still quickly find outlier that need removal and flagging. 
+For instance 14047_2 has one that has huge errors so it's not excluded, but its so obviously bad. 
+We can use plotlys created above to quickly hover over and find where these points are...
+"""
+# 24779 is sucrose where loads just dont have data!!!!
+manual_remove_tps = [67815,  # 14047_2
+# TODO keep checking plotly for manual removals!
+
+
+
+                     ]
+
+
+
+
 
 
 

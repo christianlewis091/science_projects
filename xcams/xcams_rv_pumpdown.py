@@ -68,8 +68,8 @@ df = pd.read_excel('I:\XCAMS/4_maintenance/01_Vacuum_Pumps\Alcatel Adixen/Rotary
 its = np.unique(df['Number'])
 
 # edit this line to determine which one is bold and which are transpoaret.
-x = 14 # which number pump change are you on MINUS ONE! beacuse of the way python counts
-date = 'April8_2025'
+x = 16 # which number pump change are you on MINUS ONE! beacuse of the way python counts
+date = 'Oct24_25'
 
 fig = plt.figure(1, figsize=(12, 8))
 
@@ -135,8 +135,8 @@ Plotting pumpdowns after Ion suorce cleans
 # from matplotlib.gridspec import GridSpec
 #
 # # Load data
-# df = pd.read_excel('H:/Science/Pumpdowns.xlsx', comment='#')
-# df = df[['Opening Event','Time_Min','Rough Pump','Turbo Pump']]
+# df = pd.read_excel(r"I:\XCAMS\4_maintenance\02_SNICS ion source\SNICS OPENINGS\SORX reports\2023\June14_2023\Pumpdowns.xlsx", comment='#')
+# df = df[['Time_min','Rough','Turbo']]
 #
 # fig = plt.figure(figsize=(12, 8))
 # gs = GridSpec(1, 2, width_ratios=[1, 2], figure=fig)
@@ -179,5 +179,30 @@ Plotting pumpdowns after Ion suorce cleans
 # plt.tight_layout()
 # plt.savefig('H:/Science/Pumpdowns.png',
 #             dpi=300, bbox_inches="tight")
-# # plt.show()
-# plt.close()
+# plt.show()
+# # plt.close()
+
+"""
+***************************************************************************************************
+Stripper trap bake 2025 Realignment Sept 29
+***************************************************************************************************
+"""
+#
+# import matplotlib.pyplot as plt
+# import pandas as pd
+#
+# fig = plt.figure(1, figsize=(12, 8))
+# df = pd.read_excel(r'I:\XCAMS\4_maintenance\13_Beamline_Realignment\re-alignment of beamlines Sep 2025\Hands-on\September_29_2025\Stripper_Trap_Bake.xlsx')
+#
+# plt.scatter(df['Elapsed Time 2'], df['Vacuum (Torr)'])
+# plt.plot(df['Elapsed Time 2'], df['Vacuum (Torr)'])
+#
+#
+# plt.ylim(0.0001, 1000)
+# # plt.axhline(0.005, color='black', linestyle='-', alpha=0.1)
+#
+#
+# plt.xlabel('Time (min)'), plt.ylabel('Convectron Reading (Torr)')
+# plt.yscale("log"), plt.legend()
+# plt.title(r'C:\Users\clewis\IdeaProjects\GNS\xcams\xcams_rv_pumpdown.py')
+# plt.savefig(r'I:\XCAMS\4_maintenance\13_Beamline_Realignment\re-alignment of beamlines Sep 2025\Hands-on\September_29_2025/stripperBakeout_plot.png', dpi=300, bbox_inches="tight")

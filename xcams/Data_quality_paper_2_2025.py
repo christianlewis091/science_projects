@@ -113,6 +113,8 @@ chi2_red_arr = []
 sig_bw_straight = []
 # sig_bw_calc = []
 sig_tot_arr = []
+wtw_err_arr =[]
+sig_bw_backcalc = []
 
 for i in range(0, len(rs)):
 
@@ -158,13 +160,11 @@ for i in range(0, len(rs)):
     wmean = wmean_num / wmean_dem
     wmean_arr.append(wmean)
 
-    straight_mean = np.nanmean(subset1['RTS_corrected'])
     straight_mean_unc = np.nanmean(subset1['RTS_corrected_error'])
-    straight_mean_arr.append(straight_mean)
     straight_mean_unc_arr.append(straight_mean_unc)
 
     """
-    Append the standard deviation
+    Calculate and append the standard deviation
     """
     std1 = np.std(subset1['RTS_corrected'])
     stdev_arr.append(std1)
@@ -202,12 +202,13 @@ for i in range(0, len(rs)):
     Step 1, calculate chi2 reduced
     """
     # calc chi2
-    chi2_red_num = np.sum((subset1['RTS_corrected']-straight_mean)**2/subset1['RTS_corrected_error']**2)
+    chi2_red_num = np.sum((subset1['RTS_corrected']-wmean)**2/subset1['RTS_corrected_error']**2)
     chi2_red_denom = len(subset1)-1 # subtract number of groups in degrees of freedom calc.
     chi2_red = chi2_red_num/chi2_red_denom
     chi2_red_arr.append(chi2_red)
     """
     Step 2, calculate sigma_bw striaght up (if this doesn't work, its beacuse the sqrt function went negative because chi2 was less than 1)
+    See Eqn at bottom of page 1 of scan file:///I:/C14Data/Data%20Quality%20Paper/CBL_V3/Data_Quality_Eqns_CBL_JCT.pdf
     """
     term2 = np.sqrt(chi2_red - 1)
     term1 = np.nanmean(subset1['RTS_corrected_error'])
@@ -217,17 +218,23 @@ for i in range(0, len(rs)):
     """
     Step 3, what is the total uncertainty using this new sigma_bw? 
     """
-    # sig_tot1 = np.sqrt(straight_mean_unc**2 + (sigbw*straight_mean*0.01)**2) # this is the eqn from our scanned pdf of eqns but I think it's wrong.
-                                                                               # the sig_bw is on the order of the RTScorrerr (0.002), not the order of magnitude of WTWerrors (0.12-0.17)
-                                                                               # This means when it's multiplied by the "straight mean" RTS, and then by 0.01, it gets reduced furter by 3 orders of magnitude.
-    sig_tot1 = np.sqrt(straight_mean_unc**2 + sigbw**2)
+
+    sig_tot1 = np.sqrt(term1**2 + sigbw**2)
     sig_tot_arr.append(sig_tot1)
 
     """
-    When one calculates the new "total uncertainty" above, 
-    it turns out that it is always equal to or LOWER than the calculated standard deviation
+    Step 3, what is the sigma_bw if we back calculate it using eqn sigma_tot = sqrt(sigma_ams^2 + sigma_bw^2), 
+    Assumnig that sugma_tot = stdev
+    """
+    sig_bw_backcalc1 = np.sqrt(std1**2 - term1**2)
+    sig_bw_backcalc.append(sig_bw_backcalc1)
+
+    """
+    What is the WTWerror if we calculate it using sigma_bw, and how does it compare with the wheel to wheel error that is in use? 
     """
 
+    wtw_err = sigbw/(wmean*0.01)
+    wtw_err_arr.append(wtw_err)
 
     """
     Draw a hover-over plot with the data
@@ -265,14 +272,14 @@ output1 = pd.DataFrame({'R_number': R_num,
                         'Group':group_name,
                         'Data Length (n)': length,
                         'RTS (wmean)': wmean_arr,
-                        'RTS corr mean': straight_mean_arr,
-                        'RTS corr err mean': straight_mean_unc_arr,
+                        'RTS_err (mean)': straight_mean_unc_arr,
                         'Standard Deviation': stdev_arr,
                         'Standard Error': sterr_arr,
                         'Chi2 Reduced': chi2_red_arr,
                         'Sigma_bw, Straight': sig_bw_straight,
-                        'Sigma_total using Sigma_bw straight':sig_tot_arr
-
+                        'Sigma_total using Sigma_bw straight':sig_tot_arr,
+                        'Sigma_bw, backcalc': sig_bw_backcalc,
+                        'Calcd Wheel to Wheel Error': wtw_err_arr
                         # 'Sigma Between Wheels, Calc': sig_bw_calc
                         # 'Optd Chi2': opt_chi,
                         # 'Sigma Residual': sig_res_arr,

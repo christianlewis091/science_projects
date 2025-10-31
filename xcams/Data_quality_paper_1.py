@@ -401,6 +401,7 @@ We can use plotlys created above to quickly hover over and find where these poin
 """
 # 24779 is sucrose where loads just dont have data!!!!
 manual_remove_tps = [67815, # 14047_2
+                     60764, # 14047_2
                      69026, # 24889_4
                      78215, # 26281_1
                      60315, 60319, 60314, 60318, 60313, 60317,         # 32244_1 a bunch are bad from one wheel it seems

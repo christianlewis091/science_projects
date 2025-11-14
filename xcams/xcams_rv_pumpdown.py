@@ -68,8 +68,8 @@ df = pd.read_excel('I:\XCAMS/4_maintenance/01_Vacuum_Pumps\Alcatel Adixen/Rotary
 its = np.unique(df['Number'])
 
 # edit this line to determine which one is bold and which are transpoaret.
-x = 16 # which number pump change are you on MINUS ONE! beacuse of the way python counts
-date = 'Oct24_25'
+x = 17 # which number pump change are you on MINUS ONE! beacuse of the way python counts
+date = 'Nov14_2025'
 
 fig = plt.figure(1, figsize=(12, 8))
 

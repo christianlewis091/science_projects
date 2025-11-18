@@ -107,6 +107,14 @@ df.loc[(df['Job::R'] == '24889/7') & (df['AAA_CELL'] =='AAA') & (df['EA_ST'].isn
 df.loc[(df['Job::R'] == '24889/7') & (df['AAA_CELL'] =='Cellulose') & (df['EA_ST'] =='EA'), 'Job::R'] = '24889/7_CELL_EA'
 df.loc[(df['Job::R'] == '24889/7') & (df['AAA_CELL'] =='Cellulose') & (df['EA_ST'].isna()), 'Job::R'] = '24889/7_CELL_ST'
 
+# edit similarly for some blank materials
+df.loc[(df['Job::R'] == '40142/2') & (df['AAA_CELL'] =='AAA') & (df['EA_ST'] =='EA'), 'Job::R'] = '40142/2_AAA_EA'
+df.loc[(df['Job::R'] == '40142/2') & (df['AAA_CELL'] =='AAA') & (df['EA_ST'].isna()), 'Job::R'] = '40142/2_AAA_ST'
+df.loc[(df['Job::R'] == '40142/1') & (df['AAA_CELL'] =='Cellulose') & (df['EA_ST'] =='EA'), 'Job::R'] = '40142/1_CELL_EA'
+df.loc[(df['Job::R'] == '40142/1') & (df['AAA_CELL'] =='Cellulose') & (df['EA_ST'].isna()), 'Job::R'] = '40142/1_CELL_ST'
+#
+
+
 #make distinction between pre and post flask ox according to JCT comments September 11, 2024
 df.loc[(df['Job::R'] == '40430/2') & (df['preptype'] == 'FLASK') & (df['TW'] >= 3211) & (df['TW'] <= 3533), 'Job::R'] = '40430/2_flask'
 df.loc[(df['Job::R'] == '40430/1') & (df['preptype'] == 'FLASK') & (df['TW'] >= 3211) & (df['TW'] <= 3533), 'Job::R'] = '40430/1_flask'
@@ -159,6 +167,9 @@ The loop will compare R numbers from the 'seconds.xlsx' with the R numbers from 
 
 # set output for plotly file later
 outdir = r"C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_paper_2_2025_output/plotly_check"
+
+# set inital value for wmean so i can calc residual later
+df['wmean'] = -999
 
 group_name = []
 R_num = []
@@ -240,6 +251,8 @@ for i in range(0, len(rs)):
     wmean_dem = np.sum(1/subset1['RTS_corrected_error']**2)
     wmean = wmean_num / wmean_dem
     wmean_arr.append(wmean)
+
+    df.loc[df['Job::R'] == rs[i], 'wmean'] = wmean
 
     """
     Calculate residual
@@ -436,6 +449,7 @@ output1 = pd.DataFrame({'R_number': R_num,
                         # 'Delta 14C std': del14Cstd
                         })
 
+df.to_excel(f'C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_paper_2_2025_output/df_out_from_DQ_2_2025.xlsx')
 
 # # output1['sigma_total_FM'] = np.sqrt(output1['Sigma_FM']**2 + output1['Sigma_blank']**2 + (output1['Sigma Residual']**2)*(output1['FM (wmean)']**2))
 # # october 14 2024 sigma_blank removed from totla uncertainty budget

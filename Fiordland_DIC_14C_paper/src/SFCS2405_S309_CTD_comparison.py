@@ -28,6 +28,51 @@ o1_moy = moy.loc[moy['FileName'] == 'DUS023_01CTD']
 o2_moy = moy.loc[moy['FileName'] == 'DBT008_01CTD']
 o3_moy = moy.loc[moy['FileName'] == 'DBT006_01CTD']
 
+"""
+Quick plot after the freezer thawed on September 9, 2025, what is the bottom temp? Freezer thawed to 6C
+"""
+stns = np.unique(moy['My Station Name'])
+
+fig = plt.figure(figsize=(12, 12))
+
+for i in range(0, len(stns)):
+    dfi = moy.loc[moy['My Station Name'] == stns[i]]
+
+    plt.scatter(dfi['T090C'], dfi['DepSM'])
+plt.ylim(500,0)
+plt.xlim(0, 18)
+plt.show()
+plt.close()
+
+
+stns = np.unique(sun['FileName'])
+
+fig = plt.figure(figsize=(12, 12))
+
+for i in range(0, len(stns)):
+    dfi = sun.loc[sun['FileName'] == stns[i]]
+
+    plt.scatter(dfi['t090C'], dfi['depSM'])
+plt.ylim(500,0)
+plt.xlim(0, 18)
+plt.show()
+plt.close()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 """
 COMPARE THE CTD CASTS IN A MONSTER FIG

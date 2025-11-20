@@ -6,6 +6,7 @@ import cartopy.crs as ccrs
 
 sun = pd.read_excel('C:/Users\clewis\IdeaProjects\GNS\Fiordland_DIC_14C_paper\data\processed/S309_DIC_14C_FINAL.xlsx')
 sfcs = pd.read_excel('C:/Users\clewis\IdeaProjects\GNS\Fiordland_DIC_14C_paper\data\processed/SFCS2405_DIC_14C_FINAL.xlsx')
+sfcs25 = pd.read_excel('C:/Users\clewis\IdeaProjects\GNS\Fiordland_DIC_14C_paper\data/raw/sfcs2505_gpkg_waterSamples_202508111535.xlsx', comment='#')
 
 # make clone df's to simplify things
 sun2 = sun[['Lat_corrected','Lon','Station','Water depth (m)','∆14C','∆14C error','d13C','d13C error']]
@@ -15,6 +16,15 @@ sun2['Cruise'] = 'Sonne'
 sfcs2 = sfcs[['Longitude_E_decimal','Latitude_N_decimal','Cruise Station Name','DELTA14C','Depth', 'DELTA14C_Error','delta13C_IRMS','delta13C_IRMS_Error']]
 sfcs2 = sfcs2.rename(columns={"Latitude_N_decimal": "Lat", "Longitude_E_decimal": "Lon", "Cruise Station Name": "Station"})
 sfcs2['Cruise'] = 'SFCS'
+
+# SFCS2505 hasn't been measured yet. I just want to see where the samples are relative to SFCS2405 and S309
+sfcs25 = sfcs25.dropna(subset = 'waterAnalysisCode')
+sfcs25 = sfcs25.loc[
+    (sfcs25['waterAnalysisCode'] == 'DIC_C14') |
+    (sfcs25['waterAnalysisCode'] == 'DOC')
+    ]
+sfcs25.to_excel('C:/Users\clewis\IdeaProjects\GNS\Fiordland_DIC_14C_paper\data\intermediate/SFCS2505_filtered_for_CBL_samples.xlsx')
+
 
 # Combine
 plot_df = pd.concat([sun2, sfcs2])
@@ -81,8 +91,9 @@ ax2.errorbar(d['DELTA14C'], d['Depth'], xerr=d['DELTA14C_Error'], color='gray', 
 ax3.errorbar(e['DELTA14C'], e['Depth'], xerr=e['DELTA14C_Error'], color='black', marker='D')
 ax3.errorbar(f['DELTA14C'], f['Depth'], xerr=f['DELTA14C_Error'], color='gray', marker='o')
 
-ax4.scatter(sfcs2['Lon'], sfcs2['Lat'], color='black', marker='D')
-ax4.scatter(sun2['Lon'], sun2['Lat'], color='gray', marker='o')
+ax4.scatter(sfcs2['Lon'], sfcs2['Lat'], color='black', marker='D', alpha=0.5)
+ax4.scatter(sun2['Lon'], sun2['Lat'], color='red', marker='o', alpha=0.5)
+ax4.scatter(sfcs25['dropLongitude'], sfcs25['dropLatitude'], color='blue', marker='s', alpha=0.5)
 
 # Example plot content
 ax1.set_title("DBT Mouth")
@@ -99,7 +110,7 @@ ax3.set_xlim(20,35)
 
 ax1.legend()
 plt.tight_layout()
-# plt.show()
+plt.show()
 plt.savefig(f'C:/Users/clewis/IdeaProjects/GNS/Fiordland_DIC_14C_paper/output/figures/S309_SFCS2405_DIC_comparison.png', dpi=300, bbox_inches="tight")
 plt.close()
 

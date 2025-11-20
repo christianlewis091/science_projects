@@ -1,6 +1,34 @@
 """
 This may become deprecated as I try to figure out ArcGIS for mapping
 """
+# TESTING IF I CAN USE TIM'S PACKAGE
+import nzgeom.coastlines
+import matplotlib.pyplot as plt
+import pandas as pd
+import numpy as np
+#
+df = pd.read_excel(r"H:\Science\Current_Projects\03_CCE_24_25\MY_SAMPLES_DATABASE.xlsx", sheet_name='Sheet1', comment='#')
+cat = pd.read_excel(r"H:\Science\Current_Projects\03_CCE_24_25\formap.xlsx", sheet_name='Sheet1', comment='#')
+
+df['Cruise'] = df['Cruise'].astype(str)
+
+cbl_sfcs2405_spe = df.loc[(df['Cruise'] == 'SFCS2405')]
+cbl_sfcs2505_spe = df.loc[(df['Cruise'] == 'SFCS2505') & (df['Sample Type'] == 'SPE-DOC')]
+cat_done = cat.loc[(cat['Status'] == 'Done')]
+cat_notdone = cat.loc[(cat['Status'] != 'Done')]
+
+
+c =  nzgeom.coastlines.get_NZ_coastlines(bbox=(166.2, -47, 168.0, -45))
+ax = c.plot()
+ax.scatter(cbl_sfcs2405_spe['Lon'], cbl_sfcs2405_spe['Lat'], color='red', marker='o', label='SFCS2405_CBL')
+ax.scatter(cbl_sfcs2505_spe['Lon'], cbl_sfcs2505_spe['Lat'], color='black', marker='x', label='SFCS2505_CBL')
+ax.scatter(cat_done['Lon'], cat_done['Lat'], color='green', marker='D', label='Cathy Done')
+ax.scatter(cat_notdone['Lon'], cat_notdone['Lat'], color='purple', marker='s', label='Cathy Not Done')
+plt.legend()
+plt.show()
+
+
+
 
 """
 HIGH RES COASTLINE!

@@ -11,6 +11,8 @@ from cmcrameri import cm
 import gsw
 import matplotlib.gridspec as gridspec
 
+from Fiordland_all.SCRIPTS_SFCS2405.May_2024_Field_Actual import sonne
+
 """
 i have data from three cruises all with different column headers in the ctd files: 
 S309 ctd oxygen data is in: 'sbox0Mm/Kg', 'sbox1Mm/kg', 'sbeox0PS', 'sboeox1PS' 
@@ -43,11 +45,12 @@ S309 CTD
 # READ IN SONNE DATA AND GRAB IMPORTANT VARS
 sonne_ctd = pd.read_excel(f"C:/Users\clewis\IdeaProjects\GNS\Fiordland_DIC_14C_paper\data\intermediate\s309_step3\Concatonated_CTD_SONNE.xlsx")
 sonne_ctd = sonne_ctd[['FileName', 'latitude','longitude','depSM','sal00','t090C', 'sbox0Mm/Kg']]
-
+print(np.unique(sonne_ctd['FileName']))
 # Only keep my stations
 cruise2 = ['SO309-46-17_by_depth_1_m', 'SO309-53-1_by_depth_1_m', 'SO309-59-13_by_depth_1_m']
 sonne_ctd = sonne_ctd.loc[sonne_ctd['FileName'].isin(cruise2)]
 sonne_ctd['EXPOCODE'] = 'S309'
+
 """
 SFCS2505
 """
@@ -63,4 +66,6 @@ cruise3 = ['sfcs2505_dbt019_01ctd','sfcs2505_dbt020_01ctd', 'sfcs2505_dbt021_01c
 sfcs2505_ctd  = sfcs2505_ctd .loc[sfcs2505_ctd ['FileName'].isin(cruise3)]
 
 ctd_cat = pd.concat([sonne_ctd, sfcs2405_ctd, sfcs2505_ctd])
-ctd_cat.to_excel('C:/Users/clewis/IdeaProjects/GNS/Fiordland_DIC_14C_paper/output_V2/04_concatonate_CTD_data/ctd_cat.xlsx')
+# ctd_cat.to_excel('C:/Users/clewis/IdeaProjects/GNS/Fiordland_DIC_14C_paper/output_V2/04_concatonate_CTD_data/ctd_cat.xlsx')
+
+print(np.unique(ctd_cat['FileName']))

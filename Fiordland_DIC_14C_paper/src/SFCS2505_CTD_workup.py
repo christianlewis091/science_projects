@@ -21,8 +21,8 @@ import cartopy.feature as cf
 STEP1. Change to txt
 """
 
-input_directory = r'C:\Users\clewis\IdeaProjects\GNS\Fiordland_DIC_14C_paper\data\raw\SFCS2405_CTD_raw'
-out_directory = r'C:\Users\clewis\IdeaProjects\GNS\Fiordland_DIC_14C_paper\data\intermediate\sfcs2405_step1'
+input_directory = r'C:\Users\clewis\IdeaProjects\GNS\Fiordland_DIC_14C_paper\data\raw\SFCS2505_CTD_raw'
+out_directory = r'C:\Users\clewis\IdeaProjects\GNS\Fiordland_DIC_14C_paper\data\intermediate\sfcs2505_step1'
 #
 def copy_and_rename_files(source_directory, destination_directory):
     # Change the current working directory to the source directory
@@ -46,7 +46,7 @@ STEP2. Dealwith Preamble
 """
 
 # read in the data that was created above, this line finds the directory
-files = os.listdir(r'C:\Users\clewis\IdeaProjects\GNS\Fiordland_DIC_14C_paper\data\intermediate\sfcs2405_step1')
+files = os.listdir(r'C:\Users\clewis\IdeaProjects\GNS\Fiordland_DIC_14C_paper\data\intermediate\sfcs2505_step1')
 
 # make a list with all the file names
 file_list = np.unique(files)
@@ -58,15 +58,15 @@ final_dataframe = pd.DataFrame()
 for i in range(0, len(file_list)):
 
     # open the file
-    with open(f'C:/Users\clewis\IdeaProjects\GNS\Fiordland_DIC_14C_paper\data\intermediate\sfcs2405_step1/{file_list[i]}', 'r') as fp:
+    with open(f'C:/Users\clewis\IdeaProjects\GNS\Fiordland_DIC_14C_paper\data\intermediate\sfcs2505_step1/{file_list[i]}', 'r') as fp:
 
         """
         This whole subsection below is to find where the preable ENDS and the data begins
         """
 
         # set columns for later
-        column_name = ['DepSM', 'bpos', 'T090C', 'Sal00', 'Sbeox0Mg/L', 'sbeox0PS','fls','prdM','flag']
-
+        # column_name = ['DepSM', 'bpos', 'T090C', 'Sal00', 'Sbeox0Mg/L', 'sbeox0PS','fls','prdM','flag']
+        column_name = ['prdM','t090C','c0uS/cm','flouresc','sbeox0V','depSM','density00','sigma00','oxsolmll','sal00','sbeoxOPS','sbox0Mm/Kg','sbeox0ML/L','gsw_saA0','gsw_ctA0','gsw_sigma0A0','gsw_densityA0','nbin','flag']
         # attach these set columns to the dummy dataframe
         dataframe1 = pd.DataFrame(columns=column_name)
 
@@ -101,14 +101,14 @@ for i in range(0, len(file_list)):
         # these casts seem to incude the downcast AND the upcast.
         # I want to only include the downcast.
 
-        dataframe1.to_excel(f'C:/Users\clewis\IdeaProjects\GNS\Fiordland_DIC_14C_paper\data\intermediate\sfcs2405_step2/{filename}.xlsx')
+        dataframe1.to_excel(f'C:/Users\clewis\IdeaProjects\GNS\Fiordland_DIC_14C_paper\data\intermediate\sfcs2505_step2/{filename}.xlsx')
 
 
 """
 Now we'll run the concat STEP3
 """
 
-files = os.listdir(r'C:/Users\clewis\IdeaProjects\GNS\Fiordland_DIC_14C_paper\data\intermediate\sfcs2405_step2/')
+files = os.listdir(r'C:/Users\clewis\IdeaProjects\GNS\Fiordland_DIC_14C_paper\data\intermediate\sfcs2505_step2/')
 
 # make a list with all the file names
 file_list = np.unique(files)
@@ -117,28 +117,34 @@ file_list = np.unique(files)
 concat_df = pd.DataFrame()
 
 for i in range(0, len(file_list)):
-    sub_df = pd.read_excel(f'H:\Science\Datasets\Fiordland\SFCS2405_CTD\STEP2/{file_list[i]}')
+    # sub_df = pd.read_excel(f'H:\Science\Datasets\Fiordland\SFCS2505_CTD\STEP2/{file_list[i]}')
+    sub_df = pd.read_excel(f"C:/Users\clewis\IdeaProjects\GNS\Fiordland_DIC_14C_paper\data\intermediate\sfcs2505_step2/{file_list[i]}")
     concat_df = pd.concat([concat_df, sub_df]).reset_index(drop=True)
 
-concat_df.to_excel(f'C:/Users\clewis\IdeaProjects\GNS\Fiordland_DIC_14C_paper\data\intermediate\sfcs2405_step3/Concatonated_Data.xlsx')
+concat_df.to_excel(f'C:/Users\clewis\IdeaProjects\GNS\Fiordland_DIC_14C_paper\data\intermediate\sfcs2505_step3/Concatonated_Data.xlsx')
 
 """
 Add lat lons from a metadata file
 """
-
+#
 # # first a rough check I was sent the propoer profiles. Do they aligm on the maP?
 # lat lons are not in original CTD profiles, so I have to mereg them from a metadata file
-mets = pd.read_excel(r'H:\Science\Datasets\Fiordland\SFCS2405_CTD\metadata.xlsx', comment='#')
-concat_df = pd.read_excel(f'C:/Users\clewis\IdeaProjects\GNS\Fiordland_DIC_14C_paper\data\intermediate\sfcs2405_step3/Concatonated_Data.xlsx')
+import pandas as pd
+import numpy as np
+import nzgeom.coastlines
+import matplotlib.pyplot as plt
+
+mets = pd.read_excel(r"C:\Users\clewis\IdeaProjects\GNS\Fiordland_DIC_14C_paper\data\processed\SFCS2505_DIC_14C_FINAL.xlsx", comment='#')
+concat_df = pd.read_excel(f'C:/Users\clewis\IdeaProjects\GNS\Fiordland_DIC_14C_paper\data\intermediate\sfcs2505_step3/Concatonated_Data.xlsx')
 concat_df2 = pd.merge(mets, concat_df, on='FileName')
-concat_df2.to_csv(f'C:/Users\clewis\IdeaProjects\GNS\Fiordland_DIC_14C_paper\data\processed/SFCS2405_CTD_DATA_FINAL.csv')
+concat_df2.to_csv(f'C:/Users\clewis\IdeaProjects\GNS\Fiordland_DIC_14C_paper\data\processed/SFCS2505_CTD_DATA_FINAL.csv')
+
 
 """
 Check they match the right locations on the map
 """
 
-import nzgeom.coastlines
-concat_df = pd.read_csv(f'C:/Users\clewis\IdeaProjects\GNS\Fiordland_DIC_14C_paper\data\processed/SFCS2405_CTD_DATA_FINAL.csv')
+concat_df = pd.read_csv(f'C:/Users\clewis\IdeaProjects\GNS\Fiordland_DIC_14C_paper\data\processed/SFCS2505_CTD_DATA_FINAL.csv')
 print(concat_df.columns)
 
 filenames = np.unique(concat_df['FileName'])
@@ -151,45 +157,45 @@ for i in range(0, len(filenames)):
     siz = 50
 
     sub1 = concat_df.loc[concat_df['FileName'] == filenames[i]].reset_index()
-    lat1 = sub1['Lat']
+    lat1 = sub1['dropLatitude']
     lat1 = lat1[0]
-    lon1 = sub1['Lon']
+    lon1 = sub1['dropLongitude']
     lon1 = lon1[0]
 
-    ax.scatter(lon1, lat1, color='blue', marker='o', label=f'SFCS2405, May 2024,{filenames[i]}', alpha=1, s=siz)
+    ax.scatter(lon1, lat1, color='blue', marker='o', label=f'SFCS2505, May 2025,{filenames[i]}', alpha=1, s=siz)
     ax.legend()
 
-    plt.savefig(f'C:/Users\clewis\IdeaProjects\GNS\Fiordland_DIC_14C_paper\data\intermediate\sfcs2405_step3/map_checks/{filenames[i]}', dpi=300, bbox_inches="tight")
+    plt.savefig(f'C:/Users\clewis\IdeaProjects\GNS\Fiordland_DIC_14C_paper\data\intermediate\sfcs2505_step3/map_checks/{filenames[i]}', dpi=300, bbox_inches="tight")
     plt.close()
 
 
-"""
-Greer is debating with me about whether or not there is an error
-"""
-
-mets = pd.read_excel(r'H:\Science\Datasets\Fiordland\SFCS2405_CTD\metadata.xlsx', comment='#')
-filenames = np.unique(mets['FileName'])
-
-for i in range(0, len(filenames)):
-
-    fig = plt.figure(figsize=(16, 8))
-    ax = plt.axes(projection=ccrs.PlateCarree())
-    ax.set_extent((166.3, 168.25, -46.0, -44))
-    coast = cf.GSHHSFeature(scale="l")
-    ax.add_feature(coast)
-
-    sub1 = mets.loc[mets['FileName'] == filenames[i]].reset_index()
-    lat1 = sub1['Lat']
-    lat1 = lat1[0]
-    lon1 = sub1['Lon']
-    lon1 = lon1[0]
-
-    sc = ax.scatter(lon1, lat1, transform=ccrs.PlateCarree(), label=f'{filenames[i]}')
-    plt.legend()
-
-    plt.savefig(f'C:/Users\clewis\IdeaProjects\GNS\Fiordland_DIC_14C_paper\data\intermediate\sfcs2405_step3/map_checks/gg_cbl/{filenames[i]}', dpi=300, bbox_inches="tight")
-    plt.close()
-
+# """
+# Greer is debating with me about whether or not there is an error
+# """
+#
+# mets = pd.read_excel(r'H:\Science\Datasets\Fiordland\SFCS2405_CTD\metadata.xlsx', comment='#')
+# filenames = np.unique(mets['FileName'])
+#
+# for i in range(0, len(filenames)):
+#
+#     fig = plt.figure(figsize=(16, 8))
+#     ax = plt.axes(projection=ccrs.PlateCarree())
+#     ax.set_extent((166.3, 168.25, -46.0, -44))
+#     coast = cf.GSHHSFeature(scale="l")
+#     ax.add_feature(coast)
+#
+#     sub1 = mets.loc[mets['FileName'] == filenames[i]].reset_index()
+#     lat1 = sub1['Lat']
+#     lat1 = lat1[0]
+#     lon1 = sub1['Lon']
+#     lon1 = lon1[0]
+#
+#     sc = ax.scatter(lon1, lat1, transform=ccrs.PlateCarree(), label=f'{filenames[i]}')
+#     plt.legend()
+#
+#     plt.savefig(f'C:/Users\clewis\IdeaProjects\GNS\Fiordland_DIC_14C_paper\data\intermediate\sfcs2405_step3/map_checks/gg_cbl/{filenames[i]}', dpi=300, bbox_inches="tight")
+#     plt.close()
+#
 
 
 

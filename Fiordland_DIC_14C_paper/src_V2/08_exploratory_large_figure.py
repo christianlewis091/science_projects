@@ -12,8 +12,6 @@ from cmcrameri import cm
 import gsw
 import matplotlib.gridspec as gridspec
 
-from zzz_old_but_dont_delete.Interlab_Comparison.scripts.colors_set import c2_line, c3_line
-
 df = pd.read_excel(r'C:\Users\clewis\IdeaProjects\GNS\Fiordland_DIC_14C_paper\output_V2\05_concatonate_DIC_data/DIC_JOINED_FINAL_V2_edited.xlsx', comment='#')
 ctds = pd.read_excel(r"C:\Users\clewis\IdeaProjects\GNS\Fiordland_DIC_14C_paper\output_V2\04_concatonate_CTD_data\ctd_cat.xlsx")
 

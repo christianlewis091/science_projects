@@ -11,6 +11,7 @@ import matplotlib.pyplot as plt
 t2024 = pd.read_csv(r"C:\Users\clewis\IdeaProjects\GNS\Fiordland_DIC_14C_paper\data\raw\george_sound_tides_May2024.csv", comment='#')
 t2025 = pd.read_csv(r"C:\Users\clewis\IdeaProjects\GNS\Fiordland_DIC_14C_paper\data\raw\george_sound_tides_May2025.csv", comment='#')
 df = pd.read_excel(r'C:\Users\clewis\IdeaProjects\GNS\Fiordland_DIC_14C_paper\output_V2\05_concatonate_DIC_data/DIC_JOINED_FINAL_V2_edited.xlsx', comment='#')
+df['Date (UTC)'] = pd.to_datetime(df['Date (UTC)'], utc=True)
 
 df2024 = df.loc[((df['Date (UTC)'] >= '2024-05-01') & (df['Date (UTC)'] <  '2024-06-01'))]
 df2025 = df.loc[((df['Date (UTC)'] >= '2025-05-01') & (df['Date (UTC)'] <  '2025-06-01'))]

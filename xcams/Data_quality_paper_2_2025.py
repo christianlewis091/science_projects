@@ -112,8 +112,6 @@ df.loc[(df['Job::R'] == '40142/2') & (df['AAA_CELL'] =='AAA') & (df['EA_ST'] =='
 df.loc[(df['Job::R'] == '40142/2') & (df['AAA_CELL'] =='AAA') & (df['EA_ST'].isna()), 'Job::R'] = '40142/2_AAA_ST'
 df.loc[(df['Job::R'] == '40142/1') & (df['AAA_CELL'] =='Cellulose') & (df['EA_ST'] =='EA'), 'Job::R'] = '40142/1_CELL_EA'
 df.loc[(df['Job::R'] == '40142/1') & (df['AAA_CELL'] =='Cellulose') & (df['EA_ST'].isna()), 'Job::R'] = '40142/1_CELL_ST'
-#
-
 
 #make distinction between pre and post flask ox according to JCT comments September 11, 2024
 df.loc[(df['Job::R'] == '40430/2') & (df['preptype'] == 'FLASK') & (df['TW'] >= 3211) & (df['TW'] <= 3533), 'Job::R'] = '40430/2_flask'
@@ -161,9 +159,6 @@ rs = np.unique(df2['R_number'])
 lets loop through the R numbers and get means and stats assigned to each value in the database...
 The loop will compare R numbers from the 'seconds.xlsx' with the R numbers from the dataframe
 """
-
-
-
 
 # set output for plotly file later
 outdir = r"C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_paper_2_2025_output/plotly_check"

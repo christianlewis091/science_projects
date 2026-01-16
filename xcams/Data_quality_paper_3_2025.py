@@ -4,166 +4,316 @@ Follows on from Data Quality Paper 2_2025.py
 import pandas as pd
 from scipy import stats
 import matplotlib.pyplot as plt
+import numpy as np
+
+from xcams.OLD_MISC.chi2 import subset
 
 df = pd.read_excel(f'C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_paper_2_2025_output/df_out_from_DQ_2_2025.xlsx')
 
+#
+# """
+# Define function for plotting comarpative plots
+# """
+#
+# def this_plot(a_x,
+#               a_fm, a_fm_err,
+#               a_name,
+#               b_x,
+#               b_fm, b_fm_err,
+#               b_name,
+#               title):
+#
+#     # make sure all are numeric
+#     a_x = pd.to_numeric(a_x, errors="coerce")
+#     a_fm = pd.to_numeric(a_fm, errors="coerce")
+#     a_fm_err = pd.to_numeric(a_fm_err, errors="coerce")
+#     b_x = pd.to_numeric(b_x, errors="coerce")
+#     b_fm = pd.to_numeric(b_fm, errors="coerce")
+#     b_fm_err = pd.to_numeric(b_fm_err, errors="coerce")
+#
+#     fig, axs = plt.subplots(2, 1, figsize=(6, 8), sharex=True)  # 3 rows, 1 column
+#
+#     a_res = (a['RTS_corrected'] - a['wmean'] ) / a['RTS_corrected_error']
+#     b_res = (b['RTS_corrected'] - b['wmean'] ) / b['RTS_corrected_error']
+#
+#     axs[1].scatter(a_x, a_res, color='black', linestyle='', label=a_name)
+#     axs[1].scatter(b_x, b_res, color='gray', linestyle='', label=a_name)
+#     axs[1].axhline(y=0, color='black')
+#
+#     axs[0].errorbar(a_x, a_fm, yerr=a_fm_err, color='black', linestyle='', label = f'{a_name}', marker='o')
+#     axs[0].errorbar(b_x, b_fm, yerr=b_fm_err, color='gray', linestyle='', label = f'{b_name}', marker='o')
+#     axs[0].legend()
+#     axs[1].set_ylabel('residual: (x$_i$ - mean) / \u03C3')
+#     axs[0].set_ylabel('Fraction Modern')
+#     plt.tight_layout()
+#     plt.savefig(f'C:/Users\clewis\IdeaProjects\GNS/xcams\Data_Quality_paper_3_2025_output/treatment_comparisons/{title}.png',
+#                 dpi=300, bbox_inches="tight")
+#     plt.close()
+#
+#
+#
+# """
+# The first thing I need to do is run some statistics.
+# Albert and JCT have interest in understanding if there are discrepancies between AAA and Cellulose pretreatments
+# We can analyze this with some organic secondaries and blank.
+# The summary data from the table tells us somethings, but not the whole story. We need to run some t-tests on the sub-dataframes
+# """
+#
+# a = df.loc[df['Job::R'] == '24889/4_CELL_EA']
+# a1 = a['F_corrected_normed']
+# b = df.loc[df['Job::R'] == '24889/4_CELL_ST']
+# b1 = b['F_corrected_normed']
+#
+# print('')
+# print('For FIRI Ds with Cellulose treatment, is there a difference between EA or ST combustion?')
+# x,y= stats.ttest_ind(a1,b1)
+# if y <= 0.05:
+#     print(f"P-valuve is {y:.2f}, datasets can be described as different")
+# else:
+#     print(f"P-valuve is {y:.2f}, datasets can NOT be described as different")
+#
+# a = this_plot(a['TP'],
+#               a1, a['F_corrected_normed_error'],
+#               '24889/4_CELL_EA',
+#               b['TP'],
+#               b1, b['F_corrected_normed_error'],
+#               '24889/4_CELL_ST',
+#               'FIRI_D_EA_v_ST')
+#
+# """
+# """
+#
+# a = df.loc[df['Job::R'] == '24889/7_AAA_EA']
+# a1 = a['F_corrected_normed']
+# b = df.loc[df['Job::R'] == '24889/7_AAA_ST']
+# b1 = b['F_corrected_normed']
+#
+# print('')
+# print('For FIRI Gs with AAA treatment, is there a difference between EA or ST combustion?')
+# x,y= stats.ttest_ind(a1,b1)
+# if y <= 0.05:
+#     print(f"P-valuve is {y:.2f}, datasets can be described as different")
+# else:
+#     print(f"P-valuve is {y:.2f}, datasets can NOT be described as different")
+#
+# a = this_plot(a['TP'],
+#               a1, a['F_corrected_normed_error'],
+#               '24889/7_AAA_EA',
+#               b['TP'],
+#               b1, b['F_corrected_normed_error'],
+#               '24889/7_AAA_ST',
+#               'FIRI_G_EA_v_ST')
+#
+#
+# """
+# """
+#
+# a = df.loc[df['Job::R'] == '24889/4_AAA_EA']
+# a1 = a['F_corrected_normed']
+# b = df.loc[(df['Job::R'] == '24889/4_CELL_EA')]
+# b1 = b['F_corrected_normed']
+#
+# print('')
+# print('For FIRI Ds both through EA, do we see a differnece between AAA and Cellulose?')
+# x,y= stats.ttest_ind(a1,b1)
+# if y <= 0.05:
+#     print(f"P-valuve is {y:.2f}, datasets can be described as different")
+# else:
+#     print(f"P-valuve is {y:.2f}, datasets can NOT be described as different")
+#
+#
+# a = this_plot(a['TP'],
+#               a1, a['F_corrected_normed_error'],
+#               '24889/4_AAA_EA',
+#               b['TP'],
+#               b1, b['F_corrected_normed_error'],
+#               '24889/4_CELL_EA',
+#               'FIRI_D_AAA_v_CELL')
+#
+# """
+#
+# """
+#
+# a = df.loc[df['Job::R'] == '24889/9_CELL_EA']
+# a1 = a['F_corrected_normed']
+# b = df.loc[df['Job::R'] == '24889/9_AAA_EA']
+# b1 = b['F_corrected_normed']
+#
+# print('')
+# print('For FIRI Is with EAs, do we see difference beween AAA and Cellulose pretreatment? ?')
+# x,y= stats.ttest_ind(a1,b1)
+# if y <= 0.05:
+#     print(f"P-valuve is {y:.2f}, datasets can be described as different")
+# else:
+#     print(f"P-valuve is {y:.2f}, datasets can NOT be described as different")
+#
+# a = this_plot(a['TP'],
+#               a1, a['F_corrected_normed_error'],
+#               '24889/9_CELL_EA',
+#               b['TP'],
+#               b1, b['F_corrected_normed_error'],
+#               '24889/9_AAA_EA',
+#               'FIRI_I_AAA_v_CELL')
+#
+
+
 """
-Define function for plotting comarpative plots
+I want to make a RTS v 1/m plot to display the blanks 
 """
 
-def this_plot(a_x,
-              a_fm, a_fm_err,
-              a_name,
-              b_x,
-              b_fm, b_fm_err,
-              b_name,
-              title):
+blanks = ['40699/1','40430/3','14047/1','14047/11','40142/2_AAA_EA','40142/2_AAA_ST','40142/1_CELL_EA','40142/1_CELL_ST']
+name = ['Kapuni Comb-Graph','Air Dead CO2','Carrera Marble Carbonate Line','Carrera Marble Water Line','Kauri AAA_EA','Kauri AAA_ST','Kauri Cellulose_EA','Kauri Cellulose_ST']
 
-    # make sure all are numeric
-    a_x = pd.to_numeric(a_x, errors="coerce")
-    a_fm = pd.to_numeric(a_fm, errors="coerce")
-    a_fm_err = pd.to_numeric(a_fm_err, errors="coerce")
-    b_x = pd.to_numeric(b_x, errors="coerce")
-    b_fm = pd.to_numeric(b_fm, errors="coerce")
-    b_fm_err = pd.to_numeric(b_fm_err, errors="coerce")
+for i in range(0, len(blanks)):
+    subset2 = df.loc[df['Job::R'] == blanks[i]]
 
-    fig, axs = plt.subplots(2, 1, figsize=(6, 8), sharex=True)  # 3 rows, 1 column
+    fig, axs = plt.subplots(2, 1, figsize=(6, 8))  # 3 rows, 1 column
 
-    a_res = (a['RTS_corrected'] - a['wmean'] ) / a['RTS_corrected_error']
-    b_res = (b['RTS_corrected'] - b['wmean'] ) / b['RTS_corrected_error']
-
-    axs[1].scatter(a_x, a_res, color='black', linestyle='', label=a_name)
-    axs[1].scatter(b_x, b_res, color='gray', linestyle='', label=a_name)
-    axs[1].axhline(y=0, color='black')
-
-    axs[0].errorbar(a_x, a_fm, yerr=a_fm_err, color='black', linestyle='', label = f'{a_name}', marker='o')
-    axs[0].errorbar(b_x, b_fm, yerr=b_fm_err, color='gray', linestyle='', label = f'{b_name}', marker='o')
+    axs[0].errorbar(subset2['TP'],subset2['RTS_corrected'] , yerr=subset2['RTS_corrected_error'], color='black', linestyle='', label = f'{name[i]}', marker='o')
     axs[0].legend()
-    axs[1].set_ylabel('residual: (x$_i$ - mean) / \u03C3')
-    axs[0].set_ylabel('Fraction Modern')
+
+    axs[1].scatter(1/(subset2['wtgraph']), subset2['RTS_corrected'], c=subset2['TP'], cmap='binary', linestyle='')
+    axs[1].set_ylim(0,0.02)
+    axs[0].set_xlim(50000,90000)
     plt.tight_layout()
-    plt.savefig(f'C:/Users\clewis\IdeaProjects\GNS/xcams\Data_Quality_paper_3_2025_output/treatment_comparisons/{title}.png',
+    plt.savefig(f'C:/Users\clewis\IdeaProjects\GNS/xcams\Data_Quality_paper_3_2025_output/blanks/{name[i]}.png',
                 dpi=300, bbox_inches="tight")
     plt.close()
 
 
 
-"""
-The first thing I need to do is run some statistics. 
-Albert and JCT have interest in understanding if there are discrepancies between AAA and Cellulose pretreatments
-We can analyze this with some organic secondaries and blank. 
-The summary data from the table tells us somethings, but not the whole story. We need to run some t-tests on the sub-dataframes
-"""
+import matplotlib.pyplot as plt
+from cmcrameri import cm  # colorblind-friendly colormaps
 
-a = df.loc[df['Job::R'] == '24889/4_CELL_EA']
-a1 = a['F_corrected_normed']
-b = df.loc[df['Job::R'] == '24889/4_CELL_ST']
-b1 = b['F_corrected_normed']
+fig, axs = plt.subplots(2, 1, figsize=(12, 8))
+markers = ['o', '^', '8', 's', 'p', '*', 'X', 'D']
 
-print('')
-print('For FIRI Ds with Cellulose treatment, is there a difference between EA or ST combustion?')
-x,y= stats.ttest_ind(a1,b1)
-if y <= 0.05:
-    print(f"P-valuve is {y:.2f}, datasets can be described as different")
-else:
-    print(f"P-valuve is {y:.2f}, datasets can NOT be described as different")
+# choose a color map with enough colors for your number of blanks
+colors = getattr(cm, 'lipari')(np.linspace(.8, .2, len(blanks)))
 
-a = this_plot(a['TP'],
-              a1, a['F_corrected_normed_error'],
-              '24889/4_CELL_EA',
-              b['TP'],
-              b1, b['F_corrected_normed_error'],
-              '24889/4_CELL_ST',
-              'FIRI_D_EA_v_ST')
+for i in range(len(blanks)):
+    subset2 = df.loc[df['Job::R'] == blanks[i]]
 
-"""
-"""
+    axs[0].errorbar(subset2['TP'],subset2['RTS_corrected'], yerr=subset2['RTS_corrected_error'],linestyle='',marker=markers[i] ,label=f'{name[i]}',color=colors[i])
+    axs[1].scatter(1 / subset2['wtgraph'],subset2['RTS_corrected'], color=colors[i])
 
-a = df.loc[df['Job::R'] == '24889/7_AAA_EA']
-a1 = a['F_corrected_normed']
-b = df.loc[df['Job::R'] == '24889/7_AAA_ST']
-b1 = b['F_corrected_normed']
+    # Put legend *outside* right side of plot
+    axs[0].legend(bbox_to_anchor=(1.05, 1),loc='upper left',borderaxespad=0.)
 
-print('')
-print('For FIRI Gs with AAA treatment, is there a difference between EA or ST combustion?')
-x,y= stats.ttest_ind(a1,b1)
-if y <= 0.05:
-    print(f"P-valuve is {y:.2f}, datasets can be described as different")
-else:
-    print(f"P-valuve is {y:.2f}, datasets can NOT be described as different")
 
-a = this_plot(a['TP'],
-              a1, a['F_corrected_normed_error'],
-              '24889/7_AAA_EA',
-              b['TP'],
-              b1, b['F_corrected_normed_error'],
-              '24889/7_AAA_ST',
-              'FIRI_G_EA_v_ST')
+plt.tight_layout()
+plt.savefig(
+    r'C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_paper_3_2025_output/blanks/all_blanks.png',dpi=300, bbox_inches="tight")
+plt.close()
+
+
 
 
 """
+Kapuni blank only
 """
+import pandas as pd
+from scipy import stats
+import matplotlib.pyplot as plt
+import numpy as np
 
-a = df.loc[df['Job::R'] == '24889/4_AAA_EA']
-a1 = a['F_corrected_normed']
-b = df.loc[(df['Job::R'] == '24889/4_CELL_EA')]
-b1 = b['F_corrected_normed']
-
-print('')
-print('For FIRI Ds both through EA, do we see a differnece between AAA and Cellulose?')
-x,y= stats.ttest_ind(a1,b1)
-if y <= 0.05:
-    print(f"P-valuve is {y:.2f}, datasets can be described as different")
-else:
-    print(f"P-valuve is {y:.2f}, datasets can NOT be described as different")
+df = pd.read_excel(f'C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_paper_2_2025_output/df_out_from_DQ_2_2025.xlsx')
 
 
-a = this_plot(a['TP'],
-              a1, a['F_corrected_normed_error'],
-              '24889/4_AAA_EA',
-              b['TP'],
-              b1, b['F_corrected_normed_error'],
-              '24889/4_CELL_EA',
-              'FIRI_D_AAA_v_CELL')
+name = 'Kapuni - Machine Blank'
 
-"""
+subset2 = df.loc[df['Job::R'] == '40699/1']
 
-"""
+wmean_num = np.sum(subset2['F_corrected_normed']/subset2['F_corrected_normed_error']**2)  #  "I:\C14Data\Data Quality Paper\AZ_V0\Fig 1.xlsx"
+wmean_dem = np.sum(1/subset2['F_corrected_normed_error']**2)
+wmean = wmean_num / wmean_dem
+print(wmean)
 
-a = df.loc[df['Job::R'] == '24889/9_CELL_EA']
-a1 = a['F_corrected_normed']
-b = df.loc[df['Job::R'] == '24889/9_AAA_EA']
-b1 = b['F_corrected_normed']
 
-print('')
-print('For FIRI Is with EAs, do we see difference beween AAA and Cellulose pretreatment? ?')
-x,y= stats.ttest_ind(a1,b1)
-if y <= 0.05:
-    print(f"P-valuve is {y:.2f}, datasets can be described as different")
-else:
-    print(f"P-valuve is {y:.2f}, datasets can NOT be described as different")
+fig, axs = plt.subplots(1, 2, figsize=(10, 5))  # 3 rows, 1 column
 
-a = this_plot(a['TP'],
-              a1, a['F_corrected_normed_error'],
-              '24889/9_CELL_EA',
-              b['TP'],
-              b1, b['F_corrected_normed_error'],
-              '24889/9_AAA_EA',
-              'FIRI_I_AAA_v_CELL')
+axs[0].errorbar(subset2['TP'],subset2['F_corrected_normed'] , yerr=subset2['F_corrected_normed_error'], color='black', linestyle='', label = f'{name}', marker='o')
+axs[0].legend()
+
+axs[1].scatter(1/(subset2['wtgraph']), subset2['F_corrected_normed'], c=subset2['TP'], cmap='binary', linestyle='')
+
+
+axs[0].set_ylabel('Fraction Modern')
+axs[1].set_ylabel('Fraction Modern')
+
+axs[0].set_xlabel('TP')
+axs[1].set_xlabel('1/mg')
+
+axs[0].set_ylim(0,0.0045)
+axs[1].set_ylim(0,0.0045)
+axs[1].tick_params(axis='y', which='both', left=False, labelleft=False)
+
+axs[0].axhline(wmean, color='black')
+axs[1].axhline(wmean, color='black')
+
+plt.tight_layout()
+plt.savefig(f'C:/Users\clewis\IdeaProjects\GNS/xcams\Data_Quality_paper_3_2025_output/blanks/Kapuni_special_plot.png',
+            dpi=300, bbox_inches="tight")
 
 
 
 
 
 
+import pandas as pd
+from scipy import stats
+import matplotlib.pyplot as plt
+import numpy as np
 
+df = pd.read_excel(f'C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_paper_2_2025_output/df_out_from_DQ_2_2025.xlsx')
 
+name = 'Carrera Marble Water Line'
 
+plt.figure(figsize=(8, 6))
 
+subset = df.loc[(df['Job::R'] == '14047/11')]
+wmean_num = np.sum(subset['F_corrected_normed']/subset['F_corrected_normed_error']**2)  #  "I:\C14Data\Data Quality Paper\AZ_V0\Fig 1.xlsx"
+wmean_dem = np.sum(1/subset['F_corrected_normed_error']**2)
+wmean = wmean_num / wmean_dem
 
+#before blank fix
+subset2 = df.loc[(df['Job::R'] == '14047/11') & (df['TW'] < 3488)]
+wmean_num = np.sum(subset2['F_corrected_normed']/subset2['F_corrected_normed_error']**2)  #  "I:\C14Data\Data Quality Paper\AZ_V0\Fig 1.xlsx"
+wmean_dem = np.sum(1/subset2['F_corrected_normed_error']**2)
+wmean2 = wmean_num / wmean_dem
 
+# afterblank fix
+subset3 = df.loc[(df['Job::R'] == '14047/11') & (df['TW'] >= 3488)]
+wmean_num = np.sum(subset3['F_corrected_normed']/subset3['F_corrected_normed_error']**2)  #  "I:\C14Data\Data Quality Paper\AZ_V0\Fig 1.xlsx"
+wmean_dem = np.sum(1/subset3['F_corrected_normed_error']**2)
+wmean3 = wmean_num / wmean_dem
+print()
+print('std3')
+print(np.std(subset3['F_corrected_normed']))
+print()
 
+xmax = np.max(df['TP'])
+xmin = np.max(df['TP'])
+# TP 87300 is after the 87272 control on the water test wheel
+plt.hlines(wmean2, xmin=np.min(subset2['TP']), xmax=87300, colors='black')
+plt.hlines(wmean3, xmin=87300, xmax=np.max(subset3['TP']), colors='red', zorder=10)
 
+plt.axvline(87300, color='black', linestyle='--', alpha=0.5)
+
+plt.errorbar(subset2['TP'],subset2['F_corrected_normed'] , yerr=subset2['F_corrected_normed_error'], color='black', linestyle='', marker='o')
+plt.errorbar(subset3['TP'],subset3['F_corrected_normed'] , yerr=subset3['F_corrected_normed_error'], color='black', linestyle='', label = f'{name}', marker='o')
+plt.legend()
+
+plt.ylabel('Fraction Modern')
+plt.xlabel('TP')
+
+plt.tight_layout()
+plt.savefig(f'C:/Users\clewis\IdeaProjects\GNS/xcams\Data_Quality_paper_3_2025_output/blanks/waters_special_plot.png',
+            dpi=300, bbox_inches="tight")
+print(wmean)
+print(wmean2)
+print(wmean3)
+print('Differences between the wmean (for all waters blanks) and those found in the table at the 6th decimal point (should I eye roll at myself?) are beacuse im taking the wmean of rts and then converting to FM for table, while taking wmean of FM here')
 
 
 

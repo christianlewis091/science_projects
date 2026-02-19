@@ -108,9 +108,9 @@ print(f"Dataframe length at t3, after checking FIRI prep types and mergeing: {le
 # df.loc[(df['Job::R'] == '40142/1') & (df['AAA_CELL'] =='Cellulose') & (df['EA_ST'].isna()), 'Job::R'] = '40142/1_CELL_ST'
 
 #make distinction between pre and post flask ox according to JCT comments September 11, 2024
-df.loc[(df['Job::R'] == '40430/2') & (df['preptype'] == 'FLASK') & (df['TW'] >= 3211) & (df['TW'] <= 3533), 'Job::R'] = '40430/2_flask'
-df.loc[(df['Job::R'] == '40430/1') & (df['preptype'] == 'FLASK') & (df['TW'] >= 3211) & (df['TW'] <= 3533), 'Job::R'] = '40430/1_flask'
-#
+# df.loc[(df['Job::R'] == '40430/2') & (df['preptype'] == 'FLASK') & (df['TW'] >= 3211) & (df['TW'] <= 3533), 'Job::R'] = '40430/2_flask'
+# df.loc[(df['Job::R'] == '40430/1') & (df['preptype'] == 'FLASK') & (df['TW'] >= 3211) & (df['TW'] <= 3533), 'Job::R'] = '40430/1_flask'
+# #
 """
 add collection dates for secondaries where its listed: 
 Two notes here: 

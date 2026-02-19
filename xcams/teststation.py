@@ -1,143 +1,71 @@
 import pandas as pd
-import numpy as np
-import matplotlib.pyplot as plt
-from pptx import Presentation
-from pptx.util import Inches
+from scipy import stats
+import os
 
-# -----------------------------
-# Load data + metadata
-# -----------------------------
-df = pd.read_csv(r"I:\XCAMS\3_measurements\C-14 AMS\TW data analysis\TW3550-3599\TW3586\TW3586_p1.csv")
+output_file = r'C:\Users\clewis\IdeaProjects\GNS\xcams\Data_Quality_paper_2_2026_output\test.xlsx'
+os.makedirs(os.path.dirname(output_file), exist_ok=True)
 
-tw3586_rlim = pd.read_excel(
-    r"I:\XCAMS\3_measurements\C-14 AMS\TW data analysis\TW3550-3599\TW3586\3586_met.xlsx",
-    sheet_name='RLIMSoutput'
+# Example datasets
+group1 = [10, 12, 9, 11, 13]
+group2 = [8, 7, 10, 6, 9]
+
+group3 = [5, 6, 7, 8, 9]
+group4 = [4, 5, 6, 7, 8]
+
+results_lines = []
+
+# First t-test
+t1, p1 = stats.ttest_ind(group1, group2)
+results_lines.append(
+    f"The results are t={t1:.3f} and p={p1:.4f} for Group1 vs Group2."
 )
 
-tw3586_run = pd.read_excel(
-    r"I:\XCAMS\3_measurements\C-14 AMS\TW data analysis\TW3550-3599\TW3586\3586_met.xlsx",
-    sheet_name='runlist'
+# Second t-test
+t2, p2 = stats.ttest_ind(group3, group4)
+results_lines.append(
+    f"The results are t={t2:.3f} and p={p2:.4f} for Group3 vs Group4."
 )
 
-tw3586_metadata = tw3586_rlim.merge(tw3586_run, on='TP')
+# Convert to DataFrame (each sentence becomes its own row)
+results_df = pd.DataFrame({"Results": results_lines})
 
-df = df.rename(columns={"position": "Position"})
-df = tw3586_metadata.merge(df, on='Position')
-df['lims'] = df['13Ccurr']/df['12Ccurr']
+# Write to Excel
+with pd.ExcelWriter(output_file, engine="openpyxl", mode="w") as writer:
+    results_df.to_excel(writer, sheet_name="T_Test_Results", index=False)
 
-positions = np.unique(df['Position'])
-
-# -----------------------------
-# Loop through positions
-# -----------------------------
-for pos in positions:
-
-    this_one = df.loc[df['Position'] == pos]
-
-    # first-row metadata
-    wtgraph = this_one['wtgraph'].iloc[0]
-    desc    = this_one['Sample Name 2'].iloc[0]
-
-    fig, axs = plt.subplots(1, 2, figsize=(12, 5))
-
-    mode5 = (this_one['14Ccnts']*this_one['12Ccurr'])/(this_one['13Ccurr']**2)
-    c13c12 = this_one['13Ccurr']/this_one['12Ccurr']
-
-    # LEFT plot
-    sc = axs[0].scatter(this_one['run'], mode5, c=this_one['12CLEcurr'], cmap='viridis')
-    axs[0].set_xlabel('Runs Completed')
-    axs[0].set_ylabel('Mode 5 Approx')
-    axs[0].set_title(f'RTS Drift — Pos {pos}')
-    fig.colorbar(sc, ax=axs[0], label='12CLEcurr')
-
-    # RIGHT plot
-    axs[1].scatter(this_one['run'], c13c12)
-    axs[1].set_xlabel('Runs Completed')
-    axs[1].set_ylabel('13C/12C')
-    axs[1].set_title(f'13C/12C vs Beam — Pos {pos}')
-    axs[1].set_ylim(np.min(df['lims']), np.max(df['lims']))
-    fig.suptitle(
-        f"wtgraph: {wtgraph}    |    sample description: {desc}",
-        fontsize=14, fontweight='bold', y=1.03
-    )
-
-    plt.tight_layout()
-
-    # -----------------------------
-    # Save figure to PNG
-    # -----------------------------
-    out_png = fr"I:\XCAMS\3_measurements\C-14 AMS\TW data analysis\TW3550-3599\TW3586\plots_combined\pos{pos}.png"
-    plt.savefig(out_png, dpi=300, bbox_inches="tight")
-    plt.close()
+print("Results written!")
 
 
 
-"""
-TW3587
-"""
 
-# -----------------------------
-# Load data + metadata
-# -----------------------------
-df = pd.read_excel(r"I:\XCAMS\3_measurements\C-14 AMS\TW data analysis\TW3550-3599\TW3587\TW3587_p1_p2.xlsx")
 
-tw3587_rlim = pd.read_excel(
-    r"I:\XCAMS\3_measurements\C-14 AMS\TW data analysis\TW3550-3599\TW3587\tw3587_met.xlsx",
-    sheet_name='RLIMSoutput'
-)
 
-tw3587_run = pd.read_excel(
-    r"I:\XCAMS\3_measurements\C-14 AMS\TW data analysis\TW3550-3599\TW3587\tw3587_met.xlsx",
-    sheet_name='runlist'
-)
 
-tw3587_metadata = tw3587_rlim.merge(tw3587_run, on='TP')
 
-df = df.rename(columns={"position": "Position"})
-df = tw3587_metadata.merge(df, on='Position')
-df['lims'] = df['13Ccurr']/df['12Ccurr']
 
-positions = np.unique(df['Position'])
-
-# -----------------------------
-# Loop through positions
-# -----------------------------
-for pos in positions:
-
-    this_one = df.loc[df['Position'] == pos]
-
-    # first-row metadata
-    wtgraph = this_one['wtgraph'].iloc[0]
-    desc    = this_one['Sample Name 2'].iloc[0]
-
-    fig, axs = plt.subplots(1, 2, figsize=(12, 5))
-
-    mode5 = (this_one['14Ccnts']*this_one['12Ccurr'])/(this_one['13Ccurr']**2)
-    c13c12 = this_one['13Ccurr']/this_one['12Ccurr']
-
-    # LEFT plot
-    sc = axs[0].scatter(this_one['run'], mode5, c=this_one['12CLEcurr'], cmap='viridis')
-    axs[0].set_xlabel('Runs Completed')
-    axs[0].set_ylabel('Mode 5 Approx')
-    axs[0].set_title(f'RTS Drift — Pos {pos}')
-    fig.colorbar(sc, ax=axs[0], label='12CLEcurr')
-
-    # RIGHT plot
-    axs[1].scatter(this_one['run'], c13c12)
-    axs[1].set_xlabel('Runs Completed')
-    axs[1].set_ylabel('13C/12C')
-    axs[1].set_title(f'13C/12C vs Beam — Pos {pos}')
-    axs[1].set_ylim(np.min(df['lims']), np.max(df['lims']))
-    fig.suptitle(
-        f"wtgraph: {wtgraph}    |    sample description: {desc}",
-        fontsize=14, fontweight='bold', y=1.03
-    )
-
-    plt.tight_layout()
-
-    # -----------------------------
-    # Save figure to PNG
-    # -----------------------------
-    out_png = fr"I:\XCAMS\3_measurements\C-14 AMS\TW data analysis\TW3550-3599\TW3587\plots_combined\pos{pos}.png"
-    plt.savefig(out_png, dpi=300, bbox_inches="tight")
-    plt.close()
+# import pandas as pd
+# from scipy import stats
+#
+# # Example data
+# group1 = [10, 12, 9, 11, 13]
+# group2 = [8, 7, 10, 6, 9]
+#
+# # Run independent t-test
+# t_stat, p_value = stats.ttest_ind(group1, group2)
+#
+# # Format output using f-strings
+# results_dict = {
+#     "t_statistic": [t_stat],
+#     "p_value": [p_value],
+#     "summary": [f"t = {t_stat:.3f}, p = {p_value:.4f}"]
+# }
+#
+# results_df = pd.DataFrame(results_dict)
+#
+# # Write to new Excel sheet
+# output_file = f'C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_paper_2_2026_output/test.xlsx'
+#
+# with pd.ExcelWriter(output_file, engine="openpyxl", mode="w") as writer:
+#     results_df.to_excel(writer, sheet_name="T_Test_Results", index=False)
+#
+# print("Results written to new sheet!")

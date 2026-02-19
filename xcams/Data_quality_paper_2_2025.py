@@ -114,9 +114,17 @@ df.loc[(df['Job::R'] == '40142/1') & (df['AAA_CELL'] =='Cellulose') & (df['EA_ST
 df.loc[(df['Job::R'] == '40142/1') & (df['AAA_CELL'] =='Cellulose') & (df['EA_ST'].isna()), 'Job::R'] = '40142/1_CELL_ST'
 
 #make distinction between pre and post flask ox according to JCT comments September 11, 2024
-df.loc[(df['Job::R'] == '40430/2') & (df['preptype'] == 'FLASK') & (df['TW'] >= 3211) & (df['TW'] <= 3533), 'Job::R'] = '40430/2_flask'
-df.loc[(df['Job::R'] == '40430/1') & (df['preptype'] == 'FLASK') & (df['TW'] >= 3211) & (df['TW'] <= 3533), 'Job::R'] = '40430/1_flask'
-#
+# df.loc[(df['Job::R'] == '40430/2') & (df['preptype'] == 'FLASK') & (df['TW'] >= 3211) & (df['TW'] <= 3533), 'Job::R'] = '40430/2_flask'
+# df.loc[(df['Job::R'] == '40430/1') & (df['preptype'] == 'FLASK') & (df['TW'] >= 3211) & (df['TW'] <= 3533), 'Job::R'] = '40430/1_flask'
+
+# 2025 removing the >3211 above beacuse we don't know why we had been filtering for after 2019
+df.loc[(df['Job::R'] == '40430/2') & (df['preptype'] == 'FLASK'), 'Job::R'] = '40430/2_flask'
+df.loc[(df['Job::R'] == '40430/1') & (df['preptype'] == 'FLASK'), 'Job::R'] = '40430/1_flask'
+
+# for NO FLASK ITERATION! SEE DICSUSINO SECTION
+# df.loc[(df['Job::R'] == '40430/2') & (df['preptype'] != 'FLASK'), 'Job::R'] = '40430/2_flask'
+# df.loc[(df['Job::R'] == '40430/1') & (df['preptype'] != 'FLASK'), 'Job::R'] = '40430/1_flask'
+
 """
 add collection dates for secondaries where its listed: 
 Two notes here: 

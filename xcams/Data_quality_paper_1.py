@@ -309,7 +309,12 @@ for i in range(0, len(rs)):
     # find the average for the R number
     data = this_R_set['F_corrected_normed'].astype(float) # data needed to be forced to float)
     unc = this_R_set['F_corrected_normed_error'].astype(float)
-    average = np.mean(data)
+
+    wmean_num = np.sum(this_R_set['F_corrected_normed']/this_R_set['F_corrected_normed']**2)  #  "I:\C14Data\Data Quality Paper\AZ_V0\Fig 1.xlsx"
+    wmean_dem = np.sum(1/this_R_set['F_corrected_normed']**2)
+    wmean = wmean_num / wmean_dem
+    average = wmean
+
     sig1 = np.std(data)
     ax1.axhline(average, color='k', linestyle='--', linewidth=1)               # mean
     ax1.axhline(average + 3*sig1, color='r', linestyle=':', linewidth=1)       # +3 sigma
@@ -342,7 +347,12 @@ for i in range(0, len(rs)):
     # find the average for the R number
     data2 = this_R_set2['F_corrected_normed'].astype(float) # data needed to be forced to float)
     unc2 = this_R_set2['F_corrected_normed_error'].astype(float)
-    average2 = np.mean(data2)
+
+    wmean_num = np.sum(this_R_set2['F_corrected_normed']/this_R_set2['F_corrected_normed']**2)  #  "I:\C14Data\Data Quality Paper\AZ_V0\Fig 1.xlsx"
+    wmean_dem = np.sum(1/this_R_set2['F_corrected_normed']**2)
+    wmean = wmean_num / wmean_dem
+
+    average2 = wmean
     sig1_2 = np.std(data2) # 1-sigma for this secondary subset after outliers are removed
     ax2.axhline(average, color='k', linestyle='--', linewidth=1)               # mean
     ax2.axhline(average + 3*sig1_2, color='r', linestyle=':', linewidth=1)       # +3 sigma
@@ -395,20 +405,37 @@ df.loc[(df['TP'].isin(outlier_TPs)), 'Keep_Remove'] = 'Remove'
 flagging_status_check('11_3_sigma_drop')
 
 """
-Even after the plots and 3 sigma flag, I still quickly find outlier that need removal and flagging. 
-For instance 14047_2 has one that has huge errors so it's not excluded, but its so obviously bad. 
+Even after the plots and 3 sigma flag, I still quickly find outlier that need removal and flagging.
+For instance 14047_2 has one that has huge errors so it's not excluded, but its so obviously bad.
 We can use plotlys created above to quickly hover over and find where these points are...
 """
-# 24779 is sucrose where loads just dont have data!!!!
+# 24779 is sucrose where loads just don't have data!!!!
 manual_remove_tps = [67815, # 14047_2
                      60764, # 14047_2
-                     69026, # 24889_4
+                            # 14047_12 has some ones that are in the -4 sigma range but RLIMS has no weird stuff to justify their removal, their large and the AMS ran well
+                            # 24779_1 seems to be double plotting two data sets that are in the same R number. This is somthing to fix later, I won't worry about it as it's not a key secondary for the paper
+                     69026, # 24889_4 way too high, didn't catch 3sigma flag because of error bars
+                     60311, 60309, 66744, 66745, 67847, 77081, 77688, #24889
                      78215, # 26281_1
-                     60315, 60319, 60314, 60318, 60313, 60317,         # 32244_1 a bunch are bad from one wheel it seems
+                     60315, 60319, 60314, 60318, 60313, 60317,  # 32244_1 a bunch are bad from one wheel it seems
                      61824, 62759, 62617, 62596, 63677,  # 40113_1
                      64241, 64943, 64774, 64775, 64180, 64181, 64884, # 40142_1 # some blanks that were bad?
                      65458, # 40142_2
-                     88098] # 40699_1
+                     88098, # 40699_1
+                     69559, 69557,  # BHD AMB, problematic wheel shown in job notes.
+                     # some more filtering of plots specific to secondaries!!!! from plots that were made in DataWuality paper 2 2026 v1
+                     69556, # (A BHD AMB THAT IS NEXT TO SOME OTHER TP's that were removed!
+                     87708, # BHDamb that is low
+                     78656,# (another BHD AMB that is low)
+                     68328,# BHDSPIKE too high
+                     69558,# BHDSPIKE too high
+                     71016,# (travertine carbonate has huge error bars)
+                     72524,# Travertine water is super low
+                     72918,# FIRI D too low
+                     62921, 65816, # FIRI I is really low...
+                     86758, 87600, # LAA1s is too low
+                     68695,       #FIRI I is too low
+                     60401, 60385,60388,60387,60399,60389,60400,60402,60386,60398] # FIRI-I's with some big prolem!!!
 
 df.loc[(df['TP'].isin(manual_remove_tps)), 'Comment'] = 'Manual outlier found using plotly, see plot. Sept 19, 2025 CBL'
 df.loc[(df['TP'].isin(manual_remove_tps)), 'Keep_Remove'] = 'Remove'

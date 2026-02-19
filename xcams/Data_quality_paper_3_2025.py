@@ -321,16 +321,52 @@ print('Differences between the wmean (for all waters blanks) and those found in 
 
 
 
+"""
+BOX and WHISKER comparing Organic Cellulose EA and ST versus AAA EA and ST blank
+"""
+import pandas as pd
+from scipy import stats
+import matplotlib.pyplot as plt
+import numpy as np
+
+df = pd.read_excel(f'C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_paper_2_2025_output/df_out_from_DQ_2_2025.xlsx')
 
 
+cell_ea = df.loc[df['Job::R'] == '40142/1_CELL_EA']
+cell_st = df.loc[df['Job::R'] == '40142/1_CELL_ST']
+aaa_ea  = df.loc[df['Job::R'] == '40142/2_AAA_EA']
+aaa_st  = df.loc[df['Job::R'] == '40142/2_AAA_ST']
+
+groups = [cell_ea, cell_st, aaa_ea, aaa_st]
+labels = ["CELL EA", "CELL ST", "AAA EA", "AAA ST"]
+
+values = [g['F_corrected_normed'].values for g in groups]
+
+fig, ax = plt.subplots(figsize=(6, 4))
+
+bp = ax.boxplot(values,
+    labels=labels,
+    showfliers=False,
+    patch_artist=True
+)
+
+# Optional box styling
+for box in bp["boxes"]:
+    box.set_facecolor("lightgray")
 
 
+ax.set_ylabel("Fraction Modern")
+ax.set_title("")
 
+ax.legend(frameon=False)
 
-
-
-
-
+plt.tight_layout()
+plt.savefig(
+    r'C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_paper_3_2025_output/blanks/Kapuni_organics_special_plot.png',
+    dpi=300,
+    bbox_inches="tight"
+)
+plt.show()
 
 
 

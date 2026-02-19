@@ -182,9 +182,10 @@ df.loc[(df['Job::R'] == '24889/7'), 'fm_wmean'] = 1.10494260115128
 df.loc[(df['Job::R'] == '24889/7'), 'fm_wmean_err'] = 1.10494260115128
 df.loc[(df['Job::R'] == '24889/7'), 'Collection_Date'] = 1991
 
-df.loc[(df['Job::R'] == '24889/9'), 'fm_wmean'] = 0.5582818749396
-df.loc[(df['Job::R'] == '24889/9'), 'fm_wmean_err'] = 0.05215952035661
+df.loc[(df['Job::R'] == '24889/9'), 'fm_wmean'] = 0.571824033726284
+df.loc[(df['Job::R'] == '24889/9'), 'fm_wmean_err'] = 0.00219575194978921
 df.loc[(df['Job::R'] == '24889/9'), 'Collection_Date'] = 1991
+
 
 organic_r = ['24889/4','24889/5','24889/7','24889/9']
 

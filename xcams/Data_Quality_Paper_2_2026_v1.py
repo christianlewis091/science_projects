@@ -41,12 +41,8 @@ df = pd.read_excel('C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_1_
 print(f"Dataframe length at t0 for this script: {len(df)}")
 df = df.loc[df['Keep_Remove'] == 'Keep']
 
-
-
 df.to_excel('C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_paper_2_2025_output/check1.xlsx') # wanted to check that TP 67815 was removed...
 print(f"Dataframe length at t1, after selecting only !Keeps!: {len(df)}")
-
-
 
 """
 Please find the scanned derivation of key formulas below in "I:\C14Data\Data Quality Paper\CBL_V4\Supporting Information and CoAuthor NOtes" by CBL
@@ -248,10 +244,6 @@ firi_i_all = df.loc[(df['Job::R'] == '24889/9')].copy()
 firi_i_all['Collection_Date'] = 1991
 firi_i_all['Concensus_fm'] = 0.5722
 
-plt.scatter(firi_i_all['TP'], firi_i_all['RTS_corrected'], label='all')
-
-
-
 firi_i_aaa_ea = df.loc[(df['Job::R'] == '24889/9') & (df['AAA_CELL'] =='AAA') & (df['EA_ST'] =='EA')].copy()
 firi_i_aaa_ea['Collection_Date'] = 1991
 firi_i_aaa_ea['Concensus_fm'] = 0.5722
@@ -271,9 +263,7 @@ firi_i_cell = df.loc[(df['Job::R'] == '24889/9') & (df['AAA_CELL'] =='Cellulose'
 firi_i_cell['Collection_Date'] = 1991
 firi_i_cell['Concensus_fm'] = 0.5722
 
-plt.scatter(firi_i_all['TP'], firi_i_all['RTS_corrected'], label='cell')
-plt.legend()
-plt.show()
+
 
 """
 I'm going to see if it works and then add the FIRI's etc...

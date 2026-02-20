@@ -246,11 +246,6 @@ df.loc[(df['F_corrected_normed'] == ''), 'Keep_Remove'] = 'Remove'
 df.loc[(df['F_corrected_normed_error'] == ''), 'Comment'] = 'Removed because absence of FM data'
 df.loc[(df['F_corrected_normed_error'] == ''), 'Keep_Remove'] = 'Remove'
 
-# editing some flags in the above excel sheet on October 14, 2024 based on some extra analysis
-# This chunk used to be in Data_quality_paper3.py but has now been moved
-df.loc[(df['Job::R'] == '40142/1_CELL_ST') & (df['TP'] > 63764) & (df['TP'] < 65183), 'Keep_Remove'] = 'Remove'
-df.loc[(df['Job::R'] == '40142/1_CELL_ST') & (df['TP'] > 63764) & (df['TP'] < 65183), 'Comment'] = 'editing some flags in the above excel sheet on October 14, 2024 based on some extra analysis'
-# length123 = df.loc[(df['Job::R'] == '40142/1_CELL_ST') & (df['Keep_Remove'] == 'Keep')]
 flagging_status_check('10_FM_dropna')
 df = pd.read_excel(r'C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_1_output/10_FM_dropna.xlsx')
 
@@ -410,7 +405,8 @@ For instance 14047_2 has one that has huge errors so it's not excluded, but its 
 We can use plotlys created above to quickly hover over and find where these points are...
 """
 # 24779 is sucrose where loads just don't have data!!!!
-manual_remove_tps = [67815, # 14047_2
+manual_remove_tps = [87832, # LAC1 water is low with big error bars likely small
+                     67815, # 14047_2
                      60764, # 14047_2
                             # 14047_12 has some ones that are in the -4 sigma range but RLIMS has no weird stuff to justify their removal, their large and the AMS ran well
                             # 24779_1 seems to be double plotting two data sets that are in the same R number. This is somthing to fix later, I won't worry about it as it's not a key secondary for the paper
@@ -436,6 +432,7 @@ manual_remove_tps = [67815, # 14047_2
                      86758, 87600, # LAA1s is too low
                      68695,       #FIRI I is too low
                      60401, 60385,60388,60387,60399,60389,60400,60402,60386,60398] # FIRI-I's with some big prolem!!!
+
 
 df.loc[(df['TP'].isin(manual_remove_tps)), 'Comment'] = 'Manual outlier found using plotly, see plot. Sept 19, 2025 CBL'
 df.loc[(df['TP'].isin(manual_remove_tps)), 'Keep_Remove'] = 'Remove'

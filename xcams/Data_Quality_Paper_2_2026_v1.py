@@ -34,7 +34,7 @@ def calc_delta_14C(FM, FM_err, colldate):
 
 def rts_to_permille_for_errors(rts, colldate):
     rts_to_FM  = (np.sqrt(rts**2)/0.95)*0.98780499
-    FM_to_permille = 1000*(rts_to_FM*np.exp((1950-1950)/8267))
+    FM_to_permille = 1000*(rts_to_FM*np.exp((1950-colldate)/8267))
     return FM_to_permille
 
 df = pd.read_excel('C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_1_output/12_manual_plotly_drop.xlsx', sheet_name= 'Whole Dataframe')
@@ -230,15 +230,15 @@ firi_e_aaa_st['Concensus_fm'] = 0.2307
 
 firi_g_all = df.loc[(df['Job::R'] == '24889/7')].copy()
 firi_g_all['Collection_Date'] = 1991
-firi_g_all['Concensus_fm'] = 0.8975
+firi_g_all['Concensus_fm'] = 0.993489
 
 firi_g_aaa_ea = df.loc[(df['Job::R'] == '24889/7') & (df['AAA_CELL'] =='AAA') & (df['EA_ST'] =='EA')].copy()
 firi_g_aaa_ea['Collection_Date'] = 1991
-firi_g_aaa_ea['Concensus_fm'] = 0.8975
+firi_g_aaa_ea['Concensus_fm'] = 0.993489
 
 firi_g_aaa_st = df.loc[(df['Job::R'] == '24889/7') & (df['AAA_CELL'] =='AAA') & (df['EA_ST'].isna())].copy()
 firi_g_aaa_st['Collection_Date'] = 1991
-firi_g_aaa_st['Concensus_fm'] = 0.8975
+firi_g_aaa_st['Concensus_fm'] = 0.993489
 
 firi_i_all = df.loc[(df['Job::R'] == '24889/9')].copy()
 firi_i_all['Collection_Date'] = 1991
@@ -448,6 +448,7 @@ for i in range(0, len(datasets)):
     chi2_red_num = np.sum((subset1['RTS_corrected']-wmean)**2/subset1['RTS_corrected_error']**2)
     chi2_red_denom = len(subset1)-1 # subtract number of groups in degrees of freedom calc.
     chi2_red = chi2_red_num/chi2_red_denom
+    chi2_red = round(chi2_red, 1)
     chi2_red_arr.append(chi2_red)
 
     """
@@ -472,13 +473,13 @@ for i in range(0, len(datasets)):
     sig_tot1 = np.sqrt(term1**2 + sigbw**2)
     sig_tot_arr.append(sig_tot1)
 
-
-    """
-    What is the WTWerror if we calculate it using sigma_bw, and how does it compare with the wheel to wheel error that is in use?
-    """
-
-    wtw_err = sigbw/(wmean*0.01)
-    wtw_err_arr.append(wtw_err)
+    #
+    # """
+    # What is the WTWerror if we calculate it using sigma_bw, and how does it compare with the wheel to wheel error that is in use?
+    # """
+    #
+    # wtw_err = sigbw/(wmean*0.01)
+    # wtw_err_arr.append(wtw_err)
 
 
     """
@@ -504,6 +505,7 @@ for i in range(0, len(datasets)):
     Conversion to D14C
     """
     colldate1 = subset1['Collection_Date'].iloc[0]
+    coll_date_arr.append(colldate1)
     delta_14C =  1000*(F_corrected_normed*np.exp((1950-colldate1)/8267)-1)
     delta_14C_err = 1000*(F_corrected_normed_error*np.exp((1950-colldate1)/8267))
     d14C_arr.append(delta_14C)
@@ -514,10 +516,9 @@ for i in range(0, len(datasets)):
     I want them converted to per mille, to be more comparable to Turnbull et al., 2015's 1.3 per mil AMS uncertainty
     """
 
-    sig_bw_pm_arr.append(rts_to_permille_for_errors(sigbw, colldate1))
+    sig_bw_pm_arr.append(rts_to_permille_for_errors(sigbw, colldate1)) ### DONT NEED TO CONVERT!!! MAYBE NOT NEEDED
     sig_ams_pm_arr.append(rts_to_permille_for_errors(term1, colldate1))
     sig_total_pm_arr.append(rts_to_permille_for_errors(sig_tot1, colldate1))
-
 
     """
     Draw a nice plot with residuals and FM's (we're not using D14C because the collection dates for FIRI are too difficult to pin down)...
@@ -606,8 +607,8 @@ output1 = pd.DataFrame({'R_number': R_num,
                         'Data Length (n)': length,
                         # 'RTS (wmean)': wmean_arr,
                         # 'RTS_err (mean)': straight_mean_unc_arr,
-                        # 'sigma_AMS': sig_ams_pm_arr,
-                        # 'Standard Deviation': stdev_arr,
+                        'sigma_AMS': sig_ams_pm_arr,
+                        'Standard Deviation': stdev_arr,
                         # 'Standard Deviation w Weighted mean': std_arr_2,
                         # 'Standard Error': sterr_arr,
                         'Chi2 Reduced': chi2_red_arr,
@@ -617,7 +618,7 @@ output1 = pd.DataFrame({'R_number': R_num,
                         'Fraction Modern': fm_arr,
                         'Fraction Modern Err':fm_err_arr,
                         # 'Calcd Wheel to Wheel Error': wtw_err_arr,
-                        # 'Collection Date': coll_date_arr,
+                        'Collection Date': coll_date_arr,
                         'D14C': d14C_arr,
                         'D14C_err': d14C_err_arr,
                         # 'sigma_total_converted_to_pm': sig_total_pm_arr

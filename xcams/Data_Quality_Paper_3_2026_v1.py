@@ -32,7 +32,7 @@ import mplcursors
 #
 def rts_to_permille_for_errors(rts, colldate):
     rts_to_FM  = (np.sqrt(rts**2)/0.95)*0.98780499
-    FM_to_permille = 1000*(rts_to_FM*np.exp((1950-1950)/8267))
+    FM_to_permille = 1000*(rts_to_FM*np.exp((1950-colldate)/8267))
     return FM_to_permille
 
 df = pd.read_excel('C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_1_output/12_manual_plotly_drop.xlsx', sheet_name= 'Whole Dataframe')
@@ -204,6 +204,7 @@ length = []
 desc_arr = []
 chi2_red_arr = []
 sig_bw_pm_arr = []
+sigbw_arr = []
 
 for i in range(0, len(datasets)):
 
@@ -257,7 +258,7 @@ for i in range(0, len(datasets)):
 
     colldate1 = df2['Collection_Date'].iloc[0]
     sig_bw_pm_arr.append(rts_to_permille_for_errors(sigbw, colldate1))
-
+    # sigbw_arr.append(sigbw)
     """
     Draw a nice plot with residuals and FM's (we're not using D14C because the collection dates for FIRI are too difficult to pin down)...
     """
@@ -294,7 +295,7 @@ output1 = pd.DataFrame({
                         'Description': desc_arr,
                         'Data Length (n)': length,
                         'Chi2 Reduced': chi2_red_arr,
-                        'sigma_bw_in_pm': sig_bw_pm_arr,
+                        'sigmabw_pm': sig_bw_pm_arr,
                         })
 
 output1.to_excel("C:/Users\clewis\IdeaProjects\GNS/xcams\Data_Quality_3_2026_v1_output/statistics_grouped.xlsx")

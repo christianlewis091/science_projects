@@ -31,7 +31,6 @@ def calc_delta_14C(FM, FM_err, colldate):
     return delta_14C, delta_14C_err
 
 # def calc_FM_from_d14C():
-
 def rts_to_permille_for_errors(rts, colldate):
     rts_to_FM  = (np.sqrt(rts**2)/0.95)*0.98780499
     FM_to_permille = 1000*(rts_to_FM*np.exp((1950-colldate)/8267))
@@ -247,9 +246,6 @@ firi_i_all['Concensus_fm'] = 0.5722
 firi_i_aaa_ea = df.loc[(df['Job::R'] == '24889/9') & (df['AAA_CELL'] =='AAA') & (df['EA_ST'] =='EA')].copy()
 firi_i_aaa_ea['Collection_Date'] = 1991
 firi_i_aaa_ea['Concensus_fm'] = 0.5722
-
-
-
 
 firi_i_cell_ea = df.loc[(df['Job::R'] == '24889/9') & (df['AAA_CELL'] =='Cellulose') & (df['EA_ST'] =='EA')].copy()
 firi_i_cell_ea['Collection_Date'] = 1991
@@ -492,6 +488,7 @@ for i in range(0, len(datasets)):
     F_corrected_normed_error = (np.sqrt(term1**2 + sigbw**2)/0.95)*0.98780499
     fm_arr.append(F_corrected_normed)
     fm_err_arr.append(F_corrected_normed_error)
+
     """
     IMPORTANT NOTE!
     Feb 19, 2025. 

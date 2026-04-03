@@ -8,6 +8,7 @@ plt.scatter(df['Elapsed Time (hours)'], df['Detector Pressure'], color='black')
 plt.plot(df['Elapsed Time (hours)'], df['Detector Pressure'],alpha=0.3, color='black')
 plt.xlabel('Time Elapsed (Hours)')
 plt.ylabel('Detector Pressure (Torr)')
+plt.ylim(16, 23)
 plt.axvline(x=302, color='red', alpha=0.3)
 plt.savefig(r"I:\XCAMS/3_measurements\C-14 AMS\TW data analysis\TW3550-3599\TW3597/detector_pressure.png", dpi=300, bbox_inches="tight")
 

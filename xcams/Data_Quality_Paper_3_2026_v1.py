@@ -149,8 +149,8 @@ df.loc[(df['Job::R'] == '26281/1'), 'fm_wmean_err'] = 0.00195897326437895
 df.loc[(df['Job::R'] == '26281/1'), 'Collection_Date'] = 1991
 
 
-inor_r = ['41347/2','41347/3','26281/1']
-# LAC, LAA, and FIRI-L (whalebone)
+inor_r = ['41347/2','41347/3']
+# LAC, LAA (bone removed on April 2, 2026)
 inorganic_materials = df.loc[(df['Job::R'].isin(inor_r))].copy()
 
 """
@@ -208,7 +208,6 @@ sigbw_arr = []
 
 for i in range(0, len(datasets)):
 
-
     # holdover from previous version
     df2 = datasets[i]
 
@@ -226,13 +225,14 @@ for i in range(0, len(datasets)):
 
     """
     CALCULATE RESIDUAL
-    !!! In previous sheet, the residual is calculated using RTS. This is beacuse it was done before the FM calculation,
-    which required sigbw. So we couldn't use FM until we had the wmean, which is required for the residual and the sig_bw (and the chi2)
+    !!! In previous sheet, the residual is calculated using RTS. 
+    This is because it was done before the FM calculation. The FM calc requires sigbw, which we are trying to calculate. So we couldn't use FM until we had the wmean, which is required for the residual and the sig_bw (and the chi2)
     But it shouldn't matter since they are scaled similarly
     """
-
+    # TODO subtract wtwerror
     df2['residual'] = ( df2['F_corrected_normed'] - df2['fm_wmean']) / df2['F_corrected_normed_error']
 
+    # TODO calculate new F_corrected_normed_error without wtw error and then calcuate new bw error, should be 1.34
 
     """
     Step 1, calculate chi2 reduced
@@ -253,7 +253,8 @@ for i in range(0, len(datasets)):
 
     else:
         term2 = np.sqrt(chi2_red - 1)
-        term1 = np.nanmean(df2['RTS_corrected_error'])
+        # term1 = np.nanmean(df2['RTS_corrected_error']) # TODO here I think is where we would put a normalization to FM.
+        term1 = np.nanmean(df2['RTS_corrected_error'])/np.nanmean(df2['RTS_corrected'])
         sigbw = term1*term2
 
     colldate1 = df2['Collection_Date'].iloc[0]

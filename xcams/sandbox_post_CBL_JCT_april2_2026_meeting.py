@@ -317,7 +317,7 @@ for i in range(0, len(datasets)):
 
     else:
         term2 = np.sqrt(chi2_red - 1)
-        # term1 = np.nanmean(df2['RTS_corrected_error'])
+        #term1 = np.nanmean(df2['RTS_corrected_error'])
         term1 = np.nanmean(df2['RTS_corrected_error'])/np.nanmean(df2['RTS_corrected']) # TODO here I think is where we would put a normalization to FM/RTS
         sigbw = term1*term2
     sigbw_arr.append(sigbw)
@@ -395,7 +395,6 @@ output1.to_excel("C:/Users\clewis\IdeaProjects\GNS/xcams\sandbox_post_April3_mee
 # IMPORTANT! Air secondaries are calculated based on flask ONLY but wtw error is mapped on ALL! Flask only reindexed later for individual secondaries
 df = df.merge(output1[['sigmabw_rts','sigmabw_pm','Group']], on='Group', how='left')
 
-
 # One important thing to note:
 # At this point, the blanks and Travertine were not included in the grouped calculation of sigbw.
 # We know the Travertine is bad, so we don't want it in there.
@@ -405,19 +404,13 @@ df = df.merge(output1[['sigmabw_rts','sigmabw_pm','Group']], on='Group', how='le
 # - Why not just leave the travertine out completely? We want to be able to discuss data before and after travertine incorporation, show how it was variable
 
 # grab values and map onto other rows
-grab_airs = df.loc[df["Group"] == "Air", ["sigmabw_rts", "sigmabw_pm"]].iloc[0]
-df.loc[df["Group"] == "Air Blank", ["sigmabw_rts", "sigmabw_pm"]] = grab_airs.values
+# NO WTW errors needed for blanks!
 
 grab_inorganic = df.loc[df["Group"] == "Inorganic", ["sigmabw_rts", "sigmabw_pm"]].iloc[0]
-df.loc[df["Group"] == "Inorganic Blank", ["sigmabw_rts", "sigmabw_pm"]] = grab_inorganic.values
 df.loc[df["Job::R"] == "14047/2", ["sigmabw_rts", "sigmabw_pm"]] = grab_inorganic.values
 
 grab_water = df.loc[df["Group"] == "Water", ["sigmabw_rts", "sigmabw_pm"]].iloc[0]
-df.loc[df["Group"] == "Water Blank", ["sigmabw_rts", "sigmabw_pm"]] = grab_water.values
 df.loc[df["Job::R"] == "14047/12", ["sigmabw_rts", "sigmabw_pm"]] = grab_water.values
-
-grab_organic = df.loc[df["Group"] == "Organic", ["sigmabw_rts", "sigmabw_pm"]].iloc[0]
-df.loc[df["Group"] == "Organic Blank", ["sigmabw_rts", "sigmabw_pm"]] = grab_organic.values
 
 print()
 print(f"Lets make sure we haven't lost any data: Length after mergeing big gruop sigma_bws: {len(df)}")
@@ -425,252 +418,282 @@ print()
 
 print(df.columns)
 dfprint = df[['Job::R','Group', 'F_corrected_normed', 'F_corrected_normed_error', 'DELTA 14C',
-              'DELTA 14C_Error',
-         'Reference for Collection Date', 'Expected FM', 'wmean', 'residual',
-         'sigmabw_rts', 'sigmabw_pm']]
+              'DELTA 14C_Error', 'Reference for Collection Date', 'Expected FM', 'wmean', 'residual', 'sigmabw_rts', 'sigmabw_pm']]
 
 dfprint.to_excel("C:/Users\clewis\IdeaProjects\GNS/xcams\sandbox_post_April3_meeting_output/sigma_bw_merged_to_df.xlsx")
 # having some problems with downstream calculations probably related to this mapping above
-# TODO
-# TODO looking at the output above and filtering for where sigma_bw is 0 or nan,
-# TODO RPO, Removed, Bone, Oranics Blamk, Tuning are all missing the sigma_bw and spgma_bw in pm. Mapping above gone wrong
-# TODO ALSO, FIRI D and FIRI I are not indexing properly, have same data for all pretreatment subsets. Need to troubleshoot!
 
-#
-# """
-#  # STEP 2.2: INDEX BASED ON PRETREATMENTS
-#  - - Then, we've been asked to index/seperate a lot of the organics based on pre-treatment. This will be a chunk of messy code
-#
-# # I'm taking this from Data_Quality_Paper_2_2026_v1.py
-# """
-#
-# kapuni = df.loc[(df['Job::R'] == '40699/1')].copy()
-#
-# airdeadCO2 = df.loc[(df['Job::R'] == '40430/3')].copy()
-# bhdamb_flask = df.loc[(df['Job::R'] == '40430/1') & (df['preptype'] == 'FLASK')].copy()
-# bhdspike_flask = df.loc[(df['Job::R'] == '40430/2') & (df['preptype'] == 'FLASK')].copy()
-#
-# carr_marb_carb = df.loc[(df['Job::R'] == '14047/1')].copy()
-# travertine_carb = df.loc[(df['Job::R'] == '14047/2')].copy()
-# lac1carb = df.loc[(df['Job::R'] == '41347/2')].copy()
-# laa1carb = df.loc[(df['Job::R'] == '41347/3')].copy()
-# firi_l = df.loc[(df['Job::R'] == '26281/1')].copy()
-#
-# carr_marb_water = df.loc[(df['Job::R'] == '14047/11')].copy()
-# travertine_water = df.loc[(df['Job::R'] == '14047/12')].copy()
-# lac1water = df.loc[(df['Job::R'] == '41347/12')].copy()
-# laa1water = df.loc[(df['Job::R'] == '41347/13')].copy()
-#
-# kauri_all = df.loc[((df['Job::R'] == '40142/1') | (df['Job::R'] == '40142/2'))].copy()
-# kauri_aaa = df.loc[(df['Job::R'] == '40142/2')].copy()
-# kauri_cell = df.loc[(df['Job::R'] == '40142/1')].copy()
-# kauri_aaa_ea = df.loc[((df['Job::R'] == '40142/2') & (df['EA_ST'] =='EA'))].copy()
-# kauri_aaa_st = df.loc[((df['Job::R'] == '40142/2') & (df['EA_ST'].isna()))].copy()
-# kauri_cell_ea = df.loc[((df['Job::R'] == '40142/1') & (df['EA_ST'] =='EA'))].copy()
-# kauri_cell_st = df.loc[((df['Job::R'] == '40142/1') & (df['EA_ST'].isna()))].copy()
-# firi_d_all = df.loc[(df['Job::R'] == '24889/4')].copy()
-# firi_d_aaa_ea = df.loc[(df['Job::R'] == '24889/4') & (df['AAA_CELL'] =='AAA') & (df['EA_ST'] =='EA')].copy()
-# firi_d_aaa_st = df.loc[(df['Job::R'] == '24889/4') & (df['AAA_CELL'] =='AAA') & (df['EA_ST'].isna())].copy()
-# firi_d_cell_ea = df.loc[(df['Job::R'] == '24889/4') & (df['AAA_CELL'] =='Cellulose') & (df['EA_ST'] =='EA')].copy()
-# firi_d_cell_st = df.loc[(df['Job::R'] == '24889/4') & (df['AAA_CELL'] =='Cellulose') & (df['EA_ST'].isna())].copy()
-# firi_d_cell = df.loc[(df['Job::R'] == '24889/4') & (df['AAA_CELL'] =='Cellulose')].copy()
-# firi_d_aaa = df.loc[(df['Job::R'] == '24889/4') & (df['AAA_CELL'] =='AAA')].copy()
-#
-# firi_d_rpo = df.loc[(df['Job::R'] == '24889/14')].copy()
-#
-# firi_e_aaa_st = df.loc[(df['Job::R'] == '24889/5') & (df['AAA_CELL'] =='AAA') & (df['EA_ST'].isna())].copy()
-#
-# firi_g_all = df.loc[(df['Job::R'] == '24889/7')].copy()
-# firi_g_aaa_ea = df.loc[(df['Job::R'] == '24889/7') & (df['AAA_CELL'] =='AAA') & (df['EA_ST'] =='EA')].copy()
-# firi_g_aaa_st = df.loc[(df['Job::R'] == '24889/7') & (df['AAA_CELL'] =='AAA') & (df['EA_ST'].isna())].copy()
-#
-# firi_i_all = df.loc[(df['Job::R'] == '24889/9')].copy()
-# firi_i_aaa_ea = df.loc[(df['Job::R'] == '24889/9') & (df['AAA_CELL'] =='AAA') & (df['EA_ST'] =='EA')].copy()
-# firi_i_cell_ea = df.loc[(df['Job::R'] == '24889/9') & (df['AAA_CELL'] =='Cellulose') & (df['EA_ST'] =='EA')].copy()
-# firi_i_aaa = df.loc[(df['Job::R'] == '24889/9') & (df['AAA_CELL'] =='AAA')].copy()
-# firi_i_cell = df.loc[(df['Job::R'] == '24889/9') & (df['AAA_CELL'] =='Cellulose')].copy()
-#
-# datasets = [kapuni,airdeadCO2, bhdamb_flask, bhdspike_flask,
-#             carr_marb_carb, travertine_carb, lac1carb, laa1carb,
-#             carr_marb_water, travertine_water, lac1water, laa1water,
-#             firi_l,
-#             kauri_all,
-#             kauri_aaa, kauri_aaa_ea, kauri_aaa_st,
-#             kauri_cell, kauri_cell_ea, kauri_cell_st,
-#             firi_d_all, firi_d_aaa_ea, firi_d_aaa_st, firi_d_cell_ea, firi_d_cell_st, firi_d_cell, firi_d_aaa,
-#             firi_d_rpo,
-#             firi_e_aaa_st,
-#             firi_g_all, firi_g_aaa_ea, firi_g_aaa_st,
-#             firi_i_all, firi_i_aaa_ea, firi_i_cell_ea, firi_i_aaa, firi_i_cell]
-#
-# names = ['KAPUNI','AIRDEADCO2','BHDAMB_FLASK','BHDSPIKE_FLASK',
-#          'CARR_MARB_CARB','TRAV_CARB','LAC1_CARB','LAA1_CARB',
-#          'CARR_MARB_WATER','TRAV_WATER','LAC1_WATER','LAA1_WATER',
-#          'FIRI_L',
-#          'KAURI_ALL',
-#          'KAURI_AAA','KAURI_AAA_EA','KAURI_AAA_ST',
-#          'KAURI_CELL','KAURI_CELL_EA','KAURI_CELL_ST',
-#          'FIRI_D_ALL', 'FIRI_D_AAA_EA','FIRI_D_AAA_ST','FIRI_D_CELL_EA','FIRI_D_CELL_ST', 'FIRI_D_CELL','FIRI_D_AAA',
-#          'FIRI_D_RPO',
-#          'FIRI_E_AAA_EA',
-#          'FIRI_G_ALL','FIRI_G_AAA_EA','FIRI_G_AAA_ST',
-#          'FIRI_I_ALL','FIRI_I_AAA_EA', 'FIRI_I_CELL_EA', 'FIRI_I_AAA','FIRI_I_CELL']
-#
-# """
-# lets loop through the R numbers and get means and stats assigned to each value in the database...
-# The loop will compare R numbers from the 'seconds.xlsx' with the R numbers from the dataframe
-# """
-#
-# # set output for plotly file later
-# outdir = r"C:/Users\clewis\IdeaProjects\GNS/xcams\sandbox_post_April3_meeting_output/plotly_check"
-#
-# # create arrays to fill
-# group_name = []
-# R_num = []
-# desc_arr = []
-# length = []
-# wmean_arr = []
-# chi2_red_arr = []
-# fm_arr = []
-# fm_err_arr = []
-# d14C_arr = []
-# d14C_err_arr = []
-# sig_total_pm_arr = []
-#
-# for i in range(0, len(datasets)):
-#
-#     # Create figure and 2 vertical subplots
-#     fig, axs = plt.subplots(2, 1, figsize=(6, 8), sharex=True)  # 3 rows, 1 column
-#
-#     # holdover from previous version
-#     df2 = datasets[i]
-#
-#     R_num.append(df2['Job::R'].iloc[0]) # append R, gruop name, description, length
-#     group_name.append(df2['Group'].iloc[0])
-#     desc_arr.append(names[i])
-#     length.append(len(df2))
-#
-#     """
-#     Calculate chi2 reduced
-#     """
-#     chi2_red_num = np.sum((df2['RTS_corrected']-df2['wmean'])**2/df2['RTS_corrected_error']**2)
-#     chi2_red_denom = len(df2)-1 # subtract number of groups in degrees of freedom calc.
-#     chi2_red = chi2_red_num/chi2_red_denom
-#     chi2_red_arr.append(chi2_red)
-#
-#     """
-#     Conversion to Fraction modern using NEW sigma-bw calculated in first segment
-#     We're only converting to get the mean FM, so I don't need to map the calc onto every row
-#     RLIMS EQN: If(IsEmpty(rts_stds_av) = False; (RTS_corrected / (Standard Specific Activity Constant * rts_stds_av)) *( ((1 + delta13C_stds_av/ 1000) / (1 + delta13C_In_Calculation / 1000)) ^Normalization_exp_factor )* Standard 13C Value Constant;"")
-#     # The last term is the 13C value constant, a go-between for conventions - its so confusing
-#     """
-#     wm = (df2['wmean'].iloc[0])
-#     sigbw = (df2['sigmabw_rts'].iloc[0])
-#     F_corrected_normed = (wm/0.95)*0.98780499 #wmean converted to FM
-#     fm_arr.append(F_corrected_normed)
-#
-#     term1 = np.nanmean(df2['RTS_corrected_error'])
-#     F_corrected_normed_error = (np.sqrt(term1**2 + sigbw**2)/0.95)*0.98780499
-#     fm_err_arr.append(F_corrected_normed_error)
-#
-#     """
-#     Conversion to D14C
-#     """
-#     colldate1 = df2['Collection Date_y'].iloc[0]
-#     delta_14C =  1000*(F_corrected_normed*np.exp((1950-colldate1)/8267)-1)
-#     delta_14C_err = 1000*(F_corrected_normed_error*np.exp((1950-colldate1)/8267))
-#     d14C_arr.append(delta_14C)
-#     d14C_err_arr.append(delta_14C_err)
-#
-#     """
-#     Draw a nice plot with residuals and FM's (we're not using D14C because the collection dates for FIRI are too difficult to pin down)...
-#     """
-#
-#     # Residuals on the bottom
-#     axs[1].scatter(df2['TP'], df2['residual'], color='black', linestyle='')
-#     axs[1].axhline(y=0, color='black')
-#
-#     # PLOTTED FMS ARE NOT RECALCULATED WITH SIGMA_BW. ONLY SUMMARY STARTS ARE!!!!!
-#     # Second subplot
-#     df2['F_corrected_normed'] = pd.to_numeric(df['F_corrected_normed'], errors="coerce")
-#     df2['F_corrected_normed_error'] = pd.to_numeric(df['F_corrected_normed_error'], errors="coerce")
-#     df2['TP'] = pd.to_numeric(df['TP'], errors="coerce")
-#     axs[0].axhline(y=F_corrected_normed, color='black') # see above, I convert wmean to FM space
-#     concval = df2['Expected FM'].iloc[0]
-#     axs[0].axhline(y=concval, color='red', alpha=0.5)
-#
-#     axs[0].errorbar(df2['TP'], df2['F_corrected_normed'], yerr=df2['F_corrected_normed_error'], color='black', linestyle='', label = f'{names[i]}', marker='o')
-#     axs[0].legend()
-#     axs[1].set_ylabel('residual: (x$_i$ - mean) / \u03C3')
-#     axs[0].set_ylabel('Fraction Modern')
-#
-#     stats_text = (
-#         f"$n$ = {len(df2)}\n"
-#         f"$\\chi^2 red$ = {chi2_red:.2f}\n"
-#         f"wmean = {F_corrected_normed:.4f}"
-#     )
-#
-#     axs[0].text(
-#         0.05, 0.95,                # position (relative axes coords)
-#         stats_text,
-#         transform=axs[0].transAxes,
-#         fontsize=10,
-#         verticalalignment='top',
-#         bbox=dict(boxstyle='round', facecolor='white', alpha=0.8)
-#     )
-#
-#     plt.tight_layout()
-#     plt.savefig(f'C:/Users\clewis\IdeaProjects\GNS/xcams\sandbox_post_April3_meeting_output/mpl_output/{i}.png',
-#                 dpi=300, bbox_inches="tight")
-#     plt.close()
-#
-# output1 = pd.DataFrame({'R_number': R_num,
-#                         'Description': desc_arr,
-#                         'Data Length (n)': length,
-#                         'Chi2 Reduced': chi2_red_arr,
-#                         'Fraction Modern': fm_arr,
-#                         'Fraction Modern Err':fm_err_arr,
-#                         'D14C': d14C_arr,
-#                         'D14C_err': d14C_err_arr,
-#                         })
-#
-# # NOW RUN SOME T-TESTS BEFORE OUTPUTTING THE RESULTS!
-# results_lines = []
-#
-# # EA versus ST shown via FIRI-D's
-# t1, p1 = stats.ttest_ind(firi_d_cell_ea['F_corrected_normed'], firi_d_cell_st['F_corrected_normed'])
-# results_lines.append(
-#     f"The results are t={t1:.3f} and p={p1:.4f} for FIRI_D_CELL_EA and FIRI_D_CELL_ST. Results <0.05 shows there is no observable difference")
-#
-# # EA versus ST shown via FIRI-G's
-# t1, p1 = stats.ttest_ind(firi_g_aaa_ea['F_corrected_normed'], firi_g_aaa_st['F_corrected_normed'])
-# results_lines.append(
-#     f"The results are t={t1:.3f} and p={p1:.4f} for FIRI_G_CELL_EA and FIRI_G_CELL_ST. Results <0.05 shows there is no observable difference")
-#
-# results_lines.append('#The results above show that there is no observable difference between EA and ST for organic pretreatments. Since thats settled, we can recombined all and do t-tests with the AAA and Cell main groupings'
-#                      )
-#
-# # CELL vs AAA using FIRI D
-# t1, p1 = stats.ttest_ind(firi_d_cell['F_corrected_normed'], firi_d_aaa['F_corrected_normed'])
-# results_lines.append(
-#     f"The results are t={t1:.3f} and p={p1:.4f} for FIRI_D_CELL and FIRI_D_AAA. Results <0.05 shows there is no observable difference")
-#
-# # CELL vs AAA using FIRI I
-# t1, p1 = stats.ttest_ind(firi_i_aaa['F_corrected_normed'], firi_i_cell['F_corrected_normed'])
-# results_lines.append(
-#     f"The results are t={t1:.3f} and p={p1:.4f} for FIRI_I_CELL and FIRI_I_AAA. Results <0.05 shows there is no observable difference")
-#
-#
-# results_df = pd.DataFrame({"T-test Results": results_lines})
-#
-# output_dir = (f'C:/Users\clewis\IdeaProjects\GNS/xcams\sandbox_post_April3_meeting_output/statistics.xlsx')
-#
-# # Write to Excel
-# with pd.ExcelWriter(output_dir, engine="openpyxl", mode="w") as writer:
-#     output1.to_excel(writer, sheet_name="Stats Table", index=False)
-#     results_df.to_excel(writer, sheet_name="T-test results", index=False)
-#
-#
+
+"""
+ # STEP 2.2: INDEX BASED ON PRETREATMENTS
+ - - Then, we've been asked to index/seperate a lot of the organics based on pre-treatment. This will be a chunk of messy code
+
+# I'm taking this from Data_Quality_Paper_2_2026_v1.py
+"""
+
+kapuni = df.loc[(df['Job::R'] == '40699/1')].copy()
+
+airdeadCO2 = df.loc[(df['Job::R'] == '40430/3')].copy()
+bhdamb_flask = df.loc[(df['Job::R'] == '40430/1') & (df['preptype'] == 'FLASK')].copy()
+bhdspike_flask = df.loc[(df['Job::R'] == '40430/2') & (df['preptype'] == 'FLASK')].copy()
+
+carr_marb_carb = df.loc[(df['Job::R'] == '14047/1')].copy()
+travertine_carb = df.loc[(df['Job::R'] == '14047/2')].copy()
+lac1carb = df.loc[(df['Job::R'] == '41347/2')].copy()
+laa1carb = df.loc[(df['Job::R'] == '41347/3')].copy()
+firi_l = df.loc[(df['Job::R'] == '26281/1')].copy()
+
+carr_marb_water = df.loc[(df['Job::R'] == '14047/11')].copy()
+travertine_water = df.loc[(df['Job::R'] == '14047/12')].copy()
+lac1water = df.loc[(df['Job::R'] == '41347/12')].copy()
+laa1water = df.loc[(df['Job::R'] == '41347/13')].copy()
+
+kauri_all = df.loc[((df['Job::R'] == '40142/1') | (df['Job::R'] == '40142/2'))].copy()
+kauri_aaa = df.loc[(df['Job::R'] == '40142/2')].copy()
+kauri_cell = df.loc[(df['Job::R'] == '40142/1')].copy()
+kauri_aaa_ea = df.loc[((df['Job::R'] == '40142/2') & (df['EA_ST'] =='EA'))].copy()
+kauri_aaa_st = df.loc[((df['Job::R'] == '40142/2') & (df['EA_ST'].isna()))].copy()
+kauri_cell_ea = df.loc[((df['Job::R'] == '40142/1') & (df['EA_ST'] =='EA'))].copy()
+kauri_cell_st = df.loc[((df['Job::R'] == '40142/1') & (df['EA_ST'].isna()))].copy()
+firi_d_all = df.loc[(df['Job::R'] == '24889/4')].copy()
+firi_d_aaa_ea = df.loc[(df['Job::R'] == '24889/4') & (df['AAA_CELL'] =='AAA') & (df['EA_ST'] =='EA')].copy()
+firi_d_aaa_st = df.loc[(df['Job::R'] == '24889/4') & (df['AAA_CELL'] =='AAA') & (df['EA_ST'].isna())].copy()
+firi_d_cell_ea = df.loc[(df['Job::R'] == '24889/4') & (df['AAA_CELL'] =='Cellulose') & (df['EA_ST'] =='EA')].copy()
+firi_d_cell_st = df.loc[(df['Job::R'] == '24889/4') & (df['AAA_CELL'] =='Cellulose') & (df['EA_ST'].isna())].copy()
+firi_d_cell = df.loc[(df['Job::R'] == '24889/4') & (df['AAA_CELL'] =='Cellulose')].copy()
+firi_d_aaa = df.loc[(df['Job::R'] == '24889/4') & (df['AAA_CELL'] =='AAA')].copy()
+
+firi_d_rpo = df.loc[(df['Job::R'] == '24889/14')].copy()
+
+firi_e_aaa_st = df.loc[(df['Job::R'] == '24889/5') & (df['AAA_CELL'] =='AAA') & (df['EA_ST'].isna())].copy()
+
+firi_g_all = df.loc[(df['Job::R'] == '24889/7')].copy()
+firi_g_aaa_ea = df.loc[(df['Job::R'] == '24889/7') & (df['AAA_CELL'] =='AAA') & (df['EA_ST'] =='EA')].copy()
+firi_g_aaa_st = df.loc[(df['Job::R'] == '24889/7') & (df['AAA_CELL'] =='AAA') & (df['EA_ST'].isna())].copy()
+
+firi_i_all = df.loc[(df['Job::R'] == '24889/9')].copy()
+firi_i_aaa_ea = df.loc[(df['Job::R'] == '24889/9') & (df['AAA_CELL'] =='AAA') & (df['EA_ST'] =='EA')].copy()
+firi_i_cell_ea = df.loc[(df['Job::R'] == '24889/9') & (df['AAA_CELL'] =='Cellulose') & (df['EA_ST'] =='EA')].copy()
+firi_i_aaa = df.loc[(df['Job::R'] == '24889/9') & (df['AAA_CELL'] =='AAA')].copy()
+firi_i_cell = df.loc[(df['Job::R'] == '24889/9') & (df['AAA_CELL'] =='Cellulose')].copy()
+
+datasets = [kapuni,airdeadCO2, bhdamb_flask, bhdspike_flask,
+            carr_marb_carb, travertine_carb, lac1carb, laa1carb,
+            carr_marb_water, travertine_water, lac1water, laa1water,
+            firi_l,
+            kauri_all,
+            kauri_aaa, kauri_aaa_ea, kauri_aaa_st,
+            kauri_cell, kauri_cell_ea, kauri_cell_st,
+            firi_d_all, firi_d_aaa_ea, firi_d_aaa_st, firi_d_cell_ea, firi_d_cell_st, firi_d_cell, firi_d_aaa,
+            firi_d_rpo,
+            firi_e_aaa_st,
+            firi_g_all, firi_g_aaa_ea, firi_g_aaa_st,
+            firi_i_all, firi_i_aaa_ea, firi_i_cell_ea, firi_i_aaa, firi_i_cell]
+
+names = ['KAPUNI','AIRDEADCO2','BHDAMB_FLASK','BHDSPIKE_FLASK',
+         'CARR_MARB_CARB','TRAV_CARB','LAC1_CARB','LAA1_CARB',
+         'CARR_MARB_WATER','TRAV_WATER','LAC1_WATER','LAA1_WATER',
+         'FIRI_L',
+         'KAURI_ALL',
+         'KAURI_AAA','KAURI_AAA_EA','KAURI_AAA_ST',
+         'KAURI_CELL','KAURI_CELL_EA','KAURI_CELL_ST',
+         'FIRI_D_ALL', 'FIRI_D_AAA_EA','FIRI_D_AAA_ST','FIRI_D_CELL_EA','FIRI_D_CELL_ST', 'FIRI_D_CELL','FIRI_D_AAA',
+         'FIRI_D_RPO',
+         'FIRI_E_AAA_EA',
+         'FIRI_G_ALL','FIRI_G_AAA_EA','FIRI_G_AAA_ST',
+         'FIRI_I_ALL','FIRI_I_AAA_EA', 'FIRI_I_CELL_EA', 'FIRI_I_AAA','FIRI_I_CELL']
+
+"""
+lets loop through the R numbers and get means and stats assigned to each value in the database...
+The loop will compare R numbers from the 'seconds.xlsx' with the R numbers from the dataframe
+"""
+
+# set output for plotly file later
+outdir = r"C:/Users\clewis\IdeaProjects\GNS/xcams\sandbox_post_April3_meeting_output/plotly_check"
+
+# set inital value for wmean so i can calc residual later
+df['wmean_subsets'] = -999
+
+group_name = []
+R_num = []
+desc_arr = []
+length = []
+wmean_arr = []
+chi2_red_arr = []
+fm_arr = []
+fm_err_arr = []
+coll_date_arr = []
+d14C_arr = []
+d14C_err_arr = []
+
+for i in range(0, len(datasets)):
+
+    # Create figure and 2 vertical subplots
+    fig, axs = plt.subplots(2, 1, figsize=(6, 8), sharex=True)  # 3 rows, 1 column
+
+    # holdover from previous version
+    df2 = datasets[i]
+
+    R_num.append(df2['Job::R'].iloc[0]) # append R number, description, group name
+    desc_arr.append(names[i])
+    group_name.append(df2['Group'].iloc[0])
+    length.append(len(df2))
+
+    """
+    The weighted mean comes from Albert's original version of the paper. I've copied his formula here which comes from
+    #  "I:\C14Data\Data Quality Paper\AZ_V0\Fig 1.xlsx"
+    We need to recalculate wmean since we're dealing with subsets now, especially for the many permutations or organic pretreatment subsets
+    """
+    # renaming as holdover from previous version
+    subset1 = df2
+
+    wmean_num = np.sum(subset1['RTS_corrected']/subset1['RTS_corrected_error']**2)  #  "I:\C14Data\Data Quality Paper\AZ_V0\Fig 1.xlsx"
+    wmean_dem = np.sum(1/subset1['RTS_corrected_error']**2)
+    wmean = wmean_num / wmean_dem
+    wmean_arr.append(wmean)
+
+    """
+    Calculate residual: again, while we've already done this in previous section, we're re-doing it relative to wmean of subset for pretreatment permutations
+    """
+    subset1['residual'] = ( subset1['RTS_corrected'] - wmean ) / subset1['RTS_corrected_error']
+
+    """
+    Calculate chi2 reduced for subset
+    """
+    # calc chi2
+    chi2_red_num = np.sum((subset1['RTS_corrected']-wmean)**2/subset1['RTS_corrected_error']**2)
+    chi2_red_denom = len(subset1)-1 # subtract number of groups in degrees of freedom calc.
+    chi2_red = chi2_red_num/chi2_red_denom
+    chi2_red_arr.append(chi2_red)
+
+    """
+   Conversion to Fraction modern
+   RLIMS EQN: If(IsEmpty(rts_stds_av) = False; (RTS_corrected / (Standard Specific Activity Constant * rts_stds_av)) *( ((1 + delta13C_stds_av/ 1000) / (1 + delta13C_In_Calculation / 1000)) ^Normalization_exp_factor )* Standard 13C Value Constant;"")
+   # The last term is the 13C value constant, a go-between for conventions - its so confusing
+   """
+
+    term1 = np.nanmean(subset1['RTS_corrected_error']) # why is it written like this? Legacy. From Data Qualiyt Paper_2 2026 v1.py
+
+    subset1["sigmabw_rts"] = subset1["sigmabw_rts"].fillna(0) # This line is important. For blanks, and Kapuni (tuning), no WTW error is applied. But if there is no data there, the rest of the calcualtions won't run. So we just need to set it to 0.
+    sigbw_rts = (subset1['sigmabw_rts'].iloc[0])
+
+    F_corrected_normed = (wmean/0.95)*0.98780499 #wmean converted to FM
+    F_corrected_normed_error = (np.sqrt(term1**2 + sigbw_rts**2)/0.95)*0.98780499
+    fm_arr.append(F_corrected_normed)
+    fm_err_arr.append(F_corrected_normed_error)
+
+    """
+    Conversion to D14C
+    """
+    colldate1 = subset1['Collection Date_y'].iloc[0]
+    coll_date_arr.append(colldate1)
+    delta_14C =  1000*(F_corrected_normed*np.exp((1950-colldate1)/8267)-1)
+    delta_14C_err = 1000*(F_corrected_normed_error*np.exp((1950-colldate1)/8267))
+    d14C_arr.append(delta_14C)
+    d14C_err_arr.append(delta_14C_err)
+
+    """
+    Draw a nice plot with residuals and FM's (we're not using D14C because the collection dates for FIRI are too difficult to pin down)...
+    """
+
+    # Residuals on the bottom
+    axs[1].scatter(subset1['TP'], subset1['residual'], color='black', linestyle='')
+    axs[1].axhline(y=0, color='black')
+
+    # Second subplot
+    subset1['F_corrected_normed'] = pd.to_numeric(df['F_corrected_normed'], errors="coerce")
+    subset1['F_corrected_normed_error'] = pd.to_numeric(df['F_corrected_normed_error'], errors="coerce")
+    subset1['TP'] = pd.to_numeric(df['TP'], errors="coerce")
+    axs[0].axhline(y=F_corrected_normed, color='black') # see above, I convert wmean to FM space
+    concval = subset1['Expected FM'].iloc[0]
+    axs[0].axhline(y=concval, color='red', alpha=0.5)
+
+    axs[0].errorbar(subset1['TP'], subset1['F_corrected_normed'], yerr=subset1['F_corrected_normed_error'], color='black', linestyle='', label = f'{names[i]}', marker='o')
+    axs[0].legend()
+    axs[1].set_ylabel('residual: (x$_i$ - mean) / \u03C3')
+    axs[0].set_ylabel('Fraction Modern')
+
+    stats_text = (
+        f"$n$ = {len(df2)}\n"
+        f"$\\chi^2 red$ = {chi2_red:.2f}\n"
+        f"wmean = {F_corrected_normed:.4f}"
+    )
+
+    axs[0].text(
+        0.05, 0.95,                # position (relative axes coords)
+        stats_text,
+        transform=axs[0].transAxes,
+        fontsize=10,
+        verticalalignment='top',
+        bbox=dict(boxstyle='round', facecolor='white', alpha=0.8)
+    )
+
+    plt.tight_layout()
+
+    """
+    IF YOU WANT TO HOVER OVER TO CHECK, USE BOX BELOW
+    """
+    # Connect the mplcursors library to the plot
+    # mplcursors.cursor(hover=True)
+    # plt.show()
+    """
+    """
+
+    plt.savefig(f'C:/Users\clewis\IdeaProjects\GNS/xcams\sandbox_post_April3_meeting_output/mpl_output/{i}.png',
+                dpi=300, bbox_inches="tight")
+    plt.close()
+
+output1 = pd.DataFrame({'Group': group_name,
+                        'Job::R': R_num,
+                        'Description': desc_arr,
+                        'n': length,
+                        'wmean': wmean_arr,
+                        'chi2red': chi2_red_arr,
+                        'Fraction Modern': fm_arr,
+                        'Fraction Modern Err':fm_err_arr,
+                        'Collection Date': coll_date_arr,
+                        'D14C': d14C_arr,
+                        'D14C_err': d14C_err_arr,
+                        })
+
+
+# NOW RUN SOME T-TESTS BEFORE OUTPUTTING THE RESULTS!
+results_lines = []
+
+# EA versus ST shown via FIRI-D's
+t1, p1 = stats.ttest_ind(firi_d_cell_ea['F_corrected_normed'], firi_d_cell_st['F_corrected_normed'])
+results_lines.append(
+    f"The results are t={t1:.3f} and p={p1:.4f} for FIRI_D_CELL_EA and FIRI_D_CELL_ST. Results <0.05 shows there is no observable difference")
+
+# EA versus ST shown via FIRI-G's
+t1, p1 = stats.ttest_ind(firi_g_aaa_ea['F_corrected_normed'], firi_g_aaa_st['F_corrected_normed'])
+results_lines.append(
+    f"The results are t={t1:.3f} and p={p1:.4f} for FIRI_G_CELL_EA and FIRI_G_CELL_ST. Results <0.05 shows there is no observable difference")
+
+results_lines.append('#The results above show that there is no observable difference between EA and ST for organic pretreatments. Since thats settled, we can recombined all and do t-tests with the AAA and Cell main groupings'
+                     )
+
+# CELL vs AAA using FIRI D
+t1, p1 = stats.ttest_ind(firi_d_cell['F_corrected_normed'], firi_d_aaa['F_corrected_normed'])
+results_lines.append(
+    f"The results are t={t1:.3f} and p={p1:.4f} for FIRI_D_CELL and FIRI_D_AAA. Results <0.05 shows there is no observable difference")
+
+# CELL vs AAA using FIRI I
+t1, p1 = stats.ttest_ind(firi_i_aaa['F_corrected_normed'], firi_i_cell['F_corrected_normed'])
+results_lines.append(
+    f"The results are t={t1:.3f} and p={p1:.4f} for FIRI_I_CELL and FIRI_I_AAA. Results <0.05 shows there is no observable difference")
+
+
+results_df = pd.DataFrame({"T-test Results": results_lines})
+
+output_dir = (f'C:/Users\clewis\IdeaProjects\GNS/xcams\sandbox_post_April3_meeting_output/statistics.xlsx')
+
+# Write to Excel
+with pd.ExcelWriter(output_dir, engine="openpyxl", mode="w") as writer:
+    output1.to_excel(writer, sheet_name="Stats Table", index=False)
+    results_df.to_excel(writer, sheet_name="T-test results", index=False)
+
+
 #
 
 

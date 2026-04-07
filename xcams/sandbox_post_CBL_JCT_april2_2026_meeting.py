@@ -5,6 +5,7 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy import stats
+import seaborn as sns
 
 """
 Met with JCT on April 2, 2026, and found some more large feedback that will require restructuting the code.
@@ -168,6 +169,17 @@ seconds = pd.read_excel("C:/Users\clewis\IdeaProjects\GNS/xcams\seconds_April3_2
 
 # Now I'll read that back in to save time when writing/debugging:
 df = pd.read_excel("C:/Users\clewis\IdeaProjects\GNS/xcams\sandbox_post_April3_meeting_output/secondaries_subset.xlsx")
+
+"""
+here we can decide to add a size filter or not. 
+By comparing these two datasets which include or excluide this line, we find it only affects some blanks, the rest are unaffected. 
+Because large blanks are more representative of what we're after in this paper; we'll continue WITH the size filter for writing. 
+You may have to re-write them by re-running the script with the line commented and not commented, potentially after more changes are made. 
+"C:/Users\clewis\IdeaProjects\GNS/xcams\sandbox_post_April3_meeting_output\statistics_including_size_filter.xlsx"
+"C:/Users\clewis\IdeaProjects\GNS/xcams\sandbox_post_April3_meeting_output\statistics_no_size_filter.xlsx"
+"""
+df = df.loc[df['wtgraph'] > 0.2]
+
 print()
 print(f"Length before I say - remove those selected for removal in _1! is {len(df)}")
 df = df.loc[df['Keep_Remove'] == 'Keep']
@@ -177,7 +189,11 @@ print(f"Length after I say - remove those selected for removal in _1! is {len(df
 spt = pd.read_excel('C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_paper_2_2025_output/flask_ox_label.xlsx')
 spt = spt.drop_duplicates(subset='TP', keep='first') # get rid of duplicates on the prep type output from RLIMS
 df = df.merge(spt, on='TP')
-df.to_excel('C:/Users\clewis\IdeaProjects\GNS/xcams\sandbox_post_April3_meeting_output/ox_prep_labels_added.xlsx')
+df.to_excel('C:/Users\clewis\IdeaProjects\GNS/xcams\sandbox_post_April3_meeting_output/data_checks_along_the_way/ox_prep_labels_added.xlsx')
+# experiencing some confusion based on the flask stuff.
+# I've filtered for flasks only below but I'm still getting data for pre-TW3010 when flasks were introduced. The reason this is confusion is beacuse, while I'm taking flask-only data for the statistical group calculations,
+# The EA and ST ones are still left in the database presented at the end. This can be confusinng for someone who looks in there and sees ST or EA.
+
 print()
 print(f"Lets make sure we haven't lost any data: Length after adding air standard prep types: {len(df)}")
 print()
@@ -196,16 +212,19 @@ After spending a bunch of July 4, 2024 on this: I just have to manually go throu
 New notes:
 Contrasting to above, we'll be changing things from here, see more notes as we go below.
 The first change to the block below which will happen on excel, is that FIRI-F's will be manually added to the FIRI_edited excel sheet
-
+FIRI_F'schanged to FIRI'D's later
 """
 firilist = ['24889/4','24889/5','24889/9','26281/1','24889/7'] # here is the list of R numbers I want to check
 firis = df.loc[(df['Job::R'].isin(firilist))]        # make a subset dataframe where these FIRIs are found
 firis.to_excel(f'C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_paper_2_2025_output/firis.xlsx')  # write it to excel
 firis = pd.read_excel(f'C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_paper_2_2025_output/firis_edited.xlsx', comment='#') # I edited it by checking RLIMS. Read it back in
+# change firi F's to FIRI-D's (it was a blind copy, now we can just change
+
+
 firis = firis[['TP','EA_ST','AAA_CELL']]  # drop columns to prep for merge
 firis = firis.drop_duplicates(subset='TP', keep='first') # get rid of duplicates on the prep type output from RLIMS
 df = df.merge(firis, on='TP', how='left')  # merge
-df.to_excel(f'C:/Users\clewis\IdeaProjects\GNS/xcams\sandbox_post_April3_meeting_output/mergecheck.xlsx') # output to recheck
+df.to_excel(f'C:/Users\clewis\IdeaProjects\GNS/xcams\sandbox_post_April3_meeting_output/data_checks_along_the_way/mergecheck.xlsx') # output to recheck
 print()
 print(f"Lets make sure we haven't lost any data: Length after adding air FIRI pretreatment types: {len(df)}")
 print()
@@ -219,7 +238,7 @@ print()
 print(f"Lets make sure we haven't lost any data after mergeing with seconds: Length after merge: {len(df)}")
 print()
 
-df.to_excel(f'C:/Users\clewis\IdeaProjects\GNS/xcams\sandbox_post_April3_meeting_output/mergecheck2.xlsx') # output to recheck
+df.to_excel(f'C:/Users\clewis\IdeaProjects\GNS/xcams\sandbox_post_April3_meeting_output/data_checks_along_the_way/mergecheck2.xlsx') # output to recheck
 
 # Quick housekeeping/troubleshooting check before any math is done
 # Try converting to numeric and see if anything fails
@@ -263,7 +282,7 @@ df['residual'] = residual(df['RTS_corrected'],df['wmean'],df['RTS_corrected_erro
 print()
 print(f"Length after wmean - groupby: {len(df)}")
 print()
-df.to_excel(f'C:/Users\clewis\IdeaProjects\GNS/xcams\sandbox_post_April3_meeting_output/step1_groupbycheck.xlsx') # output to recheck
+df.to_excel(f'C:/Users\clewis\IdeaProjects\GNS/xcams\sandbox_post_April3_meeting_output/data_checks_along_the_way/step1_groupbycheck.xlsx') # output to recheck
 
 # NOW CALCULATE CHI2 REDUCED
 # HAD TROUBLE HERE SO DOING IT MANUALLY TO TROUBLESHOOT
@@ -312,6 +331,7 @@ for i in range(0, len(datasets)):
     See Eqn at bottom of page 1 of scan file:///I:/C14Data/Data%20Quality%20Paper/CBL_V3/Data_Quality_Eqns_CBL_JCT.pdf
     """
     if chi2_red < 1:
+        # according to the eqn, if chi2 is less than 1,, you'd be taking sqrt of negative number which doesn't work. So if less than 1, set to 0.
         sigbw = 0
         print('I found a zero!')
 
@@ -319,6 +339,8 @@ for i in range(0, len(datasets)):
         term2 = np.sqrt(chi2_red - 1)
         #term1 = np.nanmean(df2['RTS_corrected_error'])
         term1 = np.nanmean(df2['RTS_corrected_error'])/np.nanmean(df2['RTS_corrected']) # TODO here I think is where we would put a normalization to FM/RTS
+        # TODO when thinking about where to put that normalization to RTS_corrected (line above), it must be there, it one put it below, one would be normalizing
+        # TODO multiple grouped sigma_bw values to one RTS, it would be too late.
         sigbw = term1*term2
     sigbw_arr.append(sigbw)
 
@@ -346,7 +368,7 @@ for i in range(0, len(datasets)):
                 dpi=300, bbox_inches="tight")
     plt.close()
 
-output1 = pd.DataFrame({
+output_grouped = pd.DataFrame({
     'Group': desc_arr,
     'Data Length (n)': length,
     'Chi2 Reduced': chi2_red_arr,
@@ -354,7 +376,6 @@ output1 = pd.DataFrame({
     'sigmabw_pm': sig_bw_pm_arr,
 })
 
-output1.to_excel("C:/Users\clewis\IdeaProjects\GNS/xcams\sandbox_post_April3_meeting_output/statistics_grouped.xlsx")
 
 """
         .      .      .      .      .      .
@@ -393,7 +414,18 @@ output1.to_excel("C:/Users\clewis\IdeaProjects\GNS/xcams\sandbox_post_April3_mee
 # First thing to do is merge the sigma_BW (the wheel to wheel error essentially) onto the main dataframe.
 # We can do this like above
 # IMPORTANT! Air secondaries are calculated based on flask ONLY but wtw error is mapped on ALL! Flask only reindexed later for individual secondaries
-df = df.merge(output1[['sigmabw_rts','sigmabw_pm','Group']], on='Group', how='left')
+df = df.merge(output_grouped[['sigmabw_rts','sigmabw_pm','Group']], on='Group', how='left')
+
+# use newly appended sigma_bw to calculate new FM errors for later residual plot
+# some groups have sigmabw as 0 becuse chi2 were >1, see output from module above. Others have 0 beacuse they don't have WTW error applied. These include blanks, and things in "tuning" or "removed" categories
+df["sigmabw_rts"] = df["sigmabw_rts"].fillna(0) # dupliactes line later but I left that later one cuz it was added first and don't want to break the code
+
+# HOW DIFFERENT IS FM_err WITH NEW SIGMA_BW versus PREVIOUS WTW ERROR?
+df['FM_err_new_sigbw'] = (np.sqrt(df['RTS_corrected_error']**2 + (df['sigmabw_rts']*.01*df['RTS_corrected'])**2)/0.95)*0.98780499
+df['diff_err'] = df['F_corrected_normed_error'] - df['FM_err_new_sigbw'] # calculate the percent change with the new FM_err_new_sigmba.
+df['diff_err_percent'] = ((df['F_corrected_normed_error'] - df['FM_err_new_sigbw'])/df['F_corrected_normed_error'])*100 # calculate the percent change with the new FM_err_new_sigmba.
+
+df.to_excel("C:/Users\clewis\IdeaProjects\GNS/xcams\sandbox_post_April3_meeting_output/data_checks_along_the_way/sigbw_merge_calc_check.xlsx")
 
 # One important thing to note:
 # At this point, the blanks and Travertine were not included in the grouped calculation of sigbw.
@@ -403,9 +435,8 @@ df = df.merge(output1[['sigmabw_rts','sigmabw_pm','Group']], on='Group', how='le
 # - for calculations coming up. We'll need it for conversion to FM and D14C errors.
 # - Why not just leave the travertine out completely? We want to be able to discuss data before and after travertine incorporation, show how it was variable
 
-# grab values and map onto other rows
+# grab values and map onto the travertines...
 # NO WTW errors needed for blanks!
-
 grab_inorganic = df.loc[df["Group"] == "Inorganic", ["sigmabw_rts", "sigmabw_pm"]].iloc[0]
 df.loc[df["Job::R"] == "14047/2", ["sigmabw_rts", "sigmabw_pm"]] = grab_inorganic.values
 
@@ -420,7 +451,7 @@ print(df.columns)
 dfprint = df[['Job::R','Group', 'F_corrected_normed', 'F_corrected_normed_error', 'DELTA 14C',
               'DELTA 14C_Error', 'Reference for Collection Date', 'Expected FM', 'wmean', 'residual', 'sigmabw_rts', 'sigmabw_pm']]
 
-dfprint.to_excel("C:/Users\clewis\IdeaProjects\GNS/xcams\sandbox_post_April3_meeting_output/sigma_bw_merged_to_df.xlsx")
+dfprint.to_excel("C:/Users\clewis\IdeaProjects\GNS/xcams\sandbox_post_April3_meeting_output/data_checks_along_the_way/sigma_bw_merged_to_df.xlsx")
 # having some problems with downstream calculations probably related to this mapping above
 
 
@@ -436,6 +467,9 @@ kapuni = df.loc[(df['Job::R'] == '40699/1')].copy()
 airdeadCO2 = df.loc[(df['Job::R'] == '40430/3')].copy()
 bhdamb_flask = df.loc[(df['Job::R'] == '40430/1') & (df['preptype'] == 'FLASK')].copy()
 bhdspike_flask = df.loc[(df['Job::R'] == '40430/2') & (df['preptype'] == 'FLASK')].copy()
+# for simplicity, lets just remove non-OX-flask prepared Airs frmo the databased because its confusing to find them later!
+df = df.drop(df[(df['Job::R'] == '40430/1') & (df['preptype'] != 'FLASK')].index)
+df = df.drop(df[(df['Job::R'] == '40430/2') & (df['preptype'] != 'FLASK')].index)
 
 carr_marb_carb = df.loc[(df['Job::R'] == '14047/1')].copy()
 travertine_carb = df.loc[(df['Job::R'] == '14047/2')].copy()
@@ -455,6 +489,11 @@ kauri_aaa_ea = df.loc[((df['Job::R'] == '40142/2') & (df['EA_ST'] =='EA'))].copy
 kauri_aaa_st = df.loc[((df['Job::R'] == '40142/2') & (df['EA_ST'].isna()))].copy()
 kauri_cell_ea = df.loc[((df['Job::R'] == '40142/1') & (df['EA_ST'] =='EA'))].copy()
 kauri_cell_st = df.loc[((df['Job::R'] == '40142/1') & (df['EA_ST'].isna()))].copy()
+
+# we're setting the FIRI-F R numbers to go into the FIRI D category too....
+# will be simplest to first set all FIRI-F's to FIRI D...the line below accomplishes that
+df.loc[(df['Job::R'] == '24889/6'),'Job::R'] = '24889/4'
+
 firi_d_all = df.loc[(df['Job::R'] == '24889/4')].copy()
 firi_d_aaa_ea = df.loc[(df['Job::R'] == '24889/4') & (df['AAA_CELL'] =='AAA') & (df['EA_ST'] =='EA')].copy()
 firi_d_aaa_st = df.loc[(df['Job::R'] == '24889/4') & (df['AAA_CELL'] =='AAA') & (df['EA_ST'].isna())].copy()
@@ -472,12 +511,14 @@ firi_g_aaa_ea = df.loc[(df['Job::R'] == '24889/7') & (df['AAA_CELL'] =='AAA') & 
 firi_g_aaa_st = df.loc[(df['Job::R'] == '24889/7') & (df['AAA_CELL'] =='AAA') & (df['EA_ST'].isna())].copy()
 
 firi_i_all = df.loc[(df['Job::R'] == '24889/9')].copy()
-firi_i_aaa_ea = df.loc[(df['Job::R'] == '24889/9') & (df['AAA_CELL'] =='AAA') & (df['EA_ST'] =='EA')].copy()
-firi_i_cell_ea = df.loc[(df['Job::R'] == '24889/9') & (df['AAA_CELL'] =='Cellulose') & (df['EA_ST'] =='EA')].copy()
-firi_i_aaa = df.loc[(df['Job::R'] == '24889/9') & (df['AAA_CELL'] =='AAA')].copy()
+# JOCELYN SAID THAT WE SHOULD REMOVE ANY FIRI-I THAT HAVE PRETREATMENT. HOWEVER, THEY ALL ARE EITHER CELLULOSE OR AAA. SHE SPECIFICALLY SAID TO GET RID OF AAA, SO WE"LL JST KEEP CELLULOSE
+# firi_i_aaa_ea = df.loc[(df['Job::R'] == '24889/9') & (df['AAA_CELL'] =='AAA') & (df['EA_ST'] =='EA')].copy()
+# firi_i_cell_ea = df.loc[(df['Job::R'] == '24889/9') & (df['AAA_CELL'] =='Cellulose') & (df['EA_ST'] =='EA')].copy()
+# firi_i_aaa = df.loc[(df['Job::R'] == '24889/9') & (df['AAA_CELL'] =='AAA')].copy()
 firi_i_cell = df.loc[(df['Job::R'] == '24889/9') & (df['AAA_CELL'] =='Cellulose')].copy()
 
-datasets = [kapuni,airdeadCO2, bhdamb_flask, bhdspike_flask,
+datasets = [kapuni,
+            airdeadCO2, bhdamb_flask, bhdspike_flask,
             carr_marb_carb, travertine_carb, lac1carb, laa1carb,
             carr_marb_water, travertine_water, lac1water, laa1water,
             firi_l,
@@ -488,9 +529,12 @@ datasets = [kapuni,airdeadCO2, bhdamb_flask, bhdspike_flask,
             firi_d_rpo,
             firi_e_aaa_st,
             firi_g_all, firi_g_aaa_ea, firi_g_aaa_st,
-            firi_i_all, firi_i_aaa_ea, firi_i_cell_ea, firi_i_aaa, firi_i_cell]
+            firi_i_all,
+            # firi_i_aaa_ea, firi_i_cell_ea, firi_i_aaa,
+            firi_i_cell]
 
-names = ['KAPUNI','AIRDEADCO2','BHDAMB_FLASK','BHDSPIKE_FLASK',
+names = ['KAPUNI',
+         'AIRDEADCO2','BHDAMB_FLASK','BHDSPIKE_FLASK',
          'CARR_MARB_CARB','TRAV_CARB','LAC1_CARB','LAA1_CARB',
          'CARR_MARB_WATER','TRAV_WATER','LAC1_WATER','LAA1_WATER',
          'FIRI_L',
@@ -578,7 +622,7 @@ for i in range(0, len(datasets)):
     sigbw_rts = (subset1['sigmabw_rts'].iloc[0])
 
     F_corrected_normed = (wmean/0.95)*0.98780499 #wmean converted to FM
-    F_corrected_normed_error = (np.sqrt(term1**2 + sigbw_rts**2)/0.95)*0.98780499
+    F_corrected_normed_error = (np.sqrt(term1**2 + (sigbw_rts*0.01*wmean)**2)/0.95)*0.98780499
     fm_arr.append(F_corrected_normed)
     fm_err_arr.append(F_corrected_normed_error)
 
@@ -643,7 +687,7 @@ for i in range(0, len(datasets)):
                 dpi=300, bbox_inches="tight")
     plt.close()
 
-output1 = pd.DataFrame({'Group': group_name,
+output_R_specific = pd.DataFrame({'Group': group_name,
                         'Job::R': R_num,
                         'Description': desc_arr,
                         'n': length,
@@ -678,24 +722,32 @@ t1, p1 = stats.ttest_ind(firi_d_cell['F_corrected_normed'], firi_d_aaa['F_correc
 results_lines.append(
     f"The results are t={t1:.3f} and p={p1:.4f} for FIRI_D_CELL and FIRI_D_AAA. Results <0.05 shows there is no observable difference")
 
-# CELL vs AAA using FIRI I
-t1, p1 = stats.ttest_ind(firi_i_aaa['F_corrected_normed'], firi_i_cell['F_corrected_normed'])
-results_lines.append(
-    f"The results are t={t1:.3f} and p={p1:.4f} for FIRI_I_CELL and FIRI_I_AAA. Results <0.05 shows there is no observable difference")
-
+# # CELL vs AAA using FIRI I
+# t1, p1 = stats.ttest_ind(firi_i_aaa['F_corrected_normed'], firi_i_cell['F_corrected_normed'])
+# results_lines.append(
+#     f"The results are t={t1:.3f} and p={p1:.4f} for FIRI_I_CELL and FIRI_I_AAA. Results <0.05 shows there is no observable difference")
 
 results_df = pd.DataFrame({"T-test Results": results_lines})
 
-output_dir = (f'C:/Users\clewis\IdeaProjects\GNS/xcams\sandbox_post_April3_meeting_output/statistics.xlsx')
+output_dir = (f'C:/Users\clewis\IdeaProjects\GNS/xcams\sandbox_post_April3_meeting_output/Final_results.xlsx')
+
+df_columns_cleaned = df[[
+      'RTS_corrected', 'RTS_corrected_error',
+      'MCC',
+      'F_corrected_normed', 'F_corrected_normed_error', 'DELTA 14C',
+      'DELTA 14C_Error',
+      'wtgraph', 'preptype',
+      'TP', 'TW', 'Quality Flag',
+      'Job::R', 'Samples::Sample Description',
+      'EA_ST', 'AAA_CELL', 'Collection Date_y', 'Group', 'Merge Comment',
+      'Reference for Collection Date', 'Expected FM', 'wmean', 'residual']]
 
 # Write to Excel
 with pd.ExcelWriter(output_dir, engine="openpyxl", mode="w") as writer:
-    output1.to_excel(writer, sheet_name="Stats Table", index=False)
+    df_columns_cleaned.to_excel(writer, sheet_name="Clean Dataset", index=False)
+    output_grouped.to_excel(writer, sheet_name="Group Statistics", index=False)
+    output_R_specific.to_excel(writer, sheet_name="Secondaries Statistics", index=False)
     results_df.to_excel(writer, sheet_name="T-test results", index=False)
-
-
-#
-
 
 
 

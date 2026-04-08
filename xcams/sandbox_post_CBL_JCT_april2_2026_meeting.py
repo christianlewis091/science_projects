@@ -246,6 +246,10 @@ pd.to_numeric(df['RTS_corrected_error'], errors='raise')
 pd.to_numeric(df['RTS_corrected'], errors='raise')
 pd.to_numeric(df['Collection Date_y'], errors='raise')
 
+# TODO see lines below
+# # # trying to remove 1 to understand why carbonates secondaries went bad...
+# df = df.loc[df['TW']!= 3397] # a big clump of data with some data holes exist for this wheel on LAC CARB, is this the problem?
+
 """
         .      .      .      .      .      .
    .       🚀        .      .       🌍      .
@@ -309,6 +313,7 @@ length = []
 desc_arr = []
 chi2_red_arr = []
 sigbw_arr = []
+sigbw_percent_arr = []
 sig_bw_pm_arr = []
 
 for i in range(0, len(datasets)):
@@ -331,17 +336,17 @@ for i in range(0, len(datasets)):
     See Eqn at bottom of page 1 of scan file:///I:/C14Data/Data%20Quality%20Paper/CBL_V3/Data_Quality_Eqns_CBL_JCT.pdf
     """
     if chi2_red < 1:
-        # according to the eqn, if chi2 is less than 1,, you'd be taking sqrt of negative number which doesn't work. So if less than 1, set to 0.
+        # according to the eqn, if chi2 is less than 1, you'd be taking sqrt of negative number which doesn't work. So if less than 1, set to 0.
         sigbw = 0
         print('I found a zero!')
 
     else:
         term2 = np.sqrt(chi2_red - 1)
-        #term1 = np.nanmean(df2['RTS_corrected_error'])
         term1 = np.nanmean(df2['RTS_corrected_error'])/np.nanmean(df2['RTS_corrected']) # TODO here I think is where we would put a normalization to FM/RTS
         # TODO when thinking about where to put that normalization to RTS_corrected (line above), it must be there, it one put it below, one would be normalizing
         # TODO multiple grouped sigma_bw values to one RTS, it would be too late.
         sigbw = term1*term2
+    sigbw_percent_arr.append(sigbw*100) # convert to percent, which is used in RLIMS, which we can use later for FM calc so its consistent with RLIMS
     sigbw_arr.append(sigbw)
 
     colldate1 = df2['Collection Date_y'].iloc[0]
@@ -373,6 +378,7 @@ output_grouped = pd.DataFrame({
     'Data Length (n)': length,
     'Chi2 Reduced': chi2_red_arr,
     'sigmabw_rts': sigbw_arr,
+    'sigmabw_rts_percent': sigbw_percent_arr,
     'sigmabw_pm': sig_bw_pm_arr,
 })
 
@@ -414,14 +420,14 @@ output_grouped = pd.DataFrame({
 # First thing to do is merge the sigma_BW (the wheel to wheel error essentially) onto the main dataframe.
 # We can do this like above
 # IMPORTANT! Air secondaries are calculated based on flask ONLY but wtw error is mapped on ALL! Flask only reindexed later for individual secondaries
-df = df.merge(output_grouped[['sigmabw_rts','sigmabw_pm','Group']], on='Group', how='left')
+df = df.merge(output_grouped[['sigmabw_rts','sigmabw_pm','sigmabw_rts_percent','Group']], on='Group', how='left')
 
 # use newly appended sigma_bw to calculate new FM errors for later residual plot
 # some groups have sigmabw as 0 becuse chi2 were >1, see output from module above. Others have 0 beacuse they don't have WTW error applied. These include blanks, and things in "tuning" or "removed" categories
 df["sigmabw_rts"] = df["sigmabw_rts"].fillna(0) # dupliactes line later but I left that later one cuz it was added first and don't want to break the code
 
 # HOW DIFFERENT IS FM_err WITH NEW SIGMA_BW versus PREVIOUS WTW ERROR?
-df['FM_err_new_sigbw'] = (np.sqrt(df['RTS_corrected_error']**2 + (df['sigmabw_rts']*.01*df['RTS_corrected'])**2)/0.95)*0.98780499
+df['FM_err_new_sigbw'] = (np.sqrt(df['RTS_corrected_error']**2 + (df['sigmabw_rts_percent']*.01*df['RTS_corrected'])**2)/0.95)*0.98780499
 df['diff_err'] = df['F_corrected_normed_error'] - df['FM_err_new_sigbw'] # calculate the percent change with the new FM_err_new_sigmba.
 df['diff_err_percent'] = ((df['F_corrected_normed_error'] - df['FM_err_new_sigbw'])/df['F_corrected_normed_error'])*100 # calculate the percent change with the new FM_err_new_sigmba.
 
@@ -475,6 +481,7 @@ carr_marb_carb = df.loc[(df['Job::R'] == '14047/1')].copy()
 travertine_carb = df.loc[(df['Job::R'] == '14047/2')].copy()
 lac1carb = df.loc[(df['Job::R'] == '41347/2')].copy()
 laa1carb = df.loc[(df['Job::R'] == '41347/3')].copy()
+
 firi_l = df.loc[(df['Job::R'] == '26281/1')].copy()
 
 carr_marb_water = df.loc[(df['Job::R'] == '14047/11')].copy()
@@ -595,6 +602,7 @@ for i in range(0, len(datasets)):
     wmean_dem = np.sum(1/subset1['RTS_corrected_error']**2)
     wmean = wmean_num / wmean_dem
     wmean_arr.append(wmean)
+    print(f'{names[i]}, {wmean}')
 
     """
     Calculate residual: again, while we've already done this in previous section, we're re-doing it relative to wmean of subset for pretreatment permutations
@@ -618,11 +626,11 @@ for i in range(0, len(datasets)):
 
     term1 = np.nanmean(subset1['RTS_corrected_error']) # why is it written like this? Legacy. From Data Qualiyt Paper_2 2026 v1.py
 
-    subset1["sigmabw_rts"] = subset1["sigmabw_rts"].fillna(0) # This line is important. For blanks, and Kapuni (tuning), no WTW error is applied. But if there is no data there, the rest of the calcualtions won't run. So we just need to set it to 0.
-    sigbw_rts = (subset1['sigmabw_rts'].iloc[0])
+    subset1["sigmabw_rts_percent"] = subset1["sigmabw_rts_percent"].fillna(0) # This line is important. For blanks, and Kapuni (tuning), no WTW error is applied. But if there is no data there, the rest of the calcualtions won't run. So we just need to set it to 0.
+    sigbw_rts_percent = (subset1['sigmabw_rts_percent'].iloc[0])
 
     F_corrected_normed = (wmean/0.95)*0.98780499 #wmean converted to FM
-    F_corrected_normed_error = (np.sqrt(term1**2 + (sigbw_rts*0.01*wmean)**2)/0.95)*0.98780499
+    F_corrected_normed_error = (np.sqrt(term1**2 + (sigbw_rts_percent*0.01*wmean)**2)/0.95)*0.98780499
     fm_arr.append(F_corrected_normed)
     fm_err_arr.append(F_corrected_normed_error)
 

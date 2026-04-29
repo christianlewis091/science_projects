@@ -4,7 +4,7 @@ Then I can calculae AOU for every 14C point.
 
 I think I can do something like in script 8...
 """
-
+#
 import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
@@ -15,10 +15,7 @@ import matplotlib.cm as mpl_cm
 cmap = mpl_cm.viridis
 import matplotlib.gridspec as gridspec
 from scipy.stats import linregress
-
-
-
-
+#
 # df = pd.read_excel(r'C:\Users\clewis\IdeaProjects\GNS\Fiordland_DIC_14C_paper\output_V2\05_concatonate_DIC_data/DIC_JOINED_FINAL_V2_edited.xlsx', comment='#')
 # ctds = pd.read_excel(r"C:\Users\clewis\IdeaProjects\GNS\Fiordland_DIC_14C_paper\output_V2\04_concatonate_CTD_data\ctd_cat.xlsx")
 #
@@ -84,7 +81,7 @@ from scipy.stats import linregress
 # p_resultsss = pd.DataFrame({"CTD chosen depth": d_arr, "Temp": t_arr, "Sal": s_arr, "Oxygen": o_arr })
 #
 # df = pd.concat([df.reset_index(drop=True),p_resultsss.reset_index(drop=True)],axis=1)
-#
+# df.to_excel("C:/Users\clewis\IdeaProjects\GNS\Fiordland_DIC_14C_paper\output_V2/13_AOU_plot/test.xlsx")
 
 """
 https://www.ncei.noaa.gov/access/ocean-carbon-acidification-data-system/oceans/ndp_065/3e.html
@@ -109,6 +106,10 @@ df['02sol_umolkg'] = gsw.O2sol_SP_pt(df['Sal'],df['pot_temp']) # https://www.teo
 # STEP 3: compare with measured oxygen value
 df['AOU'] = df['02sol_umolkg'] - df['Oxygen']
 print(df['AOU'])
+df.to_excel("C:/Users\clewis\IdeaProjects\GNS\Fiordland_DIC_14C_paper\output_V2/13_AOU_plot/results_w_AOU.xlsx")
+
+# plt.scatter(df['DELTA14C'], df['AOU'], c=df['Distance from Fjord Head'])
+# plt.show()
 
 # Subset datasets
 s2405_dbt = df.loc[(df['EXPOCODE'] == 'SFCS2405') & (df['Site'] == 'Doubtful')]
@@ -187,10 +188,11 @@ cbar = plt.colorbar(sc, ax=axs[2,1]); cbar.set_label('Depth')
 axs[0,0].set_title('Patea/Doubtful Sound')
 axs[0,1].set_title('Tamatea/Dusky Sound')
 
-axs[1,0].set_xlabel('AOU (µmol kg$^{-1}$)')
-axs[1,1].set_xlabel('AOU (µmol kg$^{-1}$)')
+axs[2,0].set_xlabel('AOU (µmol kg$^{-1}$)')
+axs[2,1].set_xlabel('AOU (µmol kg$^{-1}$)')
 axs[0,0].set_ylabel(r'$\Delta^{14}$C')
 axs[1,0].set_ylabel(r'$\Delta^{14}$C')
+axs[2,0].set_ylabel(r'$\Delta^{14}$C')
 
 axs[0,0].set_ylim(15, 35)
 axs[1,0].set_ylim(15, 35)

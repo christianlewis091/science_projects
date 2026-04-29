@@ -27,15 +27,17 @@ SFCS2405
 # READ IN SFCS2405 DATA,
 sfcs2405_ctd = pd.read_csv(f'C:/Users\clewis\IdeaProjects\GNS\Fiordland_DIC_14C_paper\data\processed/SFCS2405_CTD_DATA_FINAL.csv')
 sfcs2405_ctd = sfcs2405_ctd.rename(columns={'Sal00':'sal00', 'T090C':'t090C','DepSM':'depSM','Lat':'latitude','Lon':'longitude'})
-# Convert oxygen to mm/kg
+
+# Convert oxygen to micromol/kg
 sfcs2405_ctd['sbox0Mm/Kg'] = sfcs2405_ctd['Sbeox0Mg/L']*(1/32)*1000 # TODO why do i need this factor of 1000 in order to get values to match?????
-sfcs2405_ctd = sfcs2405_ctd[['FileName', 'latitude','longitude', 'depSM', 'sal00','t090C','sbox0Mm/Kg']]
+sfcs2405_ctd = sfcs2405_ctd[['FileName', 'latitude','longitude', 'depSM', 'sal00','t090C','sbox0Mm/Kg','UTC']]
 sfcs2405_ctd['EXPOCODE'] = 'SFCS2405'
 
 # Only keep my stations
 cruise1 = ['DBT001_01CTD','DBT003_01CTD', 'DBT006_01CTD', 'DBT008_01CTD',
            'DBT010_02CTD', 'DBT011_02CTD', 'DBT012_01CTD', 'DUS020_01CTD',
            'DUS023_01CTD']
+# set it to only keep data where my samples were taken
 sfcs2405_ctd = sfcs2405_ctd.loc[sfcs2405_ctd['FileName'].isin(cruise1)]
 
 
@@ -48,8 +50,15 @@ sonne_ctd = sonne_ctd[['FileName', 'latitude','longitude','depSM','sal00','t090C
 print(np.unique(sonne_ctd['FileName']))
 # Only keep my stations
 cruise2 = ['SO309-46-17_by_depth_1_m', 'SO309-53-1_by_depth_1_m', 'SO309-59-13_by_depth_1_m']
+
 sonne_ctd = sonne_ctd.loc[sonne_ctd['FileName'].isin(cruise2)]
 sonne_ctd['EXPOCODE'] = 'S309'
+
+# add UTC manually using data from the sheet that was given to me (trying to avoid all edits to excel sheets later as much as pissbiel)
+sonne_ctd['UTC'] = -999
+sonne_ctd.loc[(sonne_ctd['FileName'] == 'SO309-46-17_by_depth_1_m'), 'UTC'] = '27/01/2025 16:44:00'
+sonne_ctd.loc[(sonne_ctd['FileName'] == 'SO309-53-1_by_depth_1_m'), 'UTC'] = '28/01/2025 19:02:00'
+sonne_ctd.loc[(sonne_ctd['FileName'] == 'SO309-59-13_by_depth_1_m'), 'UTC'] = '29/01/2025 16:44:00' # there is a mismatch where the excel sheet helen sent says SO309-59-18 and the CTD's say SO309-59-13, but the lat lon's match so I think its a typo.
 
 """
 SFCS2505
@@ -65,7 +74,16 @@ cruise3 = ['sfcs2505_dbt019_01ctd','sfcs2505_dbt020_01ctd', 'sfcs2505_dbt021_01c
 
 sfcs2505_ctd  = sfcs2505_ctd .loc[sfcs2505_ctd ['FileName'].isin(cruise3)]
 
+# manually adding UTC again, this time from the raw CTD filename.
+sfcs2505_ctd.loc[(sfcs2505_ctd['FileName'] == 'sfcs2505_dbt019_01ctd'), 'UTC'] = 'May 23 2025 10:44:30'
+sfcs2505_ctd.loc[(sfcs2505_ctd['FileName'] == 'sfcs2505_dbt020_01ctd'), 'UTC'] = 'May 23 2025 12:23:17'
+sfcs2505_ctd.loc[(sfcs2505_ctd['FileName'] == 'sfcs2505_dbt021_01ctd'), 'UTC'] = 'May 23 2025 16:03:14'
+
+sfcs2505_ctd.loc[(sfcs2505_ctd['FileName'] == 'sfcs2505_dus028_01ctd'), 'UTC'] = 'May 25 2025 10:38:25'
+sfcs2505_ctd.loc[(sfcs2505_ctd['FileName'] == 'sfcs2505_dus030_01ctd'), 'UTC'] = 'May 25 2025 13:21:19'
+sfcs2505_ctd.loc[(sfcs2505_ctd['FileName'] == 'sfcs2505_dus036_01ctd'), 'UTC'] = 'May 26 2025 12:12:06'
+
 ctd_cat = pd.concat([sonne_ctd, sfcs2405_ctd, sfcs2505_ctd])
-# ctd_cat.to_excel('C:/Users/clewis/IdeaProjects/GNS/Fiordland_DIC_14C_paper/output_V2/04_concatonate_CTD_data/ctd_cat.xlsx')
+ctd_cat.to_excel('C:/Users/clewis/IdeaProjects/GNS/Fiordland_DIC_14C_paper/output_V2/04_concatonate_CTD_data/ctd_cat.xlsx')
 
 print(np.unique(ctd_cat['FileName']))

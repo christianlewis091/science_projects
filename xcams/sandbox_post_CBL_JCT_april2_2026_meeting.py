@@ -5,6 +5,7 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy import stats
+# from inorganics_troublehsooting import solved_it_list
 import seaborn as sns
 
 """
@@ -154,21 +155,62 @@ def calculate_sigma_bw(chi2_red_input, rts_corrected_error):
 """
 #
 # # READ IN THE DATASETS THAT WE'LL BE USING HERE!
-# df = pd.read_excel('C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_1_output/12_manual_plotly_drop.xlsx', sheet_name= 'Whole Dataframe')
+df = pd.read_excel('C:/Users/clewis/IdeaProjects/GNS/xcams/Data_Quality_Paper_1_output/12_manual_plotly_drop.xlsx', sheet_name= 'Whole Dataframe')
 seconds = pd.read_excel("C:/Users\clewis\IdeaProjects\GNS/xcams\seconds_April3_2026.xlsx", sheet_name='new', comment='#')
-# # CREATE A LIST OF R NUMBERS BASED ON THOSE IN SECONDARIES FILE, THESE ARE WHAT WE KEEP
-# rs_of_secondaries_and_blanks = np.unique(seconds['R_number'])
-#
-# # WE ONLY WANT TO KEEP/ANALYZE THOSE DATA IN R NUMBERS USED FOR SECONDARIES AND BLANKS!
-# print(f"Full datset from _1 script has length {len(df)}")
-# df = df.loc[df['Job::R'].isin(rs_of_secondaries_and_blanks)]
-# print(f"Subset only including data from secondaries and blanks R numbers has length {len(df)}")
-#
-# df.to_excel("C:/Users\clewis\IdeaProjects\GNS/xcams\sandbox_post_April3_meeting_output/secondaries_subset.xlsx")
+print(seconds['Job::R'])
+# CREATE A LIST OF R NUMBERS BASED ON THOSE IN SECONDARIES FILE, THESE ARE WHAT WE KEEP
+rs_of_secondaries_and_blanks = np.unique(seconds['Job::R'])
+
+# WE ONLY WANT TO KEEP/ANALYZE THOSE DATA IN R NUMBERS USED FOR SECONDARIES AND BLANKS!
+print(f"Full datset from _1 script has length {len(df)}")
+df = df.loc[df['Job::R'].isin(rs_of_secondaries_and_blanks)]
+print(f"Subset only including data from secondaries and blanks R numbers has length {len(df)}")
+
+df.to_excel("C:/Users\clewis\IdeaProjects\GNS/xcams\sandbox_post_April3_meeting_output/secondaries_subset.xlsx")
 
 
 # Now I'll read that back in to save time when writing/debugging:
 df = pd.read_excel("C:/Users\clewis\IdeaProjects\GNS/xcams\sandbox_post_April3_meeting_output/secondaries_subset.xlsx")
+
+"""
+Some more debugging toward the end of analysis: why is 41347/3 have way high chi2? 
+There were some wheels with hihg blanks and a previously small (in old small range). Lets remove these
+April 8, 2026
+It seems there is just way excess variability as post TP = 860000 for the carbonates. 
+83620, 87986, and 88174 are all related to wheels where blanks were high, and one categorized as previuosly small. 
+86089, 87469 87932 and 88133 are after a large sampling gap where variability suddely increases. 
+More detail: 
+83620: an old small of 0.2 in 2022. 
+87986: There was a problem with this wheel includnig low counts and bad calibration
+88174: "Carbonate blank looks high, similar value to TW3507" 
+87469 - 88133: Data after this period is just so highly variable...why? Doesn't represent long-term dataset of paper. Remove. 
+86089 doesnt look great but there is no problem with it so we'll keep it in!
+
+See Inorganics Troubleshooting! Lots of investigatino and debugging
+In the end I think the water line blank is masking variability of LAA performance on water line 
+
+IN THE END WE SHOULDN"T REMOVE ANYTHING BECAUSE THERE IS NO GROUNDS TOO! WE CAN"T FIND ANY REASON!
+"""
+
+# potential_list = pd.read_excel(r"C:\Users\clewis\IdeaProjects\GNS\xcams\sandbox_post_April3_meeting_output\troubleshooting_inorganics_data\troubleshooting_step3.xlsx")
+# extra_drops = [82366, 83596,83597,87932,87986,88133,88174]
+# extra_drops = [83620, 87986, 88174,
+#                # 86089,
+#                87469, 87932, 88133] # was 2.08 # there seems to be a problem with the later ones. Is it better in the former time period?
+# df.loc[(df['TP'].isin(extra_drops)), 'Comment'] = 'Potential 14C gradient in coral when taken from bottom versus top. Take from Top!'   #'Some data leading 41347/3 to have chi2, related to some specific wheels with large blanks and an old small'
+
+
+extra_drops = [60730, 60795, 61032, 61068, 62144, 62193, 62518, 63748, 64075, 62627, 62740]
+df.loc[(df['TP'].isin(extra_drops)), 'Keep_Remove'] = 'Remove'
+df.loc[(df['TP'].isin(extra_drops)), 'Comment'] = 'FIRI-s as tests that say that should be removed from QA in job notes. Se we remove them!'   #'Some data leading 41347/3 to have chi2, related to some specific wheels with large blanks and an old small'
+
+extra_drops = [70182]
+df.loc[(df['TP'].isin(extra_drops)), 'Keep_Remove'] = 'Remove'
+df.loc[(df['TP'].isin(extra_drops)), 'Comment'] = 'See RLIMS note: The main purpose of TW3060 (TST2) is to continue to identify the source of problems with our 14C analyses...'
+
+extra_drops = [77846, 76644]
+df.loc[(df['TP'].isin(extra_drops)), 'Keep_Remove'] = 'Remove'
+df.loc[(df['TP'].isin(extra_drops)), 'Comment'] = 'Old smalls from FIRI-I.'
 
 """
 here we can decide to add a size filter or not. 
@@ -178,6 +220,7 @@ You may have to re-write them by re-running the script with the line commented a
 "C:/Users\clewis\IdeaProjects\GNS/xcams\sandbox_post_April3_meeting_output\statistics_including_size_filter.xlsx"
 "C:/Users\clewis\IdeaProjects\GNS/xcams\sandbox_post_April3_meeting_output\statistics_no_size_filter.xlsx"
 """
+# just doing this beacuse it excludes an important coral result
 df = df.loc[df['wtgraph'] > 0.2]
 
 print()
@@ -191,7 +234,7 @@ spt = spt.drop_duplicates(subset='TP', keep='first') # get rid of duplicates on 
 df = df.merge(spt, on='TP')
 df.to_excel('C:/Users\clewis\IdeaProjects\GNS/xcams\sandbox_post_April3_meeting_output/data_checks_along_the_way/ox_prep_labels_added.xlsx')
 # experiencing some confusion based on the flask stuff.
-# I've filtered for flasks only below but I'm still getting data for pre-TW3010 when flasks were introduced. The reason this is confusion is beacuse, while I'm taking flask-only data for the statistical group calculations,
+# I've filtered for flasks only below but I'm still getting data for pre-TW3010 when flasks were introduced. The reason this is confusion is because, while I'm taking flask-only data for the statistical group calculations,
 # The EA and ST ones are still left in the database presented at the end. This can be confusinng for someone who looks in there and sees ST or EA.
 
 print()
@@ -228,6 +271,7 @@ df.to_excel(f'C:/Users\clewis\IdeaProjects\GNS/xcams\sandbox_post_April3_meeting
 print()
 print(f"Lets make sure we haven't lost any data: Length after adding air FIRI pretreatment types: {len(df)}")
 print()
+
 
 """
 Last bit of STEP 0: we need to associate each R number with its final group
@@ -482,6 +526,8 @@ travertine_carb = df.loc[(df['Job::R'] == '14047/2')].copy()
 lac1carb = df.loc[(df['Job::R'] == '41347/2')].copy()
 laa1carb = df.loc[(df['Job::R'] == '41347/3')].copy()
 
+# what about that wheel with 4 in the same wheel? What's going on there?
+
 firi_l = df.loc[(df['Job::R'] == '26281/1')].copy()
 
 carr_marb_water = df.loc[(df['Job::R'] == '14047/11')].copy()
@@ -715,12 +761,12 @@ results_lines = []
 # EA versus ST shown via FIRI-D's
 t1, p1 = stats.ttest_ind(firi_d_cell_ea['F_corrected_normed'], firi_d_cell_st['F_corrected_normed'])
 results_lines.append(
-    f"The results are t={t1:.3f} and p={p1:.4f} for FIRI_D_CELL_EA and FIRI_D_CELL_ST. Results <0.05 shows there is no observable difference")
+    f"The results are t={t1:.3f} and p={p1:.4f} for FIRI_D_CELL_EA and FIRI_D_CELL_ST. Results p > 0.05 shows there is no observable difference")
 
 # EA versus ST shown via FIRI-G's
 t1, p1 = stats.ttest_ind(firi_g_aaa_ea['F_corrected_normed'], firi_g_aaa_st['F_corrected_normed'])
 results_lines.append(
-    f"The results are t={t1:.3f} and p={p1:.4f} for FIRI_G_CELL_EA and FIRI_G_CELL_ST. Results <0.05 shows there is no observable difference")
+    f"The results are t={t1:.3f} and p={p1:.4f} for FIRI_G_CELL_EA and FIRI_G_CELL_ST. Results p  > 0.05 shows there is no observable difference")
 
 results_lines.append('#The results above show that there is no observable difference between EA and ST for organic pretreatments. Since thats settled, we can recombined all and do t-tests with the AAA and Cell main groupings'
                      )
@@ -728,7 +774,7 @@ results_lines.append('#The results above show that there is no observable differ
 # CELL vs AAA using FIRI D
 t1, p1 = stats.ttest_ind(firi_d_cell['F_corrected_normed'], firi_d_aaa['F_corrected_normed'])
 results_lines.append(
-    f"The results are t={t1:.3f} and p={p1:.4f} for FIRI_D_CELL and FIRI_D_AAA. Results <0.05 shows there is no observable difference")
+    f"The results are t={t1:.3f} and p={p1:.4f} for FIRI_D_CELL and FIRI_D_AAA.")
 
 # # CELL vs AAA using FIRI I
 # t1, p1 = stats.ttest_ind(firi_i_aaa['F_corrected_normed'], firi_i_cell['F_corrected_normed'])
@@ -758,5 +804,33 @@ with pd.ExcelWriter(output_dir, engine="openpyxl", mode="w") as writer:
     results_df.to_excel(writer, sheet_name="T-test results", index=False)
 
 
+"""
+PLOLTTING FIRI DATA
+"""
 
+# --- Figure setup ---
+fig, axs = plt.subplots(2, 1, figsize=(5.5, 7.75), sharex=True)
 
+# --- Scatter plots ---
+axs[0].errorbar(firi_d_cell['TP'], firi_d_cell['F_corrected_normed'], yerr=firi_d_cell['F_corrected_normed_error'], color='#1f77b4', linestyle='', label = f'FIRI-D, Cellulose', marker='o')
+axs[0].errorbar(firi_d_aaa['TP'], firi_d_aaa['F_corrected_normed'], yerr=firi_d_aaa['F_corrected_normed_error'], color='#d62728', linestyle='', label = f'FIRI-D, AAA', marker='s')
+# --- Horizontal reference lines ---
+axs[0].axhline(y=0.56883, linestyle='--', linewidth=1, color='#7f7f7f', label='Concensus')
+axs[0].axhline(y=0.570532, linestyle=':', linewidth=1, color='#9467bd', label='AMS Concensus')
+axs[0].axhline(y=0.5688979440688, linestyle='-', linewidth=1, color='#2ca02c', label='Weighted Mean FM')
+
+# Residuals on the bottom
+axs[1].scatter(firi_d_cell['TP'], firi_d_cell['residual'], color='#1f77b4', linestyle='', label='FIRI-D, Cellulose')
+axs[1].scatter(firi_d_aaa['TP'], firi_d_aaa['residual'], color='#d62728', linestyle='', label='FIRI-D, AAA')
+axs[1].axhline(y=0, color='#333333')
+
+# --- Labels & styling ---
+axs[1].set_xlabel('TP')
+axs[0].set_ylabel('F_corrected_normed')
+axs[1].set_ylabel('Residual')
+axs[0].legend()
+
+# Optional: tighten layout
+plt.tight_layout()
+plt.savefig(f'C:/Users\clewis\IdeaProjects\GNS/xcams\sandbox_post_April3_meeting_output/mpl_output/firis.png',
+            dpi=300, bbox_inches="tight")

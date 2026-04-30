@@ -8,7 +8,7 @@ df2= pd.read_excel('C:/Users\clewis\IdeaProjects\GNS\Fiordland_DIC_14C_paper\dat
 df3= pd.read_excel('C:/Users\clewis\IdeaProjects\GNS\Fiordland_DIC_14C_paper\data\processed/SFCS2505_DIC_14C_FINAL.xlsx', comment='#')
 df1['EXPOCODE'] = 'SFCS2405'
 df2['EXPOCODE'] = 'S309'
-df3['EXPOCODE'] = 'SFCS2405'
+df3['EXPOCODE'] = 'SFCS2505'
 
 df1 = df1[['Cruise Station Name',
            'Latitude_N_decimal', 'Longitude_E_decimal', 'Bottom Depth (m)',

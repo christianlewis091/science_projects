@@ -10,52 +10,42 @@ import pandas as pd
 import numpy as np
 import nzgeom.coastlines
 from cmcrameri import cm
+from geopy.distance import geodesic
 import gsw
 import matplotlib.cm as mpl_cm
 cmap = mpl_cm.viridis
+from geopy import distance
 import matplotlib.gridspec as gridspec
 from scipy.stats import linregress
 #
-# df = pd.read_excel(r'C:\Users\clewis\IdeaProjects\GNS\Fiordland_DIC_14C_paper\output_V2\05_concatonate_DIC_data/DIC_JOINED_FINAL_V2_edited.xlsx', comment='#')
+# df = pd.read_excel("C:/Users\clewis\IdeaProjects\GNS\Fiordland_DIC_14C_paper\output_V2/05part2_joinCTD_and_DIC14C/JOINED_DATA.xlsx")
 # ctds = pd.read_excel(r"C:\Users\clewis\IdeaProjects\GNS\Fiordland_DIC_14C_paper\output_V2\04_concatonate_CTD_data\ctd_cat.xlsx")
-#
-# groups = np.unique(df['helper column group'])
+# #
+# # groups = np.unique(df['helper column group'])
 # siz=50
-#
+# #
 # c1 = "#0072B2"
 # c2 = "#D55E00"
 # c3 = "#009E73"
-#
-# d_arr = []
-# t_arr = []
-# s_arr = []
-# o_arr = []
+# #
+# # d_arr = []
+# # t_arr = []
+# # s_arr = []
+# # o_arr = []
 #
 # for i in range(0,len(df)):
 #     row_i = df.iloc[i]
-#     filename = row_i['FileName']
+#     filename = row_i['FileName_ctd']
 #     depth = row_i['Depth']
 #     lat = row_i['Lat N']
 #     lon = row_i['Lon E']
+#     temp = row_i['t090C_ctd']
+#     sal = row_i['sal00_ctd']
+#     ox = row_i['sbox0Mm/Kg_ctd']
 #
 #     # use row iloc to grab CTD profile for each 14C point
 #     ctd_data = ctds.loc[ctds['FileName'] == filename]
-#
-#     # find profile that is closest in depth to each point
-#     idx = (ctd_data['depSM'] - depth).abs().idxmin()
-#     closest_row = ctd_data.loc[idx]
-#
-#     # grab data from that ctd depth
-#     sal = closest_row['sal00']
-#     temp = closest_row['t090C']
-#     ox = closest_row['sbox0Mm/Kg']
-#     depid = closest_row['depSM']
-#
-#     d_arr.append(depid)
-#     t_arr.append(temp)
-#     s_arr.append(sal)
-#     o_arr.append(ox)
-#
+# #
 #     # make a figure to check each one...
 #     fig, axs = plt.subplots(1, 5, figsize=(25, 8))  # 3 rows, 1 column
 #     c =  nzgeom.coastlines.get_NZ_coastlines(bbox=(166.5, -45.8, 167.2, -45.2))
@@ -67,21 +57,16 @@ from scipy.stats import linregress
 #     axs[3].scatter(ctd_data['sal00'], ctd_data['depSM'],color=c1)
 #     axs[4].scatter(ctd_data['sbox0Mm/Kg'], ctd_data['depSM'],color=c1)
 #
-#     axs[2].scatter(temp, depid,color='red',s=siz*1.5)
-#     axs[3].scatter(sal, depid,color='red',s=siz*1.5)
-#     axs[4].scatter(ox, depid,color='red',s=siz*1.5)
+#     axs[2].scatter(temp, depth ,color='red',s=siz*1.5)
+#     axs[3].scatter(sal, depth ,color='red',s=siz*1.5)
+#     axs[4].scatter(ox, depth ,color='red',s=siz*1.5)
 #
 #     axs[1].set_ylim(300,0)
 #     axs[2].set_ylim(300,0)
 #     axs[3].set_ylim(300,0)
 #     axs[4].set_ylim(300,0)
-#     plt.savefig(f"C:/Users\clewis\IdeaProjects\GNS\Fiordland_DIC_14C_paper\output_V2/13_AOU_plot/{i}.png",
+#     plt.savefig(f"C:/Users\clewis\IdeaProjects\GNS\Fiordland_DIC_14C_paper\output_V2/13_AOU_plot/{filename}.png",
 #                 dpi=300, bbox_inches="tight")
-#
-# p_resultsss = pd.DataFrame({"CTD chosen depth": d_arr, "Temp": t_arr, "Sal": s_arr, "Oxygen": o_arr })
-#
-# df = pd.concat([df.reset_index(drop=True),p_resultsss.reset_index(drop=True)],axis=1)
-# df.to_excel("C:/Users\clewis\IdeaProjects\GNS\Fiordland_DIC_14C_paper\output_V2/13_AOU_plot/test.xlsx")
 
 """
 https://www.ncei.noaa.gov/access/ocean-carbon-acidification-data-system/oceans/ndp_065/3e.html
@@ -91,36 +76,59 @@ The Apparent Oxygen Utilization (AOU) value was obtained by subtracting the meas
 saturation value computed at the potential temperature of water and 1 atm total pressure using the 
 following expression based on the data of Murray and Riley (1969):
 """
-
-df = pd.read_excel(r"C:/Users\clewis\IdeaProjects\GNS\Fiordland_DIC_14C_paper\output_V2/13_AOU_plot/results.xlsx")
-
+#
+df = pd.read_excel("C:/Users\clewis\IdeaProjects\GNS\Fiordland_DIC_14C_paper\output_V2/05part2_joinCTD_and_DIC14C/JOINED_DATA.xlsx")
+#
 # STEP 1, calculate potential tempeaure
-df['SA'] = gsw.SA_from_SP(df['Sal'],df['CTD chosen depth'],df['Lon E'],df['Lat N'])
-df['pot_temp'] = gsw.pt_from_t(df['SA'],df['Temp'],df['CTD chosen depth'],0)
+df['SA'] = gsw.SA_from_SP(df['sal00_ctd'],df['Depth_ctd'],df['Lon E'],df['Lat N'])
+df['pot_temp'] = gsw.pt_from_t(df['SA'],df['t090C_ctd'],df['Depth_ctd'],0)
+#
+# # STEP 2: calculate oxygen saturation
+df['02sol_umolkg'] = gsw.O2sol_SP_pt(df['sal00_ctd'],df['pot_temp']) # https://www.teos-10.org/pubs/gsw/html/gsw_O2sol_SP_pt.html
+#
+# # STEP 3: compare with measured oxygen value
+df['AOU'] = df['02sol_umolkg'] - df['sbox0Mm/Kg_ctd']
+# df.to_excel("C:/Users\clewis\IdeaProjects\GNS\Fiordland_DIC_14C_paper\output_V2/13_AOU_plot/test.xlsx")
 
-# STEP 2: calculate oxygen saturation
-df['02sol_umolkg'] = gsw.O2sol_SP_pt(df['Sal'],df['pot_temp']) # https://www.teos-10.org/pubs/gsw/html/gsw_O2sol_SP_pt.html
-# df['O2sol_mmolkg'] = df['02sol_umolkg']/1000
-# print(df['02sol_umolkg']) # TODO having unit problems again with oxygen!
+"""
+Need to compute "distance from the fjord head" 
+For Doubtful, I'll set head to deep cove's station  -45.46149, 167.15852
+For Dusky I'll set it to its head  -45.728565 166.94054833
+"""
+df['headlat'] = -999
+df['headlon'] = -999
+df.loc[(df['Lat N'] > -45.6), 'headlat'] = -45.46149
+df.loc[(df['Lat N'] > -45.6), 'headlon'] = 167.15852
+df.loc[(df['Lat N'] < -45.6), 'headlat'] = -45.728565
+df.loc[(df['Lat N'] < -45.6), 'headlon'] = 166.94054833
 
-# STEP 3: compare with measured oxygen value
-df['AOU'] = df['02sol_umolkg'] - df['Oxygen']
-print(df['AOU'])
-df.to_excel("C:/Users\clewis\IdeaProjects\GNS\Fiordland_DIC_14C_paper\output_V2/13_AOU_plot/results_w_AOU.xlsx")
+# chatgpt aided line...
+df['headdist'] = df.apply(lambda row: geodesic((row['Lat N'], row['Lon E']),
+                                               (row['headlat'], row['headlon'])).km, axis=1)
 
-# plt.scatter(df['DELTA14C'], df['AOU'], c=df['Distance from Fjord Head'])
-# plt.show()
+sc = plt.scatter(df['DELTA14C'], df['AOU'], c=df['headdist'], cmap='viridis')
+
+plt.xlabel('Δ14C')
+plt.ylabel('AOU (Apparent Oxygen Utilization)')
+
+cbar = plt.colorbar(sc)
+cbar.set_label('Distance to head (km)')
+
+plt.savefig(f"C:/Users\clewis\IdeaProjects\GNS\Fiordland_DIC_14C_paper\output_V2/13_AOU_plot/AOU1.png", dpi=300, bbox_inches="tight")
+plt.close()
+
+
 
 # Subset datasets
-s2405_dbt = df.loc[(df['EXPOCODE'] == 'SFCS2405') & (df['Site'] == 'Doubtful')]
-s2505_dbt = df.loc[(df['EXPOCODE'] == 'SFCS2505') & (df['Site'] == 'Doubtful')]
+s2405_dbt = df.loc[(df['EXPOCODE'] == 'SFCS2405') &  (df['Lat N'] > -45.6)]
+s2505_dbt = df.loc[(df['EXPOCODE'] == 'SFCS2505') &  (df['Lat N'] > -45.6)]
 
-s2405_dus = df.loc[(df['EXPOCODE'] == 'SFCS2405') & (df['Site'] == 'Dusky')]
-s2505_dus = df.loc[(df['EXPOCODE'] == 'SFCS2505') & (df['Site'] == 'Dusky')]
+s2405_dus = df.loc[(df['EXPOCODE'] == 'SFCS2405') & (df['Lat N'] < -45.6)]
+s2505_dus = df.loc[(df['EXPOCODE'] == 'SFCS2505') & (df['Lat N'] < -45.6)]
 
-s309_dbt = df.loc[(df['EXPOCODE'] == 'S309') & (df['Site'] == 'Doubtful')]
-s309_dus = df.loc[(df['EXPOCODE'] == 'S309') & (df['Site'] == 'Dusky')]
-
+s309_dbt = df.loc[(df['EXPOCODE'] == 'S309') &  (df['Lat N'] > -45.6)]
+s309_dus = df.loc[(df['EXPOCODE'] == 'S309') & (df['Lat N'] < -45.6)]
+#
 slope1, intercept1, r1, p1, stderr1 = linregress(s2405_dbt['AOU'], s2405_dbt['DELTA14C'])
 slope2, intercept2, r2, p2, stderr2 = linregress(s2505_dbt['AOU'], s2505_dbt['DELTA14C'])
 slope3, intercept3, r3, p3, stderr3 = linregress(s2405_dus['AOU'], s2405_dus['DELTA14C'])
@@ -134,7 +142,7 @@ print(f'SFCS2405 DUS AOU vs D14C: y = {slope3:.2f}x + {intercept3:.2f}, r2 = {r3
 print(f'SFCS2505 DUS AOU vs D14C: y = {slope4:.2f}x + {intercept4:.2f}, r2 = {r4**2:.2f}')
 print(f'S309 DBT AOU vs D14C: y = {slope5:.2f}x + {intercept5:.2f}, r2 = {r5**2:.2f}')
 print(f'S309 DUS AOU vs D14C: y = {slope6:.2f}x + {intercept6:.2f}, r2 = {r6**2:.2f}')
-
+#
 fig, axs = plt.subplots(3, 2, figsize=(16,16))  # 3 rows, 1 column
 
 sc = axs[0,0].scatter(s2405_dbt['AOU'], s2405_dbt['DELTA14C'], c=s2405_dbt['Depth'], cmap=cmap, s=60, zorder=3, label='SFCS2405, Doubtful Sound')
@@ -210,5 +218,5 @@ axs[0,1].set_xlim(0,275)
 axs[1,1].set_xlim(0,275)
 axs[2,1].set_xlim(0,275)
 
-plt.savefig(f"C:/Users\clewis\IdeaProjects\GNS\Fiordland_DIC_14C_paper\output_V2/13_AOU_plot/AOU.png", dpi=300, bbox_inches="tight")
+plt.savefig(f"C:/Users\clewis\IdeaProjects\GNS\Fiordland_DIC_14C_paper\output_V2/13_AOU_plot/AOU2.png", dpi=300, bbox_inches="tight")
 

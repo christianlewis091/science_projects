@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
 
-df = pd.read_excel(r'C:\Users\clewis\IdeaProjects\GNS\Fiordland_DIC_14C_paper\output_V2\05_concatonate_DIC_data/DIC_JOINED_FINAL_V2_edited.xlsx', comment='#')
+df = pd.read_excel("C:/Users\clewis\IdeaProjects\GNS\Fiordland_DIC_14C_paper\output_V2/05part2_joinCTD_and_DIC14C/JOINED_DATA.xlsx")
 
 c1 = "#0072B2"
 c2 = "#D55E00"
@@ -18,9 +18,8 @@ a = df.loc[(df['EXPOCODE'] == 'SFCS2405')]
 b = df.loc[(df['EXPOCODE'] == 'S309')]
 d = df.loc[(df['EXPOCODE'] == 'SFCS2505')]
 
-
 c =  nzgeom.coastlines.get_NZ_coastlines(bbox=(166.5, -45.8, 167.2, -45.2))
-ax = c.plot(color="lightgray", figsize=(6,8))
+ax = c.plot(color="lightgray", figsize=(5.5,7.5))
 siz = 50
 ax.scatter(a['Lon E'], a['Lat N'], color=c1, marker='o', label='SFCS2405, May 2024', alpha=0.5, s=siz)
 ax.scatter(b['Lon E'], b['Lat N'], color=c2, marker='D', label='S309, January 2025', alpha=0.5, s=siz)

@@ -7,19 +7,16 @@ import numpy as np
 import nzgeom.coastlines
 import matplotlib.pyplot as plt
 
-df = pd.read_excel(r'C:\Users\clewis\IdeaProjects\GNS\Fiordland_DIC_14C_paper\output_V2\05_concatonate_DIC_data/DIC_JOINED_FINAL_V2_edited.xlsx', comment='#')
-ctds = pd.read_excel(r"C:\Users\clewis\IdeaProjects\GNS\Fiordland_DIC_14C_paper\output_V2\04_concatonate_CTD_data\ctd_cat.xlsx")
-filename_a = np.unique(df['FileName'])
-groups = np.unique(df['helper column group'])
+df = pd.read_excel("C:/Users\clewis\IdeaProjects\GNS\Fiordland_DIC_14C_paper\output_V2/05part2_joinCTD_and_DIC14C/JOINED_DATA.xlsx")
+filename_a = np.unique(df['FileName_ctd'])
 
 for i in range(0, len(filename_a)):
-    dic_data = df.loc[df['FileName'] == filename_a[i]]
-    ctd_data = ctds.loc[ctds['FileName'] == filename_a[i]]
+    data = df.loc[df['FileName_ctd'] == filename_a[i]]
 
-    dic_lat = dic_data['Lat N'].iloc[0]
-    dic_lon = dic_data['Lon E'].iloc[0]
-    ctd_lat = ctd_data['latitude'].iloc[0]
-    ctd_lon = ctd_data['longitude'].iloc[0]
+    dic_lat = data['Lat N'].iloc[0]
+    dic_lon = data['Lon E'].iloc[0]
+    ctd_lat = data['latitude_ctd'].iloc[0]
+    ctd_lon = data['longitude_ctd'].iloc[0]
 
     c =  nzgeom.coastlines.get_NZ_coastlines(bbox=(166.5, -45.8, 167.2, -45.2))
     ax = c.plot(color="lightgray", figsize=(6,8))
@@ -32,16 +29,53 @@ for i in range(0, len(filename_a)):
     plt.savefig(f"C:/Users\clewis\IdeaProjects\GNS\Fiordland_DIC_14C_paper\output_V2/06_DataCheck/{filename_a[i]}.png", dpi=300, bbox_inches="tight")
     plt.close()
 
-"""
-Check the groups are assignmed properly
-"""
-for i in range(0, len(groups)):
-    data = df.loc[df['helper column group'] == groups[i]]
 
-    c =  nzgeom.coastlines.get_NZ_coastlines(bbox=(166.5, -45.8, 167.2, -45.2))
-    ax = c.plot(color="lightgray", figsize=(6,8))
-    siz = 50
-    ax.scatter(data['Lon E'], data['Lat N'], color='blue', marker='o', label=f'{groups[i]}', alpha=0.2, s=siz)
-    plt.legend()
-    plt.savefig(f"C:/Users\clewis\IdeaProjects\GNS\Fiordland_DIC_14C_paper\output_V2/06_DataCheck/Group_check_{groups[i]}.png", dpi=300, bbox_inches="tight")
-    plt.close()
+
+
+
+
+
+
+
+
+"""
+old version before ctd and dic joined to one file
+"""
+# df = pd.read_excel(r'C:\Users\clewis\IdeaProjects\GNS\Fiordland_DIC_14C_paper\output_V2\05_concatonate_DIC_data/DIC_JOINED_FINAL_V2_edited.xlsx', comment='#')
+# ctds = pd.read_excel(r"C:\Users\clewis\IdeaProjects\GNS\Fiordland_DIC_14C_paper\output_V2\04_concatonate_CTD_data\ctd_cat.xlsx")
+# filename_a = np.unique(df['FileName'])
+# groups = np.unique(df['helper column group'])
+#
+# for i in range(0, len(filename_a)):
+#     dic_data = df.loc[df['FileName'] == filename_a[i]]
+#     ctd_data = ctds.loc[ctds['FileName'] == filename_a[i]]
+#
+#     dic_lat = dic_data['Lat N'].iloc[0]
+#     dic_lon = dic_data['Lon E'].iloc[0]
+#     ctd_lat = ctd_data['latitude'].iloc[0]
+#     ctd_lon = ctd_data['longitude'].iloc[0]
+#
+#     c =  nzgeom.coastlines.get_NZ_coastlines(bbox=(166.5, -45.8, 167.2, -45.2))
+#     ax = c.plot(color="lightgray", figsize=(6,8))
+#     siz = 50
+#     ax.scatter(dic_lon, dic_lat, color='blue', marker='o', label=f'{filename_a[i]}', alpha=0.2, s=siz)
+#     ax.scatter(ctd_lon, ctd_lat, color='red', marker='D', alpha=0.2, s=siz)
+#     plt.legend()
+#     # plt.show()
+#     # Show the map
+#     plt.savefig(f"C:/Users\clewis\IdeaProjects\GNS\Fiordland_DIC_14C_paper\output_V2/06_DataCheck/{filename_a[i]}.png", dpi=300, bbox_inches="tight")
+#     plt.close()
+#
+# """
+# Check the groups are assignmed properly
+# """
+# for i in range(0, len(groups)):
+#     data = df.loc[df['helper column group'] == groups[i]]
+#
+#     c =  nzgeom.coastlines.get_NZ_coastlines(bbox=(166.5, -45.8, 167.2, -45.2))
+#     ax = c.plot(color="lightgray", figsize=(6,8))
+#     siz = 50
+#     ax.scatter(data['Lon E'], data['Lat N'], color='blue', marker='o', label=f'{groups[i]}', alpha=0.2, s=siz)
+#     plt.legend()
+#     plt.savefig(f"C:/Users\clewis\IdeaProjects\GNS\Fiordland_DIC_14C_paper\output_V2/06_DataCheck/Group_check_{groups[i]}.png", dpi=300, bbox_inches="tight")
+#     plt.close()

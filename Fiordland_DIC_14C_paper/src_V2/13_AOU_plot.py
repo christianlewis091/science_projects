@@ -18,55 +18,61 @@ from geopy import distance
 import matplotlib.gridspec as gridspec
 from scipy.stats import linregress
 #
-# df = pd.read_excel("C:/Users\clewis\IdeaProjects\GNS\Fiordland_DIC_14C_paper\output_V2/05part2_joinCTD_and_DIC14C/JOINED_DATA.xlsx")
-# ctds = pd.read_excel(r"C:\Users\clewis\IdeaProjects\GNS\Fiordland_DIC_14C_paper\output_V2\04_concatonate_CTD_data\ctd_cat.xlsx")
+ctds = pd.read_excel(r"C:\Users\clewis\IdeaProjects\GNS\Fiordland_DIC_14C_paper\output_V2\04_concatonate_CTD_data\ctd_cat.xlsx")
+df = pd.read_excel("C:/Users\clewis\IdeaProjects\GNS\Fiordland_DIC_14C_paper\output_V2/05part2_joinCTD_and_DIC14C/JOINED_DATA.xlsx")
 # #
-# # groups = np.unique(df['helper column group'])
-# siz=50
-# #
-# c1 = "#0072B2"
-# c2 = "#D55E00"
-# c3 = "#009E73"
-# #
-# # d_arr = []
-# # t_arr = []
-# # s_arr = []
-# # o_arr = []
+# groups = np.unique(df['helper column group'])
+siz=50
 #
-# for i in range(0,len(df)):
-#     row_i = df.iloc[i]
-#     filename = row_i['FileName_ctd']
-#     depth = row_i['Depth']
-#     lat = row_i['Lat N']
-#     lon = row_i['Lon E']
-#     temp = row_i['t090C_ctd']
-#     sal = row_i['sal00_ctd']
-#     ox = row_i['sbox0Mm/Kg_ctd']
+c1 = "#0072B2"
+c2 = "#D55E00"
+c3 = "#009E73"
 #
-#     # use row iloc to grab CTD profile for each 14C point
-#     ctd_data = ctds.loc[ctds['FileName'] == filename]
-# #
-#     # make a figure to check each one...
-#     fig, axs = plt.subplots(1, 5, figsize=(25, 8))  # 3 rows, 1 column
-#     c =  nzgeom.coastlines.get_NZ_coastlines(bbox=(166.5, -45.8, 167.2, -45.2))
-#     c.plot(ax=axs[0], color="lightgray")
+d_arr = []
+t_arr = []
+s_arr = []
+o_arr = []
+
+for i in range(0,len(df)):
+    row_i = df.iloc[i]
+    filename = row_i['FileName_ctd']
+    depth = row_i['Depth']
+    lat = row_i['Lat N']
+    lon = row_i['Lon E']
+    temp = row_i['t090C_ctd']
+    sal = row_i['sal00_ctd']
+    ox = row_i['sbox0Mm/Kg_ctd']
+
+    # use row iloc to grab CTD profile for each 14C point
+    ctd_data = ctds.loc[ctds['FileName'] == filename]
 #
-#     axs[0].scatter(row_i['Lon E'],row_i['Lat N'],color=c1,marker='o',label=f'{i}',alpha=0.2,s=siz)
-#     axs[1].errorbar(row_i['DELTA14C'], row_i['Depth'], xerr=row_i['DELTA14C_Error'], marker='s', label=f'{i}', capsize=5)
-#     axs[2].scatter(ctd_data['t090C'], ctd_data['depSM'],color=c1)
-#     axs[3].scatter(ctd_data['sal00'], ctd_data['depSM'],color=c1)
-#     axs[4].scatter(ctd_data['sbox0Mm/Kg'], ctd_data['depSM'],color=c1)
-#
-#     axs[2].scatter(temp, depth ,color='red',s=siz*1.5)
-#     axs[3].scatter(sal, depth ,color='red',s=siz*1.5)
-#     axs[4].scatter(ox, depth ,color='red',s=siz*1.5)
-#
-#     axs[1].set_ylim(300,0)
-#     axs[2].set_ylim(300,0)
-#     axs[3].set_ylim(300,0)
-#     axs[4].set_ylim(300,0)
-#     plt.savefig(f"C:/Users\clewis\IdeaProjects\GNS\Fiordland_DIC_14C_paper\output_V2/13_AOU_plot/{filename}.png",
-#                 dpi=300, bbox_inches="tight")
+    # make a figure to check each one...
+    fig, axs = plt.subplots(1, 5, figsize=(25, 8))  # 3 rows, 1 column
+    c =  nzgeom.coastlines.get_NZ_coastlines(bbox=(166.5, -45.8, 167.2, -45.2))
+    c.plot(ax=axs[0], color="lightgray")
+
+    axs[0].scatter(row_i['Lon E'],row_i['Lat N'],color=c1,marker='o',label=f'{i}',alpha=0.2,s=siz)
+    axs[1].errorbar(row_i['DELTA14C'], row_i['Depth'], xerr=row_i['DELTA14C_Error'], marker='s', label=f'{i}', capsize=5)
+    axs[2].scatter(ctd_data['t090C'], ctd_data['depSM'],color=c1)
+    axs[3].scatter(ctd_data['sal00'], ctd_data['depSM'],color=c1)
+    axs[4].scatter(ctd_data['sbox0Mm/Kg'], ctd_data['depSM'],color=c1)
+
+    axs[2].scatter(temp, depth ,color='red',s=siz*1.5)
+    axs[3].scatter(sal, depth ,color='red',s=siz*1.5)
+    axs[4].scatter(ox, depth ,color='red',s=siz*1.5)
+
+    axs[1].set_ylim(300,0)
+    axs[2].set_ylim(300,0)
+    axs[3].set_ylim(300,0)
+    axs[4].set_ylim(300,0)
+    axs[4].set_xlim(0, 250)
+    plt.title(f'{filename}')
+    axs[2].set_title('T')
+    axs[3].set_title('S')
+    axs[4].set_title('O')
+    plt.savefig(f"C:/Users\clewis\IdeaProjects\GNS\Fiordland_DIC_14C_paper\output_V2/13_AOU_plot/{filename}_{depth}.png",
+                dpi=300, bbox_inches="tight")
+    plt.close()
 
 """
 https://www.ncei.noaa.gov/access/ocean-carbon-acidification-data-system/oceans/ndp_065/3e.html
@@ -78,6 +84,11 @@ following expression based on the data of Murray and Riley (1969):
 """
 #
 df = pd.read_excel("C:/Users\clewis\IdeaProjects\GNS\Fiordland_DIC_14C_paper\output_V2/05part2_joinCTD_and_DIC14C/JOINED_DATA.xlsx")
+# for curiosity lets remove surface, the biogeochemical stuff is mostly at bottom ish
+# df = df.loc[df['Depth'] > 5]
+df['SorD'] = 'na'
+df.loc[(df['Depth'] > 5), 'SorD'] = 'D'
+df.loc[(df['Depth'] <= 5), 'SorD'] = 'S'
 #
 # STEP 1, calculate potential tempeaure
 df['SA'] = gsw.SA_from_SP(df['sal00_ctd'],df['Depth_ctd'],df['Lon E'],df['Lat N'])
@@ -88,7 +99,19 @@ df['02sol_umolkg'] = gsw.O2sol_SP_pt(df['sal00_ctd'],df['pot_temp']) # https://w
 #
 # # STEP 3: compare with measured oxygen value
 df['AOU'] = df['02sol_umolkg'] - df['sbox0Mm/Kg_ctd']
-# df.to_excel("C:/Users\clewis\IdeaProjects\GNS\Fiordland_DIC_14C_paper\output_V2/13_AOU_plot/test.xlsx")
+
+df['CT'] = gsw.CT_from_t(df['SA'], df['t090C_ctd'], df['Depth_ctd'])
+df['sigma0'] = gsw.sigma0(df['SA'], df['CT'])
+
+plt.scatter(df['sigma0'], df['Depth_ctd'])
+plt.show()
+plt.close()
+
+# at this point I'll also add a FJORD column to help filter on...
+df['Site'] = 'None yet'
+df.loc[(df['Lat N'] > -45.6), 'Site'] = 'DBT'
+df.loc[(df['Lat N'] < -45.6), 'Site'] = 'DUS'
+
 
 """
 Need to compute "distance from the fjord head" 
@@ -106,19 +129,26 @@ df.loc[(df['Lat N'] < -45.6), 'headlon'] = 166.94054833
 df['headdist'] = df.apply(lambda row: geodesic((row['Lat N'], row['Lon E']),
                                                (row['headlat'], row['headlon'])).km, axis=1)
 
-sc = plt.scatter(df['DELTA14C'], df['AOU'], c=df['headdist'], cmap='viridis')
 
-plt.xlabel('Δ14C')
-plt.ylabel('AOU (Apparent Oxygen Utilization)')
+df.to_excel("C:/Users\clewis\IdeaProjects\GNS\Fiordland_DIC_14C_paper\output_V2/13_AOU_plot/JOINED_DATA_wAOU.xlsx")
 
-cbar = plt.colorbar(sc)
-cbar.set_label('Distance to head (km)')
+# for plots and calc's I want to exclude surface
+df = df.loc[df['SorD'] == 'D']
 
-plt.savefig(f"C:/Users\clewis\IdeaProjects\GNS\Fiordland_DIC_14C_paper\output_V2/13_AOU_plot/AOU1.png", dpi=300, bbox_inches="tight")
-plt.close()
+# sc = plt.errorbar(df['DELTA14C'], df['AOU'], xerr=['DELTA14C_Error'], c=df['headdist'], cmap='viridis')
+# plt.xlabel('Δ14C')
+# plt.ylabel('AOU (Apparent Oxygen Utilization)')
+#
+# cbar = plt.colorbar(sc)
+# cbar.set_label('Distance to head (km)')
+#
+# plt.savefig(f"C:/Users\clewis\IdeaProjects\GNS\Fiordland_DIC_14C_paper\output_V2/13_AOU_plot/AOU1.png", dpi=300, bbox_inches="tight")
+# plt.close()
 
 
-
+"""
+Trying a few different ways to plot this data
+"""
 # Subset datasets
 s2405_dbt = df.loc[(df['EXPOCODE'] == 'SFCS2405') &  (df['Lat N'] > -45.6)]
 s2505_dbt = df.loc[(df['EXPOCODE'] == 'SFCS2505') &  (df['Lat N'] > -45.6)]
@@ -129,6 +159,7 @@ s2505_dus = df.loc[(df['EXPOCODE'] == 'SFCS2505') & (df['Lat N'] < -45.6)]
 s309_dbt = df.loc[(df['EXPOCODE'] == 'S309') &  (df['Lat N'] > -45.6)]
 s309_dus = df.loc[(df['EXPOCODE'] == 'S309') & (df['Lat N'] < -45.6)]
 #
+# calculate linear regression
 slope1, intercept1, r1, p1, stderr1 = linregress(s2405_dbt['AOU'], s2405_dbt['DELTA14C'])
 slope2, intercept2, r2, p2, stderr2 = linregress(s2505_dbt['AOU'], s2505_dbt['DELTA14C'])
 slope3, intercept3, r3, p3, stderr3 = linregress(s2405_dus['AOU'], s2405_dus['DELTA14C'])
@@ -143,6 +174,49 @@ print(f'SFCS2505 DUS AOU vs D14C: y = {slope4:.2f}x + {intercept4:.2f}, r2 = {r4
 print(f'S309 DBT AOU vs D14C: y = {slope5:.2f}x + {intercept5:.2f}, r2 = {r5**2:.2f}')
 print(f'S309 DUS AOU vs D14C: y = {slope6:.2f}x + {intercept6:.2f}, r2 = {r6**2:.2f}')
 #
+fig, axs = plt.subplots(1, 2, figsize=(9,5.5))
+
+c1 = "#0072B2"
+c2 = "#D55E00"
+c3 = "#009E73"
+
+axs[0].errorbar(s2405_dbt['AOU'], s2405_dbt['DELTA14C'], yerr=s2405_dbt['DELTA14C_Error'], color=c1, label='SFCS2405', fmt='o', linestyle='none')
+axs[0].errorbar(s2505_dbt['AOU'], s2505_dbt['DELTA14C'], yerr=s2505_dbt['DELTA14C_Error'], color=c3, label='SFCS2505', fmt='o', linestyle='none')
+axs[0].errorbar(s309_dbt['AOU'], s309_dbt['DELTA14C'], yerr=s309_dbt['DELTA14C_Error'], color=c2, label='S309', fmt='o', linestyle='none')
+
+axs[1].errorbar(s2405_dus['AOU'], s2405_dus['DELTA14C'], yerr=s2405_dus['DELTA14C_Error'], color=c1, label='SFCS2405', fmt='o', linestyle='none')
+axs[1].errorbar(s2505_dus['AOU'], s2505_dus['DELTA14C'], yerr=s2505_dus['DELTA14C_Error'], color=c3, label='SFCS2505', fmt='o', linestyle='none')
+axs[1].errorbar(s309_dus['AOU'], s309_dus['DELTA14C'], yerr=s309_dus['DELTA14C_Error'], color=c2, label='S309', fmt='o', linestyle='none')
+
+x1 = s2405_dbt['AOU']; y_fit1 = slope1 * x1 + intercept1
+x2 = s2505_dbt['AOU']; y_fit2 = slope2 * x2 + intercept2
+x3 = s2405_dus['AOU']; y_fit3 = slope3 * x3 + intercept3
+x4 = s2505_dus['AOU']; y_fit4 = slope4 * x4 + intercept4
+x5 = s309_dbt['AOU']; y_fit5 = slope5 * x5 + intercept5
+x6 = s309_dus['AOU']; y_fit6= slope6 * x6 + intercept6
+
+# plot the linear regression
+axs[0].plot(x1, y_fit1 ,color='k',linestyle='--', alpha=0.5)
+# axs[0].plot(x5, y_fit5 ,color='k',linestyle='--', alpha=0.5)
+axs[0].plot(x2, y_fit2 ,color='k',linestyle='--', alpha=0.5)
+
+axs[1].plot(x3, y_fit3 ,color='k',linestyle='--', alpha=0.5)
+# axs[1].plot(x6, y_fit6 ,color='k',linestyle='--', alpha=0.5)
+axs[1].plot(x4, y_fit4 ,color='k',linestyle='--', alpha=0.5)
+axs[0].legend()
+
+axs[0].set_title('Patea/Doubtful Sound')
+axs[1].set_title('Tamatea/Dusky Sound')
+
+axs[0].set_xlabel('AOU (uM/kg)')
+axs[1].set_xlabel('AOU (uM/kg)')
+axs[0].set_ylabel('\u0394$^1$$^4$CO$_2$ (\u2030)')
+plt.show()
+plt.savefig(f"C:/Users\clewis\IdeaProjects\GNS\Fiordland_DIC_14C_paper\output_V2/13_AOU_plot/AOU3.png", dpi=300, bbox_inches="tight")
+plt.close()
+
+
+
 fig, axs = plt.subplots(3, 2, figsize=(16,16))  # 3 rows, 1 column
 
 sc = axs[0,0].scatter(s2405_dbt['AOU'], s2405_dbt['DELTA14C'], c=s2405_dbt['Depth'], cmap=cmap, s=60, zorder=3, label='SFCS2405, Doubtful Sound')
@@ -219,4 +293,5 @@ axs[1,1].set_xlim(0,275)
 axs[2,1].set_xlim(0,275)
 
 plt.savefig(f"C:/Users\clewis\IdeaProjects\GNS\Fiordland_DIC_14C_paper\output_V2/13_AOU_plot/AOU2.png", dpi=300, bbox_inches="tight")
+plt.close()
 

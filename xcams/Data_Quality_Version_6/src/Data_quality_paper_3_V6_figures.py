@@ -7,9 +7,9 @@ from pandas import read_excel
 FIRI PLOT
 """
 
-df = pd.read_excel(f'C:/Users\clewis\IdeaProjects\GNS/xcams\sandbox_post_April3_meeting_output/Final_results.xlsx')
+df = pd.read_excel(rf"C:\Users\clewis\IdeaProjects\GNS/xcams\Data_Quality_Version_6\output\Data_quality_paper_2_V6_output/Final_results_V6_edit2.xlsx")
 
-d = df.loc[df['Job::R']=='24889/4']
+d = df.loc[(df['Job::R']=='24889/4')] # all FIRI-F's were already set to /4 so no need to re-index them! 
 e = df.loc[df['Job::R']=='24889/5']
 ij = df.loc[df['Job::R']=='24889/9']
 l = df.loc[df['Job::R']=='26281/1']
@@ -38,12 +38,85 @@ def firi_plot(df, wm, cv, title, savetitle):
     axs[1].set_ylabel('Residual')
     axs[0].legend()
 
-    plt.savefig(f"I:\C14Data\Data Quality Paper\CBL_V5_share\FIGURES/{savetitle}.png", dpi=300, bbox_inches="tight")
+    plt.savefig(rf"C:\Users\clewis\IdeaProjects\GNS\xcams\Data_Quality_Version_6\output\Data_quality_paper_3_V6_figures_output/{savetitle}.png", dpi=300, bbox_inches="tight")
 
-firi_plot(d, 0.568924504820682, 0.568830496, 'FIRI-D', 'firi_d')
-firi_plot(e, 0.229893607055364, 0.22953969, 'FIRI-E', 'firi_e')
-firi_plot(ij, 0.571817339656415, 0.572168402, 'FIRI-I', 'firi_i')
-firi_plot(l, 0.203183828615025, 0.203531748, 'TIRI-L', 'tiri_l')
+# firi_plot(d, 0.568924504820682, 0.568830496, 'FIRI-D', 'firi_d')
+# firi_plot(e, 0.229893607055364, 0.22953969, 'FIRI-E', 'firi_e')
+# firi_plot(ij, 0.571817339656415, 0.572168402, 'FIRI-I', 'firi_i')
+# firi_plot(l, 0.203183828615025, 0.203531748, 'TIRI-L', 'tiri_l')
+
+"""
+Air Materials Plot
+
+If we want to compare Air Materials before and after using normalization to flask oxalics, we need to compare residuals that are NOT corrected by wtw error. 
+Because of course the idea of the wtw error is to correct for the difference. 
+"""
+
+# Go back to the data that has the pretreatments added and labels added, but before it was indexed to only include flasks
+df = pd.read_excel(rf"C:\Users\clewis\IdeaProjects\GNS/xcams\Data_Quality_Version_6\output\Data_quality_paper_2_V6_output/for_air_plot.xlsx")
+air_r = ['40430/1','40430/2','40430/5']
+
+bhdamb_b4  = df.loc[(df['Job::R'] == '40430/1') & (df['AMS Timetable From Results::Standard Prep Type'] != 'FLASK')].copy()
+bhdamb_aft = df.loc[(df['Job::R'] == '40430/1') & (df['AMS Timetable From Results::Standard Prep Type'] == 'FLASK')].copy()
+
+# here is the original way we calculate FM error (commented out)
+# df['FM_err_new_sigbw'] = (np.sqrt(df['RTS_corrected_error']**2 + (df['sigmabw_rts_percent']*.01*df['RTS_corrected'])**2)/0.95)*0.98780499
+
+# If the sigmabw_rts_percent is set to zero, that whole term drops out and we're left with this. 
+bhdamb_b4['FM_err_new_sigbw'] = (np.sqrt(bhdamb_b4['RTS_corrected_error']**2)/0.95)*0.98780499
+bhdamb_aft['FM_err_new_sigbw'] = (np.sqrt(bhdamb_aft['RTS_corrected_error']**2)/0.95)*0.98780499
+
+plt.errorbar(bhdamb_b4['TP'],bhdamb_b4['F_corrected_normed'], yerr=bhdamb_b4['F_corrected_normed_error'], color='gray', marker='D', label='BHDamb2013', linestyle='')
+plt.errorbar(bhdamb_aft['TP'],bhdamb_aft['F_corrected_normed'], yerr=bhdamb_aft['F_corrected_normed_error'], color='black', marker='o',  label='BHDamb2013 Flask OX', linestyle='')
+
+plt.title('BHDamb before and after flask oxalic normalization')
+plt.ylabel('F14C, without CV (or SigBW), added!')
+plt.legend()
+plt.xlabel('TP')
+
+plt.savefig(rf"C:\Users\clewis\IdeaProjects\GNS\xcams\Data_Quality_Version_6\output\Data_quality_paper_3_V6_figures_output/AirFig.png", dpi=300, bbox_inches="tight")
+
+# """
+# We want an RCM10 Figure. We'll have to kind of build it from scratch...
+# """
+
+
+# # here's the big file from 0.py. Why not use a clearer one? We want to filter on oxalics that were run on RCM too, whihc 
+# # won't appear if we use that filtered already by "secondaries"
+# # df = pd.read_excel(rf"C:\Users\clewis\IdeaProjects\GNS\xcams\Data_Quality_Version_6\data\new_full_export_may25_2026.xlsx")
+# # rcm10 = df.loc[df['Graphite Completed::Graphite Line'] == 10]
+# # print(len(rcm10))
+# rcm10 = pd.read_excel(rf"C:\Users\clewis\IdeaProjects\GNS\xcams\Data_Quality_Version_6\output\Data_quality_paper_3_V6_figures_output/rcm10file.xlsx")
+# print(f'How many samples are in RCM10 TOTAL from main export? {len(rcm10)}')
+
+# # print(np.unique(rcm10['Quality Flag']))
+# # ['...' '.S.' '.T.' 'A..' 'M..' 'XT.']
+# okflags = ['...', '.S.', '.T.']
+# rcm10 = rcm10.loc[rcm10['Quality Flag'].isin(okflags)]
+# print(f'After removing first column flags, how many are in RCM10 dataset? {len(rcm10)}')
+
+# """
+# Below is the list we've been indexing on for this work, but I"m going to add oxalics in this case. 
+# """
+# # seconds = pd.read_excel(r"C:\Users\clewis\IdeaProjects\GNS\xcams\Data_Quality_Version_6\data\seconds_April3_2026.xlsx", sheet_name='new', comment='#')
+# # rs_of_secondaries_and_blanks = np.unique(seconds['Job::R'])
+# # print(rs_of_secondaries_and_blanks)
+# rs_of_interset = ['14047/1', '14047/11', '14047/12', '14047/2', '24889/14', '24889/4', '24889/5',
+#  '24889/6', '24889/7', '24889/9', '26281/1', '40142/1', '40142/2', '40430/1',
+#  '40430/2', '40430/3', '40430/5' ,'40430/6', '40699/1' ,'41347/12', '41347/13',
+#  '41347/2' '41347/3','26294/1',
+#  '40696/1',
+#   '40696/2',
+#    '40696/3',
+#     '40696/4',
+#      '40696/5',
+#       '40696/6',
+# ]
+# rcm10 = rcm10.loc[rcm10['Job::R'].isin(rs_of_interset)]
+# print(f'After selecting our Rs of interest? {len(rcm10)}')
+
+# rcm10ox = rcm10 = rcm10.loc[rcm10['Job::R'] == '26294/1']
+# print(f'How many oxalics? {len(rcm10ox)}')
 
 
 
@@ -53,6 +126,26 @@ firi_plot(l, 0.203183828615025, 0.203531748, 'TIRI-L', 'tiri_l')
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+"""
+OLD JUNK
+"""
 
 
 

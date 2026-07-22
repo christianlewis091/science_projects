@@ -20,59 +20,62 @@ from scipy.stats import linregress
 #
 ctds = pd.read_excel(r"C:\Users\clewis\IdeaProjects\GNS\Fiordland_DIC_14C_paper\output_V2\04_concatonate_CTD_data\ctd_cat.xlsx")
 df = pd.read_excel("C:/Users\clewis\IdeaProjects\GNS\Fiordland_DIC_14C_paper\output_V2/05part2_joinCTD_and_DIC14C/JOINED_DATA.xlsx")
+
+
+# # #
+# # groups = np.unique(df['helper column group'])
+# siz=50
 # #
-# groups = np.unique(df['helper column group'])
-siz=50
-#
 c1 = "#0072B2"
 c2 = "#D55E00"
 c3 = "#009E73"
-#
-d_arr = []
-t_arr = []
-s_arr = []
-o_arr = []
+# #
+# d_arr = []
+# t_arr = []
+# s_arr = []
+# o_arr = []
 
-for i in range(0,len(df)):
-    row_i = df.iloc[i]
-    filename = row_i['FileName_ctd']
-    depth = row_i['Depth']
-    lat = row_i['Lat N']
-    lon = row_i['Lon E']
-    temp = row_i['t090C_ctd']
-    sal = row_i['sal00_ctd']
-    ox = row_i['sbox0Mm/Kg_ctd']
+# for i in range(0,len(df)):
+#     row_i = df.iloc[i]
+#     filename = row_i['FileName_ctd']
+#     depth = row_i['Depth']
+#     lat = row_i['Lat N']
+#     lon = row_i['Lon E']
+#     temp = row_i['t090C_ctd']
+#     sal = row_i['sal00_ctd']
+#     ox = row_i['sbox0Mm/Kg_ctd']
 
-    # use row iloc to grab CTD profile for each 14C point
-    ctd_data = ctds.loc[ctds['FileName'] == filename]
-#
-    # make a figure to check each one...
-    fig, axs = plt.subplots(1, 5, figsize=(25, 8))  # 3 rows, 1 column
-    c =  nzgeom.coastlines.get_NZ_coastlines(bbox=(166.5, -45.8, 167.2, -45.2))
-    c.plot(ax=axs[0], color="lightgray")
+#     # use row iloc to grab CTD profile for each 14C point
+#     ctd_data = ctds.loc[ctds['FileName'] == filename]
+# #
+#     # make a figure to check each one...
+#     fig, axs = plt.subplots(1, 5, figsize=(25, 8))  # 3 rows, 1 column
+#     c =  nzgeom.coastlines.get_NZ_coastlines(bbox=(166.5, -45.8, 167.2, -45.2))
+#     c.plot(ax=axs[0], color="lightgray")
 
-    axs[0].scatter(row_i['Lon E'],row_i['Lat N'],color=c1,marker='o',label=f'{i}',alpha=0.2,s=siz)
-    axs[1].errorbar(row_i['DELTA14C'], row_i['Depth'], xerr=row_i['DELTA14C_Error'], marker='s', label=f'{i}', capsize=5)
-    axs[2].scatter(ctd_data['t090C'], ctd_data['depSM'],color=c1)
-    axs[3].scatter(ctd_data['sal00'], ctd_data['depSM'],color=c1)
-    axs[4].scatter(ctd_data['sbox0Mm/Kg'], ctd_data['depSM'],color=c1)
+#     axs[0].scatter(row_i['Lon E'],row_i['Lat N'],color=c1,marker='o',label=f'{i}',alpha=0.2,s=siz)
+#     axs[1].errorbar(row_i['DELTA14C'], row_i['Depth'], xerr=row_i['DELTA14C_Error'], marker='s', label=f'{i}', capsize=5)
+#     axs[2].scatter(ctd_data['t090C'], ctd_data['depSM'],color=c1)
+#     axs[3].scatter(ctd_data['sal00'], ctd_data['depSM'],color=c1)
+#     axs[4].scatter(ctd_data['sbox0Mm/Kg'], ctd_data['depSM'],color=c1)
 
-    axs[2].scatter(temp, depth ,color='red',s=siz*1.5)
-    axs[3].scatter(sal, depth ,color='red',s=siz*1.5)
-    axs[4].scatter(ox, depth ,color='red',s=siz*1.5)
+#     axs[2].scatter(temp, depth ,color='red',s=siz*1.5)
+#     axs[3].scatter(sal, depth ,color='red',s=siz*1.5)
+#     axs[4].scatter(ox, depth ,color='red',s=siz*1.5)
 
-    axs[1].set_ylim(300,0)
-    axs[2].set_ylim(300,0)
-    axs[3].set_ylim(300,0)
-    axs[4].set_ylim(300,0)
-    axs[4].set_xlim(0, 250)
-    plt.title(f'{filename}')
-    axs[2].set_title('T')
-    axs[3].set_title('S')
-    axs[4].set_title('O')
-    plt.savefig(f"C:/Users\clewis\IdeaProjects\GNS\Fiordland_DIC_14C_paper\output_V2/13_AOU_plot/{filename}_{depth}.png",
-                dpi=300, bbox_inches="tight")
-    plt.close()
+#     axs[1].set_ylim(300,0)
+#     axs[2].set_ylim(300,0)
+#     axs[3].set_ylim(300,0)
+#     axs[4].set_ylim(300,0)
+#     axs[4].set_xlim(0, 250)
+#     plt.title(f'{filename}')
+#     axs[2].set_title('T')
+#     axs[3].set_title('S')
+#     axs[4].set_title('O')
+#     plt.show()
+#     plt.savefig(f"C:/Users\clewis\IdeaProjects\GNS\Fiordland_DIC_14C_paper\output_V2/13_AOU_plot/{filename}_{depth}.png",
+#                 dpi=300, bbox_inches="tight")
+#     plt.close()
 
 """
 https://www.ncei.noaa.gov/access/ocean-carbon-acidification-data-system/oceans/ndp_065/3e.html
@@ -84,6 +87,34 @@ following expression based on the data of Murray and Riley (1969):
 """
 #
 df = pd.read_excel("C:/Users\clewis\IdeaProjects\GNS\Fiordland_DIC_14C_paper\output_V2/05part2_joinCTD_and_DIC14C/JOINED_DATA.xlsx")
+
+"""
+I'm realizing as I go its advantagous to have more clear descriptoins for each station as I go, so I'll add those here I guess...
+"""
+df['Loc'] = 'empty'
+df['year'] = -999
+
+df.loc[df['FileName_ctd'] == 'sfcs2505_dbt019_01ctd', ['Loc', 'year']] = ['Doubtful Mouth', 2025]
+df.loc[df['FileName_ctd'] == 'sfcs2505_dbt020_01ctd', ['Loc', 'year']] = ['Malaspina Reach', 2025]
+df.loc[df['FileName_ctd'] == 'sfcs2505_dbt021_01ctd', ['Loc', 'year']] = ['Deep Cove', 2025]
+df.loc[df['FileName_ctd'] == 'sfcs2505_dus028_01ctd', ['Loc', 'year']] = ['Girlies Basin', 2025]
+df.loc[df['FileName_ctd'] == 'sfcs2505_dus030_01ctd', ['Loc', 'year']] = ['Sportsmans Cove', 2025]
+df.loc[df['FileName_ctd'] == 'sfcs2505_dus036_01ctd', ['Loc', 'year']] = ['Dusky Mouth', 2025]
+
+df.loc[df['FileName_ctd'] == 'SO309-53-1_by_depth_1_m', ['Loc', 'year']] = ['Doubtful Mouth', 2025]
+df.loc[df['FileName_ctd'] == 'SO309-46-17_by_depth_1_m', ['Loc', 'year']] = ['Malaspina Reach', 2025]
+df.loc[df['FileName_ctd'] == 'SO309-59-13_by_depth_1_m', ['Loc', 'year']] = ['Outside Duck Cove', 2025]
+
+df.loc[df['FileName_ctd'] == 'DBT008_01CTD', ['Loc', 'year']] = ['Doubtful Mouth', 2024]
+df.loc[df['FileName_ctd'] == 'DBT006_01CTD', ['Loc', 'year']] = ['Malaspina Reach', 2024]
+df.loc[df['FileName_ctd'] == 'DBT003_01CTD', ['Loc', 'year']] = ['Ferguson Is.', 2024]
+df.loc[df['FileName_ctd'] == 'DBT001_01CTD', ['Loc', 'year']] = ['Deep Cove', 2024]
+df.loc[df['FileName_ctd'] == 'DBT012_01CTD', ['Loc', 'year']] = ['Girlies Basin', 2024]
+df.loc[df['FileName_ctd'] == 'DBT010_02CTD', ['Loc', 'year']] = ['Sportsmans Cove', 2024]
+df.loc[df['FileName_ctd'] == 'DBT011_02CTD', ['Loc', 'year']] = ['S. of Cooper Is.', 2024]
+df.loc[df['FileName_ctd'] == 'DUS023_01CTD', ['Loc', 'year']] = ['Outside Duck Cove', 2024]
+df.loc[df['FileName_ctd'] == 'DUS020_01CTD', ['Loc', 'year']] = ['Dusky Mouth', 2024]
+
 # for curiosity lets remove surface, the biogeochemical stuff is mostly at bottom ish
 # df = df.loc[df['Depth'] > 5]
 df['SorD'] = 'na'
@@ -132,7 +163,41 @@ df['headdist'] = df.apply(lambda row: geodesic((row['Lat N'], row['Lon E']),
 
 df.to_excel("C:/Users\clewis\IdeaProjects\GNS\Fiordland_DIC_14C_paper\output_V2/13_AOU_plot/JOINED_DATA_wAOU.xlsx")
 
-# for plots and calc's I want to exclude surface
+"""
+I found later while writing that its advantagous to know the relationship between AOU/O and 14C for each STATION. 
+It may help us identify whether trends are more due to sampling depth or oceanographic changes/changes of inputs!
+#### THIS DOESNT WORK. WE ONLY HAVE 2 SUBSURFACE DATA POINTS AND THEY ARENT ENOUGH FOR A TREND, CAN"T INLCUDE SURFACE LSL!
+"""
+# results = []
+# fn = [] # filenames
+# descrip = []
+# r2 = []
+
+# names = np.unique(df['FileName_ctd'])
+# for i in range(0, len(names)):
+#     subdf = df.loc[df['FileName_ctd'] == names[i]]
+#     loc = subdf['Loc'].iloc[0]
+#     year = subdf['year'].iloc[0]
+#     slope1, intercept1, r1, p1, stderr1 = linregress(subdf['AOU'], subdf['DELTA14C'])
+
+#     results.append({
+#         'FileName_ctd': names[i],
+#         'Loc': loc,
+#         'year': year,
+#         'slope': slope1,
+#         'intercept': intercept1,
+#         'r': r1,
+#         'r2': r1**2,
+#         'p': p1,
+#         'stderr': stderr1,
+#         'n': len(subdf)
+#     })
+
+# results_df = pd.DataFrame(results)
+# results_df.to_excel("C:/Users\clewis\IdeaProjects\GNS\Fiordland_DIC_14C_paper\output_V2/13_AOU_plot/linregress_results.xlsx")
+
+
+# for plots and other calc's I want to exclude surface
 df = df.loc[df['SorD'] == 'D']
 
 # sc = plt.errorbar(df['DELTA14C'], df['AOU'], xerr=['DELTA14C_Error'], c=df['headdist'], cmap='viridis')

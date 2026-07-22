@@ -8,7 +8,8 @@ processed, and live in one file for me to be happy with continuing it into a fur
 """
 
 import pandas as pd
-from functions_v1 import glodap_C14, cchdo_C14, cchdo_cleaning, glodap_cchdo_merge, map_check
+from functions_v1 import *
+from soar_tree_rings_paper2.scripts_V1.functions_v1 import map_check_16to19_part2
 
 maindir = 'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings_paper2' # store the main directory for this work for ease of later use
 
@@ -54,8 +55,43 @@ Have a look at the maps.
 
 # map_check()
 
-# TODO
 """
 From looking at the maps generated above, I can tell that there only a few years where CCHDO has data that GLODAP doesn't. 
-That is in 2016, 2017, 2018, and 2019. For these years, I can figure out what those EXPOCODES are, and specifically include that CCHDO data, the rest will be removed. 
+That is in 2016, 2017, 2018, and 2019. 
+For these years, I can figure out what those EXPOCODES are, and specifically include that CCHDO data, the rest will be removed. 
+For 2016; it is CCHDO cruise with main longitude of ~170W.
+For 2017, it is CCHDO cruise with main latitude 33S
+For 2018, it is a whole bunch of tiny cruises close to the antarctic 
 """
+
+# map_check_16to19()
+# map_check_16to19_part2(2016) # use this function to look at origins of expocodes for individual years
+
+"""
+From looking at the Map checks files away under
+C:/Users/clewis\IdeaProjects\GNS\soar_tree_rings_paper2\output_V1\dataset_generation_v1\map_check(1 and 2) 
+and manual checking using # map_check_16to19_part2() above, I have identified that all CCHDO are contained within GLODAP 
+EXCEPT FOR: 
+096U20160426
+320620170703
+320620170820
+096U20180111
+320620180309
+33RO20180423
+325020190403
+
+All other CCHDO cruises can be removed EXCEPT those listed above. That will be done using the function below. 
+"""
+# clean_merged_file_from_duplicate_CCHDO()
+
+"""
+Recheck the maps. 
+"""
+final_map_check()
+
+
+
+
+
+
+

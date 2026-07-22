@@ -94,29 +94,29 @@ def ncdump(nc_fid, verb=True):
     return nc_attrs, nc_dims, nc_vars
 
 
-# nc_f = 'H:/Science/Datasets/air.sig995.2012.nc'  # Your filename
-# nc_fid = Dataset(nc_f, 'r')  # Dataset is the class behavior to open the file
-# # and create an instance of the ncCDF4 class
-# nc_attrs, nc_dims, nc_vars = ncdump(nc_fid) # Extract data from NetCDF file
-#
-# # Extract data from NetCDF file
-# lats = nc_fid.variables['lat'][:]  # extract/copy the data
-# lons = nc_fid.variables['lon'][:]
-# time = nc_fid.variables['time'][:]
-# air = nc_fid.variables['air'][:]  # shape is time, lat, lon as shown above
-#
-# time_idx = 1  # some random day in 2012
-# # Python and the renalaysis are slightly off in time so this fixes that problem
-# offset = dt.timedelta(hours=48)
-#
-# # List of all times in the file as datetime objects
-# dt_time = [dt.date(1, 1, 1) + dt.timedelta(hours=t) - offset for t in time]
-# cur_time = dt_time[time_idx]
-#
-# print(lats)
-# plt.scatter(lats, air)
-# plt.show()
-#
+nc_f = 'H:/Science/Datasets/air.sig995.2012.nc'  # Your filename
+nc_fid = Dataset(nc_f, 'r')  # Dataset is the class behavior to open the file
+# and create an instance of the ncCDF4 class
+nc_attrs, nc_dims, nc_vars = ncdump(nc_fid) # Extract data from NetCDF file
+
+# Extract data from NetCDF file
+lats = nc_fid.variables['lat'][:]  # extract/copy the data
+lons = nc_fid.variables['lon'][:]
+time = nc_fid.variables['time'][:]
+air = nc_fid.variables['air'][:]  # shape is time, lat, lon as shown above
+
+time_idx = 1  # some random day in 2012
+# Python and the renalaysis are slightly off in time so this fixes that problem
+offset = dt.timedelta(hours=48)
+
+# List of all times in the file as datetime objects
+dt_time = [dt.date(1, 1, 1) + dt.timedelta(hours=t) - offset for t in time]
+cur_time = dt_time[time_idx]
+
+print(lats)
+plt.scatter(lats, air)
+plt.show()
+
 #
 #
 

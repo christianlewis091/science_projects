@@ -73,6 +73,8 @@ reference1.sort_values(by=['Decimal_date'], inplace=True)
 # reference1.to_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/from_reference1/reference1.xlsx')
 # changing output location to final place Dec 4, 2024
 reference1.to_excel('C:/Users\clewis\IdeaProjects\GNS\soar_tree_rings\output_EGU_REVIEW\Data_Files/reference1.xlsx')
+
+
 """
 I'm currently in the writing phase of the paper, and want to know: why did we smooth? The asnwer is "to get rid of the scatter"
 But why is there scatter? 

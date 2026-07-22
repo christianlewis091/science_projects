@@ -30,14 +30,14 @@ import cartopy.crs as ccrs
 import cartopy.feature as cf
 
 # read in the data from the previous .py files
-df = pd.read_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_EGU_REVIEW/Data_Files/samples_with_references10000.xlsx')
+df = pd.read_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_EGU_REVIEW/Data_Files/FINAL_DATA_JAN3_2025/samples_with_references10000.xlsx')
 print(len(df))
 
 df = df.loc[df['Site'] != 'Macquarie_Isl.'] # REMOVE IF WANT TO MAKE A CMP TO MQA COMPARISON PLOT LATER
 
 df = df.sort_values(by=['DecimalDate'])
-ref2 = pd.read_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_EGU_REVIEW/Data_Files/harmonized_dataset.xlsx')
-ref1 = pd.read_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_EGU_REVIEW/Data_Files/reference1.xlsx')
+ref2 = pd.read_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_EGU_REVIEW/Data_Files/FINAL_DATA_JAN3_2025/harmonized_dataset.xlsx')
+ref1 = pd.read_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_EGU_REVIEW/Data_Files/FINAL_DATA_JAN3_2025/reference1.xlsx')
 bhdcgo = pd.read_excel(r'H:\Science\Datasets\CGOvBHD.xlsx')
 
 # ensure all data are sliced for after 1980.
@@ -200,7 +200,6 @@ Update: The above section is not valid because we are only including Tree Rings 
 # renaming columns as a workaround for removing the above code block
 df = df.rename(columns={'∆14C':'D14C_1'})
 df = df.rename(columns = {'∆14Cerr':'weightedstderr_D14C_1'})
-
 
 """
 How is the data when viewed relative to reference 2 and reference 3? 
@@ -368,7 +367,7 @@ for i in range(0, len(locs2)):
     region_array.append("NZ")
 
 results_array = pd.DataFrame({"Site": site_array, "Region": region_array, "Lat": lat_array, "Mean": mean_array, "Std": std_array, "F_B": testrat_arr, "F_B_error": testrat_err_arr})
-results_array.to_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_EGU_REVIEW/Data_Files/summary_means_Dec4_24.xlsx')
+results_array.to_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_EGU_REVIEW/Data_Files/summary_means_March17_2025.xlsx')
 
 """
 NOW CREATE FIGURE 2
@@ -553,8 +552,8 @@ ch1_y = np.array(ch1_y)
 slope, intercept, rvalue, pvalue, stderr = stats.linregress(ch1_x, ch1_y)
 sslope, sintercept, srvalue, spvalue, sstderr = stats.linregress(nz1_x, nz1_y)
 
-print("ChileMEANS: y=%.3fx+%.3f\R$^2$=%.3f"%(slope, intercept,rvalue**2))
-print("NZMEANS: y=%.3fx+%.3f\R$^2$=%.3f"%(sslope, sintercept,srvalue**2))
+print("ChileMEANS: y=%.3fx+%.3f\R$^2$=%.3f__%.3f"%(slope, intercept,rvalue**2, pvalue))
+print("NZMEANS: y=%.3fx+%.3f\R$^2$=%.3f__%.3f"%(sslope, sintercept,srvalue**2, spvalue))
 
 # what is the CHILE_MEAN_regresiion without Monte Tarn?
 ch2 =  results_array.loc[(results_array['Region'] == 'Chile') & (results_array['Site'] != 'Monte Tarn, Punta Arenas, CH')]
@@ -608,6 +607,61 @@ plt.savefig(
     f'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_EGU_REVIEW/Images_and_Figures/main_analysis/New_Figure3.png',
     dpi=300, bbox_inches="tight")
 plt.close()
+
+
+"""
+Reviewer3 Question about error bars
+"""
+
+fig = plt.figure(figsize=(8, 8))
+gs = gridspec.GridSpec(4, 4)
+gs.update(wspace=1, hspace=0.25)
+
+xtr_subsplot = fig.add_subplot(gs[0:2, 0:4])
+chile1 = results_array.loc[results_array['Region'] == 'Chile']
+for i in range(0, len(chile1)):
+    slice = chile1.loc[chile1['Site'] == str(locs1[i])].reset_index(drop=True)  # grab the first data to plot, based on location
+    plt.errorbar(slice['Lat'], slice['Mean'], slice['Std'], markersize = size1, elinewidth=1, capsize=2, alpha=1, label=f"{str(slice['Site'])}", ls='none', fmt=markers[i], color=colors[i], ecolor=colors[i], markeredgecolor='black')
+    plt.plot(ch1_x, slope*ch1_x+intercept, color='gray', alpha=0.05)
+
+    # add plot of whole data
+    slice = chile.loc[chile['Site'] == str(locs1[i])].reset_index(drop=True)  # grab the first data to plot, based on location
+    plt.scatter(slice['Lat'], slice['r3_diff_trend'], color=colors[i], marker=markers[i], alpha=0.1)
+
+plt.xlim(-60, -35)
+plt.ylim(-8, 8)
+plt.xticks([], [])
+plt.axhline(0, color='black', linewidth = 0.5)
+plt.ylabel('Mean \u0394\u0394$^1$$^4$CO$_2$ (\u2030)')
+plt.text(-60+2, 7, '[A] Chile', horizontalalignment='center', verticalalignment='center', fontweight="bold")
+
+xtr_subsplot = fig.add_subplot(gs[2:4, 0:4])
+chile1 = results_array.loc[results_array['Region'] == 'NZ']
+for i in range(0, len(chile1)):
+    slice = chile1.loc[chile1['Site'] == str(locs2[i])].reset_index(drop=True)  # grab the first data to plot, based on location
+    label = slice['Site']
+    plt.errorbar(slice['Lat'], slice['Mean'], slice['Std'], markersize = size1, elinewidth=1, capsize=2, alpha=1, label=label, ls='none', fmt=markers[i], color=colors[i], ecolor=colors[i], markeredgecolor='black')
+    plt.plot(nz1_x, sslope*nz1_x+sintercept, color='gray', alpha=0.05)
+
+    # add plot of whole data
+    slice = nz.loc[nz['Site'] == str(locs2[i])].reset_index(drop=True)  # grab the first data to plot, based on location
+    plt.scatter(slice['Lat'], slice['r3_diff_trend'], color=colors[i], marker=markers[i], alpha=0.1)
+
+
+plt.xlim(-60, -35)
+plt.ylim(-8, 8)
+plt.axhline(0, color='black', linewidth = 0.5)
+plt.ylabel('Mean \u0394\u0394$^1$$^4$CO$_2$ (\u2030)')
+plt.xlabel('Latitude (N)')
+plt.text(-60+3.5, 7, '[B] New Zealand', horizontalalignment='center', verticalalignment='center', fontweight="bold")
+
+# plt.savefig('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/main_analysis/MainFig2.5.png',
+#             dpi=300, bbox_inches="tight")
+plt.savefig(
+    f'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_EGU_REVIEW/Images_and_Figures/main_analysis/Reviewer3_questionabouterrorbars.png',
+    dpi=300, bbox_inches="tight")
+plt.close()
+
 
 
 """
@@ -677,6 +731,36 @@ plt.savefig(
     f'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_EGU_REVIEW/Images_and_Figures/main_analysis/Navarino_SuppFig.png',
     dpi=300, bbox_inches="tight")
 plt.close()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

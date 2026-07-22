@@ -149,7 +149,6 @@ def cchdo_cleaning():
       f'Lat ranges from {np.min(cchdo["LATITUDE"].astype(float))} to {np.max(cchdo["LATITUDE"].astype(float))}\n'
       )
 
-# TODO
 """
 When checking via the map, I found a lot of duplicate GLODAP CCHDO cruises that WERE duplicates and not captured here. I may be better off just dealing with it manually...
 Make one map per year, make sure nothing looks crazy
@@ -252,11 +251,129 @@ def map_check():
                     dpi=300, bbox_inches="tight")
         plt.close()
 
+def map_check_16to19():
+    df = pd.read_csv(f'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings_paper2/output_V1/dataset_generation_v1/cchdo_glodap_merged.csv')
+    # years = np.unique(df['Date_sliced'].astype(float))
+    years = [2016., 2017., 2018., 2019.]
+
+    # Loop through the years and plot maps in each subplot
+    for i in range(0, len(years)):
+        plt.figure(figsize=(10, 10))
+        ax = plt.axes(projection=ccrs.Orthographic(central_longitude=-155, central_latitude=-90))
+        ax.add_feature(cf.OCEAN)
+        ax.add_feature(cf.LAND, edgecolor='black')
+        ax.gridlines()
+        ax.set_title(f"Year: {years[i]}", fontsize=8)  # Add year as title to each subplot
+        ax.set_global()
 
 
+        this_year_cchdo = df.loc[(df['Date_sliced'] == years[i]) & (df['Origin'] == 'CCHDO')]
+        c_c = np.unique(this_year_cchdo['G2expocode'])
+        for j in range(0, len(c_c)):
+            this_cruise = this_year_cchdo.loc[this_year_cchdo['G2expocode'] == c_c[j]]
+            ax.scatter(this_cruise['G2longitude'].values, this_cruise['G2latitude'].values, transform=ccrs.PlateCarree(), label=f'CCHDO_{c_c[j]}')  # Data is in lat/lon format))
 
 
+        this_year_glodap = df.loc[(df['Date_sliced'] == years[i]) & (df['Origin'] == 'GLODAP')]
+        g_c = np.unique(this_year_glodap['G2expocode'])
+        for k in range(0, len(g_c)):
+            this_cruise = this_year_glodap.loc[this_year_glodap['G2expocode'] == g_c[k]]
+            ax.scatter(this_cruise['G2longitude'].values, this_cruise['G2latitude'].values, transform=ccrs.PlateCarree(), label=f'GLODAP_{g_c[k]}')  # Data is in lat/lon format))
 
+        # Adjust layout for better spacing
+        plt.tight_layout()
+        ax.legend()
+        plt.savefig(f'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings_paper2/output_V1/dataset_generation_v1/map_check_2/second_check{years[i]}.png',
+                    dpi=300, bbox_inches="tight")
+        plt.close()
+
+def map_check_16to19_part2(year):
+    df = pd.read_csv(f'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings_paper2/output_V1/dataset_generation_v1/cchdo_glodap_merged.csv')
+    # years = np.unique(df['Date_sliced'].astype(float))
+
+    this_year = df.loc[(df['Date_sliced'] == year)]
+    codes = np.unique(this_year['G2expocode'])
+    for j in range(0, len(codes)):
+        this_cruise = this_year.loc[this_year['G2expocode'] == codes[j]]
+        origin_i = np.unique(this_cruise['Origin'])
+
+        plt.figure(figsize=(10, 10))
+        ax = plt.axes(projection=ccrs.Orthographic(central_longitude=-155, central_latitude=-90))
+        ax.add_feature(cf.OCEAN)
+        ax.add_feature(cf.LAND, edgecolor='black')
+        ax.gridlines()
+        ax.set_title(f"Year: {year}, {origin_i}, {codes[j]}", fontsize=8)  # Add year as title to each subplot
+        ax.set_global()
+        ax.scatter(this_cruise['G2longitude'].values, this_cruise['G2latitude'].values, transform=ccrs.PlateCarree())  # Data is in lat/lon format))
+        plt.show()
+
+def clean_merged_file_from_duplicate_CCHDO():
+    df = pd.read_csv(f'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings_paper2/output_V1/dataset_generation_v1/cchdo_glodap_merged.csv')
+    df['KEEP_REMOVE'] = 'KEEP' # set initial condition for all to KEEP
+    df.loc[df['Origin'] == 'CCHDO', 'KEEP_REMOVE'] = 'REMOVE' # set all CCHDO to remove
+    cchdo_keeps = ["096U20160426",
+                   "320620170703",
+                   "320620170820",
+                   "096U20180111",
+                   "320620180309",
+                   "33RO20180423",
+                   "325020190403"]
+    df.loc[df['G2expocode'].isin(cchdo_keeps), 'KEEP_REMOVE'] = 'KEEP'
+    test = df.loc[(df['Origin'] == 'CCHDO') & (df['KEEP_REMOVE'] == 'KEEP')]
+
+    final = df.loc[df['KEEP_REMOVE'] == 'KEEP']
+    final.to_csv(f'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings_paper2/output_V1/dataset_generation_v1/cchdo_glodap_merged_FINAL.csv')
+
+    # create a cleaned list of data used
+    # print(final.columns)
+    final_for_list = final[['Date_sliced', 'G2expocode','Origin']]
+    final_for_list = final_for_list.drop_duplicates(subset='G2expocode')
+    final_for_list.to_csv(f'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings_paper2/output_V1/dataset_generation_v1/cchdo_glodap_merged_FINAL_expocodelist.csv')
+
+def final_map_check():
+    """
+    # Reads merged data file from above. Look through each year, find where there are duplicate cruises
+
+    Args:
+        None
+
+    Returns:
+        merged dataset of GLODAP and CCHDO
+    """
+    df = pd.read_csv(f'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings_paper2/output_V1/dataset_generation_v1/cchdo_glodap_merged_FINAL.csv')
+    years = np.unique(df['Date_sliced'].astype(float))
+
+    # Loop through the years and plot maps in each subplot
+    for i in range(0, len(years)):
+        plt.figure(figsize=(10, 10))
+        ax = plt.axes(projection=ccrs.Orthographic(central_longitude=-155, central_latitude=-90))
+
+        this_year_cchdo = df.loc[(df['Date_sliced'] == years[i].astype(float)) & (df['Origin'] == 'CCHDO')]
+        c_c = np.unique(this_year_cchdo['G2expocode'])
+
+
+        this_year_glodap = df.loc[(df['Date_sliced'] == years[i].astype(float)) & (df['Origin'] == 'GLODAP')]
+        g_c = np.unique(this_year_glodap['G2expocode'])
+
+
+        ax.add_feature(cf.OCEAN)
+        ax.add_feature(cf.LAND, edgecolor='black')
+        ax.gridlines()
+        ax.set_title(f"Year: {years[i]}", fontsize=8)  # Add year as title to each subplot
+
+        ax.scatter(this_year_cchdo['G2longitude'].values, this_year_cchdo['G2latitude'].values, transform=ccrs.PlateCarree(), label='CCHDO')  # Data is in lat/lon format))
+        ax.scatter(this_year_glodap['G2longitude'].values, this_year_glodap['G2latitude'].values, transform=ccrs.PlateCarree(), label='GLODAP')  # Data is in lat/lon format))
+        ax.set_global()
+        ax.legend()
+        print()
+        print(f"Year is {years[i]}")
+        print(f"This years CCHDO cruises: {c_c}")
+        print(f"This years glodap cruises: {g_c}")
+        # Adjust layout for better spacing
+        plt.tight_layout()
+        plt.savefig(f'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings_paper2/output_V1/dataset_generation_v1/final_map_check/{years[i]}.png',
+                    dpi=300, bbox_inches="tight")
+        plt.close()
 
 
 

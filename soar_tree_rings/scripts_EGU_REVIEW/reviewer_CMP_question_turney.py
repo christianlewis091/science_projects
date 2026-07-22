@@ -37,9 +37,10 @@ samples = samples.loc[samples['DecimalDate'] > 1980].reset_index(drop=True)
 # will add Heidelberg data now, and remove before main plots.
 mcq = pd.read_excel('H:/Science/Datasets/Turney2018.xlsx', comment='#')
 mcq = mcq.loc[mcq['Year'] > 1979]
-
-
 mcq = mcq.rename(columns={'location': 'Site', 'Year': 'DecimalDate', '1sigma':'∆14Cerr','14C':'∆14C'})
+
+# TODO COMMENT LINE BELOW OUT LATER! JUST A QUICK TEST
+# mcq['DecimalDate'] = mcq['DecimalDate'] -1 # Checking how our data match if Turney has ring coutnign error
 samples = pd.concat([samples, mcq])
 # samples.to_excel('C:/Users\clewis\IdeaProjects\GNS\soar_tree_rings\output_EGU_REVIEW\Data_Files/turney2018_comp/concat.xlsx')
 
@@ -51,7 +52,7 @@ ref1 = pd.read_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_EG
 output_xvals = pd.concat([ref2['Decimal_date'], ref1['Decimal_date'], samples['DecimalDate']]).reset_index(drop=True)
 output_xvals = pd.DataFrame({'x': output_xvals}).sort_values(by=['x'], ascending=True).reset_index(drop=True)
 
-n = 1000  # set the amount of times the code will iterate (set to 10,000 once everything is final)
+n = 10  # set the amount of times the code will iterate (set to 10,000 once everything is final)
 cutoff = 667  # FFT filter cutoff
 #
 # """
@@ -96,8 +97,6 @@ for i in range(0, len(samples)):
 samples['D14C_ref3t_mean'] = D14C_ref3t_mean
 samples['D14C_ref3t_std'] = D14C_ref3t_std
 
-samples.to_excel('C:/Users\clewis\IdeaProjects\GNS\soar_tree_rings\output_EGU_REVIEW\Data_Files/turney2018_comp/line96.xlsx')
-
 samples = samples.drop_duplicates().reset_index(drop=True)
 
 
@@ -128,10 +127,11 @@ samples['r3_diff_trend_errprop'] = np.sqrt(samples['weightedstderr_D14C_1'] ** 2
 mcq = samples.loc[samples['Site'] == 'Campbell Island, Turney']
 cam = samples.loc[samples['Site'] == 'Campbell Island, NZ']
 
-
 ax2.errorbar(mcq['DecimalDate'], mcq['D14C_1'], yerr=mcq['weightedstderr_D14C_1'], color=color_mcq, marker='o', label='Campbell Island, (Turney et al., 2018)')
 ax2.errorbar(cam['DecimalDate'], cam['D14C_1'], yerr=cam['weightedstderr_D14C_1'], color=color_cam, marker='D', label='Campbell Island', alpha=0.7)
-# ax2.set_xlim(1980, 2020)
+ax2.plot(samples['DecimalDate'], samples['D14C_ref3t_mean'], alpha=0.5)
+
+ax2.set_xlim(1980, 2020)
 # ax2.set_ylim(62, 145)
 ax2.set_ylabel('\u0394$^1$$^4$CO$_2$ (\u2030)')
 
@@ -150,11 +150,11 @@ print(f"Mean DD14C for this work for Campbell Island is {np.mean(cam['r3_diff_tr
 
 
 ax2.legend()
-plt.savefig(
-    f'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_EGU_REVIEW/Images_and_Figures/turney2018_comparison/cmp_turney.png',
-    dpi=300, bbox_inches="tight")
-plt.close()
-
+# plt.savefig(
+#     f'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_EGU_REVIEW/Images_and_Figures/turney2018_comparison/cmp_turney_QUICKTESTDONTUSE.png',
+#     dpi=300, bbox_inches="tight")
+# plt.close()
+plt.show()
 
 
 

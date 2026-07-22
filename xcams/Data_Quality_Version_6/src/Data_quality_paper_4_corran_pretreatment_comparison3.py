@@ -44,7 +44,11 @@ import matplotlib.pyplot as plt
 #         🌑     .      .      .     🛰️
 #    .      .      .      .      .      .
 # """
+
+
 df = pd.read_excel(rf"C:\Users\clewis\IdeaProjects\GNS\xcams\Data_Quality_Version_6\data\TreeRingRepeats_merged.xlsx")
+# checking to see if my data matches Jocelyn's
+# df = pd.read_excel(rf"C:\Users\clewis\IdeaProjects\GNS\xcams\Data_Quality_Version_6\data\RachelTreeRingReplicates_forcheck.xlsx")
 df = df.rename(columns={'Ratio to standard': 'RTS_corrected',
                         'Ratio to standard error': 'RTS_corrected_error'})
 
@@ -91,25 +95,6 @@ r_counts.to_excel(
     index=False
 )
 
-
-# # how many of each R?
-# # print(r_counts)
-
-# # drop all that have only 1 measurement
-# single_rs = r_counts.loc[r_counts['length'] == 1, 'R']
-# df_filtered = df[~df['R'].isin(single_rs)]
-
-# # check it worked:
-# r_counts = (
-#     df_filtered.groupby('R')
-#       .size()
-#       .reset_index(name='length')
-# )
-# # print(r_counts)
-
-# # drop the bad kings crescent replicate: 
-# df = df.loc[df['Samples::Sample ID'] != 'KNG52-long-R31']
-
 # """
 #         .      .      .      .      .      .
 #    .       🚀        .      .       🌍      .
@@ -128,21 +113,14 @@ def weighted_mean(rts_corrected, rts_corrected_error):
     wmean = wmean_num / wmean_dem
     return wmean
 
-def residual(rts_corrected, wm, rts_corrected_error):
-    residual = (rts_corrected - wm) / rts_corrected_error
-    return residual
-
-def rts_to_permille_for_errors(rts, colldate):
-    rts_to_FM  = (np.sqrt(rts**2)/0.95)*0.98780499
-    FM_to_permille = 1000*(rts_to_FM*np.exp((1950-colldate)/8267))
-    return FM_to_permille
-
-
 rs = np.unique(df['R'])
+print(rs)
+print(len(df))
 k = len(rs) # number of materials we're using for pooled statistics
 print(k)
 df['wmean'] = df.groupby('R')['RTS_corrected'].transform(lambda x: weighted_mean(df.loc[x.index, 'RTS_corrected'], df.loc[x.index, 'RTS_corrected_error']))
 
+df['wmean_FM'] = df.groupby('R')['AMS Submission Results Complete::F_corrected_normed'].transform(lambda x: weighted_mean(df.loc[x.index, 'AMS Submission Results Complete::F_corrected_normed'], df.loc[x.index, 'AMS Submission Results Complete::F_corrected_normed_error']))
 
 """
 Calculate chi2 reduced
@@ -151,5 +129,33 @@ chi2_red_num = np.sum((df['RTS_corrected']-df['wmean'])**2/df['RTS_corrected_err
 chi2_red_denom = len(df)-k # subtract number of groups in degrees of freedom calc.
 chi2_red = chi2_red_num/chi2_red_denom
 print(chi2_red)
+
+term1 = np.nanmean(df['RTS_corrected_error']/df['RTS_corrected']) 
+term2 = np.sqrt(chi2_red - 1)
+
+sigbw = term1*term2
+print(sigbw)
+
+
+"""
+We've also done this with the tree rings that are modern, 
+We did 2-3 replicates of tree rings and we get the same answer for sigbw. 
+
+Authors edits: 
+Kilho
+Jenny and Albert (now @ )
+remove TF
+
+Add acknmowledgements
+"""
+
+"""
+calculate in FM
+"""
+
+# chi2_red_num = np.sum((df['AMS Submission Results Complete::F_corrected_normed']-df['wmean_FM'])**2/df['AMS Submission Results Complete::F_corrected_normed_error']**2)
+# chi2_red_denom = len(df)-k # subtract number of groups in degrees of freedom calc.
+# chi2_red = chi2_red_num/chi2_red_denom
+# print(chi2_red)
 
 

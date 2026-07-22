@@ -41,21 +41,6 @@ dic.loc[(dic['Station'].isin(x19)), 'FileName'] = 'sfcs2505_dbt019_01ctd'
 ctd = ctd.rename(columns={"depSM":"Depth"})
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 results = []
 
 for i in range(len(dic)):

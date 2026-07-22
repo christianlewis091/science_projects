@@ -7,8 +7,9 @@ October 6, 2022
 This code looks at each of the SOAR Tree Ring sites from Chile and New Zealand that was analyzed here at the Rafter lab,
 and tries to find where the bad ring counts are. At the end, two files are created, one that includes the flags,
 and labels why they are flagged. The second removes all the flagged data, leaving only the "cleaned" data.
-
 """
+
+
 import matplotlib as mpl
 import numpy as np
 import pandas as pd
@@ -25,6 +26,7 @@ mpl.rcParams['pdf.fonttype'] = 42
 mpl.rcParams['font.size'] = 10
 
 df = pd.read_excel(r'H:\Science\Datasets\SOARTreeRingData2022-02-01_August_1_2024.xlsx', comment='#')  # read in the Tree Ring data. Pene's data from tree_rings_second_check was manually added to this file before read-in.
+
 """
 August 5, 2024
 One of the comments I am currently dealing with in the fine tuning stage is that the site names need to be changed. for instance, 17 Nikau St Eastbourne is someone's address, 
@@ -109,15 +111,15 @@ for i in range(0, len(sites)):
     plt.xlabel('Date', fontsize=14)
     plt.title(f'{sites[i]}')
     plt.ylabel('\u0394$^1$$^4$CO$_2$ (\u2030)', fontsize=14)  # label the y axis
-    plt.savefig(
-        f'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/from_tree_ring_analysis/Fixing_in_Jan2024/unfiltered_plots/{sites[i]}.png', dpi=300, bbox_inches="tight")
-    # changing output location for final checks
-    plt.savefig(
-        f'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_EGU_REVIEW/Images_and_Figures/tree_ring_analysis/unfiltered_plots/{sites[i]}.png', dpi=300, bbox_inches="tight")
+    # plt.savefig(
+    #     f'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/from_tree_ring_analysis/Fixing_in_Jan2024/unfiltered_plots/{sites[i]}.png', dpi=300, bbox_inches="tight")
+    # # changing output location for final checks
+    # plt.savefig(
+    #     f'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_EGU_REVIEW/Images_and_Figures/tree_ring_analysis/unfiltered_plots/{sites[i]}.png', dpi=300, bbox_inches="tight")
+    # plt.close()
+    # plt.show()
     plt.close()
-
 # add flags to those samples that look bad.
-
 df['CBL_flag'] = '...'
 df.loc[(df['C14Flag'] != '...'), 'CBL_flag'] = 'Already flagged by JCT in original database.'
 df.loc[(df['Site'] == "Bahia San Pedro, CH") & (df['DecimalDate'] <= 2005), 'CBL_flag'] = 'REMOVED FROM ANALYSIS: Tree 1 and Tree 2 deviate before 2005. Therefore I am removing all data < 2005'
@@ -166,9 +168,10 @@ for i in range(0, len(sites)):
         f'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/from_tree_ring_analysis/Fixing_in_Jan2024/cleaned_plots/{sites[i]}.png',
         dpi=300, bbox_inches="tight")
     # changing output location for final checks
-    plt.savefig(
-        f'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_EGU_REVIEW/Images_and_Figures/tree_ring_analysis/cleaned_plots/{sites[i]}.png', dpi=300, bbox_inches="tight")
-    plt.close()
+    plt.show()
+    # plt.savefig(
+    #     f'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_EGU_REVIEW/Images_and_Figures/tree_ring_analysis/cleaned_plots/{sites[i]}.png', dpi=300, bbox_inches="tight")
+    # plt.close()
 
 """
 August 5, 2024 JCT wants a side by side plot of Bahia San Pedro "Rachel had a nice figure that showed the difference between the two cores.  You could add that as a second panel below the figure you currently have.
@@ -221,5 +224,4 @@ plt.savefig(
     f'C:/Users\clewis\IdeaProjects\GNS\soar_tree_rings\output_EGU_REVIEW\Images_and_Figures/tree_ring_analysis\cleaned_plots/Bahia_sidebar.png',
     dpi=300, bbox_inches="tight")
 plt.close()
-
 

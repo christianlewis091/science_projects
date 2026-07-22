@@ -135,7 +135,7 @@ import pandas as pd
 from matplotlib.gridspec import GridSpec
 
 # Load data
-df = pd.read_excel(r"I:\XCAMS\4_maintenance\02_SNICS ion source\SNICS OPENINGS\SORX reports\2026\April_12_2026\Pumpdowns_April13.xlsx", comment='#')
+df = pd.read_excel(r"I:\XCAMS\4_maintenance\02_SNICS ion source\SNICS OPENINGS\SORX reports\2026\June_25_2026\Pumpdowns_June25_2026.xlsx", comment='#')
 print(df.columns)
 
 
@@ -178,8 +178,8 @@ ax2.legend()
 
 # Show and save the plot
 plt.tight_layout()
-plt.savefig(r'I:\XCAMS\4_maintenance\02_SNICS ion source\SNICS OPENINGS\SORX reports\2026\April_12_2026/Pumpdowns.png', dpi=300, bbox_inches="tight")
-plt.show()
+plt.savefig(r'I:\XCAMS\4_maintenance\02_SNICS ion source\SNICS OPENINGS\SORX reports\2026\June_25_2026/Pumpdowns.png', dpi=300, bbox_inches="tight")
+# plt.show()
 plt.close()
 
 """

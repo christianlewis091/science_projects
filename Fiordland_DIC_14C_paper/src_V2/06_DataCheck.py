@@ -30,14 +30,6 @@ for i in range(0, len(filename_a)):
     plt.close()
 
 
-
-
-
-
-
-
-
-
 """
 old version before ctd and dic joined to one file
 """

@@ -106,6 +106,8 @@ def rts_to_permille_for_errors(rts, colldate):
     FM_to_permille = 1000*(rts_to_FM*np.exp((1950-colldate)/8267))
     return FM_to_permille
 
+
+
 def weighted_mean(rts_corrected, rts_corrected_error):
     wmean_num = np.sum(rts_corrected/rts_corrected_error**2)  #  "I:\C14Data\Data Quality Paper\AZ_V0\Fig 1.xlsx"
     wmean_dem = np.sum(1/rts_corrected_error**2)
@@ -166,8 +168,10 @@ def check_firi_length(df, comment):
 #
 # # READ IN THE DATASETS THAT WE'LL BE USING HERE!
 df = pd.read_excel(rf"C:\Users\clewis\IdeaProjects\GNS\xcams\Data_Quality_Version_6\output\Data_quality_paper_1_V6_output\13_manual_drop.xlsx", sheet_name= 'Whole Dataframe')
+print(f"Initial Read in: Is TP = 89255 present at this stage? {'Yes' if (df['TP'] == 89255).any() else 'No'}") # debugging a future script...why do future air materials come out differnt due to past data? 
 
 df = df.dropna(subset='TP') # this gets rid of empty rows that were exported (i think) due to EA combustion run number
+print(f"DropNA: Is TP = 89255 present at this stage? {'Yes' if (df['TP'] == 89255).any() else 'No'}")
 
 df_rs = np.unique(df['Job::R'])
 # check_firi_length(df, 'after import of 12_manual_plotly_Drop')
@@ -209,6 +213,7 @@ rs_of_secondaries_and_blanks = np.unique(seconds['Job::R'])
 df = df.loc[df['Job::R'].isin(rs_of_secondaries_and_blanks)]
 # print(f"Subset only including data from secondaries and blanks R numbers has length {len(df)}. This differs slightly from original import. See explanation in script.")
 df.to_excel(r"C:\Users\clewis\IdeaProjects\GNS\xcams\Data_Quality_Version_6\output\Data_quality_paper_2_V6_output/secondaries_subset.xlsx")
+print(f"Filtered for secondaries: Is TP = 89255 present at this stage? {'Yes' if (df['TP'] == 89255).any() else 'No'}")
 
 """
 We have to be doubly sure that the blanks are indeed getting 45% error. 
@@ -266,7 +271,7 @@ I'll do a special script to discuss RCM10 tests later, where I'll filter on "gra
 
 # print(f"Length before size filter is {len(df)}")
 df = df.loc[df['wtgraph'] > 0.2]
-
+print(f"Size filter: Is TP = 89255 present at this stage? {'Yes' if (df['TP'] == 89255).any() else 'No'}")
 # print(f"Length after size filter is {len(df)}")
 # check_firi_length(df, 'after size filter')
 
@@ -274,6 +279,7 @@ df = df.loc[df['wtgraph'] > 0.2]
 # print(f"Length before I say - remove those selected for removal in _1! is {len(df)}")
 df.to_excel("C:/Users\clewis\IdeaProjects\GNS/xcams\sandbox_post_April3_meeting_output/data_checks_along_the_way/pre_keepremove.xlsx")
 df = df.loc[df['Keep_Remove'] == 'Keep']
+print(f"Keep Remove: Is TP = 89255 present at this stage? {'Yes' if (df['TP'] == 89255).any() else 'No'}")
 # check_firi_length(df, 'after keep remove')
 # print(f"Length after I say - remove those selected for removal in _1! is {len(df)}")
 
@@ -304,6 +310,7 @@ THE CHUNK THAT WAS BELOW HAS BEEN MOVED TO A CLEANER INITIAL FILE IN THE 0.PY SE
 # """
 
 df = df.merge(seconds[['Job::R', 'Collection Date', 'Group','Merge Comment','Reference for Collection Date','Expected FM']], on='Job::R', how='left')
+print(f"First Merge: Is TP = 89255 present at this stage? {'Yes' if (df['TP'] == 89255).any() else 'No'}")
 # print()
 # print(f"Lets make sure we haven't lost any data after mergeing with seconds: Length after merge: {len(df)}")
 # print()
@@ -359,6 +366,7 @@ df['residual'] = residual(df['RTS_corrected'],df['wmean'],df['RTS_corrected_erro
 # we want to see the before and after flask oxalic normalization, so the data needs to be before filtering for flasks, 
 # and before the between wheel error is incorporated
 df.to_excel(rf"C:\Users\clewis\IdeaProjects\GNS/xcams\Data_Quality_Version_6\output\Data_quality_paper_2_V6_output/for_air_plot.xlsx")
+print(f"For air plot: Is TP = 89255 present at this stage? {'Yes' if (df['TP'] == 89255).any() else 'No'}")
 
 # print()
 # print(f"Length after wmean - groupby: {len(df)}")
@@ -376,6 +384,12 @@ rpo_r = ['24889/14']
 bone_r = ['26281/1']
 
 air_materials = df.loc[(df['Job::R'].isin(air_r)) & (df['AMS Timetable From Results::Standard Prep Type'] == 'FLASK')].copy()
+air_materials.to_excel(rf'I:\C14Data\C14_blank_corrections_NEW\quality_assurance\Monthly_Data_Quality_checks\script_testing/air_materials_dataqualitypaper.xlsx')
+print()
+print(f"AirMaterialsforCV (DATAFRAME): Is TP = 89255 present at this stage? {'Yes' if (df['TP'] == 89255).any() else 'No'}")
+print(f"AirMaterialsforCV (AIR MATERIAL subdf): Is TP = 89255 present at this stage? {'Yes' if (air_materials['TP'] == 89255).any() else 'No'}")
+print()
+
 inorganic_materials = df.loc[(df['Job::R'].isin(inor_r))].copy()
 water_materials = df.loc[(df['Job::R'].isin(water_r))].copy()
 organic_materials = df.loc[(df['Job::R'].isin(organic_r))].copy()
@@ -397,6 +411,7 @@ sig_bw_pm_arr = []
 for i in range(0, len(datasets)):
 
     df2 = datasets[i]  # access first subset
+
     length.append(len(df2))  # append length of data
     desc_arr.append(names[i]) # append description of data
     k_i = k[i] # edit denominator of chi2 to be n-k, where k is the number of materials. 
@@ -764,7 +779,7 @@ for i in range(0, len(datasets)):
     wmean_dem = np.sum(1/subset1['RTS_corrected_error']**2)
     wmean = wmean_num / wmean_dem
     wmean_arr.append(wmean)
-    print(f'{names[i]}, {wmean}')
+    # print(f'{names[i]}, {wmean}')
 
     sigma_r = wmean*CV_r
     sigma_r_arr.append(sigma_r)
@@ -935,7 +950,7 @@ output_R_specific = pd.DataFrame({
                         'Average precision for ind cathode': av_prec_arr,
                         })
 
-print(av_prec_arr)
+# print(av_prec_arr)
 
 # NOW RUN SOME T-TESTS BEFORE OUTPUTTING THE RESULTS!
 results_lines = []
@@ -987,3 +1002,4 @@ with pd.ExcelWriter(output_dir, engine="openpyxl", mode="w") as writer:
     output_R_specific.to_excel(writer, sheet_name="Secondaries Statistics", index=False)
     results_df.to_excel(writer, sheet_name="T-test results", index=False)
 
+print(f"For air plot: Is TP = 89255 present at this stage? {'Yes' if (df['TP'] == 89255).any() else 'No'}")

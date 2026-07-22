@@ -28,13 +28,11 @@ df1 = df1.rename(columns={"Latitude_N_decimal": "Lat N",
 df2 = df2[['Station', 'Site', 'Date (UTC)', 'Time (UTC)',
            'Lat N', 'Lon E', 'Niskin', 'Depth', 'Notes ', 'Sound',
            'Samples::Sample Description', 'TW', 'Date Run',
-           'Description', 'Fraction dated', 'R_number', 'NZA', 'CRA', 'CRA error',
+           'Description', 'Fraction dated', 'R_number', 'TP', 'CRA', 'CRA error',
            'delta13C_IRMS', 'delta13C_IRMS_Error', 'd13C source',
            'F_corrected_normed', 'F_corrected_normed_error', 'Lab comments',
            'Pretreatment description', 'DELTA14C', 'DELTA14C_Error',
            'Collection date','EXPOCODE']]
-
-df2 = df2.rename(columns={"NZA":"TP"})
 
 df3 = df3[['delta13C_IRMS', 'delta13C_IRMS_Error', 'DELTA14C',
            'DELTA14C_Error', 'F_corrected_normed', 'F_corrected_normed_error',

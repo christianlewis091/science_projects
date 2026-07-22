@@ -27,6 +27,7 @@ import cartopy.feature as cf
 import matplotlib.gridspec as gridspec
 from scipy import stats
 from mpl_toolkits.axes_grid1.inset_locator import inset_axes
+import statsmodels.api as sm
 
 """
 Functions that appear in the script will be described in the frist section here, below
@@ -407,11 +408,29 @@ mcq = mcq[['#location', 'Average of Dates', 'D14C','1sigma_error']]
 mcq = mcq.rename(columns={'#location': 'Site', 'Average of Dates': 'DecimalDate', '1sigma_error':'∆14Cerr','D14C':'∆14C'})
 samples = pd.concat([samples, mcq])
 
+# also add neumayer to satisfy R1 question
+neu = pd.read_excel('H:/Science/Datasets/heidelberg_neumayer.xlsx', sheet_name='DataOnly')
+neu = neu.dropna(subset='D14C')
+res = []
+# need to convert MCQ dates to decimal dates
+for i in range(0, len(neu)):
+    row = neu.iloc[i]
+    date_string = str(row['DecimalDate'])
+    date_string = date_string[:10]
+    date_object = datetime.strptime(date_string, '%Y-%m-%d')
+    decimal_date = date_object.year + (date_object.timetuple().tm_yday - 1) / 365.25
+    res.append(decimal_date)
+neu['DecimalDate'] = res
+neu = neu[['#location', 'DecimalDate', 'D14C','weightedstderr_D14C']]
+neu = neu.rename(columns={'#location': 'Site', 'weightedstderr_D14C':'∆14Cerr','D14C':'∆14C'})
+samples = pd.concat([samples, neu])
+
 # Also add Turney's data and adjust so it fits the form of our dataframe
 ct = pd.read_excel('H:/Science/Datasets/Turney2018.xlsx', comment='#')
 ct = ct.loc[ct['Year'] > 1979]
 ct = ct.rename(columns={'location': 'Site', 'Year': 'DecimalDate', '1sigma':'∆14Cerr','14C':'∆14C'})
 samples = pd.concat([samples, ct])
+
 
 # Now we're ready to start smoothing the curve so we can interface the samples with the SHB. In past code, I've re-loaded reference1 and called it ref1
 # lets simply rename it now. In the past, I've also been using the "smooth" and "trend" version of CCGCRV, but we only use "trend" in the end, so I'm going
@@ -422,7 +441,7 @@ ref1 = reference1
 output_xvals = pd.concat([ref1['Decimal_date'], samples['DecimalDate']]).reset_index(drop=True)
 output_xvals = pd.DataFrame({'x': output_xvals}).sort_values(by=['x'], ascending=True).reset_index(drop=True)
 
-n = 5  # set the amount of times the code will iterate (set to 10,000 once everything is final)
+n = 1000  # set the amount of times the code will iterate (set to 10,000 once everything is final)
 cutoff = 667  # FFT filter cutoff
 
 # an important point is that, in the previous years we had been trying loads of different iterations for SHB.
@@ -801,6 +820,7 @@ print("NZ: y=%.3fx+%.3f\R$^2$=%.3f"%(sslope, sintercept,srvalue**2))
 plt.savefig(
     f'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_EGU_pruned/New_Figure2.png',
     dpi=300, bbox_inches="tight")
+plt.close()
 
 nz1 =  results_array.loc[results_array['Region'] == 'NZ']
 nz1_x = nz1['Lat']
@@ -874,12 +894,273 @@ plt.savefig(
     dpi=300, bbox_inches="tight")
 plt.close()
 
+
 """
-Stopping here as of 23:50 PM on 21/3/25. I may continue if I see fit, but the GLOPDAP and HYSPLIT are more standalone, 
-and the specific changes requested by reviewers are tackled in another subfolder which I dont need to hash out again. 
-I just wanted to ensure again for the 4th time, that this main analysis works robustly.
+Reviewer3 Question about error bars
 """
 
+fig = plt.figure(figsize=(8, 8))
+gs = gridspec.GridSpec(4, 4)
+gs.update(wspace=1, hspace=0.25)
+
+xtr_subsplot = fig.add_subplot(gs[0:2, 0:4])
+chile1 = results_array.loc[results_array['Region'] == 'Chile']
+for i in range(0, len(chile1)):
+    slice = chile1.loc[chile1['Site'] == str(locs1[i])].reset_index(drop=True)  # grab the first data to plot, based on location
+    plt.errorbar(slice['Lat'], slice['Mean'], slice['Std'], markersize = size1, elinewidth=1, capsize=2, alpha=1, label=f"{str(slice['Site'])}", ls='none', fmt=markers[i], color=colors[i], ecolor=colors[i], markeredgecolor='black')
+    plt.plot(ch1_x, slope*ch1_x+intercept, color='gray', alpha=0.05)
+
+    # add plot of whole data
+    slice = chile.loc[chile['Site'] == str(locs1[i])].reset_index(drop=True)  # grab the first data to plot, based on location
+    plt.scatter(slice['Lat'], slice['r3_diff_trend'], color=colors[i], marker=markers[i], alpha=0.1)
+
+plt.xlim(-60, -35)
+plt.ylim(-8, 8)
+plt.xticks([], [])
+plt.axhline(0, color='black', linewidth = 0.5)
+plt.ylabel('Mean \u0394\u0394$^1$$^4$CO$_2$ (\u2030)')
+plt.text(-60+2, 7, '[A] Chile', horizontalalignment='center', verticalalignment='center', fontweight="bold")
+
+xtr_subsplot = fig.add_subplot(gs[2:4, 0:4])
+chile1 = results_array.loc[results_array['Region'] == 'NZ']
+for i in range(0, len(chile1)):
+    slice = chile1.loc[chile1['Site'] == str(locs2[i])].reset_index(drop=True)  # grab the first data to plot, based on location
+    label = slice['Site']
+    plt.errorbar(slice['Lat'], slice['Mean'], slice['Std'], markersize = size1, elinewidth=1, capsize=2, alpha=1, label=label, ls='none', fmt=markers[i], color=colors[i], ecolor=colors[i], markeredgecolor='black')
+    plt.plot(nz1_x, sslope*nz1_x+sintercept, color='gray', alpha=0.05)
+
+    # add plot of whole data
+    slice = nz.loc[nz['Site'] == str(locs2[i])].reset_index(drop=True)  # grab the first data to plot, based on location
+    plt.scatter(slice['Lat'], slice['r3_diff_trend'], color=colors[i], marker=markers[i], alpha=0.1)
+
+
+plt.xlim(-60, -35)
+plt.ylim(-8, 8)
+plt.axhline(0, color='black', linewidth = 0.5)
+plt.ylabel('Mean \u0394\u0394$^1$$^4$CO$_2$ (\u2030)')
+plt.xlabel('Latitude (N)')
+plt.text(-60+3.5, 7, '[B] New Zealand', horizontalalignment='center', verticalalignment='center', fontweight="bold")
+
+# plt.savefig('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/main_analysis/MainFig2.5.png',
+#             dpi=300, bbox_inches="tight")
+plt.savefig(
+    f'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_EGU_pruned/Reviewer3_questionabouterrorbars.png',
+    dpi=300, bbox_inches="tight")
+plt.close()
+
+
+"""
+Reviewer3 Question about error bars PART2 Confidence Intervals
+"""
+
+fig = plt.figure(figsize=(8, 8))
+gs = gridspec.GridSpec(4, 4)
+gs.update(wspace=1, hspace=0.25)
+
+xtr_subsplot = fig.add_subplot(gs[0:2, 0:4])
+
+# Add a constant for the intercept
+X = sm.add_constant(chile['Lat'])  # adds a constant column to input x
+model = sm.OLS(chile['r3_diff_trend'], X).fit()
+
+# Predict values + get confidence intervals
+predictions = model.get_prediction(X)
+pred_summary = predictions.summary_frame(alpha=0.05)  # 95% CI
+
+# Extract slope, intercept, and R²
+intercept = model.params['const']
+slope = model.params['Lat']
+r_squared = model.rsquared
+p_value = model.pvalues['Lat']
+
+# Create equation string
+equation_text = (
+    f"y = {slope:.2f}x + {intercept:.2f}\n"
+    f"$R^2$ = {r_squared:.3f}\n"
+    f"p = {p_value:.3e}"
+)
+
+# Add the text to the plot
+plt.text(0.05, 0.95, equation_text,
+         transform=plt.gca().transAxes,  # place relative to axes
+         fontsize=12, verticalalignment='top',
+         bbox=dict(boxstyle="round", facecolor="white", alpha=0.5))
+
+# Plot the regression line
+plt.plot(chile['Lat'], pred_summary['mean'], color='red', label='Trendline')
+
+plt.scatter(chile['Lat'], chile['r3_diff_trend'], color='black', alpha=0.1)
+# Plot the confidence interval
+plt.fill_between(chile['Lat'],
+                 pred_summary['mean_ci_lower'],
+                 pred_summary['mean_ci_upper'],
+                 color='red', alpha=0.3, label='95% Confidence Interval')
+
+
+plt.xlim(-60, -35)
+plt.ylim(-8, 8)
+plt.xticks([], [])
+plt.axhline(0, color='black', linewidth = 0.5)
+plt.ylabel('Mean \u0394\u0394$^1$$^4$CO$_2$ (\u2030)')
+# plt.text(-60+2, 7, '[A] Chile', horizontalalignment='center', verticalalignment='center', fontweight="bold")
+
+xtr_subsplot = fig.add_subplot(gs[2:4, 0:4])
+
+# Add a constant for the intercept
+X = sm.add_constant(nz['Lat'])  # adds a constant column to input x
+model = sm.OLS(nz['r3_diff_trend'], X).fit()
+
+# Predict values + get confidence intervals
+predictions = model.get_prediction(X)
+pred_summary = predictions.summary_frame(alpha=0.05)  # 95% CI
+
+# Extract slope, intercept, and R²
+intercept = model.params['const']
+slope = model.params['Lat']
+r_squared = model.rsquared
+p_value = model.pvalues['Lat']
+
+# Create equation string
+equation_text = (
+    f"y = {slope:.2f}x + {intercept:.2f}\n"
+    f"$R^2$ = {r_squared:.3f}\n"
+    f"p = {p_value:.3e}"
+)
+
+# Add the text to the plot
+plt.text(0.05, 0.95, equation_text,
+         transform=plt.gca().transAxes,  # place relative to axes
+         fontsize=12, verticalalignment='top',
+         bbox=dict(boxstyle="round", facecolor="white", alpha=0.5))
+
+# Plot the regression line
+plt.plot(nz['Lat'], pred_summary['mean'], color='red', label='Trendline')
+plt.scatter(nz['Lat'], nz['r3_diff_trend'], color='black', alpha=0.1)
+# Plot the confidence interval
+plt.fill_between(nz['Lat'],
+                 pred_summary['mean_ci_lower'],
+                 pred_summary['mean_ci_upper'],
+                 color='red', alpha=0.3, label='95% Confidence Interval')
+
+plt.xlim(-60, -35)
+plt.ylim(-8, 8)
+plt.axhline(0, color='black', linewidth = 0.5)
+plt.ylabel('Mean \u0394\u0394$^1$$^4$CO$_2$ (\u2030)')
+plt.xlabel('Latitude (N)')
+# plt.text(-60+3.5, 7, '[B] New Zealand', horizontalalignment='center', verticalalignment='center', fontweight="bold")
+
+# plt.savefig('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/main_analysis/MainFig2.5.png',
+#             dpi=300, bbox_inches="tight")
+plt.savefig(
+    f'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_EGU_pruned/Reviewer3_questionabouterrorbars_PART2.png',
+    dpi=300, bbox_inches="tight")
+plt.close()
+
+
+"""
+Reviewer3 Question about error bars PART2 Confidence Intervals WITH THE MEAN
+"""
+chile1 = results_array.loc[results_array['Region'] == 'Chile']
+fig = plt.figure(figsize=(8, 8))
+gs = gridspec.GridSpec(4, 4)
+gs.update(wspace=1, hspace=0.25)
+
+xtr_subsplot = fig.add_subplot(gs[0:2, 0:4])
+
+# Add a constant for the intercept
+X = sm.add_constant(chile1['Lat'])  # adds a constant column to input x
+model = sm.OLS(chile1['Mean'], X).fit()
+
+# Predict values + get confidence intervals
+predictions = model.get_prediction(X)
+pred_summary = predictions.summary_frame(alpha=0.05)  # 95% CI
+
+# Extract slope, intercept, and R²
+intercept = model.params['const']
+slope = model.params['Lat']
+r_squared = model.rsquared
+p_value = model.pvalues['Lat']
+
+# Create equation string
+equation_text = (
+    f"y = {slope:.2f}x + {intercept:.2f}\n"
+    f"$R^2$ = {r_squared:.3f}\n"
+    f"p = {p_value:.3e}"
+)
+
+# Add the text to the plot
+plt.text(0.05, 0.95, equation_text,
+         transform=plt.gca().transAxes,  # place relative to axes
+         fontsize=12, verticalalignment='top',
+         bbox=dict(boxstyle="round", facecolor="white", alpha=0.5))
+
+# Plot the regression line
+plt.plot(chile1['Lat'], pred_summary['mean'], color='red', label='Trendline')
+
+plt.errorbar(chile1['Lat'], chile1['Mean'], chile1['Std'])
+# Plot the confidence interval
+plt.fill_between(chile1['Lat'],
+                 pred_summary['mean_ci_lower'],
+                 pred_summary['mean_ci_upper'],
+                 color='red', alpha=0.3, label='95% Confidence Interval')
+
+
+plt.xlim(-60, -35)
+plt.ylim(-8, 8)
+plt.xticks([], [])
+plt.axhline(0, color='black', linewidth = 0.5)
+plt.ylabel('Mean \u0394\u0394$^1$$^4$CO$_2$ (\u2030)')
+# plt.text(-60+2, 7, '[A] Chile', horizontalalignment='center', verticalalignment='center', fontweight="bold")
+
+nz1 = results_array.loc[results_array['Region'] == 'NZ']
+xtr_subsplot = fig.add_subplot(gs[2:4, 0:4])
+
+# Add a constant for the intercept
+X = sm.add_constant(nz1['Lat'])  # adds a constant column to input x
+model = sm.OLS(nz1['Mean'], X).fit()
+
+# Predict values + get confidence intervals
+predictions = model.get_prediction(X)
+pred_summary = predictions.summary_frame(alpha=0.05)  # 95% CI
+
+# Extract slope, intercept, and R²
+intercept = model.params['const']
+slope = model.params['Lat']
+r_squared = model.rsquared
+p_value = model.pvalues['Lat']
+
+# Create equation string
+equation_text = (
+    f"y = {slope:.2f}x + {intercept:.2f}\n"
+    f"$R^2$ = {r_squared:.3f}\n"
+    f"p = {p_value:.3e}"
+)
+
+# Add the text to the plot
+plt.text(0.05, 0.95, equation_text,
+         transform=plt.gca().transAxes,  # place relative to axes
+         fontsize=12, verticalalignment='top',
+         bbox=dict(boxstyle="round", facecolor="white", alpha=0.5))
+
+# Plot the regression line
+plt.plot(nz1['Lat'], pred_summary['mean'], color='red', label='Trendline')
+plt.errorbar(nz1['Lat'], nz1['Mean'], nz1['Std'])
+# Plot the confidence interval
+plt.fill_between(nz1['Lat'],
+                 pred_summary['mean_ci_lower'],
+                 pred_summary['mean_ci_upper'],
+                 color='red', alpha=0.3, label='95% Confidence Interval')
+
+plt.xlim(-60, -35)
+plt.ylim(-8, 8)
+plt.axhline(0, color='black', linewidth = 0.5)
+plt.ylabel('Mean \u0394\u0394$^1$$^4$CO$_2$ (\u2030)')
+plt.xlabel('Latitude (N)')
+
+plt.savefig(
+    f'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_EGU_pruned/Reviewer3_questionabouterrorbars_PART2_MEAN.png',
+    dpi=300, bbox_inches="tight")
+plt.close()
 
 
 
@@ -888,6 +1169,186 @@ I just wanted to ensure again for the 4th time, that this main analysis works ro
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+"""
+The other figures I should add here are the comparisons with Campbell Island and Macquarie Island and Turney's Campbell Island. 
+This bunch of code was first made in reviewer_MCQ_question.py (in EGU_REVIEW subfolder) which was recopied and edited 
+to also test Chris Turney's data. I'll basically concat those here and make sure the plots still look right. 
+"""
+
+mcq = df.loc[df['Site'] == 'Macquarie_Isl.']
+cam = df.loc[df['Site'] == 'Campbell Island, NZ']
+cam_turn = df.loc[df['Site'] == 'Campbell Island, Turney']
+bar = df.loc[df['Site'] == 'Baring Head, NZ']
+neu = df.loc[df['Site'] == 'NMY']
+
+c = stats.ttest_ind(cam['r3_diff_trend'], mcq['r3_diff_trend'])
+print(f'Campbell Island (this work) and MCQ record? ({c})!')
+print()
+t = stats.ttest_ind(cam['r3_diff_trend'], cam_turn['r3_diff_trend'])
+print(f'Campbell Island (this work) and Turney Campbell Island ({t})!')
+
+cam_turn_snip = cam_turn.loc[(cam_turn['DecimalDate'] < 1988) | ((cam_turn['DecimalDate'] > 1991) & (cam_turn['DecimalDate'] < 2006))]
+p = stats.ttest_ind(cam['r3_diff_trend'], cam_turn_snip['r3_diff_trend'])
+print(f'Campbell Island (this work) and Turney Campbell Island when we remove 88-91 and 2006({p})!')
+
+y = stats.ttest_ind(cam['r3_diff_trend'], neu['r3_diff_trend'])
+print(f'Campbell Island (this work) and Neumayer Station? ({y})!')
+print()
+
+b = stats.ttest_ind(cam['r3_diff_trend'], bar['r3_diff_trend'])
+print(f'Campbell Island (US) and baringhead ({b})!')
+
+print()
+print(f"If the additional stations (Turney 2018) were in Figure 3, they would sit at {np.mean(cam_turn['r3_diff_trend'])} pm {np.std(cam_turn['r3_diff_trend'])}")
+print(f"If the additional stations (MCQ) were in Figure 3, they would sit at {np.mean(mcq['r3_diff_trend'])} pm {np.std(mcq['r3_diff_trend'])}")
+print(f"If the additional stations (NMY) were in Figure 3, they would sit at {np.mean(neu['r3_diff_trend'])} pm {np.std(neu['r3_diff_trend'])}")
+"""
+Is there a difference between campbell Island (this work) and MCQ record? (TtestResult(statistic=-1.063638014945704, pvalue=0.2885528903297644, df=242.0))!
+Is there a difference between campbell Island (US) and Turney Campbell Island (TtestResult(statistic=-5.089780129530666, pvalue=1.4273070018193642e-06, df=114.0))!
+
+There are two sections of the Campbell Island turney and MCQ that don't agree, between 88-91 and post 2006, how does it look if we remove them? 
+"""
+
+"""
+There are two sections of the Campbell Island turney and MCQ that don't agree, between 88-91 and post 2006, how does it look if we remove them? 
+Is there a difference between campbell Island (US) and Turney Campbell Island when we remove 88-91 and 2006: (TtestResult(statistic=-4.044972319312826, pvalue=0.00010375698291976388, df=99.0))!
+"""
+
+"""
+I keep running t-tests of campbell island with other regions, but what about Baring Head? Does the t-test report this is different from the backgorund? 
+Yes it's different! Is there a difference between campbell Island (US) and baringhead (TtestResult(statistic=-2.1350949801847277, pvalue=0.0351245562756022, df=103.0))!
+
+"""
+
+from cmcrameri import cm
+
+cmap=cm.davos
+color_mcq = cm.lapaz(0.75)  # Lighter shade from batlow
+color_cam = 'black'  # Darker shade from batlow
+color_cam_turn  = cm.lapaz(0.25)  # Darker shade from batlow
+color_neu = cm.lapaz(0.5)
+
+fig = plt.figure(figsize=(16, 10))
+gs = gridspec.GridSpec(3, 3)
+gs.update(wspace=.2, hspace=0.2)
+
+ax1 = fig.add_subplot(gs[0:2, 0], projection=ccrs.PlateCarree())
+ax2 = fig.add_subplot(gs[0, 1])
+ax3 = fig.add_subplot(gs[0, 2])
+
+# ax4 = fig.add_subplot(gs[1, 0], projection=ccrs.PlateCarree())
+ax5 = fig.add_subplot(gs[1, 1])
+ax6 = fig.add_subplot(gs[1, 2])
+
+# neumayer
+# ax4 = fig.add_subplot(gs[1, 0], projection=ccrs.PlateCarree())
+ax8 = fig.add_subplot(gs[2, 1])
+ax9 = fig.add_subplot(gs[2, 2])
+
+# copied from main analysis so the labels NZ_max/min are outdated but that OK for now
+maxlat = -55
+minlat = -45
+nz_max_lon = 171
+nz_min_lon = 158
+ax1.set_extent([nz_min_lon, nz_max_lon, minlat, maxlat], crs=ccrs.PlateCarree())  # Set map extent
+ax1.add_feature(cf.OCEAN)
+ax1.add_feature(cf.LAND, edgecolor='black')
+gl = ax1.gridlines(draw_labels=True)
+gl.top_labels = False
+gl.right_labels = False
+
+
+ax2.errorbar(cam['DecimalDate'], cam['D14C_1'], yerr=cam['weightedstderr_D14C_1'], color=color_cam, marker='D', label='Campbell Island (this work)', alpha=0.5)
+ax2.errorbar(cam_turn['DecimalDate'], cam_turn['D14C_1'], yerr=cam_turn['weightedstderr_D14C_1'], color=color_cam_turn, marker='s', label='Campbell Island, Turney et al., (2018)', alpha=0.5)
+# ax2.set_xlim(1980, 2017)
+# ax2.set_ylim(62, 145)
+ax2.set_ylabel('\u0394$^1$$^4$CO$_2$ (\u2030)')
+ax2.legend()
+
+ax3.errorbar(cam['DecimalDate'], cam['r3_diff_trend'], yerr=cam['r3_diff_trend_errprop'], color=color_cam, marker='D')
+ax3.errorbar(cam_turn['DecimalDate'], cam_turn['r3_diff_trend'], yerr=cam_turn['r3_diff_trend_errprop'], color=color_cam_turn, marker='s')
+ax3.set_ylabel('\u0394\u0394$^1$$^4$CO$_2$ (\u2030)')
+
+ax5.errorbar(cam['DecimalDate'], cam['D14C_1'], yerr=cam['weightedstderr_D14C_1'], color=color_cam, marker='D', label='Campbell Island (this work)', alpha=0.5)
+ax5.errorbar(mcq['DecimalDate'], mcq['D14C_1'], yerr=mcq['weightedstderr_D14C_1'], color=color_mcq, marker='o', label='Macquarie Island (Levin et al., 2010)', alpha=0.5)
+
+ax5.set_ylabel('\u0394$^1$$^4$CO$_2$ (\u2030)')
+ax5.legend()
+
+ax6.errorbar(mcq['DecimalDate'], mcq['r3_diff_trend'], yerr=mcq['r3_diff_trend_errprop'], color=color_mcq, marker='o')
+ax6.errorbar(cam['DecimalDate'], cam['r3_diff_trend'], yerr=cam['r3_diff_trend_errprop'], color=color_cam, marker='D')
+
+ax6.set_ylabel('\u0394\u0394$^1$$^4$CO$_2$ (\u2030)')
+
+
+ax8.errorbar(cam['DecimalDate'], cam['D14C_1'], yerr=cam['weightedstderr_D14C_1'], color=color_cam, marker='D', label='Campbell Island (this work)', alpha=0.5)
+ax8.errorbar(neu['DecimalDate'], neu['D14C_1'], yerr=neu['weightedstderr_D14C_1'], color=color_neu, marker='o', label='Macquarie Island (Levin et al., 2010)', alpha=0.5)
+
+ax8.set_ylabel('\u0394$^1$$^4$CO$_2$ (\u2030)')
+ax8.legend()
+
+ax9.errorbar(neu['DecimalDate'], neu['r3_diff_trend'], yerr=neu['r3_diff_trend_errprop'], color=color_neu, marker='o')
+ax9.errorbar(cam['DecimalDate'], cam['r3_diff_trend'], yerr=cam['r3_diff_trend_errprop'], color=color_cam, marker='D')
+
+ax9.set_ylabel('\u0394\u0394$^1$$^4$CO$_2$ (\u2030)')
+
+
+plt.savefig(
+    f'C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_EGU_pruned/cmp_cmp2_mcq_COMP.png',
+    dpi=300, bbox_inches="tight")
+plt.close()
+
+
+"""
+Stopping here as of 23:50 PM on 21/3/25. 
+This file confirms, for me, that I haven't made any errors in the analysis or plotting of the TREE RING DATA. 
+I will only run this to 1000 iterations because of computational time, but I will confirm that the output found here
+is the same as that of H:\Science\Papers\In Prep Work/2023_Lewis_SOARTreeRings\V9_Jan282025_reviewer_comments/Data_V3.xlsx
+and that this data is uploaded. 
+
+The above has been confirmed. 
+
+The HYSPLIT nd GLODAP 
+"""
+
+"""
+Navarino vs Rosales...
+"""
+
+baja = chile.loc[chile['Site'] == 'Baja Rosales, Isla Navarino, CH']
+puerto = chile.loc[chile['Site'] == 'Puerto Navarino, Isla Navarino, CH']
+
+t = stats.ttest_ind(baja['r3_diff_trend'], puerto['r3_diff_trend'])
+print(f'Campbell Island (this work) and Turney Campbell Island ({t})!')
 
 
 

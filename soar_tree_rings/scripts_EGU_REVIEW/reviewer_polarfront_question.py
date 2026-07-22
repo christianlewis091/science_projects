@@ -516,10 +516,10 @@ for cmap_name in cmcrameri_colormaps:
         plt.close()
 
 
-#
-#
 
-
+"""
+For the paper, I want to color code the fronts to make them more understandable 
+"""
 
 
 

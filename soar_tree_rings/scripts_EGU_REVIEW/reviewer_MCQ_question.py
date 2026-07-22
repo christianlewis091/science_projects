@@ -6,6 +6,10 @@ Important noets:
 Reference_to_sample_xvals.py currently includes MCQ. This means the monte carlo output DOES EXIST at the x values of MCQ dataset.
 I just need to ensure that MCQ is added onto the "sample" dataset in the "main_analysis.py".
 Mush below is copied from main_analysis.py
+
+25/3/25
+This file had an error where the data wasn't filtered past 1980, so the ttest pvalue was 0.002, indicating the data are differnt.
+After filtering post 1980, we find the data are the same.
 """
 
 import numpy
@@ -24,7 +28,7 @@ import cartopy.crs as ccrs
 import cartopy.feature as cf
 
 """
-Copy of reference_to_sample_xvals.py BUT n is set to 10
+Copy of reference_to_sample_xvals.py 
 """
 import pandas as pd
 from X_my_functions import monte_carlo_randomization_smooth
@@ -54,6 +58,7 @@ mcq['Average of Dates'] = res
 mcq = mcq[['#location', 'Average of Dates', 'D14C','1sigma_error']]
 mcq = mcq.rename(columns={'#location': 'Site', 'Average of Dates': 'DecimalDate', '1sigma_error':'∆14Cerr','D14C':'∆14C'})
 samples = pd.concat([samples, mcq])
+samples = samples.loc[samples['DecimalDate'] > 1979]
 # samples.to_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_OPEN_ACCESS/from_tree_ring_analysis/SOARTreeRingData_CBL_cleaned.xlsx')
 
 # read in the references
@@ -175,7 +180,7 @@ cmap=cm.davos
 color_mcq = cm.lapaz(0.75)  # Lighter shade from batlow
 color_cam = cm.lapaz(0.3)  # Darker shade from batlow
 
-fig = plt.figure(figsize=(24, 8))
+fig = plt.figure(figsize=(16, 4))
 gs = gridspec.GridSpec(1, 3)
 gs.update(wspace=.2, hspace=0.1)
 
@@ -202,7 +207,9 @@ gl.right_labels = False
 samples['r3_diff_trend'] = samples['D14C_1'] - samples['D14C_ref3t_mean']
 samples['r3_diff_trend_errprop'] = np.sqrt(samples['weightedstderr_D14C_1'] ** 2 + samples['D14C_ref3t_std'] ** 2)
 
+
 mcq = samples.loc[samples['Site'] == 'Macquarie_Isl.']
+samples.to_excel('C:/Users/clewis/IdeaProjects/GNS/soar_tree_rings/output_EGU_REVIEW/egu_review.xlsx')
 cam = samples.loc[samples['Site'] == 'Campbell Island, NZ']
 
 ax2.errorbar(mcq['DecimalDate'], mcq['D14C_1'], yerr=mcq['weightedstderr_D14C_1'], color=color_mcq, marker='o', label='Macquarie Island')
@@ -215,7 +222,10 @@ ax3.errorbar(mcq['DecimalDate'], mcq['r3_diff_trend'], yerr=mcq['r3_diff_trend_e
 ax3.errorbar(cam['DecimalDate'], cam['r3_diff_trend'], yerr=cam['r3_diff_trend_errprop'], color=color_cam, marker='D')
 ax3.set_ylabel('\u0394\u0394$^1$$^4$CO$_2$ (\u2030)')
 print('')
-print('Is there a difference between Campbell Island and Macquarie Island? Null Hypothesis says: theres no difference!')
+
+
+print('Is there a difference between Campbell Island and Macquarie Island? Null Hypothesis says: there groups are different!')
+print(cam)
 c = stats.ttest_ind(cam['r3_diff_trend'], mcq['r3_diff_trend'])
 print(c)
 
